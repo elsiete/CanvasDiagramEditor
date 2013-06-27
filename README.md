@@ -1,0 +1,4 @@
+CanvasDiagramEditor
+===================
+
+Simple diagram editor.
