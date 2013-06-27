@@ -30,6 +30,9 @@ namespace CanvasDiagramEditor
         private Line _line = null;
         private FrameworkElement _root = null;
 
+        private int wireCounter = 0;
+        private int andGateCounter = 4;
+
         #endregion
 
         #region Constructor
@@ -37,20 +40,6 @@ namespace CanvasDiagramEditor
         public MainWindow()
         {
             InitializeComponent();
-        }
-
-        #endregion
-
-        #region Thumb Events
-
-        private void RootElement_DragDelta(object sender, DragDeltaEventArgs e)
-        {
-            var thumb = sender as Thumb;
-
-            double dX = e.HorizontalChange;
-            double dY = e.VerticalChange;
-
-            MoveRoot(thumb, dX, dY);
         }
 
         #endregion
@@ -107,8 +96,10 @@ namespace CanvasDiagramEditor
                 Y1 = y,
                 X2 = x,
                 Y2 = y,
-                Uid = "Wire"
+                Uid = "Wire|" + wireCounter.ToString()
             };
+
+            wireCounter += 1;
 
             return line;
         }
@@ -119,8 +110,10 @@ namespace CanvasDiagramEditor
             {
                 Template = this.Resources["AndGateControlTemplateKey"] as ControlTemplate,
                 Style = this.Resources["RootThumbStyleKey"] as Style,
-                Uid = "AndGate"
+                Uid = "AndGate|" + andGateCounter.ToString()
             };
+
+            andGateCounter += 1;
 
             thumb.DragDelta += this.RootElement_DragDelta;
 
@@ -180,6 +173,75 @@ namespace CanvasDiagramEditor
 
         #endregion
 
+        #region Diagram Model
+
+        private void GenerateDiagramModel()
+        {
+            var canvas = this.DiagramCanvas;
+
+            foreach (var child in canvas.Children)
+            {
+                var element = child as FrameworkElement;
+
+                double x = Canvas.GetLeft(element);
+                double y = Canvas.GetTop(element);
+
+                if (element.Uid.StartsWith("Wire"))
+                {
+                    var line = element as Line;
+                    System.Diagnostics.Debug.Print("+{0},{1},{2},3,4", element.Uid, line.X1, line.Y1, line.X2, line.Y2);
+                }
+                else
+                {
+                    System.Diagnostics.Debug.Print("+{0},{1},{2}", element.Uid, x, y);
+                }
+
+                if (element.Tag != null)
+                {
+                    var tuples = element.Tag as List<Tuple<Line, FrameworkElement, FrameworkElement>>;
+
+                    foreach (var tuple in tuples)
+                    {
+                        var line = tuple.Item1;
+                        var start = tuple.Item2;
+                        var end = tuple.Item3;
+
+                        //System.Diagnostics.Debug.Print("-{0},{1},{2}",
+                        //    line.Uid,
+                        //    start != null ? start.Uid : "<null>",
+                        //    end != null ? end.Uid : "<null>");
+
+                        if (start != null)
+                        {
+                            // :S -> Start
+                            System.Diagnostics.Debug.Print("-{0}:S", line.Uid);
+                        }
+                        else if (end != null)
+                        {
+                            // :E -> End
+                            System.Diagnostics.Debug.Print("-{0}:E", line.Uid);
+                        }
+                    }
+                }
+            }
+        } 
+
+        #endregion
+
+        #region Thumb Events
+
+        private void RootElement_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            var thumb = sender as Thumb;
+
+            double dX = e.HorizontalChange;
+            double dY = e.VerticalChange;
+
+            MoveRoot(thumb, dX, dY);
+        }
+
+        #endregion
+
         #region Canvas Events
 
         private void Canvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -226,32 +288,8 @@ namespace CanvasDiagramEditor
 
         private void GenerateModel_Click(object sender, RoutedEventArgs e)
         {
-            var canvas = this.DiagramCanvas;
-
-            foreach (var child in canvas.Children)
-            {
-                var element = child as FrameworkElement;
-
-                System.Diagnostics.Debug.Print("-{0}",element.Uid);
-
-                if (element.Tag != null)
-                {
-                    var tuples = element.Tag as List<Tuple<Line, FrameworkElement, FrameworkElement>>;
-
-                    foreach (var tuple in tuples)
-                    {
-                        var line = tuple.Item1;
-                        var start = tuple.Item2;
-                        var end = tuple.Item3;
-
-                        System.Diagnostics.Debug.Print("  +{0},{1},{2}", 
-                            line.Uid, 
-                            start != null ? start.Uid : "<null>",
-                            end != null ? end.Uid : "<null>");
-                    }
-                }
-            }
-        } 
+            GenerateDiagramModel();
+        }
 
         #endregion
     }

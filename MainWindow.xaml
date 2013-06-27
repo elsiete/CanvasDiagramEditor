@@ -54,27 +54,27 @@
                    Template="{StaticResource AndGateControlTemplateKey}" 
                    Style="{StaticResource RootThumbStyleKey}" 
                    DragDelta="RootElement_DragDelta"
-                   x:Uid="AndGate"/>
+                   x:Uid="AndGate|0"/>
         
             <Thumb Canvas.Left="90" Canvas.Top="30" 
                    Template="{StaticResource AndGateControlTemplateKey}" 
                    Style="{StaticResource RootThumbStyleKey}" 
                    DragDelta="RootElement_DragDelta"
-                   x:Uid="AndGate"/>
+                   x:Uid="AndGate|1"/>
 
             <Thumb Canvas.Left="30" Canvas.Top="90" 
                    Template="{StaticResource AndGateControlTemplateKey}" 
                    Style="{StaticResource RootThumbStyleKey}" 
                    DragDelta="RootElement_DragDelta"
-                   x:Uid="AndGate"/>
+                   x:Uid="AndGate|2"/>
 
             <Thumb Canvas.Left="90" Canvas.Top="90" 
                    Template="{StaticResource AndGateControlTemplateKey}" 
                    Style="{StaticResource RootThumbStyleKey}" 
                    DragDelta="RootElement_DragDelta"
-                   x:Uid="AndGate"/>
+                   x:Uid="AndGate|3"/>
 
-            <!--<Line Style="{StaticResource LineStyleKey}" X1="60" Y1="45" X2="90" Y2="45" x:Uid="Wire"/>-->
+            <!--<Line Style="{StaticResource LineStyleKey}" X1="60" Y1="45" X2="90" Y2="45" x:Uid="Wire|0"/>-->
             
         </Canvas>
 
