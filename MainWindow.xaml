@@ -36,8 +36,16 @@
     </Window.Resources>
     
     <Grid>
+        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="200"/>
+        </Grid.ColumnDefinitions>
 
-        <Canvas Width="700" Height="500" Background="Black" 
+        <Canvas x:Name="DiagramCanvas"
+                Width="600" Height="500" 
+                Grid.Column="0" Grid.Row="0"
+                Background="Black" 
                 MouseLeftButtonDown="Canvas_MouseLeftButtonDown"
                 PreviewMouseLeftButtonDown="Canvas_PreviewMouseLeftButtonDown"
                 MouseMove="Canvas_MouseMove">
@@ -45,26 +53,36 @@
             <Thumb Canvas.Left="30" Canvas.Top="30" 
                    Template="{StaticResource AndGateControlTemplateKey}" 
                    Style="{StaticResource RootThumbStyleKey}" 
-                   DragDelta="RootElement_DragDelta"/>
+                   DragDelta="RootElement_DragDelta"
+                   x:Uid="AndGate"/>
         
             <Thumb Canvas.Left="90" Canvas.Top="30" 
                    Template="{StaticResource AndGateControlTemplateKey}" 
                    Style="{StaticResource RootThumbStyleKey}" 
-                   DragDelta="RootElement_DragDelta"/>
+                   DragDelta="RootElement_DragDelta"
+                   x:Uid="AndGate"/>
 
             <Thumb Canvas.Left="30" Canvas.Top="90" 
                    Template="{StaticResource AndGateControlTemplateKey}" 
                    Style="{StaticResource RootThumbStyleKey}" 
-                   DragDelta="RootElement_DragDelta"/>
+                   DragDelta="RootElement_DragDelta"
+                   x:Uid="AndGate"/>
 
             <Thumb Canvas.Left="90" Canvas.Top="90" 
                    Template="{StaticResource AndGateControlTemplateKey}" 
                    Style="{StaticResource RootThumbStyleKey}" 
-                   DragDelta="RootElement_DragDelta"/>
+                   DragDelta="RootElement_DragDelta"
+                   x:Uid="AndGate"/>
 
-            <!--<Line Style="{StaticResource LineStyleKey}" X1="60" Y1="45" X2="90" Y2="45"/>-->
+            <!--<Line Style="{StaticResource LineStyleKey}" X1="60" Y1="45" X2="90" Y2="45" x:Uid="Wire"/>-->
             
         </Canvas>
+
+        <StackPanel Grid.Column="1" Grid.Row="0">
+            
+            <Button x:Name="GenerateModel" Content="_Generate Model" Margin="2" Click="GenerateModel_Click"/>
+            
+        </StackPanel>
 
     </Grid>
 </Window>

@@ -106,7 +106,8 @@ namespace CanvasDiagramEditor
                 X1 = x,
                 Y1 = y,
                 X2 = x,
-                Y2 = y
+                Y2 = y,
+                Uid = "Wire"
             };
 
             return line;
@@ -117,7 +118,8 @@ namespace CanvasDiagramEditor
             var thumb = new Thumb()
             {
                 Template = this.Resources["AndGateControlTemplateKey"] as ControlTemplate,
-                Style = this.Resources["RootThumbStyleKey"] as Style
+                Style = this.Resources["RootThumbStyleKey"] as Style,
+                Uid = "AndGate"
             };
 
             thumb.DragDelta += this.RootElement_DragDelta;
@@ -217,6 +219,39 @@ namespace CanvasDiagramEditor
                 _line.Y2 = y;
             }
         }
+
+        #endregion
+
+        #region Button Events
+
+        private void GenerateModel_Click(object sender, RoutedEventArgs e)
+        {
+            var canvas = this.DiagramCanvas;
+
+            foreach (var child in canvas.Children)
+            {
+                var element = child as FrameworkElement;
+
+                System.Diagnostics.Debug.Print("-{0}",element.Uid);
+
+                if (element.Tag != null)
+                {
+                    var tuples = element.Tag as List<Tuple<Line, FrameworkElement, FrameworkElement>>;
+
+                    foreach (var tuple in tuples)
+                    {
+                        var line = tuple.Item1;
+                        var start = tuple.Item2;
+                        var end = tuple.Item3;
+
+                        System.Diagnostics.Debug.Print("  +{0},{1},{2}", 
+                            line.Uid, 
+                            start != null ? start.Uid : "<null>",
+                            end != null ? end.Uid : "<null>");
+                    }
+                }
+            }
+        } 
 
         #endregion
     }
