@@ -1,7 +1,7 @@
 ﻿<Application x:Class="CanvasDiagramEditor.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:CanvasDiagramEditor"
+             xmlns:controls="clr-namespace:CanvasDiagramEditor.Controls"
              StartupUri="MainWindow.xaml">
     
     <Application.Resources>
@@ -101,8 +101,20 @@
             <Ellipse Style="{StaticResource PinEllipseStyleKey}"/>
         </ControlTemplate>
 
+        <ControlTemplate x:Key="InputControlTemplateKey">
+            <controls:InputControl/>
+        </ControlTemplate>
+
+        <ControlTemplate x:Key="OutputControlTemplateKey">
+            <controls:OutputControl/>
+        </ControlTemplate>
+
         <ControlTemplate x:Key="AndGateControlTemplateKey">
-            <local:AndGateControl/>
+            <controls:AndGateControl/>
+        </ControlTemplate>
+
+        <ControlTemplate x:Key="OrGateControlTemplateKey">
+            <controls:OrGateControl/>
         </ControlTemplate>
 
     </Application.Resources>

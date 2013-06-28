@@ -3,9 +3,20 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:CanvasDiagramEditor" 
         x:Class="CanvasDiagramEditor.MainWindow"
-        Title="Canvas Diagram Editor" Height="700" Width="900"
+        Title="Canvas Diagram Editor" Height="700" Width="1000"
         WindowStartupLocation="CenterScreen" WindowState="Normal"
         SnapsToDevicePixels="True" UseLayoutRounding="True">
+    
+    <Window.Resources>
+        
+        <ContextMenu x:Key="DiagramCanvasContextMenuKey">
+            <MenuItem x:Name="InsertInput" Header="Insert _Input" Click="InsertInput_Click"/>
+            <MenuItem x:Name="InsertOutput" Header="Insert _Output" Click="InsertOutput_Click"/>
+            <MenuItem x:Name="InsertAndGate" Header="Insert _AndGate" Click="InsertAndGate_Click"/>
+            <MenuItem x:Name="InsertOrGate" Header="Insert O_rGate" Click="InsertOrGate_Click"/>
+        </ContextMenu>
+        
+    </Window.Resources>
 
     <Grid>
         
@@ -15,44 +26,18 @@
         </Grid.ColumnDefinitions>
 
         <Canvas x:Name="DiagramCanvas"
-                Width="600" Height="500" 
+                Width="770" Height="650" 
                 Grid.Column="0" Grid.Row="0"
-                Background="Black" 
+                Background="{DynamicResource LogicBackgroundColorKey}" 
                 MouseLeftButtonDown="Canvas_MouseLeftButtonDown"
                 PreviewMouseLeftButtonDown="Canvas_PreviewMouseLeftButtonDown"
-                MouseMove="Canvas_MouseMove">
-
-            <!--
-            <Thumb Canvas.Left="30" Canvas.Top="30" 
-                   Template="{StaticResource AndGateControlTemplateKey}" 
-                   Style="{StaticResource RootThumbStyleKey}" 
-                   DragDelta="RootElement_DragDelta"
-                   x:Uid="AndGate|0"/>
-        
-            <Thumb Canvas.Left="90" Canvas.Top="30" 
-                   Template="{StaticResource AndGateControlTemplateKey}" 
-                   Style="{StaticResource RootThumbStyleKey}" 
-                   DragDelta="RootElement_DragDelta"
-                   x:Uid="AndGate|1"/>
-
-            <Thumb Canvas.Left="30" Canvas.Top="90" 
-                   Template="{StaticResource AndGateControlTemplateKey}" 
-                   Style="{StaticResource RootThumbStyleKey}" 
-                   DragDelta="RootElement_DragDelta"
-                   x:Uid="AndGate|2"/>
-
-            <Thumb Canvas.Left="90" Canvas.Top="90" 
-                   Template="{StaticResource AndGateControlTemplateKey}" 
-                   Style="{StaticResource RootThumbStyleKey}" 
-                   DragDelta="RootElement_DragDelta"
-                   x:Uid="AndGate|3"/>
-            -->
-            
-            <!--<Line Style="{StaticResource LineStyleKey}" X1="60" Y1="45" X2="90" Y2="45" x:Uid="Wire|0"/>-->
-            
+                MouseMove="Canvas_MouseMove"
+                PreviewMouseRightButtonDown="Canvas_PreviewMouseRightButtonDown"
+                ContextMenu="{StaticResource DiagramCanvasContextMenuKey}">
         </Canvas>
 
         <Grid Grid.Column="1" Grid.Row="0">
+            
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
@@ -62,6 +47,8 @@
             <StackPanel Grid.Column="1" Grid.Row="0">
                 <Button x:Name="OpenModel" Content="_Open Model" Margin="2" Click="OpenModel_Click"/>
                 <Button x:Name="SaveModel" Content="_Save Model" Margin="2" Click="SaveModel_Click"/>
+                <Separator Margin="2"/>
+                <CheckBox x:Name="EnableSnap" Content="Enable S_nap to Grid" Margin="2" Click="EnableSnap_Click"/>
                 <Separator Margin="2"/>
                 <Button x:Name="ClearModel" Content="_Clear Model" Margin="2" Click="ClearModel_Click"/>
                 <Separator Margin="2"/>
@@ -79,4 +66,5 @@
         </Grid>
     
     </Grid>
+    
 </Window>

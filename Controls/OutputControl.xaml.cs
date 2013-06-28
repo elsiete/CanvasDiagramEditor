@@ -1,5 +1,5 @@
 ﻿
-namespace CanvasDiagramEditor
+namespace CanvasDiagramEditor.Controls
 {
     #region References
 
@@ -10,7 +10,6 @@ namespace CanvasDiagramEditor
     using System.Threading.Tasks;
     using System.Windows;
     using System.Windows.Controls;
-    using System.Windows.Controls.Primitives;
     using System.Windows.Data;
     using System.Windows.Documents;
     using System.Windows.Input;
@@ -21,18 +20,14 @@ namespace CanvasDiagramEditor
 
     #endregion
 
-    #region AndGateControl
+    #region OutputControl
 
-    public partial class AndGateControl : UserControl
+    public partial class OutputControl : UserControl
     {
-        #region Constructor
-
-        public AndGateControl()
+        public OutputControl()
         {
             InitializeComponent();
         }
-
-        #endregion
     } 
 
     #endregion
