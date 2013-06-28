@@ -31,7 +31,7 @@ namespace CanvasDiagramEditor
         private FrameworkElement _root = null;
 
         private int wireCounter = 0;
-        private int andGateCounter = 4;
+        private int andGateCounter = 0;
 
         #endregion
 
@@ -87,33 +87,29 @@ namespace CanvasDiagramEditor
 
         #region Create
 
-        private Line CreateWire(double x, double y)
+        private Line CreateWire(double x1, double y1, double x2, double y2, int id)
         {
             var line = new Line()
             {
-                Style = this.Resources["LineStyleKey"] as Style,
-                X1 = x,
-                Y1 = y,
-                X2 = x,
-                Y2 = y,
-                Uid = "Wire|" + wireCounter.ToString()
+                Style = Application.Current.Resources["LineStyleKey"] as Style,
+                X1 = x1,
+                Y1 = y1,
+                X2 = x2,
+                Y2 = y2,
+                Uid = "Wire|" + id.ToString()
             };
-
-            wireCounter += 1;
 
             return line;
         }
 
-        private Thumb CreateAndGate(double x, double y)
+        private Thumb CreateAndGate(double x, double y, int id)
         {
             var thumb = new Thumb()
             {
-                Template = this.Resources["AndGateControlTemplateKey"] as ControlTemplate,
-                Style = this.Resources["RootThumbStyleKey"] as Style,
-                Uid = "AndGate|" + andGateCounter.ToString()
+                Template = Application.Current.Resources["AndGateControlTemplateKey"] as ControlTemplate,
+                Style = Application.Current.Resources["RootThumbStyleKey"] as Style,
+                Uid = "AndGate|" + id.ToString()
             };
-
-            andGateCounter += 1;
 
             thumb.DragDelta += this.RootElement_DragDelta;
 
@@ -149,7 +145,8 @@ namespace CanvasDiagramEditor
 
             if (_line == null)
             {
-                var line = CreateWire(x, y);
+                var line = CreateWire(x, y, x, y, wireCounter);
+                wireCounter += 1;
 
                 _line = line;
 
@@ -175,9 +172,25 @@ namespace CanvasDiagramEditor
 
         #region Diagram Model
 
-        private void GenerateDiagramModel()
+        private void ClearDiagramModel()
         {
             var canvas = this.DiagramCanvas;
+
+            canvas.Children.Clear();
+
+            wireCounter = 0;
+            andGateCounter = 0;
+        }
+
+        private string GenerateDiagramModel()
+        {
+            var canvas = this.DiagramCanvas;
+            var sb = new StringBuilder();
+
+            string header = "[Diagram]";
+
+            System.Diagnostics.Debug.Print(header);
+            sb.AppendLine(header);
 
             foreach (var child in canvas.Children)
             {
@@ -189,11 +202,18 @@ namespace CanvasDiagramEditor
                 if (element.Uid.StartsWith("Wire"))
                 {
                     var line = element as Line;
-                    System.Diagnostics.Debug.Print("+{0},{1},{2},3,4", element.Uid, line.X1, line.Y1, line.X2, line.Y2);
+
+                    string str = string.Format("+;{0};{1};{2};{3};{4}", element.Uid, line.X1, line.Y1, line.X2, line.Y2);
+                    sb.AppendLine(str);
+
+                    System.Diagnostics.Debug.Print(str);
                 }
                 else
                 {
-                    System.Diagnostics.Debug.Print("+{0},{1},{2}", element.Uid, x, y);
+                    string str = string.Format("+;{0};{1};{2}", element.Uid, x, y);
+                    sb.AppendLine(str);
+
+                    System.Diagnostics.Debug.Print(str);
                 }
 
                 if (element.Tag != null)
@@ -206,25 +226,162 @@ namespace CanvasDiagramEditor
                         var start = tuple.Item2;
                         var end = tuple.Item3;
 
-                        //System.Diagnostics.Debug.Print("-{0},{1},{2}",
-                        //    line.Uid,
-                        //    start != null ? start.Uid : "<null>",
-                        //    end != null ? end.Uid : "<null>");
-
                         if (start != null)
                         {
-                            // :S -> Start
-                            System.Diagnostics.Debug.Print("-{0}:S", line.Uid);
+                            // Start
+                            string str = string.Format("-;{0};Start", line.Uid);
+                            sb.AppendLine(str);
+
+                            System.Diagnostics.Debug.Print(str);
                         }
                         else if (end != null)
                         {
-                            // :E -> End
-                            System.Diagnostics.Debug.Print("-{0}:E", line.Uid);
+                            // End
+                            string str = string.Format("-;{0};End", line.Uid);
+                            sb.AppendLine(str);
+
+                            System.Diagnostics.Debug.Print(str);
                         }
                     }
                 }
             }
-        } 
+
+            return sb.ToString();
+        }
+
+        private void ParseDiagramModel(string diagram)
+        {
+            var canvas = this.DiagramCanvas;
+            var lines = diagram.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+
+            var dict = new Dictionary<string, Tuple<FrameworkElement, List<Tuple<string, string>>>>();
+            Tuple<FrameworkElement, List<Tuple<string,string>>> tuple = null;
+
+            string name = null;
+
+            ClearDiagramModel();
+
+            // create roor elements
+            foreach (var line in lines)
+            {
+                var args = line.Split(';');
+                int length = args.Length;
+
+                if (length >= 2)
+                {
+                    name = args[1];
+
+                    if (string.Compare(args[0], "+", StringComparison.InvariantCultureIgnoreCase) == 0)
+                    {
+                        if (name.StartsWith("AndGate", StringComparison.InvariantCultureIgnoreCase) && length == 4)
+                        {
+                            double x = double.Parse(args[2]);  
+                            double y = double.Parse(args[3]);
+
+                            int id = int.Parse(name.Split('|')[1]);
+
+                            andGateCounter = Math.Max(andGateCounter, id + 1);
+
+                            var element = CreateAndGate(x, y, id);
+                            canvas.Children.Add(element);
+
+                            tuple = new Tuple<FrameworkElement, List<Tuple<string, string>>>(element, new List<Tuple<string, string>>());
+
+                            dict.Add(args[1], tuple);
+                        }
+                        else if (name.StartsWith("Wire", StringComparison.InvariantCultureIgnoreCase) && length == 6)
+                        {
+                            double x1 = double.Parse(args[2]);  
+                            double y1 = double.Parse(args[3]);
+                            double x2 = double.Parse(args[4]);
+                            double y2 = double.Parse(args[5]);
+
+                            int id = int.Parse(name.Split('|')[1]);
+
+                            wireCounter = Math.Max(wireCounter, id + 1);
+
+                            var element = CreateWire(x1, y1, x2, y2, id);
+                            canvas.Children.Add(element);
+
+                            tuple = new Tuple<FrameworkElement, List<Tuple<string, string>>>(element, new List<Tuple<string, string>>());
+
+                            dict.Add(args[1], tuple);
+                        }
+                    }
+                    else if (string.Compare(args[0], "-", StringComparison.InvariantCultureIgnoreCase) == 0)
+                    {
+                        if (tuple != null)
+                        {
+                            var wires = tuple.Item2;
+
+                            wires.Add(new Tuple<string, string>(name, args[2]));
+                        }
+                    }
+                }
+            }
+
+            // update wire connections
+            foreach (var item in dict)
+            {
+                var element = item.Value.Item1;
+                var wires = item.Value.Item2;
+
+                if (element.Tag == null)
+                {
+                    element.Tag = new List<Tuple<Line, FrameworkElement, FrameworkElement>>();
+                }
+
+                if (wires.Count > 0)
+                {
+                    var tuples = element.Tag as List<Tuple<Line, FrameworkElement, FrameworkElement>>;
+
+                    foreach (var wire in wires)
+                    {
+                        string _name = wire.Item1;
+                        string _type = wire.Item2;
+
+                        if (string.Compare(_type, "Start", StringComparison.InvariantCultureIgnoreCase) == 0)
+                        {
+                            var line = dict[_name].Item1 as Line;
+
+                            var _tuple = new Tuple<Line, FrameworkElement, FrameworkElement>(line, element, null);
+                            tuples.Add(_tuple);
+                        }
+                        else if (string.Compare(_type, "End", StringComparison.InvariantCultureIgnoreCase) == 0)
+                        {
+                            var line = dict[_name].Item1 as Line;
+
+                            var _tuple = new Tuple<Line, FrameworkElement, FrameworkElement>(line, null, element);
+                            tuples.Add(_tuple);
+                        }
+                    }
+                }
+            }
+        }
+
+        #endregion
+
+        #region Open/Save
+
+        private void Save(string fileName)
+        {
+            using (var writer = new System.IO.StreamWriter(fileName))
+            {
+                string diagram = GenerateDiagramModel();
+
+                writer.Write(diagram);
+            }
+        }
+
+        private void Open(string fileName)
+        {
+            using (var reader = new System.IO.StreamReader(fileName))
+            {
+                string diagram = reader.ReadToEnd();
+
+                ParseDiagramModel(diagram);
+            }
+        }
 
         #endregion
 
@@ -249,7 +406,9 @@ namespace CanvasDiagramEditor
             var canvas = sender as Canvas;
             var point = e.GetPosition(canvas);
 
-            var thumb = CreateAndGate(point.X, point.Y);
+            var thumb = CreateAndGate(point.X, point.Y, andGateCounter);
+            andGateCounter += 1;
+
             canvas.Children.Add(thumb);
         }
 
@@ -286,9 +445,54 @@ namespace CanvasDiagramEditor
 
         #region Button Events
 
+        private void OpenModel_Click(object sender, RoutedEventArgs e)
+        {
+            var dlg = new Microsoft.Win32.OpenFileDialog()
+            {
+                Filter = "Diagram (*.txt)|*.txt|All Files (*.*)|*.*",
+                Title = "Open Diagram"
+            };
+
+            var res = dlg.ShowDialog();
+            if (res == true)
+            {
+                this.Open(dlg.FileName);
+            }
+        }
+
+        private void SaveModel_Click(object sender, RoutedEventArgs e)
+        {
+            var dlg = new Microsoft.Win32.SaveFileDialog()
+            {
+                Filter = "Diagram (*.txt)|*.txt|All Files (*.*)|*.*",
+                Title = "Save Diagram",
+                FileName = "diagram"
+            };
+
+            var res = dlg.ShowDialog();
+            if (res == true)
+            {
+                this.Save(dlg.FileName);
+            }
+        }
+
+        private void ClearModel_Click(object sender, RoutedEventArgs e)
+        {
+            ClearDiagramModel();
+        }
+
         private void GenerateModel_Click(object sender, RoutedEventArgs e)
         {
-            GenerateDiagramModel();
+            var text = GenerateDiagramModel();
+
+            model.Text = text;
+        }
+
+        private void ParseModel_Click(object sender, RoutedEventArgs e)
+        {
+            var text = model.Text;
+
+            ParseDiagramModel(text);
         }
 
         #endregion

@@ -33,15 +33,6 @@ namespace CanvasDiagramEditor
         }
 
         #endregion
-
-        #region Pin Events
-
-        private void Pin_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            System.Diagnostics.Debug.Print("Pin_PreviewMouseLeftButtonDown, sender: {0}, {1}", sender.GetType(), (sender as FrameworkElement).Name);
-        }
-
-        #endregion
     } 
 
     #endregion

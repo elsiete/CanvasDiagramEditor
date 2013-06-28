@@ -7,34 +7,6 @@
         WindowStartupLocation="CenterScreen" WindowState="Normal"
         SnapsToDevicePixels="True" UseLayoutRounding="True">
 
-    <Window.Resources>
-
-        <Style x:Key="RootThumbStyleKey" TargetType="Thumb">
-            <Setter Property="Panel.ZIndex" Value="2"/>
-            <Setter Property="Cursor" Value="Arrow"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Cursor" Value="SizeAll"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <Style x:Key="LineStyleKey" TargetType="{x:Type Line}">
-            <Setter Property="Panel.ZIndex" Value="1"/>
-            <Setter Property="Stroke" Value="{DynamicResource LogicColorKey}"/>
-            <Setter Property="StrokeThickness" Value="1.0"/>
-            <Setter Property="StrokeStartLineCap" Value="Round"/>
-            <Setter Property="StrokeEndLineCap" Value="Round"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-            <Setter Property="UseLayoutRounding" Value="False"/>
-        </Style>
-
-        <ControlTemplate x:Key="AndGateControlTemplateKey">
-            <local:AndGateControl/>
-        </ControlTemplate>
-
-    </Window.Resources>
-    
     <Grid>
         
         <Grid.ColumnDefinitions>
@@ -50,6 +22,7 @@
                 PreviewMouseLeftButtonDown="Canvas_PreviewMouseLeftButtonDown"
                 MouseMove="Canvas_MouseMove">
 
+            <!--
             <Thumb Canvas.Left="30" Canvas.Top="30" 
                    Template="{StaticResource AndGateControlTemplateKey}" 
                    Style="{StaticResource RootThumbStyleKey}" 
@@ -73,16 +46,37 @@
                    Style="{StaticResource RootThumbStyleKey}" 
                    DragDelta="RootElement_DragDelta"
                    x:Uid="AndGate|3"/>
-
+            -->
+            
             <!--<Line Style="{StaticResource LineStyleKey}" X1="60" Y1="45" X2="90" Y2="45" x:Uid="Wire|0"/>-->
             
         </Canvas>
 
-        <StackPanel Grid.Column="1" Grid.Row="0">
-            
-            <Button x:Name="GenerateModel" Content="_Generate Model" Margin="2" Click="GenerateModel_Click"/>
-            
-        </StackPanel>
+        <Grid Grid.Column="1" Grid.Row="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
+            <StackPanel Grid.Column="1" Grid.Row="0">
+                <Button x:Name="OpenModel" Content="_Open Model" Margin="2" Click="OpenModel_Click"/>
+                <Button x:Name="SaveModel" Content="_Save Model" Margin="2" Click="SaveModel_Click"/>
+                <Separator Margin="2"/>
+                <Button x:Name="ClearModel" Content="_Clear Model" Margin="2" Click="ClearModel_Click"/>
+                <Separator Margin="2"/>
+                <Button x:Name="GenerateModel" Content="_Generate Model" Margin="2" Click="GenerateModel_Click"/>
+                <Button x:Name="ParseModel" Content="_Parse Model" Margin="2" Click="ParseModel_Click"/>
+            </StackPanel>
+
+            <TextBox x:Name="model" Grid.Row="1" 
+                     AcceptsReturn="True" AcceptsTab="True" 
+                     VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                     Margin="2" Padding="2"
+                     VerticalScrollBarVisibility="Auto">
+            </TextBox>
+
+        </Grid>
+    
     </Grid>
 </Window>
