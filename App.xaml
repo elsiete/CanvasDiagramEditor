@@ -9,6 +9,7 @@
         <!-- colors -->
 
         <SolidColorBrush x:Key="LogicBackgroundColorKey" Color="Black"/>
+        <SolidColorBrush x:Key="LogicGridColorKey" Color="#FF404040"/>
         <SolidColorBrush x:Key="LogicColorKey" Color="Yellow"/>
         <SolidColorBrush x:Key="LogicHiddenColorKey" Color="Transparent"/>
         <SolidColorBrush x:Key="LogicSelectedColorKey" Color="DeepPink"/>
@@ -111,6 +112,16 @@
             </Style.Triggers>
         </Style>
 
+        <Style x:Key="GridPathStyleKey" TargetType="Path">
+            <Setter Property="Stroke" Value="{DynamicResource LogicGridColorKey}"/>
+            <Setter Property="Fill" Value="Transparent"/>
+            <Setter Property="StrokeThickness" Value="1.0"/>
+            <Setter Property="StrokeStartLineCap" Value="Flat"/>
+            <Setter Property="StrokeEndLineCap" Value="Flat"/>
+            <Setter Property="StrokeLineJoin" Value="Miter"/>
+            <Setter Property="RenderOptions.EdgeMode" Value="Aliased"/>
+        </Style>
+
         <Style x:Key="LogicPathStyleKey" TargetType="Path">
             <Setter Property="Stroke" Value="{DynamicResource LogicColorKey}"/>
             <Setter Property="Fill" Value="Transparent"/>
@@ -120,7 +131,7 @@
             <Setter Property="StrokeLineJoin" Value="Miter"/>
             <Setter Property="RenderOptions.EdgeMode" Value="Aliased"/>
         </Style>
-
+  
         <Style x:Key="LogicTextStyleKey" TargetType="TextBlock">
             <Setter Property="Foreground" Value="{DynamicResource LogicColorKey}"/>
             <Setter Property="FontFamily" Value="Arial"/>
