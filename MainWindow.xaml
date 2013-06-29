@@ -12,8 +12,13 @@
         <ContextMenu x:Key="DiagramCanvasContextMenuKey">
             <MenuItem x:Name="InsertInput" Header="Insert _Input" Click="InsertInput_Click"/>
             <MenuItem x:Name="InsertOutput" Header="Insert _Output" Click="InsertOutput_Click"/>
+            <Separator/>
             <MenuItem x:Name="InsertAndGate" Header="Insert _AndGate" Click="InsertAndGate_Click"/>
             <MenuItem x:Name="InsertOrGate" Header="Insert O_rGate" Click="InsertOrGate_Click"/>
+            <Separator/>
+            <MenuItem x:Name="InsertPin" Header="Insert _Pin" Click="InsertPin_Click"/>
+            <Separator/>
+            <MenuItem x:Name="DeleteElement" Header="_Delete" Click="DeleteElement_Click"/>
         </ContextMenu>
         
     </Window.Resources>
@@ -26,7 +31,7 @@
         </Grid.ColumnDefinitions>
 
         <Canvas x:Name="DiagramCanvas"
-                Width="770" Height="650" 
+                Width="765" Height="645" 
                 Grid.Column="0" Grid.Row="0"
                 Background="{DynamicResource LogicBackgroundColorKey}" 
                 MouseLeftButtonDown="Canvas_MouseLeftButtonDown"

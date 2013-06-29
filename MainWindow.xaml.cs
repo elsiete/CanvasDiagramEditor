@@ -3,6 +3,7 @@ namespace CanvasDiagramEditor
 {
     #region References
 
+    using CanvasDiagramEditor.Controls;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -30,6 +31,7 @@ namespace CanvasDiagramEditor
         private Line _line = null;
         private FrameworkElement _root = null;
 
+        private int pinCounter = 0;
         private int wireCounter = 0;
         private int inputCounter = 0;
         private int outputCounter = 0;
@@ -117,6 +119,23 @@ namespace CanvasDiagramEditor
         #endregion
 
         #region Create
+
+        private Thumb CreatePin(double x, double y, int id)
+        {
+            var thumb = new Thumb()
+            {
+                Template = Application.Current.Resources["PinControlTemplateKey"] as ControlTemplate,
+                Style = Application.Current.Resources["RootThumbStyleKey"] as Style,
+                Uid = "Pin|" + id.ToString()
+            };
+
+            thumb.DragDelta += this.RootElement_DragDelta;
+
+            Canvas.SetLeft(thumb, Snap(x));
+            Canvas.SetTop(thumb, Snap(y));
+
+            return thumb;
+        }
 
         private Line CreateWire(double x1, double y1, double x2, double y2, int id)
         {
@@ -218,6 +237,11 @@ namespace CanvasDiagramEditor
 
             System.Diagnostics.Debug.Print("x: {0}, y: {0}", x, y);
 
+            ConnectPins(canvas, x, y);
+        }
+
+        private void ConnectPins(Canvas canvas, double x, double y)
+        {
             if (_root.Tag == null)
             {
                 _root.Tag = new List<Tuple<Line, FrameworkElement, FrameworkElement>>();
@@ -254,7 +278,19 @@ namespace CanvasDiagramEditor
 
         #region Insert
 
-        private void InsertInput(Point point)
+        private FrameworkElement InsertPin(Point point)
+        {
+            var canvas = this.DiagramCanvas;
+
+            var thumb = CreatePin(point.X, point.Y, pinCounter);
+            pinCounter += 1;
+
+            canvas.Children.Add(thumb);
+
+            return thumb;
+        }
+
+        private FrameworkElement InsertInput(Point point)
         {
             var canvas = this.DiagramCanvas;
 
@@ -262,9 +298,11 @@ namespace CanvasDiagramEditor
             inputCounter += 1;
 
             canvas.Children.Add(thumb);
+
+            return thumb;
         }
 
-        private void InsertOutput(Point point)
+        private FrameworkElement InsertOutput(Point point)
         {
             var canvas = this.DiagramCanvas;
 
@@ -272,9 +310,11 @@ namespace CanvasDiagramEditor
             outputCounter += 1;
 
             canvas.Children.Add(thumb);
+
+            return thumb;
         }
 
-        private void InsertAndGate(Point point)
+        private FrameworkElement InsertAndGate(Point point)
         {
             var canvas = this.DiagramCanvas;
 
@@ -282,9 +322,11 @@ namespace CanvasDiagramEditor
             andGateCounter += 1;
 
             canvas.Children.Add(thumb);
+
+            return thumb;
         }
 
-        private void InsertOrGate(Point point)
+        private FrameworkElement InsertOrGate(Point point)
         {
             var canvas = this.DiagramCanvas;
 
@@ -292,24 +334,65 @@ namespace CanvasDiagramEditor
             orGateCounter += 1;
 
             canvas.Children.Add(thumb);
+
+            return thumb;
         }
 
-        private void InsertLast(Point point)
+        private FrameworkElement InsertLast(Point point)
         {
+            FrameworkElement element = null;
+
             switch (lastInsert)
             {
                 case "Input":
-                    InsertInput(point);
+                    element = InsertInput(point);
                     break;
                 case "Output":
-                    InsertOutput(point);
+                    element = InsertOutput(point);
                     break;
                 case "AndGate":
-                    InsertAndGate(point);
+                    element = InsertAndGate(point);
                     break;
                 case "OrGate":
-                    InsertOrGate(point);
+                    element = InsertOrGate(point);
                     break;
+            }
+
+            return element;
+        }
+
+        #endregion
+
+        #region Delete
+
+        private void DeleteElement(Canvas canvas, Point point)
+        {
+            var res = VisualTreeHelper.HitTest(canvas, point);
+            var element = res.VisualHit as FrameworkElement;
+
+            FrameworkElement parent = element.Parent as FrameworkElement;
+
+            if (parent != null)
+            {
+                while (!(parent.TemplatedParent is Thumb))
+                {
+                    parent = parent.Parent as FrameworkElement;
+
+                    if (parent == null)
+                        break;
+                }
+
+                if (parent != null)
+                {
+                    FrameworkElement root = parent.TemplatedParent as FrameworkElement;
+
+                    System.Diagnostics.Debug.Print("DeleteElement, root: {0}, uid: {1}", root.GetType(), root.Uid);
+
+                    if (root != null && root.Parent == canvas)
+                    {
+                        canvas.Children.Remove(root);
+                    }
+                }
             }
         }
 
@@ -421,7 +504,23 @@ namespace CanvasDiagramEditor
 
                     if (string.Compare(args[0], "+", StringComparison.InvariantCultureIgnoreCase) == 0)
                     {
-                        if (name.StartsWith("Input", StringComparison.InvariantCultureIgnoreCase) && length == 4)
+                        if (name.StartsWith("Pin", StringComparison.InvariantCultureIgnoreCase) && length == 4)
+                        {
+                            double x = double.Parse(args[2]);
+                            double y = double.Parse(args[3]);
+
+                            int id = int.Parse(name.Split('|')[1]);
+
+                            pinCounter = Math.Max(pinCounter, id + 1);
+
+                            var element = CreatePin(x, y, id);
+                            canvas.Children.Add(element);
+
+                            tuple = new Tuple<FrameworkElement, List<Tuple<string, string>>>(element, new List<Tuple<string, string>>());
+
+                            dict.Add(args[1], tuple);
+                        }
+                        else if (name.StartsWith("Input", StringComparison.InvariantCultureIgnoreCase) && length == 4)
                         {
                             double x = double.Parse(args[2]);
                             double y = double.Parse(args[3]);
@@ -602,7 +701,33 @@ namespace CanvasDiagramEditor
             var canvas = DiagramCanvas;
             var point = e.GetPosition(canvas);
 
-            InsertLast(point);
+            if (_root != null && _line != null)
+            {
+                var root = InsertPin(point);
+
+                _root = root;
+
+                System.Diagnostics.Debug.Print("Canvas_MouseLeftButtonDown, root: {0}", root.GetType());
+
+                double rx = Canvas.GetLeft(_root);
+                double ry = Canvas.GetTop(_root);
+                double px = 0;
+                double py = 0;
+                double x = rx + px;
+                double y = ry + py;
+
+                System.Diagnostics.Debug.Print("x: {0}, y: {0}", x, y);
+
+                ConnectPins(canvas, x, y);
+
+                _root = root;
+
+                ConnectPins(canvas, x, y);
+            }
+            else
+            {
+                InsertLast(point);
+            }
         }
 
         private void Canvas_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -610,7 +735,8 @@ namespace CanvasDiagramEditor
             var canvas = DiagramCanvas;
             var pin = (e.OriginalSource as FrameworkElement).TemplatedParent as FrameworkElement;
 
-            if (pin != null)
+            if (pin != null && 
+                (string.Compare(pin.Name, "MiddlePin", StringComparison.InvariantCultureIgnoreCase) != 0 || Keyboard.Modifiers == ModifierKeys.Control))
             {
                 ConnectPins(canvas, pin);
                 e.Handled = true;
@@ -628,8 +754,8 @@ namespace CanvasDiagramEditor
                 double x = point.X;
                 double y = point.Y;
 
-                _line.X2 = x;
-                _line.Y2 = y;
+                _line.X2 = Snap(x);
+                _line.Y2 = Snap(y);
             }
         }
 
@@ -697,6 +823,13 @@ namespace CanvasDiagramEditor
 
         #region Context Menu Events
 
+        private void InsertPin_Click(object sender, RoutedEventArgs e)
+        {
+            InsertPin(this.rightClick);
+
+            lastInsert = "Pin";
+        }
+
         private void InsertInput_Click(object sender, RoutedEventArgs e)
         {
             InsertInput(this.rightClick);
@@ -723,7 +856,16 @@ namespace CanvasDiagramEditor
             InsertOrGate(this.rightClick);
 
             lastInsert = "OrGate";
-        } 
+        }
+
+        private void DeleteElement_Click(object sender, RoutedEventArgs e)
+        {
+            var canvas = DiagramCanvas;
+            var menu = sender as MenuItem;
+            var point = new Point(rightClick.X, rightClick.Y);
+
+            DeleteElement(canvas, point);
+        }
 
         #endregion
 
