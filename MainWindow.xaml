@@ -64,13 +64,12 @@
                 <Separator Margin="2"/>
                 <CheckBox x:Name="EnableSnap" Content="Enable S_nap to Grid" Margin="2" Click="EnableSnap_Click"/>
                 <Separator Margin="2"/>
-                <Button x:Name="ClearModel" Content="_Clear Model" Margin="2" Click="ClearModel_Click"/>
-                <Separator Margin="2"/>
                 <Button x:Name="GenerateModel" Content="_Generate Model" Margin="2" Click="GenerateModel_Click"/>
+                <Button x:Name="ClearModel" Content="_Clear Model" Margin="2" Click="ClearModel_Click"/>
                 <Button x:Name="ParseModel" Content="_Parse Model" Margin="2" Click="ParseModel_Click"/>
             </StackPanel>
 
-            <TextBox x:Name="model" Grid.Row="1" 
+            <TextBox x:Name="ModelText" Grid.Row="1" 
                      AcceptsReturn="True" AcceptsTab="True" 
                      VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                      Margin="2" Padding="2"

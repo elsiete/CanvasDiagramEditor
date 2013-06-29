@@ -403,7 +403,7 @@ namespace CanvasDiagramEditor
 
         #region Diagram Model
 
-        private bool CompareStrings(string strA, string strB)
+        private bool CompareString(string strA, string strB)
         {
             return string.Compare(strA, strB, StringComparison.InvariantCultureIgnoreCase) == 0;
         }
@@ -486,18 +486,16 @@ namespace CanvasDiagramEditor
             return sb.ToString();
         }
 
-        private void ParseDiagramModel(string diagram, Canvas canvas)
+        private void ParseDiagramModel(string diagram, Canvas canvas, double offsetX, double offsetY)
         {
             var lines = diagram.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
             var dict = new Dictionary<string, WireMap>();
-            Tuple<FrameworkElement, List<Tuple<string,string>>> tuple = null;
+            WireMap tuple = null;
 
             string name = null;
 
-            ClearDiagramModel(canvas);
-
-            // create roor elements
+            // create root elements
             foreach (var line in lines)
             {
                 var args = line.Split(';');
@@ -507,7 +505,7 @@ namespace CanvasDiagramEditor
                 {
                     name = args[1];
 
-                    if (CompareStrings(args[0], "+"))
+                    if (CompareString(args[0], "+"))
                     {
                         if (name.StartsWith("Pin", StringComparison.InvariantCultureIgnoreCase) && length == 4)
                         {
@@ -518,7 +516,7 @@ namespace CanvasDiagramEditor
 
                             this.pinCounter = Math.Max(this.pinCounter, id + 1);
 
-                            var element = CreatePin(x, y, id);
+                            var element = CreatePin(x + offsetX, y + offsetY, id);
                             canvas.Children.Add(element);
 
                             tuple = new WireMap(element, new List<PinMap>());
@@ -534,7 +532,7 @@ namespace CanvasDiagramEditor
 
                             this.inputCounter = Math.Max(this.inputCounter, id + 1);
 
-                            var element = CreateInput(x, y, id);
+                            var element = CreateInput(x + offsetX, y + offsetY, id);
                             canvas.Children.Add(element);
 
                             tuple = new WireMap(element, new List<PinMap>());
@@ -550,7 +548,7 @@ namespace CanvasDiagramEditor
 
                             this.outputCounter = Math.Max(this.outputCounter, id + 1);
 
-                            var element = CreateOutput(x, y, id);
+                            var element = CreateOutput(x + offsetX, y + offsetY, id);
                             canvas.Children.Add(element);
 
                             tuple = new WireMap(element, new List<PinMap>());
@@ -566,7 +564,7 @@ namespace CanvasDiagramEditor
 
                             this.andGateCounter = Math.Max(this.andGateCounter, id + 1);
 
-                            var element = CreateAndGate(x, y, id);
+                            var element = CreateAndGate(x + offsetX, y + offsetY, id);
                             canvas.Children.Add(element);
 
                             tuple = new WireMap(element, new List<PinMap>());
@@ -582,7 +580,7 @@ namespace CanvasDiagramEditor
 
                             this.orGateCounter = Math.Max(this.orGateCounter, id + 1);
 
-                            var element = CreateOrGate(x, y, id);
+                            var element = CreateOrGate(x + offsetX, y + offsetY, id);
                             canvas.Children.Add(element);
 
                             tuple = new WireMap(element, new List<PinMap>());
@@ -600,7 +598,7 @@ namespace CanvasDiagramEditor
 
                             this.wireCounter = Math.Max(this.wireCounter, id + 1);
 
-                            var element = CreateWire(x1, y1, x2, y2, id);
+                            var element = CreateWire(x1 + offsetX, y1 + offsetY, x2 + offsetX, y2 + offsetY, id);
                             canvas.Children.Add(element);
 
                             tuple = new WireMap(element, new List<PinMap>());
@@ -608,7 +606,7 @@ namespace CanvasDiagramEditor
                             dict.Add(args[1], tuple);
                         }
                     }
-                    else if (CompareStrings(args[0], "-"))
+                    else if (CompareString(args[0], "-"))
                     {
                         if (tuple != null)
                         {
@@ -640,14 +638,14 @@ namespace CanvasDiagramEditor
                         string _name = wire.Item1;
                         string _type = wire.Item2;
 
-                        if (CompareStrings(_type, "Start"))
+                        if (CompareString(_type, "Start"))
                         {
                             var line = dict[_name].Item1 as Line;
 
                             var _tuple = new TagMap(line, element, null);
                             tuples.Add(_tuple);
                         }
-                        else if (CompareStrings(_type, "End"))
+                        else if (CompareString(_type, "End"))
                         {
                             var line = dict[_name].Item1 as Line;
 
@@ -670,6 +668,8 @@ namespace CanvasDiagramEditor
                 string diagram = GenerateDiagramModel(canvas);
 
                 writer.Write(diagram);
+
+                this.ModelText.Text = diagram;
             }
         }
 
@@ -679,7 +679,10 @@ namespace CanvasDiagramEditor
             {
                 string diagram = reader.ReadToEnd();
 
-                ParseDiagramModel(diagram, canvas);
+                ClearDiagramModel(canvas);
+                ParseDiagramModel(diagram, canvas, 0, 0);
+
+                this.ModelText.Text = diagram;
             }
         }
 
@@ -721,7 +724,7 @@ namespace CanvasDiagramEditor
         private bool HandlePreviewLeftDown(Canvas canvas, FrameworkElement pin)
         {
             if (pin != null &&
-                !CompareStrings(pin.Name, "MiddlePin") || Keyboard.Modifiers == ModifierKeys.Control)
+                !CompareString(pin.Name, "MiddlePin") || Keyboard.Modifiers == ModifierKeys.Control)
             {
                 ConnectPins(canvas, pin);
 
@@ -894,15 +897,16 @@ namespace CanvasDiagramEditor
 
             var text = GenerateDiagramModel(canvas);
 
-            model.Text = text;
+            this.ModelText.Text = text;
         }
 
         private void ParseModel_Click(object sender, RoutedEventArgs e)
         {
             var canvas = this.DiagramCanvas;
-            var text = model.Text;
+            var text = this.ModelText.Text;
 
-            ParseDiagramModel(text, canvas);
+            ClearDiagramModel(canvas);
+            ParseDiagramModel(text, canvas, 0, 0);
         }
 
         #endregion
