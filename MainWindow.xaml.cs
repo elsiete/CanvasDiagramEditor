@@ -44,6 +44,8 @@ namespace CanvasDiagramEditor
 
         private bool enableSnap = true;
         private double snap = 15;
+        private double snapOffsetX = 7;
+        private double snapOffsetY = 8;
 
         #endregion
 
@@ -70,9 +72,14 @@ namespace CanvasDiagramEditor
             return original + ((Math.Round(original / snap) - original / snap) * snap);
         }
 
-        public double Snap(double original)
+        public double SnapX(double original)
         {
-            return enableSnap == true ? Snap(original, snap) : original;
+            return enableSnap == true ? Snap(original, snap, snapOffsetX) : original;
+        }
+
+        public double SnapY(double original)
+        {
+            return enableSnap == true ? Snap(original, snap, snapOffsetY) : original;
         }
 
         #endregion
@@ -84,8 +91,8 @@ namespace CanvasDiagramEditor
             double left = Canvas.GetLeft(element) + dX;
             double top = Canvas.GetTop(element) + dY;
 
-            Canvas.SetLeft(element, Snap(left));
-            Canvas.SetTop(element, Snap(top));
+            Canvas.SetLeft(element, SnapX(left));
+            Canvas.SetTop(element, SnapY(top));
 
             MoveLines(element, dX, dY);
         }
@@ -104,13 +111,13 @@ namespace CanvasDiagramEditor
 
                     if (start != null)
                     {
-                        line.X1 = Snap(line.X1 + dX);
-                        line.Y1 = Snap(line.Y1 + dY);
+                        line.X1 = SnapX(line.X1 + dX);
+                        line.Y1 = SnapY(line.Y1 + dY);
                     }
                     else if (end != null)
                     {
-                        line.X2 = Snap(line.X2 + dX);
-                        line.Y2 = Snap(line.Y2 + dY);
+                        line.X2 = SnapX(line.X2 + dX);
+                        line.Y2 = SnapY(line.Y2 + dY);
                     }
                 }
             }
@@ -131,8 +138,8 @@ namespace CanvasDiagramEditor
 
             thumb.DragDelta += this.RootElement_DragDelta;
 
-            Canvas.SetLeft(thumb, Snap(x));
-            Canvas.SetTop(thumb, Snap(y));
+            Canvas.SetLeft(thumb, SnapX(x));
+            Canvas.SetTop(thumb, SnapY(y));
 
             return thumb;
         }
@@ -163,8 +170,8 @@ namespace CanvasDiagramEditor
 
             thumb.DragDelta += this.RootElement_DragDelta;
 
-            Canvas.SetLeft(thumb, Snap(x));
-            Canvas.SetTop(thumb, Snap(y));
+            Canvas.SetLeft(thumb, SnapX(x));
+            Canvas.SetTop(thumb, SnapY(y));
 
             return thumb;
         }
@@ -180,8 +187,8 @@ namespace CanvasDiagramEditor
 
             thumb.DragDelta += this.RootElement_DragDelta;
 
-            Canvas.SetLeft(thumb, Snap(x));
-            Canvas.SetTop(thumb, Snap(y));
+            Canvas.SetLeft(thumb, SnapX(x));
+            Canvas.SetTop(thumb, SnapY(y));
 
             return thumb;
         }
@@ -197,8 +204,8 @@ namespace CanvasDiagramEditor
 
             thumb.DragDelta += this.RootElement_DragDelta;
 
-            Canvas.SetLeft(thumb, Snap(x));
-            Canvas.SetTop(thumb, Snap(y));
+            Canvas.SetLeft(thumb, SnapX(x));
+            Canvas.SetTop(thumb, SnapY(y));
 
             return thumb;
         }
@@ -214,8 +221,8 @@ namespace CanvasDiagramEditor
 
             thumb.DragDelta += this.RootElement_DragDelta;
 
-            Canvas.SetLeft(thumb, Snap(x));
-            Canvas.SetTop(thumb, Snap(y));
+            Canvas.SetLeft(thumb, SnapX(x));
+            Canvas.SetTop(thumb, SnapY(y));
 
             return thumb;
         }
@@ -406,6 +413,7 @@ namespace CanvasDiagramEditor
 
             canvas.Children.Clear();
 
+            pinCounter = 0;
             wireCounter = 0;
             inputCounter = 0;
             outputCounter = 0;
@@ -754,8 +762,10 @@ namespace CanvasDiagramEditor
                 double x = point.X;
                 double y = point.Y;
 
-                _line.X2 = Snap(x);
-                _line.Y2 = Snap(y);
+                //_line.X2 = SnapX(x);
+                //_line.Y2 = SnapY(y);
+                _line.X2 = x;
+                _line.Y2 = y;
             }
         }
 
