@@ -1,24 +1,31 @@
-﻿
+﻿#region References
+
+using CanvasDiagramEditor.Controls;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+
+#endregion
+
 namespace CanvasDiagramEditor
 {
-    #region References
+    #region Tuple Aliases
 
-    using CanvasDiagramEditor.Controls;
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
-    using System.Windows;
-    using System.Windows.Controls;
-    using System.Windows.Controls.Primitives;
-    using System.Windows.Data;
-    using System.Windows.Documents;
-    using System.Windows.Input;
-    using System.Windows.Media;
-    using System.Windows.Media.Imaging;
-    using System.Windows.Navigation;
-    using System.Windows.Shapes;
+    using TagMap = Tuple<Line, FrameworkElement, FrameworkElement>;
+    using PinMap = Tuple<string, string>;
+    using WireMap = Tuple<FrameworkElement, List<Tuple<string, string>>>;
 
     #endregion
 
@@ -44,8 +51,11 @@ namespace CanvasDiagramEditor
 
         private bool enableSnap = true;
         private double snap = 15;
-        private double snapOffsetX = 7;
-        private double snapOffsetY = 8;
+        private double snapOffsetX = 0;
+        private double snapOffsetY = 0;
+
+        private bool skipContextMenu = false;
+        private bool skipLeftClick = false;
 
         #endregion
 
@@ -55,7 +65,7 @@ namespace CanvasDiagramEditor
         {
             InitializeComponent();
 
-            EnableSnap.IsChecked = enableSnap;
+            EnableSnap.IsChecked = this.enableSnap;
         }
 
         #endregion
@@ -72,36 +82,41 @@ namespace CanvasDiagramEditor
             return original + ((Math.Round(original / snap) - original / snap) * snap);
         }
 
-        public double SnapX(double original)
+        private double SnapX(double original)
         {
-            return enableSnap == true ? Snap(original, snap, snapOffsetX) : original;
+            return this.enableSnap == true ? Snap(original, this.snap, this.snapOffsetX) : original;
         }
 
-        public double SnapY(double original)
+        private double SnapY(double original)
         {
-            return enableSnap == true ? Snap(original, snap, snapOffsetY) : original;
+            return this.enableSnap == true ? Snap(original, this.snap, this.snapOffsetY) : original;
         }
 
         #endregion
 
         #region Move
 
+        private void SetCanvasPosition(FrameworkElement element, double left, double top)
+        {
+            Canvas.SetLeft(element, SnapX(left));
+            Canvas.SetTop(element, SnapY(top));
+        }
+
         private void MoveRoot(FrameworkElement element, double dX, double dY)
         {
             double left = Canvas.GetLeft(element) + dX;
             double top = Canvas.GetTop(element) + dY;
 
-            Canvas.SetLeft(element, SnapX(left));
-            Canvas.SetTop(element, SnapY(top));
+            SetCanvasPosition(element, left, top);
 
             MoveLines(element, dX, dY);
         }
-
+        
         private void MoveLines(FrameworkElement element, double dX, double dY)
         {
-            if (element.Tag != null)
+            if (element != null && element.Tag != null)
             {
-                var tuples = element.Tag as List<Tuple<Line, FrameworkElement, FrameworkElement>>;
+                var tuples = element.Tag as List<TagMap>;
 
                 foreach (var tuple in tuples)
                 {
@@ -138,8 +153,7 @@ namespace CanvasDiagramEditor
 
             thumb.DragDelta += this.RootElement_DragDelta;
 
-            Canvas.SetLeft(thumb, SnapX(x));
-            Canvas.SetTop(thumb, SnapY(y));
+            SetCanvasPosition(thumb, x, y);
 
             return thumb;
         }
@@ -170,8 +184,7 @@ namespace CanvasDiagramEditor
 
             thumb.DragDelta += this.RootElement_DragDelta;
 
-            Canvas.SetLeft(thumb, SnapX(x));
-            Canvas.SetTop(thumb, SnapY(y));
+            SetCanvasPosition(thumb, x, y);
 
             return thumb;
         }
@@ -187,8 +200,7 @@ namespace CanvasDiagramEditor
 
             thumb.DragDelta += this.RootElement_DragDelta;
 
-            Canvas.SetLeft(thumb, SnapX(x));
-            Canvas.SetTop(thumb, SnapY(y));
+            SetCanvasPosition(thumb, x, y);
 
             return thumb;
         }
@@ -204,8 +216,7 @@ namespace CanvasDiagramEditor
 
             thumb.DragDelta += this.RootElement_DragDelta;
 
-            Canvas.SetLeft(thumb, SnapX(x));
-            Canvas.SetTop(thumb, SnapY(y));
+            SetCanvasPosition(thumb, x, y);
 
             return thumb;
         }
@@ -221,8 +232,7 @@ namespace CanvasDiagramEditor
 
             thumb.DragDelta += this.RootElement_DragDelta;
 
-            Canvas.SetLeft(thumb, SnapX(x));
-            Canvas.SetTop(thumb, SnapY(y));
+            SetCanvasPosition(thumb, x, y);
 
             return thumb;
         }
@@ -231,12 +241,12 @@ namespace CanvasDiagramEditor
         {
             var root = ((pin.Parent as FrameworkElement).Parent as FrameworkElement).TemplatedParent as FrameworkElement;
 
-            _root = root;
+            this._root = root;
 
-            System.Diagnostics.Debug.Print("Canvas_PreviewMouseLeftButtonDown, source: {0}, {1}", pin.GetType(), pin.Name);
+            System.Diagnostics.Debug.Print("ConnectPins, pin: {0}, {1}", pin.GetType(), pin.Name);
 
-            double rx = Canvas.GetLeft(_root);
-            double ry = Canvas.GetTop(_root);
+            double rx = Canvas.GetLeft(this._root);
+            double ry = Canvas.GetTop(this._root);
             double px = Canvas.GetLeft(pin);
             double py = Canvas.GetTop(pin);
             double x = rx + px;
@@ -249,35 +259,35 @@ namespace CanvasDiagramEditor
 
         private void ConnectPins(Canvas canvas, double x, double y)
         {
-            if (_root.Tag == null)
+            if (this._root.Tag == null)
             {
-                _root.Tag = new List<Tuple<Line, FrameworkElement, FrameworkElement>>();
+                this._root.Tag = new List<TagMap>();
             }
 
-            var tuples = _root.Tag as List<Tuple<Line, FrameworkElement, FrameworkElement>>;
+            var tuples = this._root.Tag as List<TagMap>;
 
-            if (_line == null)
+            if (this._line == null)
             {
-                var line = CreateWire(x, y, x, y, wireCounter);
-                wireCounter += 1;
+                var line = CreateWire(x, y, x, y, this.wireCounter);
+                this.wireCounter += 1;
 
-                _line = line;
+                this._line = line;
 
-                var tuple = new Tuple<Line, FrameworkElement, FrameworkElement>(_line, _root, null);
+                var tuple = new TagMap(this._line, this._root, null);
                 tuples.Add(tuple);
 
-                canvas.Children.Add(_line);
+                canvas.Children.Add(this._line);
             }
             else
             {
-                _line.X2 = x;
-                _line.Y2 = y;
+                this._line.X2 = x;
+                this._line.Y2 = y;
 
-                var tuple = new Tuple<Line, FrameworkElement, FrameworkElement>(_line, null, _root);
+                var tuple = new TagMap(this._line, null, this._root);
                 tuples.Add(tuple);
 
-                _line = null;
-                _root = null;
+                this._line = null;
+                this._root = null;
             }
         }
 
@@ -285,87 +295,73 @@ namespace CanvasDiagramEditor
 
         #region Insert
 
-        private FrameworkElement InsertPin(Point point)
+        private FrameworkElement InsertPin(Canvas canvas, Point point)
         {
-            var canvas = this.DiagramCanvas;
-
             var thumb = CreatePin(point.X, point.Y, pinCounter);
-            pinCounter += 1;
+            this.pinCounter += 1;
 
             canvas.Children.Add(thumb);
 
             return thumb;
         }
 
-        private FrameworkElement InsertInput(Point point)
+        private FrameworkElement InsertInput(Canvas canvas, Point point)
         {
-            var canvas = this.DiagramCanvas;
-
-            var thumb = CreateInput(point.X, point.Y, inputCounter);
-            inputCounter += 1;
+            var thumb = CreateInput(point.X, point.Y, this.inputCounter);
+            this.inputCounter += 1;
 
             canvas.Children.Add(thumb);
 
             return thumb;
         }
 
-        private FrameworkElement InsertOutput(Point point)
+        private FrameworkElement InsertOutput(Canvas canvas, Point point)
         {
-            var canvas = this.DiagramCanvas;
-
-            var thumb = CreateOutput(point.X, point.Y, outputCounter);
-            outputCounter += 1;
+            var thumb = CreateOutput(point.X, point.Y, this.outputCounter);
+            this.outputCounter += 1;
 
             canvas.Children.Add(thumb);
 
             return thumb;
         }
 
-        private FrameworkElement InsertAndGate(Point point)
+        private FrameworkElement InsertAndGate(Canvas canvas, Point point)
         {
-            var canvas = this.DiagramCanvas;
-
-            var thumb = CreateAndGate(point.X, point.Y, andGateCounter);
-            andGateCounter += 1;
+            var thumb = CreateAndGate(point.X, point.Y, this.andGateCounter);
+            this.andGateCounter += 1;
 
             canvas.Children.Add(thumb);
 
             return thumb;
         }
 
-        private FrameworkElement InsertOrGate(Point point)
+        private FrameworkElement InsertOrGate(Canvas canvas, Point point)
         {
-            var canvas = this.DiagramCanvas;
-
-            var thumb = CreateOrGate(point.X, point.Y, orGateCounter);
-            orGateCounter += 1;
+            var thumb = CreateOrGate(point.X, point.Y, this.orGateCounter);
+            this.orGateCounter += 1;
 
             canvas.Children.Add(thumb);
 
             return thumb;
         }
 
-        private FrameworkElement InsertLast(Point point)
+        private FrameworkElement InsertLast(Canvas canvas, string type, Point point)
         {
-            FrameworkElement element = null;
-
-            switch (lastInsert)
+            switch (type)
             {
                 case "Input":
-                    element = InsertInput(point);
-                    break;
+                    return InsertInput(canvas, point);
                 case "Output":
-                    element = InsertOutput(point);
-                    break;
+                    return InsertOutput(canvas, point);
                 case "AndGate":
-                    element = InsertAndGate(point);
-                    break;
+                    return InsertAndGate(canvas, point);
                 case "OrGate":
-                    element = InsertOrGate(point);
-                    break;
+                    return InsertOrGate(canvas, point);
+                case "Pin":
+                    return InsertPin(canvas, point);
+                default:
+                    return null;
             }
-
-            return element;
         }
 
         #endregion
@@ -407,23 +403,25 @@ namespace CanvasDiagramEditor
 
         #region Diagram Model
 
-        private void ClearDiagramModel()
+        private bool CompareStrings(string strA, string strB)
         {
-            var canvas = this.DiagramCanvas;
-
-            canvas.Children.Clear();
-
-            pinCounter = 0;
-            wireCounter = 0;
-            inputCounter = 0;
-            outputCounter = 0;
-            andGateCounter = 0;
-            orGateCounter = 0;
+            return string.Compare(strA, strB, StringComparison.InvariantCultureIgnoreCase) == 0;
         }
 
-        private string GenerateDiagramModel()
+        private void ClearDiagramModel(Canvas canvas)
         {
-            var canvas = this.DiagramCanvas;
+            canvas.Children.Clear();
+
+            this.pinCounter = 0;
+            this.wireCounter = 0;
+            this.inputCounter = 0;
+            this.outputCounter = 0;
+            this.andGateCounter = 0;
+            this.orGateCounter = 0;
+        }
+
+        private string GenerateDiagramModel(Canvas canvas)
+        {
             var sb = new StringBuilder();
 
             string header = "[Diagram]";
@@ -457,7 +455,7 @@ namespace CanvasDiagramEditor
 
                 if (element.Tag != null)
                 {
-                    var tuples = element.Tag as List<Tuple<Line, FrameworkElement, FrameworkElement>>;
+                    var tuples = element.Tag as List<TagMap>;
 
                     foreach (var tuple in tuples)
                     {
@@ -488,17 +486,16 @@ namespace CanvasDiagramEditor
             return sb.ToString();
         }
 
-        private void ParseDiagramModel(string diagram)
+        private void ParseDiagramModel(string diagram, Canvas canvas)
         {
-            var canvas = this.DiagramCanvas;
             var lines = diagram.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
-            var dict = new Dictionary<string, Tuple<FrameworkElement, List<Tuple<string, string>>>>();
+            var dict = new Dictionary<string, WireMap>();
             Tuple<FrameworkElement, List<Tuple<string,string>>> tuple = null;
 
             string name = null;
 
-            ClearDiagramModel();
+            ClearDiagramModel(canvas);
 
             // create roor elements
             foreach (var line in lines)
@@ -510,7 +507,7 @@ namespace CanvasDiagramEditor
                 {
                     name = args[1];
 
-                    if (string.Compare(args[0], "+", StringComparison.InvariantCultureIgnoreCase) == 0)
+                    if (CompareStrings(args[0], "+"))
                     {
                         if (name.StartsWith("Pin", StringComparison.InvariantCultureIgnoreCase) && length == 4)
                         {
@@ -519,12 +516,12 @@ namespace CanvasDiagramEditor
 
                             int id = int.Parse(name.Split('|')[1]);
 
-                            pinCounter = Math.Max(pinCounter, id + 1);
+                            this.pinCounter = Math.Max(this.pinCounter, id + 1);
 
                             var element = CreatePin(x, y, id);
                             canvas.Children.Add(element);
 
-                            tuple = new Tuple<FrameworkElement, List<Tuple<string, string>>>(element, new List<Tuple<string, string>>());
+                            tuple = new WireMap(element, new List<PinMap>());
 
                             dict.Add(args[1], tuple);
                         }
@@ -535,12 +532,12 @@ namespace CanvasDiagramEditor
 
                             int id = int.Parse(name.Split('|')[1]);
 
-                            inputCounter = Math.Max(inputCounter, id + 1);
+                            this.inputCounter = Math.Max(this.inputCounter, id + 1);
 
                             var element = CreateInput(x, y, id);
                             canvas.Children.Add(element);
 
-                            tuple = new Tuple<FrameworkElement, List<Tuple<string, string>>>(element, new List<Tuple<string, string>>());
+                            tuple = new WireMap(element, new List<PinMap>());
 
                             dict.Add(args[1], tuple);
                         }
@@ -551,12 +548,12 @@ namespace CanvasDiagramEditor
 
                             int id = int.Parse(name.Split('|')[1]);
 
-                            outputCounter = Math.Max(outputCounter, id + 1);
+                            this.outputCounter = Math.Max(this.outputCounter, id + 1);
 
                             var element = CreateOutput(x, y, id);
                             canvas.Children.Add(element);
 
-                            tuple = new Tuple<FrameworkElement, List<Tuple<string, string>>>(element, new List<Tuple<string, string>>());
+                            tuple = new WireMap(element, new List<PinMap>());
 
                             dict.Add(args[1], tuple);
                         }
@@ -567,12 +564,12 @@ namespace CanvasDiagramEditor
 
                             int id = int.Parse(name.Split('|')[1]);
 
-                            andGateCounter = Math.Max(andGateCounter, id + 1);
+                            this.andGateCounter = Math.Max(this.andGateCounter, id + 1);
 
                             var element = CreateAndGate(x, y, id);
                             canvas.Children.Add(element);
 
-                            tuple = new Tuple<FrameworkElement, List<Tuple<string, string>>>(element, new List<Tuple<string, string>>());
+                            tuple = new WireMap(element, new List<PinMap>());
 
                             dict.Add(args[1], tuple);
                         }
@@ -583,12 +580,12 @@ namespace CanvasDiagramEditor
 
                             int id = int.Parse(name.Split('|')[1]);
 
-                            orGateCounter = Math.Max(orGateCounter, id + 1);
+                            this.orGateCounter = Math.Max(this.orGateCounter, id + 1);
 
                             var element = CreateOrGate(x, y, id);
                             canvas.Children.Add(element);
 
-                            tuple = new Tuple<FrameworkElement, List<Tuple<string, string>>>(element, new List<Tuple<string, string>>());
+                            tuple = new WireMap(element, new List<PinMap>());
 
                             dict.Add(args[1], tuple);
                         }
@@ -601,23 +598,23 @@ namespace CanvasDiagramEditor
 
                             int id = int.Parse(name.Split('|')[1]);
 
-                            wireCounter = Math.Max(wireCounter, id + 1);
+                            this.wireCounter = Math.Max(this.wireCounter, id + 1);
 
                             var element = CreateWire(x1, y1, x2, y2, id);
                             canvas.Children.Add(element);
 
-                            tuple = new Tuple<FrameworkElement, List<Tuple<string, string>>>(element, new List<Tuple<string, string>>());
+                            tuple = new WireMap(element, new List<PinMap>());
 
                             dict.Add(args[1], tuple);
                         }
                     }
-                    else if (string.Compare(args[0], "-", StringComparison.InvariantCultureIgnoreCase) == 0)
+                    else if (CompareStrings(args[0], "-"))
                     {
                         if (tuple != null)
                         {
                             var wires = tuple.Item2;
 
-                            wires.Add(new Tuple<string, string>(name, args[2]));
+                            wires.Add(new PinMap(name, args[2]));
                         }
                     }
                 }
@@ -631,30 +628,30 @@ namespace CanvasDiagramEditor
 
                 if (element.Tag == null)
                 {
-                    element.Tag = new List<Tuple<Line, FrameworkElement, FrameworkElement>>();
+                    element.Tag = new List<TagMap>();
                 }
 
                 if (wires.Count > 0)
                 {
-                    var tuples = element.Tag as List<Tuple<Line, FrameworkElement, FrameworkElement>>;
+                    var tuples = element.Tag as List<TagMap>;
 
                     foreach (var wire in wires)
                     {
                         string _name = wire.Item1;
                         string _type = wire.Item2;
 
-                        if (string.Compare(_type, "Start", StringComparison.InvariantCultureIgnoreCase) == 0)
+                        if (CompareStrings(_type, "Start"))
                         {
                             var line = dict[_name].Item1 as Line;
 
-                            var _tuple = new Tuple<Line, FrameworkElement, FrameworkElement>(line, element, null);
+                            var _tuple = new TagMap(line, element, null);
                             tuples.Add(_tuple);
                         }
-                        else if (string.Compare(_type, "End", StringComparison.InvariantCultureIgnoreCase) == 0)
+                        else if (CompareStrings(_type, "End"))
                         {
                             var line = dict[_name].Item1 as Line;
 
-                            var _tuple = new Tuple<Line, FrameworkElement, FrameworkElement>(line, null, element);
+                            var _tuple = new TagMap(line, null, element);
                             tuples.Add(_tuple);
                         }
                     }
@@ -666,24 +663,113 @@ namespace CanvasDiagramEditor
 
         #region Open/Save
 
-        private void Save(string fileName)
+        private void Save(string fileName, Canvas canvas)
         {
             using (var writer = new System.IO.StreamWriter(fileName))
             {
-                string diagram = GenerateDiagramModel();
+                string diagram = GenerateDiagramModel(canvas);
 
                 writer.Write(diagram);
             }
         }
 
-        private void Open(string fileName)
+        private void Open(string fileName, Canvas canvas)
         {
             using (var reader = new System.IO.StreamReader(fileName))
             {
                 string diagram = reader.ReadToEnd();
 
-                ParseDiagramModel(diagram);
+                ParseDiagramModel(diagram, canvas);
             }
+        }
+
+        #endregion
+
+        #region Handlers
+
+        private void HandleLeftDown(Canvas canvas, Point point)
+        {
+            if (this._root != null && this._line != null)
+            {
+                var root = InsertPin(canvas, point);
+
+                this._root = root;
+
+                System.Diagnostics.Debug.Print("Canvas_MouseLeftButtonDown, root: {0}", root.GetType());
+
+                double rx = Canvas.GetLeft(this._root);
+                double ry = Canvas.GetTop(this._root);
+                double px = 0;
+                double py = 0;
+                double x = rx + px;
+                double y = ry + py;
+
+                System.Diagnostics.Debug.Print("x: {0}, y: {0}", x, y);
+
+                ConnectPins(canvas, x, y);
+
+                this._root = root;
+
+                ConnectPins(canvas, x, y);
+            }
+            else
+            {
+                InsertLast(canvas, this.lastInsert, point);
+            }
+        }
+
+        private bool HandlePreviewLeftDown(Canvas canvas, FrameworkElement pin)
+        {
+            if (pin != null &&
+                !CompareStrings(pin.Name, "MiddlePin") || Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                ConnectPins(canvas, pin);
+
+                return true;
+            }
+
+            return false;
+        }
+
+        private void HandleMove(Canvas canvas, Point point)
+        {
+            if (this._root != null && this._line != null)
+            {
+                double x = point.X;
+                double y = point.Y;
+
+                if (this._line.X2 != x)
+                {
+                    //this._line.X2 = SnapX(x);
+                    this._line.X2 = x;
+                }
+
+                if (this._line.Y2 != y)
+                {
+                    //this._line.Y2 = SnapY(y);
+                    this._line.Y2 = y;
+                }
+            }
+        }
+
+        private bool HandleRightDown(Canvas canvas)
+        {
+            if (this._root != null && this._line != null)
+            {
+                var tuples = this._root.Tag as List<TagMap>;
+
+                var last = tuples.LastOrDefault();
+                tuples.Remove(last);
+
+                canvas.Children.Remove(this._line);
+
+                this._line = null;
+                this._root = null;
+
+                return true;
+            }
+
+            return false;
         }
 
         #endregion
@@ -706,73 +792,54 @@ namespace CanvasDiagramEditor
 
         private void Canvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            var canvas = DiagramCanvas;
+            var canvas = this.DiagramCanvas;
             var point = e.GetPosition(canvas);
 
-            if (_root != null && _line != null)
-            {
-                var root = InsertPin(point);
-
-                _root = root;
-
-                System.Diagnostics.Debug.Print("Canvas_MouseLeftButtonDown, root: {0}", root.GetType());
-
-                double rx = Canvas.GetLeft(_root);
-                double ry = Canvas.GetTop(_root);
-                double px = 0;
-                double py = 0;
-                double x = rx + px;
-                double y = ry + py;
-
-                System.Diagnostics.Debug.Print("x: {0}, y: {0}", x, y);
-
-                ConnectPins(canvas, x, y);
-
-                _root = root;
-
-                ConnectPins(canvas, x, y);
-            }
-            else
-            {
-                InsertLast(point);
-            }
+            HandleLeftDown(canvas, point);
         }
 
         private void Canvas_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            var canvas = DiagramCanvas;
+            if (this.skipLeftClick == true)
+            {
+                this.skipLeftClick = false;
+                e.Handled = true;
+                return;
+            }
+
+            var canvas = this.DiagramCanvas;
             var pin = (e.OriginalSource as FrameworkElement).TemplatedParent as FrameworkElement;
 
-            if (pin != null && 
-                (string.Compare(pin.Name, "MiddlePin", StringComparison.InvariantCultureIgnoreCase) != 0 || Keyboard.Modifiers == ModifierKeys.Control))
-            {
-                ConnectPins(canvas, pin);
+            var result = HandlePreviewLeftDown(canvas, pin);
+            if (result == true)
                 e.Handled = true;
-            }
         }
 
         private void Canvas_MouseMove(object sender, MouseEventArgs e)
         {
-            var canvas = DiagramCanvas;
+            var canvas = this.DiagramCanvas;
+            var point = e.GetPosition(canvas);
 
-            if (_root != null && _line != null)
-            {
-                var point = e.GetPosition(canvas);
+            HandleMove(canvas, point);
+        }
 
-                double x = point.X;
-                double y = point.Y;
+        private void Canvas_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
 
-                //_line.X2 = SnapX(x);
-                //_line.Y2 = SnapY(y);
-                _line.X2 = x;
-                _line.Y2 = y;
-            }
         }
 
         private void Canvas_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
-            rightClick = e.GetPosition(DiagramCanvas);
-            e.Handled = false;
+            var canvas = this.DiagramCanvas;
+
+            this.rightClick = e.GetPosition(canvas);
+
+            var result = HandleRightDown(canvas);
+            if (result == true)
+            {
+                this.skipContextMenu = true;
+                e.Handled = true;
+            }
         }
 
         #endregion
@@ -790,7 +857,9 @@ namespace CanvasDiagramEditor
             var res = dlg.ShowDialog();
             if (res == true)
             {
-                this.Open(dlg.FileName);
+                var canvas = this.DiagramCanvas;
+
+                this.Open(dlg.FileName, canvas);
             }
         }
 
@@ -806,75 +875,111 @@ namespace CanvasDiagramEditor
             var res = dlg.ShowDialog();
             if (res == true)
             {
-                this.Save(dlg.FileName);
+                var canvas = this.DiagramCanvas;
+
+                this.Save(dlg.FileName, canvas);
             }
         }
 
         private void ClearModel_Click(object sender, RoutedEventArgs e)
         {
-            ClearDiagramModel();
+            var canvas = this.DiagramCanvas;
+
+            ClearDiagramModel(canvas);
         }
 
         private void GenerateModel_Click(object sender, RoutedEventArgs e)
         {
-            var text = GenerateDiagramModel();
+            var canvas = this.DiagramCanvas;
+
+            var text = GenerateDiagramModel(canvas);
 
             model.Text = text;
         }
 
         private void ParseModel_Click(object sender, RoutedEventArgs e)
         {
+            var canvas = this.DiagramCanvas;
             var text = model.Text;
 
-            ParseDiagramModel(text);
+            ParseDiagramModel(text, canvas);
         }
 
         #endregion
 
-        #region Context Menu Events
+        #region ContextMenu Events
+
+        private void Canvas_ContextMenuOpening(object sender, ContextMenuEventArgs e)
+        {
+            if (this.skipContextMenu == true)
+            {
+                this.skipContextMenu = false;
+                e.Handled = true;
+            }
+            else
+            {
+                this.skipLeftClick = true;
+            }
+        }
 
         private void InsertPin_Click(object sender, RoutedEventArgs e)
         {
-            InsertPin(this.rightClick);
+            var canvas = this.DiagramCanvas;
 
-            lastInsert = "Pin";
+            InsertPin(canvas, this.rightClick);
+
+            this.lastInsert = "Pin";
+            this.skipLeftClick = false;
         }
 
         private void InsertInput_Click(object sender, RoutedEventArgs e)
         {
-            InsertInput(this.rightClick);
+            var canvas = this.DiagramCanvas;
 
-            lastInsert = "Input";
+            InsertInput(canvas, this.rightClick);
+
+            this.lastInsert = "Input";
+            this.skipLeftClick = false;
         }
 
         private void InsertOutput_Click(object sender, RoutedEventArgs e)
         {
-            InsertOutput(this.rightClick);
+            var canvas = this.DiagramCanvas;
 
-            lastInsert = "Output";
+            InsertOutput(canvas, this.rightClick);
+
+            this.lastInsert = "Output";
+            this.skipLeftClick = false;
         }
 
         private void InsertAndGate_Click(object sender, RoutedEventArgs e)
         {
-            InsertAndGate(this.rightClick);
+            var canvas = this.DiagramCanvas;
 
-            lastInsert = "AndGate";
+            InsertAndGate(canvas, this.rightClick);
+
+            this.lastInsert = "AndGate";
+            this.skipLeftClick = false;
         }
 
         private void InsertOrGate_Click(object sender, RoutedEventArgs e)
         {
-            InsertOrGate(this.rightClick);
+            var canvas = this.DiagramCanvas;
 
-            lastInsert = "OrGate";
+            InsertOrGate(canvas, this.rightClick);
+
+            this.lastInsert = "OrGate";
+            this.skipLeftClick = false;
         }
 
         private void DeleteElement_Click(object sender, RoutedEventArgs e)
         {
             var canvas = DiagramCanvas;
             var menu = sender as MenuItem;
-            var point = new Point(rightClick.X, rightClick.Y);
+            var point = new Point(this.rightClick.X, this.rightClick.Y);
 
             DeleteElement(canvas, point);
+            this.skipLeftClick = false;
         }
 
         #endregion
@@ -883,7 +988,7 @@ namespace CanvasDiagramEditor
 
         private void EnableSnap_Click(object sender, RoutedEventArgs e)
         {
-            enableSnap = EnableSnap.IsChecked == true ? true : false;
+            this.enableSnap = EnableSnap.IsChecked == true ? true : false;
         } 
 
         #endregion
