@@ -84,12 +84,14 @@ namespace CanvasDiagramEditor
 
         private double SnapX(double original)
         {
-            return this.enableSnap == true ? Snap(original, this.snap, this.snapOffsetX) : original;
+            return this.enableSnap == true ? 
+                Snap(original, this.snap, this.snapOffsetX) : original;
         }
 
         private double SnapY(double original)
         {
-            return this.enableSnap == true ? Snap(original, this.snap, this.snapOffsetY) : original;
+            return this.enableSnap == true ? 
+                Snap(original, this.snap, this.snapOffsetY) : original;
         }
 
         #endregion
@@ -239,11 +241,16 @@ namespace CanvasDiagramEditor
 
         private void ConnectPins(Canvas canvas, FrameworkElement pin)
         {
-            var root = ((pin.Parent as FrameworkElement).Parent as FrameworkElement).TemplatedParent as FrameworkElement;
+            var root = 
+                (
+                    (pin.Parent as FrameworkElement)
+                    .Parent as FrameworkElement
+                ).TemplatedParent as FrameworkElement;
 
             this._root = root;
 
-            System.Diagnostics.Debug.Print("ConnectPins, pin: {0}, {1}", pin.GetType(), pin.Name);
+            System.Diagnostics.Debug.Print("ConnectPins, pin: {0}, {1}", 
+                pin.GetType(), pin.Name);
 
             double rx = Canvas.GetLeft(this._root);
             double ry = Canvas.GetTop(this._root);
@@ -389,7 +396,8 @@ namespace CanvasDiagramEditor
                 {
                     FrameworkElement root = parent.TemplatedParent as FrameworkElement;
 
-                    System.Diagnostics.Debug.Print("DeleteElement, root: {0}, uid: {1}", root.GetType(), root.Uid);
+                    System.Diagnostics.Debug.Print("DeleteElement, root: {0}, uid: {1}", 
+                        root.GetType(), root.Uid);
 
                     if (root != null && root.Parent == canvas)
                     {
@@ -440,14 +448,21 @@ namespace CanvasDiagramEditor
                 {
                     var line = element as Line;
 
-                    string str = string.Format("+;{0};{1};{2};{3};{4}", element.Uid, line.X1, line.Y1, line.X2, line.Y2);
+                    string str = string.Format("+;{0};{1};{2};{3};{4}", 
+                        element.Uid, 
+                        line.X1, line.Y1, 
+                        line.X2, line.Y2);
+
                     sb.AppendLine(str);
 
                     System.Diagnostics.Debug.Print(str);
                 }
                 else
                 {
-                    string str = string.Format("+;{0};{1};{2}", element.Uid, x, y);
+                    string str = string.Format("+;{0};{1};{2}", 
+                        element.Uid, 
+                        x, y);
+
                     sb.AppendLine(str);
 
                     System.Diagnostics.Debug.Print(str);
@@ -488,7 +503,8 @@ namespace CanvasDiagramEditor
 
         private void ParseDiagramModel(string diagram, Canvas canvas, double offsetX, double offsetY)
         {
-            var lines = diagram.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            var lines = diagram.Split(Environment.NewLine.ToCharArray(), 
+                StringSplitOptions.RemoveEmptyEntries);
 
             var dict = new Dictionary<string, WireMap>();
             WireMap tuple = null;
@@ -507,7 +523,8 @@ namespace CanvasDiagramEditor
 
                     if (CompareString(args[0], "+"))
                     {
-                        if (name.StartsWith("Pin", StringComparison.InvariantCultureIgnoreCase) && length == 4)
+                        if (name.StartsWith("Pin", StringComparison.InvariantCultureIgnoreCase) && 
+                            length == 4)
                         {
                             double x = double.Parse(args[2]);
                             double y = double.Parse(args[3]);
@@ -523,7 +540,8 @@ namespace CanvasDiagramEditor
 
                             dict.Add(args[1], tuple);
                         }
-                        else if (name.StartsWith("Input", StringComparison.InvariantCultureIgnoreCase) && length == 4)
+                        else if (name.StartsWith("Input", StringComparison.InvariantCultureIgnoreCase) && 
+                            length == 4)
                         {
                             double x = double.Parse(args[2]);
                             double y = double.Parse(args[3]);
@@ -539,7 +557,8 @@ namespace CanvasDiagramEditor
 
                             dict.Add(args[1], tuple);
                         }
-                        else if (name.StartsWith("Output", StringComparison.InvariantCultureIgnoreCase) && length == 4)
+                        else if (name.StartsWith("Output", StringComparison.InvariantCultureIgnoreCase) && 
+                            length == 4)
                         {
                             double x = double.Parse(args[2]);
                             double y = double.Parse(args[3]);
@@ -555,7 +574,8 @@ namespace CanvasDiagramEditor
 
                             dict.Add(args[1], tuple);
                         }
-                        else if (name.StartsWith("AndGate", StringComparison.InvariantCultureIgnoreCase) && length == 4)
+                        else if (name.StartsWith("AndGate", StringComparison.InvariantCultureIgnoreCase) && 
+                            length == 4)
                         {
                             double x = double.Parse(args[2]);  
                             double y = double.Parse(args[3]);
@@ -571,7 +591,8 @@ namespace CanvasDiagramEditor
 
                             dict.Add(args[1], tuple);
                         }
-                        else if (name.StartsWith("OrGate", StringComparison.InvariantCultureIgnoreCase) && length == 4)
+                        else if (name.StartsWith("OrGate", StringComparison.InvariantCultureIgnoreCase) && 
+                            length == 4)
                         {
                             double x = double.Parse(args[2]);
                             double y = double.Parse(args[3]);
@@ -587,7 +608,8 @@ namespace CanvasDiagramEditor
 
                             dict.Add(args[1], tuple);
                         }
-                        else if (name.StartsWith("Wire", StringComparison.InvariantCultureIgnoreCase) && length == 6)
+                        else if (name.StartsWith("Wire", StringComparison.InvariantCultureIgnoreCase) && 
+                            length == 6)
                         {
                             double x1 = double.Parse(args[2]);  
                             double y1 = double.Parse(args[3]);
@@ -598,7 +620,10 @@ namespace CanvasDiagramEditor
 
                             this.wireCounter = Math.Max(this.wireCounter, id + 1);
 
-                            var element = CreateWire(x1 + offsetX, y1 + offsetY, x2 + offsetX, y2 + offsetY, id);
+                            var element = CreateWire(x1 + offsetX, y1 + offsetY, 
+                                x2 + offsetX, y2 + offsetY, 
+                                id);
+
                             canvas.Children.Add(element);
 
                             tuple = new WireMap(element, new List<PinMap>());
