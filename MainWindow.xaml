@@ -30,9 +30,9 @@
             <ColumnDefinition Width="200"/>
         </Grid.ColumnDefinitions>
 
-        
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Grid.Column="0" Grid.Row="0">
-            <Grid>
+            
+            <Grid x:Name="RootGrid">
                 
                 <Canvas Width="780" Height="660" 
                         Grid.Column="0" Grid.Row="0"
@@ -55,9 +55,8 @@
                 </Canvas>
                 
             </Grid>
+            
         </ScrollViewer>
-        
-
 
         <Grid Grid.Column="1" Grid.Row="0">
             
@@ -71,11 +70,13 @@
                 <Button x:Name="OpenModel" Content="_Open Model" Margin="2" Click="OpenModel_Click"/>
                 <Button x:Name="SaveModel" Content="_Save Model" Margin="2" Click="SaveModel_Click"/>
                 <Separator Margin="2"/>
+                <Button x:Name="PrintModel" Content="_Print Model" Margin="2" Click="PrintModel_Click"/>
+                <Separator Margin="2"/>
                 <CheckBox x:Name="EnableSnap" Content="Enable S_nap to Grid" Margin="2" Click="EnableSnap_Click"/>
                 <Separator Margin="2"/>
                 <Button x:Name="GenerateModel" Content="_Generate Model" Margin="2" Click="GenerateModel_Click"/>
                 <Button x:Name="ClearModel" Content="_Clear Model" Margin="2" Click="ClearModel_Click"/>
-                <Button x:Name="ParseModel" Content="_Parse Model" Margin="2" Click="ParseModel_Click"/>
+                <Button x:Name="ParseModel" Content="Pa_rse Model" Margin="2" Click="ParseModel_Click"/>
             </StackPanel>
 
             <TextBox x:Name="ModelText" Grid.Row="1" 

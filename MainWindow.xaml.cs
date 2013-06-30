@@ -50,7 +50,8 @@ namespace CanvasDiagramEditor
         private string lastInsert = "Input";
 
         private bool enableSnap = true;
-        private double snap = 15;
+        private double snapX = 15;
+        private double snapY = 15;
         private double snapOffsetX = 0;
         private double snapOffsetY = 0;
 
@@ -82,26 +83,26 @@ namespace CanvasDiagramEditor
             return original + ((Math.Round(original / snap) - original / snap) * snap);
         }
 
-        private double SnapX(double original)
+        private double SnapX(double original, bool snap)
         {
-            return this.enableSnap == true ? 
-                Snap(original, this.snap, this.snapOffsetX) : original;
+            return snap == true ?
+                Snap(original, this.snapX, this.snapOffsetX) : original;
         }
 
-        private double SnapY(double original)
+        private double SnapY(double original, bool snap)
         {
-            return this.enableSnap == true ? 
-                Snap(original, this.snap, this.snapOffsetY) : original;
+            return snap == true ?
+                Snap(original, this.snapY, this.snapOffsetY) : original;
         }
 
         #endregion
 
         #region Move
 
-        private void SetCanvasPosition(FrameworkElement element, double left, double top)
+        private void SetCanvasPosition(FrameworkElement element, double left, double top, bool snap)
         {
-            Canvas.SetLeft(element, SnapX(left));
-            Canvas.SetTop(element, SnapY(top));
+            Canvas.SetLeft(element, SnapX(left, snap));
+            Canvas.SetTop(element, SnapY(top, snap));
         }
 
         private void MoveRoot(FrameworkElement element, double dX, double dY)
@@ -109,7 +110,7 @@ namespace CanvasDiagramEditor
             double left = Canvas.GetLeft(element) + dX;
             double top = Canvas.GetTop(element) + dY;
 
-            SetCanvasPosition(element, left, top);
+            SetCanvasPosition(element, left, top, this.enableSnap);
 
             MoveLines(element, dX, dY);
         }
@@ -128,13 +129,13 @@ namespace CanvasDiagramEditor
 
                     if (start != null)
                     {
-                        line.X1 = SnapX(line.X1 + dX);
-                        line.Y1 = SnapY(line.Y1 + dY);
+                        line.X1 = SnapX(line.X1 + dX, this.enableSnap);
+                        line.Y1 = SnapY(line.Y1 + dY, this.enableSnap);
                     }
                     else if (end != null)
                     {
-                        line.X2 = SnapX(line.X2 + dX);
-                        line.Y2 = SnapY(line.Y2 + dY);
+                        line.X2 = SnapX(line.X2 + dX, this.enableSnap);
+                        line.Y2 = SnapY(line.Y2 + dY, this.enableSnap);
                     }
                 }
             }
@@ -144,7 +145,7 @@ namespace CanvasDiagramEditor
 
         #region Create
 
-        private Thumb CreatePin(double x, double y, int id)
+        private Thumb CreatePin(double x, double y, int id, bool snap)
         {
             var thumb = new Thumb()
             {
@@ -155,7 +156,7 @@ namespace CanvasDiagramEditor
 
             thumb.DragDelta += this.RootElement_DragDelta;
 
-            SetCanvasPosition(thumb, x, y);
+            SetCanvasPosition(thumb, x, y, snap);
 
             return thumb;
         }
@@ -175,7 +176,7 @@ namespace CanvasDiagramEditor
             return line;
         }
 
-        private Thumb CreateInput(double x, double y, int id)
+        private Thumb CreateInput(double x, double y, int id, bool snap)
         {
             var thumb = new Thumb()
             {
@@ -186,12 +187,12 @@ namespace CanvasDiagramEditor
 
             thumb.DragDelta += this.RootElement_DragDelta;
 
-            SetCanvasPosition(thumb, x, y);
+            SetCanvasPosition(thumb, x, y, snap);
 
             return thumb;
         }
 
-        private Thumb CreateOutput(double x, double y, int id)
+        private Thumb CreateOutput(double x, double y, int id, bool snap)
         {
             var thumb = new Thumb()
             {
@@ -202,12 +203,12 @@ namespace CanvasDiagramEditor
 
             thumb.DragDelta += this.RootElement_DragDelta;
 
-            SetCanvasPosition(thumb, x, y);
+            SetCanvasPosition(thumb, x, y, snap);
 
             return thumb;
         }
 
-        private Thumb CreateAndGate(double x, double y, int id)
+        private Thumb CreateAndGate(double x, double y, int id, bool snap)
         {
             var thumb = new Thumb()
             {
@@ -218,12 +219,12 @@ namespace CanvasDiagramEditor
 
             thumb.DragDelta += this.RootElement_DragDelta;
 
-            SetCanvasPosition(thumb, x, y);
+            SetCanvasPosition(thumb, x, y, snap);
 
             return thumb;
         }
 
-        private Thumb CreateOrGate(double x, double y, int id)
+        private Thumb CreateOrGate(double x, double y, int id, bool snap)
         {
             var thumb = new Thumb()
             {
@@ -234,7 +235,7 @@ namespace CanvasDiagramEditor
 
             thumb.DragDelta += this.RootElement_DragDelta;
 
-            SetCanvasPosition(thumb, x, y);
+            SetCanvasPosition(thumb, x, y, snap);
 
             return thumb;
         }
@@ -304,7 +305,7 @@ namespace CanvasDiagramEditor
 
         private FrameworkElement InsertPin(Canvas canvas, Point point)
         {
-            var thumb = CreatePin(point.X, point.Y, pinCounter);
+            var thumb = CreatePin(point.X, point.Y, this.pinCounter, this.enableSnap);
             this.pinCounter += 1;
 
             canvas.Children.Add(thumb);
@@ -314,7 +315,7 @@ namespace CanvasDiagramEditor
 
         private FrameworkElement InsertInput(Canvas canvas, Point point)
         {
-            var thumb = CreateInput(point.X, point.Y, this.inputCounter);
+            var thumb = CreateInput(point.X, point.Y, this.inputCounter, this.enableSnap);
             this.inputCounter += 1;
 
             canvas.Children.Add(thumb);
@@ -324,7 +325,7 @@ namespace CanvasDiagramEditor
 
         private FrameworkElement InsertOutput(Canvas canvas, Point point)
         {
-            var thumb = CreateOutput(point.X, point.Y, this.outputCounter);
+            var thumb = CreateOutput(point.X, point.Y, this.outputCounter, this.enableSnap);
             this.outputCounter += 1;
 
             canvas.Children.Add(thumb);
@@ -334,7 +335,7 @@ namespace CanvasDiagramEditor
 
         private FrameworkElement InsertAndGate(Canvas canvas, Point point)
         {
-            var thumb = CreateAndGate(point.X, point.Y, this.andGateCounter);
+            var thumb = CreateAndGate(point.X, point.Y, this.andGateCounter, this.enableSnap);
             this.andGateCounter += 1;
 
             canvas.Children.Add(thumb);
@@ -344,7 +345,7 @@ namespace CanvasDiagramEditor
 
         private FrameworkElement InsertOrGate(Canvas canvas, Point point)
         {
-            var thumb = CreateOrGate(point.X, point.Y, this.orGateCounter);
+            var thumb = CreateOrGate(point.X, point.Y, this.orGateCounter, this.enableSnap);
             this.orGateCounter += 1;
 
             canvas.Children.Add(thumb);
@@ -533,7 +534,7 @@ namespace CanvasDiagramEditor
 
                             this.pinCounter = Math.Max(this.pinCounter, id + 1);
 
-                            var element = CreatePin(x + offsetX, y + offsetY, id);
+                            var element = CreatePin(x + offsetX, y + offsetY, id, false);
                             canvas.Children.Add(element);
 
                             tuple = new WireMap(element, new List<PinMap>());
@@ -550,7 +551,7 @@ namespace CanvasDiagramEditor
 
                             this.inputCounter = Math.Max(this.inputCounter, id + 1);
 
-                            var element = CreateInput(x + offsetX, y + offsetY, id);
+                            var element = CreateInput(x + offsetX, y + offsetY, id, false);
                             canvas.Children.Add(element);
 
                             tuple = new WireMap(element, new List<PinMap>());
@@ -567,7 +568,7 @@ namespace CanvasDiagramEditor
 
                             this.outputCounter = Math.Max(this.outputCounter, id + 1);
 
-                            var element = CreateOutput(x + offsetX, y + offsetY, id);
+                            var element = CreateOutput(x + offsetX, y + offsetY, id, false);
                             canvas.Children.Add(element);
 
                             tuple = new WireMap(element, new List<PinMap>());
@@ -584,7 +585,7 @@ namespace CanvasDiagramEditor
 
                             this.andGateCounter = Math.Max(this.andGateCounter, id + 1);
 
-                            var element = CreateAndGate(x + offsetX, y + offsetY, id);
+                            var element = CreateAndGate(x + offsetX, y + offsetY, id, false);
                             canvas.Children.Add(element);
 
                             tuple = new WireMap(element, new List<PinMap>());
@@ -601,7 +602,7 @@ namespace CanvasDiagramEditor
 
                             this.orGateCounter = Math.Max(this.orGateCounter, id + 1);
 
-                            var element = CreateOrGate(x + offsetX, y + offsetY, id);
+                            var element = CreateOrGate(x + offsetX, y + offsetY, id, false);
                             canvas.Children.Add(element);
 
                             tuple = new WireMap(element, new List<PinMap>());
@@ -907,6 +908,15 @@ namespace CanvasDiagramEditor
 
                 this.Save(dlg.FileName, canvas);
             }
+        }
+
+        private void PrintModel_Click(object sender, RoutedEventArgs e)
+        {
+            Visual visual = this.RootGrid;
+
+            PrintDialog dlg = new PrintDialog();
+
+            dlg.PrintVisual(visual, "diagram");
         }
 
         private void ClearModel_Click(object sender, RoutedEventArgs e)
