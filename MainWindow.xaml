@@ -76,10 +76,26 @@
                 <Separator Margin="2"/>
                 <Button x:Name="GenerateModel" Content="_Generate Model" Margin="2" Click="GenerateModel_Click"/>
                 <Button x:Name="ClearModel" Content="_Clear Model" Margin="2" Click="ClearModel_Click"/>
-                <Button x:Name="ParseModel" Content="Pa_rse Model" Margin="2" Click="ParseModel_Click"/>
+                <Separator Margin="2"/>
+                <Button x:Name="ImprortModel" Content="I_mport Model" Margin="2" Click="ImportModel_Click"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="70"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Offset X:" Grid.Column="0" Grid.Row="0" Margin="1" HorizontalAlignment="Right"/>
+                    <TextBox x:Name="TextOffsetX" Text="0" Grid.Column="1" Grid.Row="0" Margin="1"/>
+                    <TextBlock Text="Offset Y:" Grid.Column="0" Grid.Row="1" Margin="1" HorizontalAlignment="Right"/>
+                    <TextBox x:Name="TextOffsetY" Text="0" Grid.Column="1" Grid.Row="1" Margin="1"/>
+                </Grid>
+                <Button x:Name="IsertModel" Content="_Insert Copy of Model" Margin="2" Click="InsertModel_Click"/>
             </StackPanel>
 
-            <TextBox x:Name="ModelText" Grid.Row="1" 
+            <TextBox x:Name="TextModel" Grid.Row="1" 
                      AcceptsReturn="True" AcceptsTab="True" 
                      VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                      Margin="2" Padding="2"

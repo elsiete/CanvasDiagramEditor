@@ -412,7 +412,7 @@ namespace CanvasDiagramEditor
 
         #region Diagram Model
 
-        private bool CompareString(string strA, string strB)
+        private static bool CompareString(string strA, string strB)
         {
             return string.Compare(strA, strB, StringComparison.InvariantCultureIgnoreCase) == 0;
         }
@@ -502,15 +502,22 @@ namespace CanvasDiagramEditor
             return sb.ToString();
         }
 
-        private void ParseDiagramModel(string diagram, Canvas canvas, double offsetX, double offsetY)
+        private void ParseDiagramModel(string diagram, Canvas canvas, double offsetX, double offsetY, bool appendIds)
         {
-            var lines = diagram.Split(Environment.NewLine.ToCharArray(), 
-                StringSplitOptions.RemoveEmptyEntries);
+            int _pinCounter = 0;
+            int _wireCounter = 0;
+            int _inputCounter = 0;
+            int _outputCounter = 0;
+            int _andGateCounter = 0;
+            int _orGateCounter = 0;
+
+            WireMap tuple = null;
+            string name = null;
 
             var dict = new Dictionary<string, WireMap>();
-            WireMap tuple = null;
+            var elements = new List<FrameworkElement>();
 
-            string name = null;
+            var lines = diagram.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
             // create root elements
             foreach (var line in lines)
@@ -532,10 +539,10 @@ namespace CanvasDiagramEditor
 
                             int id = int.Parse(name.Split('|')[1]);
 
-                            this.pinCounter = Math.Max(this.pinCounter, id + 1);
+                            _pinCounter = Math.Max(_pinCounter, id + 1);
 
                             var element = CreatePin(x + offsetX, y + offsetY, id, false);
-                            canvas.Children.Add(element);
+                            elements.Add(element);
 
                             tuple = new WireMap(element, new List<PinMap>());
 
@@ -549,10 +556,10 @@ namespace CanvasDiagramEditor
 
                             int id = int.Parse(name.Split('|')[1]);
 
-                            this.inputCounter = Math.Max(this.inputCounter, id + 1);
+                            _inputCounter = Math.Max(_inputCounter, id + 1);
 
                             var element = CreateInput(x + offsetX, y + offsetY, id, false);
-                            canvas.Children.Add(element);
+                            elements.Add(element);
 
                             tuple = new WireMap(element, new List<PinMap>());
 
@@ -566,10 +573,10 @@ namespace CanvasDiagramEditor
 
                             int id = int.Parse(name.Split('|')[1]);
 
-                            this.outputCounter = Math.Max(this.outputCounter, id + 1);
+                            _outputCounter = Math.Max(_outputCounter, id + 1);
 
                             var element = CreateOutput(x + offsetX, y + offsetY, id, false);
-                            canvas.Children.Add(element);
+                            elements.Add(element);
 
                             tuple = new WireMap(element, new List<PinMap>());
 
@@ -583,10 +590,10 @@ namespace CanvasDiagramEditor
 
                             int id = int.Parse(name.Split('|')[1]);
 
-                            this.andGateCounter = Math.Max(this.andGateCounter, id + 1);
+                            _andGateCounter = Math.Max(_andGateCounter, id + 1);
 
                             var element = CreateAndGate(x + offsetX, y + offsetY, id, false);
-                            canvas.Children.Add(element);
+                            elements.Add(element);
 
                             tuple = new WireMap(element, new List<PinMap>());
 
@@ -600,10 +607,10 @@ namespace CanvasDiagramEditor
 
                             int id = int.Parse(name.Split('|')[1]);
 
-                            this.orGateCounter = Math.Max(this.orGateCounter, id + 1);
+                            _orGateCounter = Math.Max(_orGateCounter, id + 1);
 
                             var element = CreateOrGate(x + offsetX, y + offsetY, id, false);
-                            canvas.Children.Add(element);
+                            elements.Add(element);
 
                             tuple = new WireMap(element, new List<PinMap>());
 
@@ -619,13 +626,13 @@ namespace CanvasDiagramEditor
 
                             int id = int.Parse(name.Split('|')[1]);
 
-                            this.wireCounter = Math.Max(this.wireCounter, id + 1);
+                            _wireCounter = Math.Max(_wireCounter, id + 1);
 
                             var element = CreateWire(x1 + offsetX, y1 + offsetY, 
                                 x2 + offsetX, y2 + offsetY, 
                                 id);
 
-                            canvas.Children.Add(element);
+                            elements.Add(element);
 
                             tuple = new WireMap(element, new List<PinMap>());
 
@@ -681,6 +688,81 @@ namespace CanvasDiagramEditor
                     }
                 }
             }
+
+            if (appendIds == true)
+            {
+                // append ids to the existing elements in canvas
+                System.Diagnostics.Debug.Print("Appending Ids:");
+
+                foreach (var element in elements)
+                {
+                    string[] uid = element.Uid.Split('|');
+
+                    string type = uid[0];
+                    int id = int.Parse(uid[1]);
+                    int appendedId = -1;
+
+                    switch (type)
+                    {
+                        case "Wire":
+                            appendedId = this.wireCounter;
+                            this.wireCounter += 1;
+                            break;
+                        case "Input":
+                            appendedId = this.inputCounter;
+                            this.inputCounter += 1;
+                            break;
+                        case "Output":
+                            appendedId = this.outputCounter;
+                            this.outputCounter += 1;
+                            break;
+                        case "AndGate":
+                            appendedId = this.andGateCounter;
+                            this.andGateCounter += 1;
+                            break;
+                        case "OrGate":
+                            appendedId = this.orGateCounter;
+                            this.orGateCounter += 1;
+                            break;
+                        case "Pin":
+                            appendedId = this.pinCounter;
+                            this.pinCounter += 1;
+                            break;
+                        default:
+                            throw new Exception("Unknown type.");
+                    }
+
+                    System.Diagnostics.Debug.Print("+{0}, id: {1} -> {2} ", type, id, appendedId);
+
+                    string appendedUid = string.Concat(type, "|", appendedId.ToString());
+                    element.Uid = appendedUid;
+
+                    //if (element.Tag != null)
+                    //{
+                    //    var _tuples = element.Tag as List<TagMap>;
+                    //    foreach (var _tuple in _tuples)
+                    //    {
+                    //        System.Diagnostics.Debug.Print("  -{0}", _tuple.Item1.Uid);
+                    //    }
+                    //}
+                }
+            }
+            else
+            {
+                // reset existing counters
+                this.pinCounter = Math.Max(this.pinCounter, _pinCounter);
+                this.wireCounter = Math.Max(this.wireCounter, _wireCounter);
+                this.inputCounter = Math.Max(this.inputCounter, _inputCounter);
+                this.outputCounter = Math.Max(this.outputCounter, _outputCounter);
+                this.andGateCounter = Math.Max(this.andGateCounter, _andGateCounter);
+                this.orGateCounter = Math.Max(this.orGateCounter, _orGateCounter);
+            }
+
+            // add elements to canvas
+            foreach (var element in elements)
+            {
+                canvas.Children.Add(element);
+            }
         }
 
         #endregion
@@ -695,7 +777,7 @@ namespace CanvasDiagramEditor
 
                 writer.Write(diagram);
 
-                this.ModelText.Text = diagram;
+                //this.TextModel.Text = diagram;
             }
         }
 
@@ -706,9 +788,18 @@ namespace CanvasDiagramEditor
                 string diagram = reader.ReadToEnd();
 
                 ClearDiagramModel(canvas);
-                ParseDiagramModel(diagram, canvas, 0, 0);
+                ParseDiagramModel(diagram, canvas, 0, 0, false);
 
-                this.ModelText.Text = diagram;
+                //this.TextModel.Text = diagram;
+            }
+        }
+
+        private void Import(string fileName)
+        {
+            using (var reader = new System.IO.StreamReader(fileName))
+            {
+                string diagram = reader.ReadToEnd();
+                this.TextModel.Text = diagram;
             }
         }
 
@@ -932,16 +1023,34 @@ namespace CanvasDiagramEditor
 
             var text = GenerateDiagramModel(canvas);
 
-            this.ModelText.Text = text;
+            this.TextModel.Text = text;
         }
 
-        private void ParseModel_Click(object sender, RoutedEventArgs e)
+        private void ImportModel_Click(object sender, RoutedEventArgs e)
+        {
+            var dlg = new Microsoft.Win32.OpenFileDialog()
+            {
+                Filter = "Diagram (*.txt)|*.txt|All Files (*.*)|*.*",
+                Title = "Open Diagram"
+            };
+
+            var res = dlg.ShowDialog();
+            if (res == true)
+            {
+                this.Import(dlg.FileName);
+            }
+        }
+
+        private void InsertModel_Click(object sender, RoutedEventArgs e)
         {
             var canvas = this.DiagramCanvas;
-            var text = this.ModelText.Text;
+            var text = this.TextModel.Text;
 
-            ClearDiagramModel(canvas);
-            ParseDiagramModel(text, canvas, 0, 0);
+            double offsetX = double.Parse(TextOffsetX.Text);
+            double offsetY = double.Parse(TextOffsetY.Text);
+
+            //ClearDiagramModel(canvas);
+            ParseDiagramModel(text, canvas, offsetX, offsetY, true);
         }
 
         #endregion
