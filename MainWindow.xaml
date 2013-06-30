@@ -4,7 +4,7 @@
         xmlns:local="clr-namespace:CanvasDiagramEditor" 
         x:Class="CanvasDiagramEditor.MainWindow"
         Title="Canvas Diagram Editor" Height="710" Width="1005"
-        WindowStartupLocation="CenterScreen" WindowState="Normal"
+        WindowStartupLocation="CenterScreen" WindowState="Maximized"
         SnapsToDevicePixels="True" UseLayoutRounding="True">
     
     <Window.Resources>
@@ -30,25 +30,34 @@
             <ColumnDefinition Width="200"/>
         </Grid.ColumnDefinitions>
 
-        <Canvas Width="780" Height="660" 
-                Grid.Column="0" Grid.Row="0"
-                ClipToBounds="False"
-                Background="{DynamicResource LogicBackgroundColorKey}">
-            <Path Style="{StaticResource GridPathStyleKey}" Data="M0,30L780,30M0,60L780,60M0,90L780,90M0,120L780,120M0,150L780,150M0,180L780,180M0,210L780,210M0,240L780,240M0,270L780,270M0,300L780,300M0,330L780,330M0,360L780,360M0,390L780,390M0,420L780,420M0,450L780,450M0,480L780,480M0,510L780,510M0,540L780,540M0,570L780,570M0,600L780,600M0,630L780,630M30,0L30,660M60,0L60,660M90,0L90,660M120,0L120,660M150,0L150,660M180,0L180,660M210,0L210,660M240,0L240,660M270,0L270,660M300,0L300,660M330,0L330,660M360,0L360,660M390,0L390,660M420,0L420,660M450,0L450,660M480,0L480,660M510,0L510,660M540,0L540,660M570,0L570,660M600,0L600,660M630,0L630,660M660,0L660,660M690,0L690,660M720,0L720,660M750,0L750,660"/>
-        </Canvas>
         
-        <Canvas x:Name="DiagramCanvas"
-                Width="780" Height="660" 
-                Grid.Column="0" Grid.Row="0"
-                Background="{DynamicResource LogicHiddenColorKey}" 
-                MouseLeftButtonDown="Canvas_MouseLeftButtonDown"
-                PreviewMouseLeftButtonDown="Canvas_PreviewMouseLeftButtonDown"
-                MouseMove="Canvas_MouseMove"
-                MouseRightButtonDown="Canvas_MouseRightButtonDown"
-                PreviewMouseRightButtonDown="Canvas_PreviewMouseRightButtonDown"
-                ContextMenu="{StaticResource DiagramCanvasContextMenuKey}"
-                ContextMenuOpening="Canvas_ContextMenuOpening">
-        </Canvas>
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Grid.Column="0" Grid.Row="0">
+            <Grid>
+                
+                <Canvas Width="780" Height="660" 
+                        Grid.Column="0" Grid.Row="0"
+                        ClipToBounds="False"
+                        Background="{DynamicResource LogicBackgroundColorKey}">
+                    <Path Style="{StaticResource GridPathStyleKey}" Data="M0,30L780,30M0,60L780,60M0,90L780,90M0,120L780,120M0,150L780,150M0,180L780,180M0,210L780,210M0,240L780,240M0,270L780,270M0,300L780,300M0,330L780,330M0,360L780,360M0,390L780,390M0,420L780,420M0,450L780,450M0,480L780,480M0,510L780,510M0,540L780,540M0,570L780,570M0,600L780,600M0,630L780,630M30,0L30,660M60,0L60,660M90,0L90,660M120,0L120,660M150,0L150,660M180,0L180,660M210,0L210,660M240,0L240,660M270,0L270,660M300,0L300,660M330,0L330,660M360,0L360,660M390,0L390,660M420,0L420,660M450,0L450,660M480,0L480,660M510,0L510,660M540,0L540,660M570,0L570,660M600,0L600,660M630,0L630,660M660,0L660,660M690,0L690,660M720,0L720,660M750,0L750,660"/>
+                </Canvas>
+
+                <Canvas x:Name="DiagramCanvas"
+                        Width="780" Height="660" 
+                        Grid.Column="0" Grid.Row="0"
+                        Background="{DynamicResource LogicHiddenColorKey}" 
+                        MouseLeftButtonDown="Canvas_MouseLeftButtonDown"
+                        PreviewMouseLeftButtonDown="Canvas_PreviewMouseLeftButtonDown"
+                        MouseMove="Canvas_MouseMove"
+                        MouseRightButtonDown="Canvas_MouseRightButtonDown"
+                        PreviewMouseRightButtonDown="Canvas_PreviewMouseRightButtonDown"
+                        ContextMenu="{StaticResource DiagramCanvasContextMenuKey}"
+                        ContextMenuOpening="Canvas_ContextMenuOpening">
+                </Canvas>
+                
+            </Grid>
+        </ScrollViewer>
+        
+
 
         <Grid Grid.Column="1" Grid.Row="0">
             
