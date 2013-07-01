@@ -57,6 +57,9 @@ namespace CanvasDiagramEditor
         private double snapOffsetX = 0;
         private double snapOffsetY = 0;
 
+        private double hitTestRadiusX = 4.0;
+        private double hitTestRadiusY = 4.0;
+
         private bool skipContextMenu = false;
         private bool skipLeftClick = false;
 
@@ -132,10 +135,26 @@ namespace CanvasDiagramEditor
                     var start = tuple.Item2;
                     var end = tuple.Item3;
 
+                    var margin = line.Margin;
+                    double left = margin.Left;
+                    double top = margin.Top;
+                    double x = 0;
+                    double y = 0;
+
                     if (start != null)
                     {
-                        line.X1 = SnapX(line.X1 + dX, snap);
-                        line.Y1 = SnapY(line.Y1 + dY, snap);
+                        //line.X1 = SnapX(line.X1 + dX, snap);
+                        //line.Y1 = SnapY(line.Y1 + dY, snap);
+                        
+                        x = SnapX(left + dX, snap);
+                        y = SnapX(top + dY, snap);
+
+                        if (left != x || top != y)
+                        {
+                            line.X2 += left - x;
+                            line.Y2 += top - y;
+                            line.Margin = new Thickness(x, y, 0, 0);
+                        }
                     }
                     else if (end != null)
                     {
@@ -176,10 +195,11 @@ namespace CanvasDiagramEditor
             var line = new Line()
             {
                 Style = Application.Current.Resources["LineStyleKey"] as Style,
-                X1 = x1,
-                Y1 = y1,
-                X2 = x2,
-                Y2 = y2,
+                X1 = 0, //X1 = x1,
+                Y1 = 0, //Y1 = y1,
+                Margin = new Thickness(x1, y1, 0, 0),
+                X2 = x2 - x1, // X2 = x2,
+                Y2 = y2 - y1, // Y2 = y2,
                 Uid = "Wire|" + id.ToString()
             };
 
@@ -271,8 +291,10 @@ namespace CanvasDiagramEditor
             ConnectPins(canvas, x, y);
         }
 
-        private void ConnectPins(Canvas canvas, double x, double y)
+        private Line ConnectPins(Canvas canvas, double x, double y)
         {
+            Line result = null;
+
             if (this._root.Tag == null)
             {
                 this._root.Tag = new List<TagMap>();
@@ -287,22 +309,32 @@ namespace CanvasDiagramEditor
 
                 this._line = line;
 
+                // update connections
                 var tuple = new TagMap(this._line, this._root, null);
                 tuples.Add(tuple);
 
                 canvas.Children.Add(this._line);
+
+                result = line;
             }
             else
             {
-                this._line.X2 = x;
-                this._line.Y2 = y;
+                var margin = this._line.Margin;
 
+                this._line.X2 = x - margin.Left;
+                this._line.Y2 = y - margin.Top;
+
+                // update connections
                 var tuple = new TagMap(this._line, null, this._root);
                 tuples.Add(tuple);
+
+                result = this._line;
 
                 this._line = null;
                 this._root = null;
             }
+
+            return result;
         }
 
         #endregion
@@ -384,33 +416,140 @@ namespace CanvasDiagramEditor
 
         private void DeleteElement(Canvas canvas, Point point)
         {
-            var res = VisualTreeHelper.HitTest(canvas, point);
-            var element = res.VisualHit as FrameworkElement;
+            var element = HitTest(canvas, ref point);
+            string uid = element.Uid;
 
-            FrameworkElement parent = element.Parent as FrameworkElement;
+            System.Diagnostics.Debug.Print("DeleteElement, element: {0}, uid: {1}, parent: {2}", 
+                element.GetType(), element.Uid, element.Parent.GetType());
 
-            if (parent != null)
+            if (element is Line && uid != null && uid.StartsWith("Wire", StringComparison.InvariantCultureIgnoreCase))
             {
-                while (!(parent.TemplatedParent is Thumb))
+                var line = element as Line;
+
+                DeleteWire(canvas, line);
+            }
+            else
+            {
+                canvas.Children.Remove(element);
+
+                //FrameworkElement parent = element.Parent as FrameworkElement;
+                //if (parent != null)
+                //{
+                //    while (!(parent.TemplatedParent is Thumb))
+                //    {
+                //        parent = parent.Parent as FrameworkElement;
+                //        if (parent == null)
+                //            break;
+                //    }
+                //    if (parent != null)
+                //    {
+                //        FrameworkElement root = parent.TemplatedParent as FrameworkElement;
+                //        System.Diagnostics.Debug.Print("DeleteElement, root: {0}, uid: {1}",
+                //            root.GetType(), root.Uid);
+                //        if (root != null && root.Parent == canvas)
+                //        {
+                //            canvas.Children.Remove(root);
+                //        }
+                //    }
+                //}
+            }
+        }
+
+        private FrameworkElement HitTest(Canvas canvas, ref Point point)
+        {
+            //var res = VisualTreeHelper.HitTest(canvas, point);
+            //var element = res.VisualHit as FrameworkElement;
+            //return element;
+
+            var selectedElements = new List<DependencyObject>();
+
+            var elippse = new EllipseGeometry()
                 {
-                    parent = parent.Parent as FrameworkElement;
+                    RadiusX = hitTestRadiusX,
+                    RadiusY = hitTestRadiusY,
+                    Center = new Point(point.X, point.Y),
+                };
 
-                    if (parent == null)
-                        break;
-                }
+            var hitTestParams = new GeometryHitTestParameters(elippse);
 
-                if (parent != null)
+            var resultCallback = new HitTestResultCallback(result => HitTestResultBehavior.Continue);
+
+            var filterCallback = new HitTestFilterCallback(
+                element =>
                 {
-                    FrameworkElement root = parent.TemplatedParent as FrameworkElement;
-
-                    System.Diagnostics.Debug.Print("DeleteElement, root: {0}, uid: {1}", 
-                        root.GetType(), root.Uid);
-
-                    if (root != null && root.Parent == canvas)
+                    if (VisualTreeHelper.GetParent(element) == canvas)
                     {
-                        canvas.Children.Remove(root);
+                        selectedElements.Add(element);
+                    }
+                    return HitTestFilterBehavior.Continue;
+                });
+
+            VisualTreeHelper.HitTest(canvas, filterCallback, resultCallback, hitTestParams);
+
+            return selectedElements.FirstOrDefault() as FrameworkElement;
+        }
+
+        private static void DeleteWire(Canvas canvas, Line line)
+        {
+            canvas.Children.Remove(line);
+
+            // remove wire connections
+            foreach (var child in canvas.Children)
+            {
+                var _element = child as FrameworkElement;
+
+                if (_element.Tag != null)
+                {
+                    var tuples = _element.Tag as List<TagMap>;
+                    var remove = new List<TagMap>();
+
+                    foreach (var tuple in tuples)
+                    {
+                        var _line = tuple.Item1;
+
+                        if (CompareString(_line.Uid, line.Uid))
+                        {
+                            remove.Add(tuple);
+                        }
+                    }
+
+                    foreach (var tuple in remove)
+                    {
+                        tuples.Remove(tuple);
                     }
                 }
+            }
+
+            var pins = new List<FrameworkElement>();
+
+            // find empty pins
+            foreach (var child in canvas.Children)
+            {
+                var _element = child as FrameworkElement;
+
+                string uid = _element.Uid;
+
+                if (uid != null && uid.StartsWith("Pin", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    if (_element.Tag != null)
+                    {
+                        var tuples = _element.Tag as List<TagMap>;
+                        if (tuples.Count <= 0)
+                        {
+                            pins.Add(_element);
+                        }
+                    }
+                    else
+                    {
+                        pins.Add(_element);
+                    }
+                }
+            }
+
+            // remove empty pins
+            foreach (var pin in pins)
+            {
+                canvas.Children.Remove(pin);
             }
         }
 
@@ -454,11 +593,12 @@ namespace CanvasDiagramEditor
                 if (element.Uid.StartsWith("Wire"))
                 {
                     var line = element as Line;
+                    var margin = line.Margin;
 
                     string str = string.Format("+;{0};{1};{2};{3};{4}", 
-                        element.Uid, 
-                        line.X1, line.Y1, 
-                        line.X2, line.Y2);
+                        element.Uid,
+                        margin.Left, margin.Top, //line.X1, line.Y1,
+                        line.X2 + margin.Left, line.Y2 + margin.Top);
 
                     sb.AppendLine(str);
 
@@ -790,8 +930,6 @@ namespace CanvasDiagramEditor
                 string diagram = GenerateDiagramModel(canvas);
 
                 writer.Write(diagram);
-
-                //this.TextModel.Text = diagram;
             }
         }
 
@@ -803,8 +941,6 @@ namespace CanvasDiagramEditor
 
                 ClearDiagramModel(canvas);
                 ParseDiagramModel(diagram, canvas, 0, 0, false, true);
-
-                //this.TextModel.Text = diagram;
             }
         }
 
@@ -869,8 +1005,10 @@ namespace CanvasDiagramEditor
         {
             if (this._root != null && this._line != null)
             {
-                double x = point.X;
-                double y = point.Y;
+                var margin = this._line.Margin;
+
+                double x = point.X - margin.Left;
+                double y = point.Y - margin.Top;
 
                 if (this._line.X2 != x)
                 {
@@ -972,11 +1110,6 @@ namespace CanvasDiagramEditor
             var point = e.GetPosition(canvas);
 
             HandleMove(canvas, point);
-        }
-
-        private void Canvas_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
-        {
-
         }
 
         private void Canvas_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
@@ -1199,6 +1332,7 @@ namespace CanvasDiagramEditor
             double defaultThickness = 1.0;
 
             var st = (RootGrid.LayoutTransform as TransformGroup).Children.First(t => t is ScaleTransform) as ScaleTransform;
+            //var st = (RootGrid.RenderTransform as TransformGroup).Children.First(t => t is ScaleTransform) as ScaleTransform;
 
             st.ScaleX = zoom;
             st.ScaleY = zoom;

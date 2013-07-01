@@ -19,6 +19,11 @@
         
         <!-- styles -->
 
+        <Style x:Key="MainWindowStyleKey" TargetType="Window">
+            <Setter Property="SnapsToDevicePixels" Value="False"/>
+            <Setter Property="UseLayoutRounding" Value="True"/>
+        </Style>
+        
         <Style x:Key="ControlCanvasStyleKey" TargetType="Canvas">
             <Setter Property="ClipToBounds" Value="False"/>
             <Setter Property="Background" Value="{DynamicResource LogicBackgroundColorKey}"/>
@@ -103,10 +108,12 @@
             <Setter Property="Panel.ZIndex" Value="1"/>
             <Setter Property="Stroke" Value="{DynamicResource LogicColorKey}"/>
             <Setter Property="StrokeThickness" Value="{DynamicResource LogicStrokeThicknessKey}"/>
-            <Setter Property="StrokeStartLineCap" Value="Round"/>
-            <Setter Property="StrokeEndLineCap" Value="Round"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="StrokeStartLineCap" Value="Square"/>
+            <Setter Property="StrokeEndLineCap" Value="Square"/>
+            <Setter Property="StrokeLineJoin" Value="Miter"/>
+            <Setter Property="SnapsToDevicePixels" Value="False"/>
             <Setter Property="UseLayoutRounding" Value="False"/>
+            <Setter Property="RenderOptions.EdgeMode" Value="Aliased"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
                     <!--<Setter Property="Stroke" Value="{DynamicResource LogicSelectedColorKey}"/>-->
