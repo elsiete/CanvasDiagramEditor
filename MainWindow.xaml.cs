@@ -1192,6 +1192,8 @@ namespace CanvasDiagramEditor
     
         #endregion
 
+        #region Zoom
+
         private void Zoom(double zoom)
         {
             double defaultThickness = 1.0;
@@ -1204,6 +1206,28 @@ namespace CanvasDiagramEditor
             Application.Current.Resources["LogicStrokeThicknessKey"] = defaultThickness / zoom;
         }
 
+        private void ZoomIn()
+        {
+            double zoom = ZoomSlider.Value;
+            zoom += 0.1;
+
+            if (zoom >= ZoomSlider.Minimum && zoom <= ZoomSlider.Maximum)
+            {
+                ZoomSlider.Value = zoom;
+            }
+        }
+
+        private void ZoomOut()
+        {
+            double zoom = ZoomSlider.Value;
+            zoom -= 0.1;
+
+            if (zoom >= ZoomSlider.Minimum && zoom <= ZoomSlider.Maximum)
+            {
+                ZoomSlider.Value = zoom;
+            }
+        }
+
         private void ZoomSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             double zoom = ZoomSlider.Value;
@@ -1213,41 +1237,29 @@ namespace CanvasDiagramEditor
 
         private void Border_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
         {
+            if (Keyboard.Modifiers == ModifierKeys.Shift)
+                return;
+
             if (e.Delta > 0)
             {
-                double zoom = ZoomSlider.Value;
-                zoom += 0.1;
-
-                if (zoom >= ZoomSlider.Minimum && zoom <= ZoomSlider.Maximum)
-                {
-                    ZoomSlider.Value = zoom;
-                }
+                ZoomIn();
 
                 e.Handled = true;
             }
             else if (e.Delta < 0)
             {
-                double zoom = ZoomSlider.Value;
-                zoom -= 0.1;
-
-                if (zoom >= ZoomSlider.Minimum && zoom <= ZoomSlider.Maximum)
-                {
-                    ZoomSlider.Value = zoom;
-                }
+                ZoomOut();
 
                 e.Handled = true;
             }
-        }
-
-        private void ScrollViewer_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
-        {
-            e.Handled = false;
         }
 
         private void ResetZoom_Click(object sender, RoutedEventArgs e)
         {
             ZoomSlider.Value = 1.0;
         }
+
+        #endregion
     }
 
     #endregion
