@@ -502,7 +502,12 @@ namespace CanvasDiagramEditor
             return sb.ToString();
         }
 
-        private void ParseDiagramModel(string diagram, Canvas canvas, double offsetX, double offsetY, bool appendIds)
+        private void ParseDiagramModel(string diagram, 
+            Canvas canvas, 
+            double offsetX, 
+            double offsetY, 
+            bool appendIds,
+            bool updateIds)
         {
             int _pinCounter = 0;
             int _wireCounter = 0;
@@ -749,13 +754,16 @@ namespace CanvasDiagramEditor
             }
             else
             {
-                // reset existing counters
-                this.pinCounter = Math.Max(this.pinCounter, _pinCounter);
-                this.wireCounter = Math.Max(this.wireCounter, _wireCounter);
-                this.inputCounter = Math.Max(this.inputCounter, _inputCounter);
-                this.outputCounter = Math.Max(this.outputCounter, _outputCounter);
-                this.andGateCounter = Math.Max(this.andGateCounter, _andGateCounter);
-                this.orGateCounter = Math.Max(this.orGateCounter, _orGateCounter);
+                if (updateIds == true)
+                {
+                    // reset existing counters
+                    this.pinCounter = Math.Max(this.pinCounter, _pinCounter);
+                    this.wireCounter = Math.Max(this.wireCounter, _wireCounter);
+                    this.inputCounter = Math.Max(this.inputCounter, _inputCounter);
+                    this.outputCounter = Math.Max(this.outputCounter, _outputCounter);
+                    this.andGateCounter = Math.Max(this.andGateCounter, _andGateCounter);
+                    this.orGateCounter = Math.Max(this.orGateCounter, _orGateCounter);
+                }
             }
 
             // add elements to canvas
@@ -788,7 +796,7 @@ namespace CanvasDiagramEditor
                 string diagram = reader.ReadToEnd();
 
                 ClearDiagramModel(canvas);
-                ParseDiagramModel(diagram, canvas, 0, 0, false);
+                ParseDiagramModel(diagram, canvas, 0, 0, false, true);
 
                 //this.TextModel.Text = diagram;
             }
@@ -1003,10 +1011,20 @@ namespace CanvasDiagramEditor
 
         private void PrintModel_Click(object sender, RoutedEventArgs e)
         {
-            Visual visual = this.RootGrid;
+            var diagram = GenerateDiagramModel(this.DiagramCanvas);
+
+            var canvas = new Canvas()
+            {
+                Background = Brushes.Black,
+                Width = 780,
+                Height = 660
+            };
+
+            ParseDiagramModel(diagram, canvas, 0, 0, false, false);
+
+            Visual visual = canvas; // this.DiagramCanvas;
 
             PrintDialog dlg = new PrintDialog();
-
             dlg.PrintVisual(visual, "diagram");
         }
 
@@ -1044,13 +1062,13 @@ namespace CanvasDiagramEditor
         private void InsertModel_Click(object sender, RoutedEventArgs e)
         {
             var canvas = this.DiagramCanvas;
-            var text = this.TextModel.Text;
+            var diagram = this.TextModel.Text;
 
             double offsetX = double.Parse(TextOffsetX.Text);
             double offsetY = double.Parse(TextOffsetY.Text);
 
             //ClearDiagramModel(canvas);
-            ParseDiagramModel(text, canvas, offsetX, offsetY, true);
+            ParseDiagramModel(diagram, canvas, offsetX, offsetY, true, true);
         }
 
         #endregion
