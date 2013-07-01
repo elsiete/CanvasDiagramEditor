@@ -47,9 +47,11 @@ namespace CanvasDiagramEditor
 
         private Point rightClick;
 
+        private bool enableInsertLast = true;
         private string lastInsert = "Input";
 
         private bool enableSnap = true;
+        private bool snapOnRelease = false;
         private double snapX = 15;
         private double snapY = 15;
         private double snapOffsetX = 0;
@@ -66,7 +68,10 @@ namespace CanvasDiagramEditor
         {
             InitializeComponent();
 
+            EnableInsertLast.IsChecked = this.enableInsertLast;
+
             EnableSnap.IsChecked = this.enableSnap;
+            SnapOnRelease.IsChecked = this.snapOnRelease;
         }
 
         #endregion
@@ -105,17 +110,17 @@ namespace CanvasDiagramEditor
             Canvas.SetTop(element, SnapY(top, snap));
         }
 
-        private void MoveRoot(FrameworkElement element, double dX, double dY)
+        private void MoveRoot(FrameworkElement element, double dX, double dY, bool snap)
         {
             double left = Canvas.GetLeft(element) + dX;
             double top = Canvas.GetTop(element) + dY;
 
-            SetCanvasPosition(element, left, top, this.enableSnap);
+            SetCanvasPosition(element, left, top, snap);
 
-            MoveLines(element, dX, dY);
+            MoveLines(element, dX, dY, snap);
         }
         
-        private void MoveLines(FrameworkElement element, double dX, double dY)
+        private void MoveLines(FrameworkElement element, double dX, double dY, bool snap)
         {
             if (element != null && element.Tag != null)
             {
@@ -129,13 +134,13 @@ namespace CanvasDiagramEditor
 
                     if (start != null)
                     {
-                        line.X1 = SnapX(line.X1 + dX, this.enableSnap);
-                        line.Y1 = SnapY(line.Y1 + dY, this.enableSnap);
+                        line.X1 = SnapX(line.X1 + dX, snap);
+                        line.Y1 = SnapY(line.Y1 + dY, snap);
                     }
                     else if (end != null)
                     {
-                        line.X2 = SnapX(line.X2 + dX, this.enableSnap);
-                        line.Y2 = SnapY(line.Y2 + dY, this.enableSnap);
+                        line.X2 = SnapX(line.X2 + dX, snap);
+                        line.Y2 = SnapY(line.Y2 + dY, snap);
                     }
                 }
             }
@@ -144,6 +149,12 @@ namespace CanvasDiagramEditor
         #endregion
 
         #region Create
+
+        private void SetThumbEvents(Thumb thumb)
+        {
+            thumb.DragDelta += this.RootElement_DragDelta;
+            thumb.DragCompleted += this.RootElement_DragCompleted;
+        }
 
         private Thumb CreatePin(double x, double y, int id, bool snap)
         {
@@ -154,8 +165,7 @@ namespace CanvasDiagramEditor
                 Uid = "Pin|" + id.ToString()
             };
 
-            thumb.DragDelta += this.RootElement_DragDelta;
-
+            SetThumbEvents(thumb);
             SetCanvasPosition(thumb, x, y, snap);
 
             return thumb;
@@ -185,8 +195,7 @@ namespace CanvasDiagramEditor
                 Uid = "Input|" + id.ToString()
             };
 
-            thumb.DragDelta += this.RootElement_DragDelta;
-
+            SetThumbEvents(thumb);
             SetCanvasPosition(thumb, x, y, snap);
 
             return thumb;
@@ -201,8 +210,7 @@ namespace CanvasDiagramEditor
                 Uid = "Output|" + id.ToString()
             };
 
-            thumb.DragDelta += this.RootElement_DragDelta;
-
+            SetThumbEvents(thumb);
             SetCanvasPosition(thumb, x, y, snap);
 
             return thumb;
@@ -217,8 +225,7 @@ namespace CanvasDiagramEditor
                 Uid = "AndGate|" + id.ToString()
             };
 
-            thumb.DragDelta += this.RootElement_DragDelta;
-
+            SetThumbEvents(thumb);
             SetCanvasPosition(thumb, x, y, snap);
 
             return thumb;
@@ -233,8 +240,7 @@ namespace CanvasDiagramEditor
                 Uid = "OrGate|" + id.ToString()
             };
 
-            thumb.DragDelta += this.RootElement_DragDelta;
-
+            SetThumbEvents(thumb);
             SetCanvasPosition(thumb, x, y, snap);
 
             return thumb;
@@ -840,7 +846,7 @@ namespace CanvasDiagramEditor
 
                 ConnectPins(canvas, x, y);
             }
-            else
+            else if (this.enableInsertLast == true)
             {
                 InsertLast(canvas, this.lastInsert, point);
             }
@@ -911,7 +917,24 @@ namespace CanvasDiagramEditor
             double dX = e.HorizontalChange;
             double dY = e.VerticalChange;
 
-            MoveRoot(thumb, dX, dY);
+            if (this.snapOnRelease == true && this.enableSnap == true)
+            {
+                MoveRoot(thumb, dX, dY, false);
+            }
+            else
+            {
+                MoveRoot(thumb, dX, dY, this.enableSnap);
+            }
+        }
+
+        void RootElement_DragCompleted(object sender, DragCompletedEventArgs e)
+        {
+            if (this.snapOnRelease == true && this.enableSnap == true)
+            {
+                var thumb = sender as Thumb;
+
+                MoveRoot(thumb, 0, 0, this.enableSnap);
+            }
         }
 
         #endregion
@@ -1155,8 +1178,18 @@ namespace CanvasDiagramEditor
         private void EnableSnap_Click(object sender, RoutedEventArgs e)
         {
             this.enableSnap = EnableSnap.IsChecked == true ? true : false;
-        } 
+        }
 
+        private void SnapOnRelease_Click(object sender, RoutedEventArgs e)
+        {
+            this.snapOnRelease = SnapOnRelease.IsChecked == true ? true : false;
+        }
+
+        private void EnableInsertLast_Click(object sender, RoutedEventArgs e)
+        {
+            this.enableInsertLast = EnableInsertLast.IsChecked == true ? true : false;
+        } 
+    
         #endregion
     }
 

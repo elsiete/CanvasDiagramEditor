@@ -73,6 +73,9 @@
                 <Button x:Name="PrintModel" Content="_Print Model" Margin="2" Click="PrintModel_Click"/>
                 <Separator Margin="2"/>
                 <CheckBox x:Name="EnableSnap" Content="Enable S_nap to Grid" Margin="2" Click="EnableSnap_Click"/>
+                <CheckBox x:Name="SnapOnRelease" Content="Snap _to Grid on Release" Margin="2" Click="SnapOnRelease_Click"/>
+                <Separator Margin="2"/>
+                <CheckBox x:Name="EnableInsertLast" Content="Insert Last on Left Click" Margin="2" Click="EnableInsertLast_Click"/>
                 <Separator Margin="2"/>
                 <Button x:Name="GenerateModel" Content="_Generate Model" Margin="2" Click="GenerateModel_Click"/>
                 <Button x:Name="ClearModel" Content="_Clear Model" Margin="2" Click="ClearModel_Click"/>
