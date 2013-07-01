@@ -2,10 +2,13 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="clr-namespace:CanvasDiagramEditor.Controls"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
              StartupUri="MainWindow.xaml">
     
     <Application.Resources>
 
+        <sys:Double x:Key="LogicStrokeThicknessKey">1.0</sys:Double>
+        
         <!-- colors -->
 
         <SolidColorBrush x:Key="LogicBackgroundColorKey" Color="Black"/>
@@ -43,7 +46,7 @@
             <Setter Property="Fill" Value="{DynamicResource LogicHiddenColorKey}"/>
             <Setter Property="Stroke" Value="{DynamicResource LogicHiddenColorKey}"/>
             <Setter Property="Cursor" Value="Arrow"/>
-            <Setter Property="StrokeThickness" Value="1"/>
+            <Setter Property="StrokeThickness" Value="{DynamicResource LogicStrokeThicknessKey}"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
             <Setter Property="UseLayoutRounding" Value="False"/>
             <Style.Triggers>
@@ -65,7 +68,7 @@
             <Setter Property="Fill" Value="{DynamicResource LogicHiddenColorKey}"/>
             <Setter Property="Stroke" Value="{DynamicResource LogicHiddenColorKey}"/>
             <!--<Setter Property="Cursor" Value="Arrow"/>-->
-            <Setter Property="StrokeThickness" Value="1"/>
+            <Setter Property="StrokeThickness" Value="{DynamicResource LogicStrokeThicknessKey}"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
             <Setter Property="UseLayoutRounding" Value="False"/>
             <Style.Triggers>
@@ -99,7 +102,7 @@
         <Style x:Key="LineStyleKey" TargetType="Line">
             <Setter Property="Panel.ZIndex" Value="1"/>
             <Setter Property="Stroke" Value="{DynamicResource LogicColorKey}"/>
-            <Setter Property="StrokeThickness" Value="1.0"/>
+            <Setter Property="StrokeThickness" Value="{DynamicResource LogicStrokeThicknessKey}"/>
             <Setter Property="StrokeStartLineCap" Value="Round"/>
             <Setter Property="StrokeEndLineCap" Value="Round"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -115,7 +118,7 @@
         <Style x:Key="GridPathStyleKey" TargetType="Path">
             <Setter Property="Stroke" Value="{DynamicResource LogicGridColorKey}"/>
             <Setter Property="Fill" Value="Transparent"/>
-            <Setter Property="StrokeThickness" Value="1.0"/>
+            <Setter Property="StrokeThickness" Value="{DynamicResource LogicStrokeThicknessKey}"/>
             <Setter Property="StrokeStartLineCap" Value="Flat"/>
             <Setter Property="StrokeEndLineCap" Value="Flat"/>
             <Setter Property="StrokeLineJoin" Value="Miter"/>
@@ -125,7 +128,7 @@
         <Style x:Key="LogicPathStyleKey" TargetType="Path">
             <Setter Property="Stroke" Value="{DynamicResource LogicColorKey}"/>
             <Setter Property="Fill" Value="Transparent"/>
-            <Setter Property="StrokeThickness" Value="1.0"/>
+            <Setter Property="StrokeThickness" Value="{DynamicResource LogicStrokeThicknessKey}"/>
             <Setter Property="StrokeStartLineCap" Value="Square"/>
             <Setter Property="StrokeEndLineCap" Value="Square"/>
             <Setter Property="StrokeLineJoin" Value="Miter"/>

@@ -1191,6 +1191,63 @@ namespace CanvasDiagramEditor
         } 
     
         #endregion
+
+        private void Zoom(double zoom)
+        {
+            double defaultThickness = 1.0;
+
+            var st = (RootGrid.LayoutTransform as TransformGroup).Children.First(t => t is ScaleTransform) as ScaleTransform;
+
+            st.ScaleX = zoom;
+            st.ScaleY = zoom;
+
+            Application.Current.Resources["LogicStrokeThicknessKey"] = defaultThickness / zoom;
+        }
+
+        private void ZoomSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            double zoom = ZoomSlider.Value;
+
+            Zoom(zoom);
+        }
+
+        private void Border_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if (e.Delta > 0)
+            {
+                double zoom = ZoomSlider.Value;
+                zoom += 0.1;
+
+                if (zoom >= ZoomSlider.Minimum && zoom <= ZoomSlider.Maximum)
+                {
+                    ZoomSlider.Value = zoom;
+                }
+
+                e.Handled = true;
+            }
+            else if (e.Delta < 0)
+            {
+                double zoom = ZoomSlider.Value;
+                zoom -= 0.1;
+
+                if (zoom >= ZoomSlider.Minimum && zoom <= ZoomSlider.Maximum)
+                {
+                    ZoomSlider.Value = zoom;
+                }
+
+                e.Handled = true;
+            }
+        }
+
+        private void ScrollViewer_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            e.Handled = false;
+        }
+
+        private void ResetZoom_Click(object sender, RoutedEventArgs e)
+        {
+            ZoomSlider.Value = 1.0;
+        }
     }
 
     #endregion
