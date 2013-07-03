@@ -93,6 +93,10 @@
                 <Separator Margin="2"/>
                 <Button x:Name="PrintModel" Content="_Print Model" Margin="2" Click="PrintModel_Click"/>
                 <Separator Margin="2"/>
+                <Button x:Name="UndoHistory" Content="_Undo" Margin="2" Click="UndoHistory_Click"/>
+                <Button x:Name="RedoHistory" Content="_Redo" Margin="2" Click="RedoHistory_Click"/>
+                <CheckBox x:Name="EnableHistory" Content="Enable _History" Margin="2" Click="EnableHistory_Click"/>
+                <Separator Margin="2"/>
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="40"/>

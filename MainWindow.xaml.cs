@@ -35,6 +35,10 @@ namespace CanvasDiagramEditor
     {
         #region Fields
 
+        private bool enableHistory = true;
+        private Stack<string> undoHistory = new Stack<string>();
+        private Stack<string> redoHistory = new Stack<string>();
+
         private Line _line = null;
         private FrameworkElement _root = null;
 
@@ -65,11 +69,103 @@ namespace CanvasDiagramEditor
 
         #endregion
 
+        #region History (Undo/Redo)
+
+        private void AddToHistory(Canvas canvas)
+        {
+            if (this.enableHistory != true)
+                return;
+
+            var model = GenerateDiagramModel(canvas);
+
+            undoHistory.Push(model);
+
+            redoHistory.Clear();
+        }
+
+        private void RollbackUndoHistory(Canvas canvas)
+        {
+            if (this.enableHistory != true)
+                return;
+
+            if (undoHistory.Count <= 0)
+                return;
+
+            // remove unused history
+            undoHistory.Pop();
+        }
+
+        private void RollbackRedoHistory(Canvas canvas)
+        {
+            if (this.enableHistory != true)
+                return;
+
+            if (redoHistory.Count <= 0)
+                return;
+
+            // remove unused history
+            redoHistory.Pop();
+        }
+
+        private void ClearHistory(Canvas canvas)
+        {
+            undoHistory.Clear();
+            redoHistory.Clear();
+        }
+
+        private void Undo(Canvas canvas, bool pushRedo)
+        {
+            if (this.enableHistory != true)
+                return;
+
+            if (undoHistory.Count <= 0)
+                return;
+
+            // save current model
+            if (pushRedo == true)
+            {
+                var current = GenerateDiagramModel(canvas);
+                redoHistory.Push(current);
+            }
+
+            // resotore previous model
+            var model = undoHistory.Pop();
+
+            ClearDiagramModel(canvas);
+            ParseDiagramModel(model, canvas, 0, 0, false, true);
+        }
+
+        private void Redo(Canvas canvas, bool pushUndo)
+        {
+            if (this.enableHistory != true)
+                return;
+
+            if (redoHistory.Count <= 0)
+                return;
+
+            // save current model
+            if (pushUndo == true)
+            {
+                var current = GenerateDiagramModel(canvas);
+                undoHistory.Push(current);
+            }
+
+            // resotore previous model
+            var model = redoHistory.Pop();
+        
+            ClearDiagramModel(canvas);
+            ParseDiagramModel(model, canvas, 0, 0, false, true);
+        }
+
+        #endregion
+
         #region Constructor
 
         public MainWindow()
         {
             InitializeComponent();
+
+            EnableHistory.IsChecked = this.enableHistory;
 
             EnableInsertLast.IsChecked = this.enableInsertLast;
 
@@ -172,6 +268,7 @@ namespace CanvasDiagramEditor
         private void SetThumbEvents(Thumb thumb)
         {
             thumb.DragDelta += this.RootElement_DragDelta;
+            thumb.DragStarted += this.RootElement_DragStarted;
             thumb.DragCompleted += this.RootElement_DragCompleted;
         }
 
@@ -427,6 +524,7 @@ namespace CanvasDiagramEditor
                 var line = element as Line;
 
                 DeleteWire(canvas, line);
+
             }
             else
             {
@@ -576,12 +674,14 @@ namespace CanvasDiagramEditor
 
         private string GenerateDiagramModel(Canvas canvas)
         {
-            var sb = new StringBuilder();
+            var model = new StringBuilder();
 
             string header = "[Diagram]";
 
+            System.Diagnostics.Debug.Print("Generating diagram model:");
+
             System.Diagnostics.Debug.Print(header);
-            sb.AppendLine(header);
+            model.AppendLine(header);
 
             foreach (var child in canvas.Children)
             {
@@ -600,7 +700,7 @@ namespace CanvasDiagramEditor
                         margin.Left, margin.Top, //line.X1, line.Y1,
                         line.X2 + margin.Left, line.Y2 + margin.Top);
 
-                    sb.AppendLine(str);
+                    model.AppendLine(str);
 
                     System.Diagnostics.Debug.Print(str);
                 }
@@ -610,7 +710,7 @@ namespace CanvasDiagramEditor
                         element.Uid, 
                         x, y);
 
-                    sb.AppendLine(str);
+                    model.AppendLine(str);
 
                     System.Diagnostics.Debug.Print(str);
                 }
@@ -629,7 +729,7 @@ namespace CanvasDiagramEditor
                         {
                             // Start
                             string str = string.Format("-;{0};Start", line.Uid);
-                            sb.AppendLine(str);
+                            model.AppendLine(str);
 
                             System.Diagnostics.Debug.Print(str);
                         }
@@ -637,7 +737,7 @@ namespace CanvasDiagramEditor
                         {
                             // End
                             string str = string.Format("-;{0};End", line.Uid);
-                            sb.AppendLine(str);
+                            model.AppendLine(str);
 
                             System.Diagnostics.Debug.Print(str);
                         }
@@ -645,7 +745,7 @@ namespace CanvasDiagramEditor
                 }
             }
 
-            return sb.ToString();
+            return model.ToString();
         }
 
         private void ParseDiagramModel(string diagram, 
@@ -670,11 +770,15 @@ namespace CanvasDiagramEditor
 
             var lines = diagram.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
+            System.Diagnostics.Debug.Print("Parsing diagram model:");
+
             // create root elements
             foreach (var line in lines)
             {
                 var args = line.Split(';');
                 int length = args.Length;
+
+                System.Diagnostics.Debug.Print(line);
 
                 if (length >= 2)
                 {
@@ -927,9 +1031,9 @@ namespace CanvasDiagramEditor
         {
             using (var writer = new System.IO.StreamWriter(fileName))
             {
-                string diagram = GenerateDiagramModel(canvas);
+                string model = GenerateDiagramModel(canvas);
 
-                writer.Write(diagram);
+                writer.Write(model);
             }
         }
 
@@ -938,6 +1042,8 @@ namespace CanvasDiagramEditor
             using (var reader = new System.IO.StreamReader(fileName))
             {
                 string diagram = reader.ReadToEnd();
+
+                AddToHistory(canvas);
 
                 ClearDiagramModel(canvas);
                 ParseDiagramModel(diagram, canvas, 0, 0, false, true);
@@ -984,6 +1090,8 @@ namespace CanvasDiagramEditor
             }
             else if (this.enableInsertLast == true)
             {
+                AddToHistory(canvas);
+
                 InsertLast(canvas, this.lastInsert, point);
             }
         }
@@ -993,6 +1101,9 @@ namespace CanvasDiagramEditor
             if (pin != null &&
                 !CompareString(pin.Name, "MiddlePin") || Keyboard.Modifiers == ModifierKeys.Control)
             {
+                if (this._line == null)
+                    AddToHistory(canvas);
+
                 ConnectPins(canvas, pin);
 
                 return true;
@@ -1028,13 +1139,21 @@ namespace CanvasDiagramEditor
         {
             if (this._root != null && this._line != null)
             {
-                var tuples = this._root.Tag as List<TagMap>;
+                if (this.enableHistory == true)
+                {
+                    Undo(canvas, false);
+                }
+                else
+                {
+                    var tuples = this._root.Tag as List<TagMap>;
 
-                var last = tuples.LastOrDefault();
-                tuples.Remove(last);
+                    var last = tuples.LastOrDefault();
+                    tuples.Remove(last);
 
-                canvas.Children.Remove(this._line);
+                    canvas.Children.Remove(this._line);
 
+                    //RollbackUndoHistory(canvas);
+                }
                 this._line = null;
                 this._root = null;
 
@@ -1065,7 +1184,14 @@ namespace CanvasDiagramEditor
             }
         }
 
-        void RootElement_DragCompleted(object sender, DragCompletedEventArgs e)
+        private void RootElement_DragStarted(object sender, DragStartedEventArgs e)
+        {
+            var canvas = this.DiagramCanvas;
+
+            AddToHistory(canvas);
+        }
+
+        private void RootElement_DragCompleted(object sender, DragCompletedEventArgs e)
         {
             if (this.snapOnRelease == true && this.enableSnap == true)
             {
@@ -1167,7 +1293,7 @@ namespace CanvasDiagramEditor
 
         private void PrintModel_Click(object sender, RoutedEventArgs e)
         {
-            var diagram = GenerateDiagramModel(this.DiagramCanvas);
+            var model = GenerateDiagramModel(this.DiagramCanvas);
 
             var canvas = new Canvas()
             {
@@ -1176,7 +1302,7 @@ namespace CanvasDiagramEditor
                 Height = 660
             };
 
-            ParseDiagramModel(diagram, canvas, 0, 0, false, false);
+            ParseDiagramModel(model, canvas, 0, 0, false, false);
 
             Visual visual = canvas; // this.DiagramCanvas;
 
@@ -1184,9 +1310,23 @@ namespace CanvasDiagramEditor
             dlg.PrintVisual(visual, "diagram");
         }
 
+        private void UndoHistory_Click(object sender, RoutedEventArgs e)
+        {
+            var canvas = this.DiagramCanvas;
+            this.Undo(canvas, true);
+        }
+
+        private void RedoHistory_Click(object sender, RoutedEventArgs e)
+        {
+            var canvas = this.DiagramCanvas;
+            this.Redo(canvas, true);
+        }
+
         private void ClearModel_Click(object sender, RoutedEventArgs e)
         {
             var canvas = this.DiagramCanvas;
+
+            AddToHistory(canvas);
 
             ClearDiagramModel(canvas);
         }
@@ -1195,9 +1335,9 @@ namespace CanvasDiagramEditor
         {
             var canvas = this.DiagramCanvas;
 
-            var text = GenerateDiagramModel(canvas);
+            var model = GenerateDiagramModel(canvas);
 
-            this.TextModel.Text = text;
+            this.TextModel.Text = model;
         }
 
         private void ImportModel_Click(object sender, RoutedEventArgs e)
@@ -1222,6 +1362,8 @@ namespace CanvasDiagramEditor
 
             double offsetX = double.Parse(TextOffsetX.Text);
             double offsetY = double.Parse(TextOffsetY.Text);
+
+            AddToHistory(canvas);
 
             //ClearDiagramModel(canvas);
             ParseDiagramModel(diagram, canvas, offsetX, offsetY, true, true);
@@ -1248,6 +1390,8 @@ namespace CanvasDiagramEditor
         {
             var canvas = this.DiagramCanvas;
 
+            AddToHistory(canvas);
+
             InsertPin(canvas, this.rightClick);
 
             this.lastInsert = "Pin";
@@ -1257,6 +1401,8 @@ namespace CanvasDiagramEditor
         private void InsertInput_Click(object sender, RoutedEventArgs e)
         {
             var canvas = this.DiagramCanvas;
+
+            AddToHistory(canvas);
 
             InsertInput(canvas, this.rightClick);
 
@@ -1268,6 +1414,8 @@ namespace CanvasDiagramEditor
         {
             var canvas = this.DiagramCanvas;
 
+            AddToHistory(canvas);
+
             InsertOutput(canvas, this.rightClick);
 
             this.lastInsert = "Output";
@@ -1278,6 +1426,8 @@ namespace CanvasDiagramEditor
         {
             var canvas = this.DiagramCanvas;
 
+            AddToHistory(canvas);
+
             InsertAndGate(canvas, this.rightClick);
 
             this.lastInsert = "AndGate";
@@ -1287,6 +1437,8 @@ namespace CanvasDiagramEditor
         private void InsertOrGate_Click(object sender, RoutedEventArgs e)
         {
             var canvas = this.DiagramCanvas;
+
+            AddToHistory(canvas);
 
             InsertOrGate(canvas, this.rightClick);
 
@@ -1300,6 +1452,8 @@ namespace CanvasDiagramEditor
             var menu = sender as MenuItem;
             var point = new Point(this.rightClick.X, this.rightClick.Y);
 
+            AddToHistory(canvas);
+
             DeleteElement(canvas, point);
             this.skipLeftClick = false;
         }
@@ -1307,6 +1461,18 @@ namespace CanvasDiagramEditor
         #endregion
 
         #region CheckBox Events
+
+        private void EnableHistory_Click(object sender, RoutedEventArgs e)
+        {
+            this.enableHistory = EnableHistory.IsChecked == true ? true : false;
+
+            if (this.enableHistory == false)
+            {
+                var canvas = this.DiagramCanvas;
+
+                ClearHistory(canvas);
+            }
+        }
 
         private void EnableSnap_Click(object sender, RoutedEventArgs e)
         {
