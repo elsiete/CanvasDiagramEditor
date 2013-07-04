@@ -30,7 +30,12 @@
             <ColumnDefinition Width="200"/>
         </Grid.ColumnDefinitions>
 
-        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Grid.Column="0" Grid.Row="0">
+        <ScrollViewer x:Name="PanScrollViewer" 
+                      MouseMove="PanScrollViewer_MouseMove" 
+                      MouseDown="PanScrollViewer_MouseDown" 
+                      MouseUp="PanScrollViewer_MouseUp"
+                      VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" 
+                      Grid.Column="0" Grid.Row="0">
 
             <Border BorderThickness="0" BorderBrush="Transparent" ClipToBounds="True" PreviewMouseWheel="Border_PreviewMouseWheel">
                 

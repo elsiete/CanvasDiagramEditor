@@ -67,6 +67,10 @@ namespace CanvasDiagramEditor
         private bool skipContextMenu = false;
         private bool skipLeftClick = false;
 
+        private Point panStart;
+        private double previousScrollOffsetX = -1.0;
+        private double previousScrollOffsetY = -1.0;
+
         #endregion
 
         #region History (Undo/Redo)
@@ -373,8 +377,7 @@ namespace CanvasDiagramEditor
 
             this._root = root;
 
-            System.Diagnostics.Debug.Print("ConnectPins, pin: {0}, {1}", 
-                pin.GetType(), pin.Name);
+            //System.Diagnostics.Debug.Print("ConnectPins, pin: {0}, {1}", pin.GetType(), pin.Name);
 
             double rx = Canvas.GetLeft(this._root);
             double ry = Canvas.GetTop(this._root);
@@ -383,7 +386,7 @@ namespace CanvasDiagramEditor
             double x = rx + px;
             double y = ry + py;
 
-            System.Diagnostics.Debug.Print("x: {0}, y: {0}", x, y);
+            //System.Diagnostics.Debug.Print("x: {0}, y: {0}", x, y);
 
             ConnectPins(canvas, x, y);
         }
@@ -516,8 +519,8 @@ namespace CanvasDiagramEditor
             var element = HitTest(canvas, ref point);
             string uid = element.Uid;
 
-            System.Diagnostics.Debug.Print("DeleteElement, element: {0}, uid: {1}, parent: {2}", 
-                element.GetType(), element.Uid, element.Parent.GetType());
+            //System.Diagnostics.Debug.Print("DeleteElement, element: {0}, uid: {1}, parent: {2}", 
+            //    element.GetType(), element.Uid, element.Parent.GetType());
 
             if (element is Line && uid != null && uid.StartsWith("Wire", StringComparison.InvariantCultureIgnoreCase))
             {
@@ -678,9 +681,9 @@ namespace CanvasDiagramEditor
 
             string header = "[Diagram]";
 
-            System.Diagnostics.Debug.Print("Generating diagram model:");
+            //System.Diagnostics.Debug.Print("Generating diagram model:");
 
-            System.Diagnostics.Debug.Print(header);
+            //System.Diagnostics.Debug.Print(header);
             model.AppendLine(header);
 
             foreach (var child in canvas.Children)
@@ -702,7 +705,7 @@ namespace CanvasDiagramEditor
 
                     model.AppendLine(str);
 
-                    System.Diagnostics.Debug.Print(str);
+                    //System.Diagnostics.Debug.Print(str);
                 }
                 else
                 {
@@ -712,7 +715,7 @@ namespace CanvasDiagramEditor
 
                     model.AppendLine(str);
 
-                    System.Diagnostics.Debug.Print(str);
+                    //System.Diagnostics.Debug.Print(str);
                 }
 
                 if (element.Tag != null)
@@ -731,7 +734,7 @@ namespace CanvasDiagramEditor
                             string str = string.Format("-;{0};Start", line.Uid);
                             model.AppendLine(str);
 
-                            System.Diagnostics.Debug.Print(str);
+                            //System.Diagnostics.Debug.Print(str);
                         }
                         else if (end != null)
                         {
@@ -739,7 +742,7 @@ namespace CanvasDiagramEditor
                             string str = string.Format("-;{0};End", line.Uid);
                             model.AppendLine(str);
 
-                            System.Diagnostics.Debug.Print(str);
+                            //System.Diagnostics.Debug.Print(str);
                         }
                     }
                 }
@@ -770,7 +773,7 @@ namespace CanvasDiagramEditor
 
             var lines = diagram.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
-            System.Diagnostics.Debug.Print("Parsing diagram model:");
+            //System.Diagnostics.Debug.Print("Parsing diagram model:");
 
             // create root elements
             foreach (var line in lines)
@@ -778,7 +781,7 @@ namespace CanvasDiagramEditor
                 var args = line.Split(';');
                 int length = args.Length;
 
-                System.Diagnostics.Debug.Print(line);
+                //System.Diagnostics.Debug.Print(line);
 
                 if (length >= 2)
                 {
@@ -947,7 +950,7 @@ namespace CanvasDiagramEditor
             if (appendIds == true)
             {
                 // append ids to the existing elements in canvas
-                System.Diagnostics.Debug.Print("Appending Ids:");
+                //System.Diagnostics.Debug.Print("Appending Ids:");
 
                 foreach (var element in elements)
                 {
@@ -987,7 +990,7 @@ namespace CanvasDiagramEditor
                             throw new Exception("Unknown type.");
                     }
 
-                    System.Diagnostics.Debug.Print("+{0}, id: {1} -> {2} ", type, id, appendedId);
+                    //System.Diagnostics.Debug.Print("+{0}, id: {1} -> {2} ", type, id, appendedId);
 
                     string appendedUid = string.Concat(type, "|", appendedId.ToString());
                     element.Uid = appendedUid;
@@ -1071,7 +1074,7 @@ namespace CanvasDiagramEditor
 
                 this._root = root;
 
-                System.Diagnostics.Debug.Print("Canvas_MouseLeftButtonDown, root: {0}", root.GetType());
+                //System.Diagnostics.Debug.Print("Canvas_MouseLeftButtonDown, root: {0}", root.GetType());
 
                 double rx = Canvas.GetLeft(this._root);
                 double ry = Canvas.GetTop(this._root);
@@ -1080,7 +1083,7 @@ namespace CanvasDiagramEditor
                 double x = rx + px;
                 double y = ry + py;
 
-                System.Diagnostics.Debug.Print("x: {0}, y: {0}", x, y);
+                //System.Diagnostics.Debug.Print("x: {0}, y: {0}", x, y);
 
                 ConnectPins(canvas, x, y);
 
@@ -1233,6 +1236,7 @@ namespace CanvasDiagramEditor
         private void Canvas_MouseMove(object sender, MouseEventArgs e)
         {
             var canvas = this.DiagramCanvas;
+
             var point = e.GetPosition(canvas);
 
             HandleMove(canvas, point);
@@ -1558,6 +1562,73 @@ namespace CanvasDiagramEditor
         {
             ZoomSlider.Value = 1.0;
         }
+
+        #endregion
+
+        #region Pan
+
+        private void PanScrollViewer_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (this.PanScrollViewer.IsMouseCaptured == true)
+            {
+                var pos = e.GetPosition(this.PanScrollViewer);
+
+                double zoomFactor = ZoomSlider.Value / 3.0;
+
+                double scrollOffsetX = pos.X - panStart.X;
+                double scrollOffsetY = pos.Y - panStart.Y;
+
+                scrollOffsetX = Math.Round(this.PanScrollViewer.HorizontalOffset + (scrollOffsetX * zoomFactor) * -1.0, 0);
+                scrollOffsetY = Math.Round(this.PanScrollViewer.VerticalOffset + (scrollOffsetY * zoomFactor) * -1.0, 0);
+
+                scrollOffsetX = scrollOffsetX > this.PanScrollViewer.ScrollableWidth ? this.PanScrollViewer.ScrollableWidth : scrollOffsetX;
+                scrollOffsetY = scrollOffsetY > this.PanScrollViewer.ScrollableHeight ? this.PanScrollViewer.ScrollableHeight : scrollOffsetY;
+
+                scrollOffsetX = scrollOffsetX < 0 ? 0.0 : scrollOffsetX;
+                scrollOffsetY = scrollOffsetY < 0 ? 0.0 : scrollOffsetY;
+
+                if (scrollOffsetX != this.previousScrollOffsetX)
+                {
+                    this.PanScrollViewer.ScrollToHorizontalOffset(scrollOffsetX);
+                    this.previousScrollOffsetX = scrollOffsetX;
+                }
+
+                if (scrollOffsetY != this.previousScrollOffsetY)
+                {
+                    this.PanScrollViewer.ScrollToVerticalOffset(scrollOffsetY);
+                    this.previousScrollOffsetY = scrollOffsetY;
+                }
+
+                this.panStart = pos;
+
+                e.Handled = true;
+            }
+        }
+
+        private void PanScrollViewer_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Middle)
+            {
+                this.panStart = e.GetPosition(this.PanScrollViewer);
+                this.previousScrollOffsetX = -1.0;
+                this.previousScrollOffsetY = -1.0;
+
+                this.Cursor = Cursors.ScrollAll;
+                this.PanScrollViewer.CaptureMouse();
+            }
+        }
+
+        private void PanScrollViewer_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Middle)
+            {
+                if (PanScrollViewer.IsMouseCaptured == true)
+                {
+                    this.Cursor = Cursors.Arrow;
+                    this.PanScrollViewer.ReleaseMouseCapture();
+                }
+            }
+        } 
 
         #endregion
     }
