@@ -369,6 +369,9 @@ namespace CanvasDiagramEditor
 
         private void ConnectPins(Canvas canvas, FrameworkElement pin)
         {
+            if (pin == null)
+                return;
+
             var root = 
                 (
                     (pin.Parent as FrameworkElement)
@@ -1118,7 +1121,7 @@ namespace CanvasDiagramEditor
         private bool HandlePreviewLeftDown(Canvas canvas, FrameworkElement pin)
         {
             if (pin != null &&
-                !CompareString(pin.Name, "MiddlePin") || Keyboard.Modifiers == ModifierKeys.Control)
+                (!CompareString(pin.Name, "MiddlePin") || Keyboard.Modifiers == ModifierKeys.Control))
             {
                 if (this._line == null)
                     AddToHistory(canvas);
