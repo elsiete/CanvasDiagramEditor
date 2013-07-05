@@ -71,6 +71,15 @@ namespace CanvasDiagramEditor
         private double previousScrollOffsetX = -1.0;
         private double previousScrollOffsetY = -1.0;
 
+        private double defaultStrokeThickness = 1.0;
+
+        private double zoomInFactor = 0.1;
+        private double zoomOutFactor = 0.1;
+
+        private double reversePanDirection = -1.0; // reverse: 1.0, normal: -1.0
+        private double panSpeedFactor = 3.0; // pan speed factor, depends on current zoom
+        private MouseButton panButton = MouseButton.Middle;
+
         #endregion
 
         #region History (Undo/Redo)
@@ -1191,18 +1200,28 @@ namespace CanvasDiagramEditor
 
         private void RootElement_DragDelta(object sender, DragDeltaEventArgs e)
         {
-            var thumb = sender as Thumb;
-
             double dX = e.HorizontalChange;
             double dY = e.VerticalChange;
 
-            if (this.snapOnRelease == true && this.enableSnap == true)
+            bool snap = (this.snapOnRelease == true && this.enableSnap == true) ? false : this.enableSnap;
+
+            if (Keyboard.Modifiers == ModifierKeys.Control)
             {
-                MoveRoot(thumb, dX, dY, false);
+                // move all elements when Control key is pressed
+                var canvas = this.DiagramCanvas;
+                var thumbs = canvas.Children.OfType<Thumb>();
+
+                foreach(var thumb in thumbs)
+                {
+                    MoveRoot(thumb, dX, dY, snap);
+                }
             }
             else
             {
-                MoveRoot(thumb, dX, dY, this.enableSnap);
+                // move only selected element
+                var thumb = sender as Thumb;
+
+                MoveRoot(thumb, dX, dY, snap);
             }
         }
 
@@ -1217,9 +1236,24 @@ namespace CanvasDiagramEditor
         {
             if (this.snapOnRelease == true && this.enableSnap == true)
             {
-                var thumb = sender as Thumb;
+                if (Keyboard.Modifiers == ModifierKeys.Control)
+                {
+                    // move all elements when Control key is pressed
+                    var canvas = this.DiagramCanvas;
+                    var thumbs = canvas.Children.OfType<Thumb>();
 
-                MoveRoot(thumb, 0, 0, this.enableSnap);
+                    foreach (var thumb in thumbs)
+                    {
+                        MoveRoot(thumb, 0.0, 0.0, this.enableSnap);
+                    }
+                }
+                else
+                {
+                    // move only selected element
+                    var thumb = sender as Thumb;
+
+                    MoveRoot(thumb, 0.0, 0.0, this.enableSnap);
+                }
             }
         }
 
@@ -1543,8 +1577,6 @@ namespace CanvasDiagramEditor
 
         private void Zoom(double zoom)
         {
-            double defaultThickness = 1.0;
-
             //var tg = RootGrid.RenderTransform as TransformGroup;
             var tg = RootGrid.LayoutTransform as TransformGroup;
             var st = tg.Children.First(t => t is ScaleTransform) as ScaleTransform;
@@ -1552,13 +1584,13 @@ namespace CanvasDiagramEditor
             st.ScaleX = zoom;
             st.ScaleY = zoom;
 
-            Application.Current.Resources["LogicStrokeThicknessKey"] = defaultThickness / zoom;
+            Application.Current.Resources["LogicStrokeThicknessKey"] = defaultStrokeThickness / zoom;
         }
 
         private void ZoomIn()
         {
             double zoom = ZoomSlider.Value;
-            zoom += 0.1;
+            zoom += zoomInFactor;
 
             if (zoom >= ZoomSlider.Minimum && zoom <= ZoomSlider.Maximum)
             {
@@ -1569,7 +1601,7 @@ namespace CanvasDiagramEditor
         private void ZoomOut()
         {
             double zoom = ZoomSlider.Value;
-            zoom -= 0.1;
+            zoom -= zoomOutFactor;
 
             if (zoom >= ZoomSlider.Minimum && zoom <= ZoomSlider.Maximum)
             {
@@ -1612,8 +1644,6 @@ namespace CanvasDiagramEditor
 
         #region Pan
 
-        private MouseButton panButton = MouseButton.Middle;
-
         private void BeginPan(Point point)
         {
             this.panStart = point;
@@ -1636,9 +1666,6 @@ namespace CanvasDiagramEditor
 
         private void Pan(Point pos)
         {
-            double reversePan = -1.0; // reverse: 1.0, normal: -1.0
-            double zoomFactor = 3.0;
-
             double horizontalOffset = this.PanScrollViewer.HorizontalOffset;
             double verticalOffset = this.PanScrollViewer.VerticalOffset;
 
@@ -1646,13 +1673,13 @@ namespace CanvasDiagramEditor
             double scrollableHeight = this.PanScrollViewer.ScrollableHeight;
 
             double zoom = ZoomSlider.Value;
-            double panSpeed = zoom / zoomFactor;
+            double panSpeed = zoom / panSpeedFactor;
 
             double scrollOffsetX = pos.X - panStart.X;
             double scrollOffsetY = pos.Y - panStart.Y;
 
-            scrollOffsetX = Math.Round(horizontalOffset + (scrollOffsetX * panSpeed) * reversePan, 0);
-            scrollOffsetY = Math.Round(verticalOffset + (scrollOffsetY * panSpeed) * reversePan, 0);
+            scrollOffsetX = Math.Round(horizontalOffset + (scrollOffsetX * panSpeed) * reversePanDirection, 0);
+            scrollOffsetY = Math.Round(verticalOffset + (scrollOffsetY * panSpeed) * reversePanDirection, 0);
 
             scrollOffsetX = scrollOffsetX > scrollableWidth ? scrollableWidth : scrollOffsetX;
             scrollOffsetY = scrollOffsetY > scrollableHeight ? scrollableHeight : scrollOffsetY;
