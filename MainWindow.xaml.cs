@@ -23,8 +23,8 @@ namespace CanvasDiagramEditor
 {
     #region Tuple Aliases
 
-    using TagMap = Tuple<Line, FrameworkElement, FrameworkElement>;
     using PinMap = Tuple<string, string>;
+    using TagMap = Tuple<Line, FrameworkElement, FrameworkElement>;
     using WireMap = Tuple<FrameworkElement, List<Tuple<string, string>>>;
 
     #endregion
@@ -517,12 +517,16 @@ namespace CanvasDiagramEditor
         private void DeleteElement(Canvas canvas, Point point)
         {
             var element = HitTest(canvas, ref point);
+            if (element == null)
+                return;
+
             string uid = element.Uid;
 
             //System.Diagnostics.Debug.Print("DeleteElement, element: {0}, uid: {1}, parent: {2}", 
             //    element.GetType(), element.Uid, element.Parent.GetType());
 
-            if (element is Line && uid != null && uid.StartsWith("Wire", StringComparison.InvariantCultureIgnoreCase))
+            if (element is Line && uid != null && 
+                uid.StartsWith("Wire", StringComparison.InvariantCultureIgnoreCase))
             {
                 var line = element as Line;
 
@@ -630,7 +634,8 @@ namespace CanvasDiagramEditor
 
                 string uid = _element.Uid;
 
-                if (uid != null && uid.StartsWith("Pin", StringComparison.InvariantCultureIgnoreCase))
+                if (uid != null && 
+                    uid.StartsWith("Pin", StringComparison.InvariantCultureIgnoreCase))
                 {
                     if (_element.Tag != null)
                     {
@@ -910,6 +915,36 @@ namespace CanvasDiagramEditor
             }
 
             // update wire connections
+            UpdateWireConnections(dict);
+
+            if (appendIds == true)
+            {
+                AppendElementIds(elements);
+            }
+            else
+            {
+                if (updateIds == true)
+                {
+                    // reset existing counters
+                    this.pinCounter = Math.Max(this.pinCounter, _pinCounter);
+                    this.wireCounter = Math.Max(this.wireCounter, _wireCounter);
+                    this.inputCounter = Math.Max(this.inputCounter, _inputCounter);
+                    this.outputCounter = Math.Max(this.outputCounter, _outputCounter);
+                    this.andGateCounter = Math.Max(this.andGateCounter, _andGateCounter);
+                    this.orGateCounter = Math.Max(this.orGateCounter, _orGateCounter);
+                }
+            }
+
+            // add elements to canvas
+            foreach (var element in elements)
+            {
+                canvas.Children.Add(element);
+            }
+        }
+
+        private void UpdateWireConnections(Dictionary<string, WireMap> dict)
+        {
+            // update wire to element connections
             foreach (var item in dict)
             {
                 var element = item.Value.Item1;
@@ -946,83 +981,64 @@ namespace CanvasDiagramEditor
                     }
                 }
             }
+        }
 
-            if (appendIds == true)
-            {
-                // append ids to the existing elements in canvas
-                //System.Diagnostics.Debug.Print("Appending Ids:");
+        private void AppendElementIds(List<FrameworkElement> elements)
+        {
+            // append ids to the existing elements in canvas
+            //System.Diagnostics.Debug.Print("Appending Ids:");
 
-                foreach (var element in elements)
-                {
-                    string[] uid = element.Uid.Split('|');
-
-                    string type = uid[0];
-                    int id = int.Parse(uid[1]);
-                    int appendedId = -1;
-
-                    switch (type)
-                    {
-                        case "Wire":
-                            appendedId = this.wireCounter;
-                            this.wireCounter += 1;
-                            break;
-                        case "Input":
-                            appendedId = this.inputCounter;
-                            this.inputCounter += 1;
-                            break;
-                        case "Output":
-                            appendedId = this.outputCounter;
-                            this.outputCounter += 1;
-                            break;
-                        case "AndGate":
-                            appendedId = this.andGateCounter;
-                            this.andGateCounter += 1;
-                            break;
-                        case "OrGate":
-                            appendedId = this.orGateCounter;
-                            this.orGateCounter += 1;
-                            break;
-                        case "Pin":
-                            appendedId = this.pinCounter;
-                            this.pinCounter += 1;
-                            break;
-                        default:
-                            throw new Exception("Unknown type.");
-                    }
-
-                    //System.Diagnostics.Debug.Print("+{0}, id: {1} -> {2} ", type, id, appendedId);
-
-                    string appendedUid = string.Concat(type, "|", appendedId.ToString());
-                    element.Uid = appendedUid;
-
-                    //if (element.Tag != null)
-                    //{
-                    //    var _tuples = element.Tag as List<TagMap>;
-                    //    foreach (var _tuple in _tuples)
-                    //    {
-                    //        System.Diagnostics.Debug.Print("  -{0}", _tuple.Item1.Uid);
-                    //    }
-                    //}
-                }
-            }
-            else
-            {
-                if (updateIds == true)
-                {
-                    // reset existing counters
-                    this.pinCounter = Math.Max(this.pinCounter, _pinCounter);
-                    this.wireCounter = Math.Max(this.wireCounter, _wireCounter);
-                    this.inputCounter = Math.Max(this.inputCounter, _inputCounter);
-                    this.outputCounter = Math.Max(this.outputCounter, _outputCounter);
-                    this.andGateCounter = Math.Max(this.andGateCounter, _andGateCounter);
-                    this.orGateCounter = Math.Max(this.orGateCounter, _orGateCounter);
-                }
-            }
-
-            // add elements to canvas
             foreach (var element in elements)
             {
-                canvas.Children.Add(element);
+                string[] uid = element.Uid.Split('|');
+
+                string type = uid[0];
+                int id = int.Parse(uid[1]);
+                int appendedId = -1;
+
+                switch (type)
+                {
+                    case "Wire":
+                        appendedId = this.wireCounter;
+                        this.wireCounter += 1;
+                        break;
+                    case "Input":
+                        appendedId = this.inputCounter;
+                        this.inputCounter += 1;
+                        break;
+                    case "Output":
+                        appendedId = this.outputCounter;
+                        this.outputCounter += 1;
+                        break;
+                    case "AndGate":
+                        appendedId = this.andGateCounter;
+                        this.andGateCounter += 1;
+                        break;
+                    case "OrGate":
+                        appendedId = this.orGateCounter;
+                        this.orGateCounter += 1;
+                        break;
+                    case "Pin":
+                        appendedId = this.pinCounter;
+                        this.pinCounter += 1;
+                        break;
+                    default:
+                        throw new Exception("Unknown type.");
+                }
+
+                //System.Diagnostics.Debug.Print("+{0}, id: {1} -> {2} ", type, id, appendedId);
+
+                string appendedUid = string.Concat(type, "|", appendedId.ToString());
+                element.Uid = appendedUid;
+
+                //if (element.Tag != null)
+                //{
+                //    var _tuples = element.Tag as List<TagMap>;
+                //    foreach (var _tuple in _tuples)
+                //    {
+                //        System.Diagnostics.Debug.Print("  -{0}", _tuple.Item1.Uid);
+                //    }
+                //}
             }
         }
 
@@ -1260,7 +1276,7 @@ namespace CanvasDiagramEditor
 
         #region Button Events
 
-        private void OpenModel_Click(object sender, RoutedEventArgs e)
+        private void Open()
         {
             var dlg = new Microsoft.Win32.OpenFileDialog()
             {
@@ -1277,7 +1293,7 @@ namespace CanvasDiagramEditor
             }
         }
 
-        private void SaveModel_Click(object sender, RoutedEventArgs e)
+        private void Save()
         {
             var dlg = new Microsoft.Win32.SaveFileDialog()
             {
@@ -1295,7 +1311,7 @@ namespace CanvasDiagramEditor
             }
         }
 
-        private void PrintModel_Click(object sender, RoutedEventArgs e)
+        private void Print()
         {
             var model = GenerateDiagramModel(this.DiagramCanvas);
 
@@ -1312,6 +1328,50 @@ namespace CanvasDiagramEditor
 
             PrintDialog dlg = new PrintDialog();
             dlg.PrintVisual(visual, "diagram");
+        }
+
+        private void Import()
+        {
+            var dlg = new Microsoft.Win32.OpenFileDialog()
+            {
+                Filter = "Diagram (*.txt)|*.txt|All Files (*.*)|*.*",
+                Title = "Open Diagram"
+            };
+
+            var res = dlg.ShowDialog();
+            if (res == true)
+            {
+                this.Import(dlg.FileName);
+            }
+        }
+
+        private void Insert()
+        {
+            var canvas = this.DiagramCanvas;
+            var diagram = this.TextModel.Text;
+
+            double offsetX = double.Parse(TextOffsetX.Text);
+            double offsetY = double.Parse(TextOffsetY.Text);
+
+            AddToHistory(canvas);
+
+            //ClearDiagramModel(canvas);
+            ParseDiagramModel(diagram, canvas, offsetX, offsetY, true, true);
+        }
+
+        private void OpenModel_Click(object sender, RoutedEventArgs e)
+        {
+            Open();
+        }
+
+        private void SaveModel_Click(object sender, RoutedEventArgs e)
+        {
+            Save();
+        }
+
+        private void PrintModel_Click(object sender, RoutedEventArgs e)
+        {
+            Print();
         }
 
         private void UndoHistory_Click(object sender, RoutedEventArgs e)
@@ -1346,31 +1406,12 @@ namespace CanvasDiagramEditor
 
         private void ImportModel_Click(object sender, RoutedEventArgs e)
         {
-            var dlg = new Microsoft.Win32.OpenFileDialog()
-            {
-                Filter = "Diagram (*.txt)|*.txt|All Files (*.*)|*.*",
-                Title = "Open Diagram"
-            };
-
-            var res = dlg.ShowDialog();
-            if (res == true)
-            {
-                this.Import(dlg.FileName);
-            }
+            Import();
         }
 
         private void InsertModel_Click(object sender, RoutedEventArgs e)
         {
-            var canvas = this.DiagramCanvas;
-            var diagram = this.TextModel.Text;
-
-            double offsetX = double.Parse(TextOffsetX.Text);
-            double offsetY = double.Parse(TextOffsetY.Text);
-
-            AddToHistory(canvas);
-
-            //ClearDiagramModel(canvas);
-            ParseDiagramModel(diagram, canvas, offsetX, offsetY, true, true);
+            Insert();
         }
 
         #endregion
@@ -1501,8 +1542,9 @@ namespace CanvasDiagramEditor
         {
             double defaultThickness = 1.0;
 
-            var st = (RootGrid.LayoutTransform as TransformGroup).Children.First(t => t is ScaleTransform) as ScaleTransform;
-            //var st = (RootGrid.RenderTransform as TransformGroup).Children.First(t => t is ScaleTransform) as ScaleTransform;
+            //var tg = RootGrid.RenderTransform as TransformGroup;
+            var tg = RootGrid.LayoutTransform as TransformGroup;
+            var st = tg.Children.First(t => t is ScaleTransform) as ScaleTransform;
 
             st.ScaleX = zoom;
             st.ScaleY = zoom;
@@ -1567,68 +1609,100 @@ namespace CanvasDiagramEditor
 
         #region Pan
 
-        private void PanScrollViewer_MouseMove(object sender, MouseEventArgs e)
+        private MouseButton panButton = MouseButton.Middle;
+
+        private void BeginPan(Point point)
         {
-            if (this.PanScrollViewer.IsMouseCaptured == true)
-            {
-                var pos = e.GetPosition(this.PanScrollViewer);
+            this.panStart = point;
 
-                double zoomFactor = ZoomSlider.Value / 3.0;
+            this.previousScrollOffsetX = -1.0;
+            this.previousScrollOffsetY = -1.0;
 
-                double scrollOffsetX = pos.X - panStart.X;
-                double scrollOffsetY = pos.Y - panStart.Y;
-
-                scrollOffsetX = Math.Round(this.PanScrollViewer.HorizontalOffset + (scrollOffsetX * zoomFactor) * -1.0, 0);
-                scrollOffsetY = Math.Round(this.PanScrollViewer.VerticalOffset + (scrollOffsetY * zoomFactor) * -1.0, 0);
-
-                scrollOffsetX = scrollOffsetX > this.PanScrollViewer.ScrollableWidth ? this.PanScrollViewer.ScrollableWidth : scrollOffsetX;
-                scrollOffsetY = scrollOffsetY > this.PanScrollViewer.ScrollableHeight ? this.PanScrollViewer.ScrollableHeight : scrollOffsetY;
-
-                scrollOffsetX = scrollOffsetX < 0 ? 0.0 : scrollOffsetX;
-                scrollOffsetY = scrollOffsetY < 0 ? 0.0 : scrollOffsetY;
-
-                if (scrollOffsetX != this.previousScrollOffsetX)
-                {
-                    this.PanScrollViewer.ScrollToHorizontalOffset(scrollOffsetX);
-                    this.previousScrollOffsetX = scrollOffsetX;
-                }
-
-                if (scrollOffsetY != this.previousScrollOffsetY)
-                {
-                    this.PanScrollViewer.ScrollToVerticalOffset(scrollOffsetY);
-                    this.previousScrollOffsetY = scrollOffsetY;
-                }
-
-                this.panStart = pos;
-
-                e.Handled = true;
-            }
+            this.Cursor = Cursors.ScrollAll;
+            this.PanScrollViewer.CaptureMouse();
         }
+
+        private void EndPan()
+        {
+            if (PanScrollViewer.IsMouseCaptured == true)
+            {
+                this.Cursor = Cursors.Arrow;
+                this.PanScrollViewer.ReleaseMouseCapture();
+            }
+        } 
+
+        private void Pan(Point pos)
+        {
+            double reversePan = -1.0; // reverse: 1.0, normal: -1.0
+            double zoomFactor = 3.0;
+
+            double horizontalOffset = this.PanScrollViewer.HorizontalOffset;
+            double verticalOffset = this.PanScrollViewer.VerticalOffset;
+
+            double scrollableWidth = this.PanScrollViewer.ScrollableWidth;
+            double scrollableHeight = this.PanScrollViewer.ScrollableHeight;
+
+            double zoom = ZoomSlider.Value;
+            double panSpeed = zoom / zoomFactor;
+
+            double scrollOffsetX = pos.X - panStart.X;
+            double scrollOffsetY = pos.Y - panStart.Y;
+
+            scrollOffsetX = Math.Round(horizontalOffset + (scrollOffsetX * panSpeed) * reversePan, 0);
+            scrollOffsetY = Math.Round(verticalOffset + (scrollOffsetY * panSpeed) * reversePan, 0);
+
+            scrollOffsetX = scrollOffsetX > scrollableWidth ? scrollableWidth : scrollOffsetX;
+            scrollOffsetY = scrollOffsetY > scrollableHeight ? scrollableHeight : scrollOffsetY;
+
+            scrollOffsetX = scrollOffsetX < 0 ? 0.0 : scrollOffsetX;
+            scrollOffsetY = scrollOffsetY < 0 ? 0.0 : scrollOffsetY;
+
+            if (scrollOffsetX != this.previousScrollOffsetX)
+            {
+                this.PanScrollViewer.ScrollToHorizontalOffset(scrollOffsetX);
+                this.previousScrollOffsetX = scrollOffsetX;
+            }
+
+            if (scrollOffsetY != this.previousScrollOffsetY)
+            {
+                this.PanScrollViewer.ScrollToVerticalOffset(scrollOffsetY);
+                this.previousScrollOffsetY = scrollOffsetY;
+            }
+
+            this.panStart = pos;
+        }
+
+        #endregion
+
+        #region PanScrollViewer Events
 
         private void PanScrollViewer_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.ChangedButton == MouseButton.Middle)
+            if (e.ChangedButton == panButton)
             {
-                this.panStart = e.GetPosition(this.PanScrollViewer);
-                this.previousScrollOffsetX = -1.0;
-                this.previousScrollOffsetY = -1.0;
+                var point = e.GetPosition(this.PanScrollViewer);
 
-                this.Cursor = Cursors.ScrollAll;
-                this.PanScrollViewer.CaptureMouse();
+                BeginPan(point);
             }
         }
 
         private void PanScrollViewer_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            if (e.ChangedButton == MouseButton.Middle)
+            if (e.ChangedButton == panButton)
             {
-                if (PanScrollViewer.IsMouseCaptured == true)
-                {
-                    this.Cursor = Cursors.Arrow;
-                    this.PanScrollViewer.ReleaseMouseCapture();
-                }
+                EndPan();
             }
-        } 
+        }
+
+        private void PanScrollViewer_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (this.PanScrollViewer.IsMouseCaptured == true)
+            {
+                var point = e.GetPosition(this.PanScrollViewer);
+
+                Pan(point);
+            }
+        }
 
         #endregion
     }
