@@ -1641,16 +1641,60 @@ namespace CanvasDiagramEditor
 
         #region Zoom
 
+        private Point zoomPoint;
+
         private void Zoom(double zoom)
         {
             //var tg = RootGrid.RenderTransform as TransformGroup;
             var tg = RootGrid.LayoutTransform as TransformGroup;
             var st = tg.Children.First(t => t is ScaleTransform) as ScaleTransform;
 
+            double oldZoom = st.ScaleX; // ScaleX == ScaleY
+
             st.ScaleX = zoom;
             st.ScaleY = zoom;
 
             Application.Current.Resources[keyStrokeThickness] = defaultStrokeThickness / zoom;
+
+            // zoom to point
+            ZoomToPoint(zoom, oldZoom);
+        }
+
+        private void ZoomToPoint(double zoom, double oldZoom)
+        {
+            double offsetX = 0;
+            double offsetY = 0;
+
+            double scrollableWidth = this.PanScrollViewer.ScrollableWidth;
+            double scrollableHeight = this.PanScrollViewer.ScrollableHeight;
+
+            double scrollOffsetX = this.PanScrollViewer.HorizontalOffset;
+            double scrollOffsetY = this.PanScrollViewer.VerticalOffset;
+
+            double oldX = zoomPoint.X * oldZoom;
+            double oldY = zoomPoint.Y * oldZoom;
+
+            double newX = zoomPoint.X * zoom;
+            double newY = zoomPoint.Y * zoom;
+
+            offsetX = newX - oldX;
+            offsetY = newY - oldY;
+
+            //System.Diagnostics.Debug.Print("");
+            //System.Diagnostics.Debug.Print("zoomPoint: {0},{1}", Math.Round(zoomPoint.X, 0), Math.Round(zoomPoint.Y, 0));
+            //System.Diagnostics.Debug.Print("scrollableWidth/Height: {0},{1}", scrollableWidth, scrollableHeight);
+            //System.Diagnostics.Debug.Print("scrollOffsetX/Y: {0},{1}", scrollOffsetX, scrollOffsetY);
+            //System.Diagnostics.Debug.Print("oldX/Y: {0},{1}", oldX, oldY);
+            //System.Diagnostics.Debug.Print("newX/Y: {0},{1}", newX, newY);
+            //System.Diagnostics.Debug.Print("offsetX/Y: {0},{1}", offsetX, offsetY);
+
+            if (scrollableWidth <= 0)
+                offsetX = 0.0;
+
+            if (scrollableHeight <= 0)
+                offsetY = 0.0;
+
+            PanToOffset(offsetX, offsetY);
         }
 
         private void ZoomIn()
@@ -1679,13 +1723,19 @@ namespace CanvasDiagramEditor
         {
             double zoom = ZoomSlider.Value;
 
-            Zoom(zoom);
+            if (e.OldValue != e.NewValue)
+            {
+                Zoom(zoom);
+            }
         }
 
         private void Border_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
         {
             if (Keyboard.Modifiers == ModifierKeys.Shift)
                 return;
+
+            var canvas = this.DiagramCanvas;
+            this.zoomPoint = e.GetPosition(canvas);
 
             if (e.Delta > 0)
             {
@@ -1730,8 +1780,11 @@ namespace CanvasDiagramEditor
             }
         } 
 
-        private void Pan(Point pos)
+        private void PanToPoint(Point point)
         {
+            double scrollOffsetX = point.X - panStart.X;
+            double scrollOffsetY = point.Y - panStart.Y;
+
             double horizontalOffset = this.PanScrollViewer.HorizontalOffset;
             double verticalOffset = this.PanScrollViewer.VerticalOffset;
 
@@ -1740,9 +1793,6 @@ namespace CanvasDiagramEditor
 
             double zoom = ZoomSlider.Value;
             double panSpeed = zoom / panSpeedFactor;
-
-            double scrollOffsetX = pos.X - panStart.X;
-            double scrollOffsetY = pos.Y - panStart.Y;
 
             scrollOffsetX = Math.Round(horizontalOffset + (scrollOffsetX * panSpeed) * reversePanDirection, 0);
             scrollOffsetY = Math.Round(verticalOffset + (scrollOffsetY * panSpeed) * reversePanDirection, 0);
@@ -1765,7 +1815,28 @@ namespace CanvasDiagramEditor
                 this.previousScrollOffsetY = scrollOffsetY;
             }
 
-            this.panStart = pos;
+            this.panStart = point;
+        }
+
+        private void PanToOffset(double offsetX, double offsetY)
+        {
+            double horizontalOffset = this.PanScrollViewer.HorizontalOffset;
+            double verticalOffset = this.PanScrollViewer.VerticalOffset;
+
+            double scrollableWidth = this.PanScrollViewer.ScrollableWidth;
+            double scrollableHeight = this.PanScrollViewer.ScrollableHeight;
+
+            double scrollOffsetX = Math.Round(horizontalOffset + offsetX, 0);
+            double scrollOffsetY = Math.Round(verticalOffset + offsetY, 0);
+
+            scrollOffsetX = scrollOffsetX > scrollableWidth ? scrollableWidth : scrollOffsetX;
+            scrollOffsetY = scrollOffsetY > scrollableHeight ? scrollableHeight : scrollOffsetY;
+
+            scrollOffsetX = scrollOffsetX < 0 ? 0.0 : scrollOffsetX;
+            scrollOffsetY = scrollOffsetY < 0 ? 0.0 : scrollOffsetY;
+
+            this.PanScrollViewer.ScrollToHorizontalOffset(scrollOffsetX);
+            this.PanScrollViewer.ScrollToVerticalOffset(scrollOffsetY);
         }
 
         #endregion
@@ -1796,7 +1867,7 @@ namespace CanvasDiagramEditor
             {
                 var point = e.GetPosition(this.PanScrollViewer);
 
-                Pan(point);
+                PanToPoint(point);
             }
         }
 
