@@ -27,56 +27,93 @@ namespace CanvasDiagramEditor
     using TagMap = Tuple<Line, FrameworkElement, FrameworkElement>;
     using WireMap = Tuple<FrameworkElement, List<Tuple<string, string>>>;
 
+    // TemplatedParent.Tag: Item1: IsSelected, Item2: TagMap
+    using Selection = Tuple<bool, List<Tuple<Line, FrameworkElement, FrameworkElement>>>;
+
+    // Canvas.Tag => Item1: undoHistory, Item2: redoHistory
+    using History = Tuple<Stack<string>, Stack<string>>;
+
+    #endregion
+
+    #region Constants
+
+    public static class Constants
+    {
+        #region Model String Constants
+
+        public const char ArgumentSeparator = ';';
+        public const string PrefixRootElement = "+";
+        public const string PrefixChildElement = "-";
+
+        public const char TagNameSeparator = '|';
+
+        public const string TagDiagramHeader = "[Diagram]";
+
+        public const string TagElementPin = "Pin";
+        public const string TagElementWire = "Wire";
+        public const string TagElementInput = "Input";
+        public const string TagElementOutput = "Output";
+        public const string TagElementAndGate = "AndGate";
+        public const string TagElementOrGate = "OrGate";
+
+        public const string WireStartType = "Start";
+        public const string WireEndType = "End";
+
+        #endregion
+
+        #region Resource String Constants
+
+        public const string KeyStrokeThickness = "LogicStrokeThicknessKey";
+
+        public const string KeyTemplatePin = "PinControlTemplateKey";
+        public const string KeyTemplateInput = "InputControlTemplateKey";
+        public const string KeyTemplateOutput = "OutputControlTemplateKey";
+        public const string KeyTemplateAndGate = "AndGateControlTemplateKey";
+        public const string KeyTemplateOrGate = "OrGateControlTemplateKey";
+
+        public const string KeySyleRootThumb = "RootThumbStyleKey";
+        public const string KeyStyleWireLine = "LineStyleKey";
+
+        public const string StandalonePinName = "MiddlePin";
+
+        #endregion
+    }
+
+    #endregion
+
+    #region SelectionThumb
+
+    public class SelectionThumb : Thumb
+    {
+        #region IsSelected Attached Property
+
+        public static bool GetIsSelected(DependencyObject obj)
+        {
+            return (bool)obj.GetValue(IsSelectedProperty);
+        }
+
+        public static void SetIsSelected(DependencyObject obj, bool value)
+        {
+            obj.SetValue(IsSelectedProperty, value);
+        }
+
+        public static readonly DependencyProperty IsSelectedProperty =
+            DependencyProperty.RegisterAttached("IsSelected", typeof(bool), typeof(SelectionThumb),
+            new FrameworkPropertyMetadata(false,
+                FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender)); 
+
+        #endregion
+    }
+
     #endregion
 
     #region MainWindow
 
     public partial class MainWindow : Window
     {
-        #region Model String Constants
-
-        private const char argumentSeparator = ';';
-        private const string prefixRootElement = "+";
-        private const string prefixChildElement = "-";
-
-        private const char tagNameSeparator = '|';
-
-        private const string tagDiagramHeader = "[Diagram]";
-
-        private const string tagElementPin = "Pin";
-        private const string tagElementWire = "Wire";
-        private const string tagElementInput = "Input";
-        private const string tagElementOutput = "Output";
-        private const string tagElementAndGate = "AndGate";
-        private const string tagElementOrGate = "OrGate";
-
-        private const string wireStartType = "Start";
-        private const string wireEndType = "End";
-
-        #endregion
-
-        #region Resource String Constants
-
-        private const string keyStrokeThickness = "LogicStrokeThicknessKey";
-
-        private const string keyTemplatePin = "PinControlTemplateKey";
-        private const string keyTemplateInput = "InputControlTemplateKey";
-        private const string keyTemplateOutput = "OutputControlTemplateKey";
-        private const string keyTemplateAndGate = "AndGateControlTemplateKey";
-        private const string keyTemplateOrGate = "OrGateControlTemplateKey";
-
-        private const string keySyleRootThumb = "RootThumbStyleKey";
-        private const string keyStyleWireLine = "LineStyleKey";
-
-        private const string standalonePinName = "MiddlePin";
-
-        #endregion
-
         #region Fields
 
         private bool enableHistory = true;
-        private Stack<string> undoHistory = new Stack<string>();
-        private Stack<string> redoHistory = new Stack<string>();
 
         private Line _line = null;
         private FrameworkElement _root = null;
@@ -91,7 +128,7 @@ namespace CanvasDiagramEditor
         private Point rightClick;
 
         private bool enableInsertLast = true;
-        private string lastInsert = tagElementInput;
+        private string lastInsert = Constants.TagElementInput;
 
         private double diagramWidth = 780;
         private double diagramHeight = 660;
@@ -102,6 +139,8 @@ namespace CanvasDiagramEditor
         private double snapY = 15;
         private double snapOffsetX = 0;
         private double snapOffsetY = 0;
+
+        private bool moveWithShift = false;
 
         private double hitTestRadiusX = 4.0;
         private double hitTestRadiusY = 4.0;
@@ -126,10 +165,26 @@ namespace CanvasDiagramEditor
 
         #region History (Undo/Redo)
 
+        private History GetHistory(Canvas canvas)
+        {
+            if (canvas.Tag == null)
+            {
+                canvas.Tag = new History(new Stack<string>(), new Stack<string>());
+            }
+
+            var tuple = canvas.Tag as History;
+
+            return tuple;
+        }
+
         private void AddToHistory(Canvas canvas)
         {
             if (this.enableHistory != true)
                 return;
+
+            var tuple = GetHistory(canvas);
+            var undoHistory = tuple.Item1;
+            var redoHistory = tuple.Item2;
 
             var model = GenerateDiagramModel(canvas);
 
@@ -143,6 +198,10 @@ namespace CanvasDiagramEditor
             if (this.enableHistory != true)
                 return;
 
+            var tuple = GetHistory(canvas);
+            var undoHistory = tuple.Item1;
+            var redoHistory = tuple.Item2;
+
             if (undoHistory.Count <= 0)
                 return;
 
@@ -155,6 +214,10 @@ namespace CanvasDiagramEditor
             if (this.enableHistory != true)
                 return;
 
+            var tuple = GetHistory(canvas);
+            var undoHistory = tuple.Item1;
+            var redoHistory = tuple.Item2;
+
             if (redoHistory.Count <= 0)
                 return;
 
@@ -164,6 +227,10 @@ namespace CanvasDiagramEditor
 
         private void ClearHistory(Canvas canvas)
         {
+            var tuple = GetHistory(canvas);
+            var undoHistory = tuple.Item1;
+            var redoHistory = tuple.Item2;
+
             undoHistory.Clear();
             redoHistory.Clear();
         }
@@ -172,6 +239,10 @@ namespace CanvasDiagramEditor
         {
             if (this.enableHistory != true)
                 return;
+
+            var tuple = GetHistory(canvas);
+            var undoHistory = tuple.Item1;
+            var redoHistory = tuple.Item2;
 
             if (undoHistory.Count <= 0)
                 return;
@@ -194,6 +265,10 @@ namespace CanvasDiagramEditor
         {
             if (this.enableHistory != true)
                 return;
+
+            var tuple = GetHistory(canvas);
+            var undoHistory = tuple.Item1;
+            var redoHistory = tuple.Item2;
 
             if (redoHistory.Count <= 0)
                 return;
@@ -276,7 +351,8 @@ namespace CanvasDiagramEditor
         {
             if (element != null && element.Tag != null)
             {
-                var tuples = element.Tag as List<TagMap>;
+                var selection = element.Tag as Selection;
+                var tuples = selection.Item2;
 
                 foreach (var tuple in tuples)
                 {
@@ -318,20 +394,20 @@ namespace CanvasDiagramEditor
 
         #region Create
 
-        private void SetThumbEvents(Thumb thumb)
+        private void SetThumbEvents(SelectionThumb thumb)
         {
             thumb.DragDelta += this.RootElement_DragDelta;
             thumb.DragStarted += this.RootElement_DragStarted;
             thumb.DragCompleted += this.RootElement_DragCompleted;
         }
 
-        private Thumb CreatePin(double x, double y, int id, bool snap)
+        private SelectionThumb CreatePin(double x, double y, int id, bool snap)
         {
-            var thumb = new Thumb()
+            var thumb = new SelectionThumb()
             {
-                Template = Application.Current.Resources[keyTemplatePin] as ControlTemplate,
-                Style = Application.Current.Resources[keySyleRootThumb] as Style,
-                Uid = tagElementPin + tagNameSeparator + id.ToString()
+                Template = Application.Current.Resources[Constants.KeyTemplatePin] as ControlTemplate,
+                Style = Application.Current.Resources[Constants.KeySyleRootThumb] as Style,
+                Uid = Constants.TagElementPin + Constants.TagNameSeparator + id.ToString()
             };
 
             SetThumbEvents(thumb);
@@ -344,25 +420,25 @@ namespace CanvasDiagramEditor
         {
             var line = new Line()
             {
-                Style = Application.Current.Resources[keyStyleWireLine] as Style,
+                Style = Application.Current.Resources[Constants.KeyStyleWireLine] as Style,
                 X1 = 0, //X1 = x1,
                 Y1 = 0, //Y1 = y1,
                 Margin = new Thickness(x1, y1, 0, 0),
                 X2 = x2 - x1, // X2 = x2,
                 Y2 = y2 - y1, // Y2 = y2,
-                Uid = tagElementWire + tagNameSeparator + id.ToString()
+                Uid = Constants.TagElementWire + Constants.TagNameSeparator + id.ToString()
             };
 
             return line;
         }
 
-        private Thumb CreateInput(double x, double y, int id, bool snap)
+        private SelectionThumb CreateInput(double x, double y, int id, bool snap)
         {
-            var thumb = new Thumb()
+            var thumb = new SelectionThumb()
             {
-                Template = Application.Current.Resources[keyTemplateInput] as ControlTemplate,
-                Style = Application.Current.Resources[keySyleRootThumb] as Style,
-                Uid = tagElementInput + tagNameSeparator + id.ToString()
+                Template = Application.Current.Resources[Constants.KeyTemplateInput] as ControlTemplate,
+                Style = Application.Current.Resources[Constants.KeySyleRootThumb] as Style,
+                Uid = Constants.TagElementInput + Constants.TagNameSeparator + id.ToString()
             };
 
             SetThumbEvents(thumb);
@@ -371,13 +447,13 @@ namespace CanvasDiagramEditor
             return thumb;
         }
 
-        private Thumb CreateOutput(double x, double y, int id, bool snap)
+        private SelectionThumb CreateOutput(double x, double y, int id, bool snap)
         {
-            var thumb = new Thumb()
+            var thumb = new SelectionThumb()
             {
-                Template = Application.Current.Resources[keyTemplateOutput] as ControlTemplate,
-                Style = Application.Current.Resources[keySyleRootThumb] as Style,
-                Uid = tagElementOutput + tagNameSeparator + id.ToString()
+                Template = Application.Current.Resources[Constants.KeyTemplateOutput] as ControlTemplate,
+                Style = Application.Current.Resources[Constants.KeySyleRootThumb] as Style,
+                Uid = Constants.TagElementOutput + Constants.TagNameSeparator + id.ToString()
             };
 
             SetThumbEvents(thumb);
@@ -386,13 +462,13 @@ namespace CanvasDiagramEditor
             return thumb;
         }
 
-        private Thumb CreateAndGate(double x, double y, int id, bool snap)
+        private SelectionThumb CreateAndGate(double x, double y, int id, bool snap)
         {
-            var thumb = new Thumb()
+            var thumb = new SelectionThumb()
             {
-                Template = Application.Current.Resources[keyTemplateAndGate] as ControlTemplate,
-                Style = Application.Current.Resources[keySyleRootThumb] as Style,
-                Uid = tagElementAndGate + tagNameSeparator + id.ToString()
+                Template = Application.Current.Resources[Constants.KeyTemplateAndGate] as ControlTemplate,
+                Style = Application.Current.Resources[Constants.KeySyleRootThumb] as Style,
+                Uid = Constants.TagElementAndGate + Constants.TagNameSeparator + id.ToString()
             };
 
             SetThumbEvents(thumb);
@@ -401,13 +477,13 @@ namespace CanvasDiagramEditor
             return thumb;
         }
 
-        private Thumb CreateOrGate(double x, double y, int id, bool snap)
+        private SelectionThumb CreateOrGate(double x, double y, int id, bool snap)
         {
-            var thumb = new Thumb()
+            var thumb = new SelectionThumb()
             {
-                Template = Application.Current.Resources[keyTemplateOrGate] as ControlTemplate,
-                Style = Application.Current.Resources[keySyleRootThumb] as Style,
-                Uid = tagElementOrGate + tagNameSeparator + id.ToString()
+                Template = Application.Current.Resources[Constants.KeyTemplateOrGate] as ControlTemplate,
+                Style = Application.Current.Resources[Constants.KeySyleRootThumb] as Style,
+                Uid = Constants.TagElementOrGate + Constants.TagNameSeparator + id.ToString()
             };
 
             SetThumbEvents(thumb);
@@ -448,10 +524,11 @@ namespace CanvasDiagramEditor
 
             if (this._root.Tag == null)
             {
-                this._root.Tag = new List<TagMap>();
+                this._root.Tag = new Selection(false, new List<TagMap>());
             }
 
-            var tuples = this._root.Tag as List<TagMap>;
+            var selection = this._root.Tag as Selection;
+            var tuples = selection.Item2;
 
             if (this._line == null)
             {
@@ -546,15 +623,15 @@ namespace CanvasDiagramEditor
         {
             switch (type)
             {
-                case tagElementInput:
+                case Constants.TagElementInput:
                     return InsertInput(canvas, point);
-                case tagElementOutput:
+                case Constants.TagElementOutput:
                     return InsertOutput(canvas, point);
-                case tagElementAndGate:
+                case Constants.TagElementAndGate:
                     return InsertAndGate(canvas, point);
-                case tagElementOrGate:
+                case Constants.TagElementOrGate:
                     return InsertOrGate(canvas, point);
-                case tagElementPin:
+                case Constants.TagElementPin:
                     return InsertPin(canvas, point);
                 default:
                     return null;
@@ -576,8 +653,8 @@ namespace CanvasDiagramEditor
             //System.Diagnostics.Debug.Print("DeleteElement, element: {0}, uid: {1}, parent: {2}", 
             //    element.GetType(), element.Uid, element.Parent.GetType());
 
-            if (element is Line && uid != null && 
-                uid.StartsWith(tagElementWire, StringComparison.InvariantCultureIgnoreCase))
+            if (element is Line && uid != null &&
+                uid.StartsWith(Constants.TagElementWire, StringComparison.InvariantCultureIgnoreCase))
             {
                 var line = element as Line;
 
@@ -673,11 +750,13 @@ namespace CanvasDiagramEditor
                 string uid = _element.Uid;
 
                 if (uid != null &&
-                    uid.StartsWith(tagElementPin, StringComparison.InvariantCultureIgnoreCase))
+                    uid.StartsWith(Constants.TagElementPin, StringComparison.InvariantCultureIgnoreCase))
                 {
                     if (_element.Tag != null)
                     {
-                        var tuples = _element.Tag as List<TagMap>;
+                        var selection = _element.Tag as Selection;
+                        var tuples = selection.Item2;
+
                         if (tuples.Count <= 0)
                         {
                             pins.Add(_element);
@@ -701,7 +780,9 @@ namespace CanvasDiagramEditor
 
                 if (_element.Tag != null)
                 {
-                    var tuples = _element.Tag as List<TagMap>;
+                    var selection = _element.Tag as Selection;
+                    var tuples = selection.Item2;
+
                     var remove = new List<TagMap>();
 
                     foreach (var tuple in tuples)
@@ -747,7 +828,7 @@ namespace CanvasDiagramEditor
         {
             var model = new StringBuilder();
 
-            string header = tagDiagramHeader;
+            string header = Constants.TagDiagramHeader;
 
             //System.Diagnostics.Debug.Print("Generating diagram model:");
 
@@ -761,7 +842,7 @@ namespace CanvasDiagramEditor
                 double x = Canvas.GetLeft(element);
                 double y = Canvas.GetTop(element);
 
-                if (element.Uid.StartsWith(tagElementWire))
+                if (element.Uid.StartsWith(Constants.TagElementWire))
                 {
                     var line = element as Line;
                     var margin = line.Margin;
@@ -770,8 +851,8 @@ namespace CanvasDiagramEditor
                         element.Uid,
                         margin.Left, margin.Top, //line.X1, line.Y1,
                         line.X2 + margin.Left, line.Y2 + margin.Top,
-                        argumentSeparator,
-                        prefixRootElement);
+                        Constants.ArgumentSeparator,
+                        Constants.PrefixRootElement);
 
                     model.AppendLine(str);
 
@@ -782,8 +863,8 @@ namespace CanvasDiagramEditor
                     string str = string.Format("{4}{3}{0}{3}{1}{3}{2}", 
                         element.Uid, 
                         x,  y,
-                        argumentSeparator,
-                        prefixRootElement);
+                        Constants.ArgumentSeparator,
+                        Constants.PrefixRootElement);
 
                     model.AppendLine(str);
 
@@ -792,7 +873,8 @@ namespace CanvasDiagramEditor
 
                 if (element.Tag != null)
                 {
-                    var tuples = element.Tag as List<TagMap>;
+                    var selection = element.Tag as Selection;
+                    var tuples = selection.Item2;
 
                     foreach (var tuple in tuples)
                     {
@@ -804,10 +886,10 @@ namespace CanvasDiagramEditor
                         {
                             // Start
                             string str = string.Format("{3}{2}{0}{2}{1}", 
-                                line.Uid, 
-                                wireStartType, 
-                                argumentSeparator, 
-                                prefixChildElement);
+                                line.Uid,
+                                Constants.WireStartType,
+                                Constants.ArgumentSeparator,
+                                Constants.PrefixChildElement);
 
                             model.AppendLine(str);
 
@@ -817,10 +899,10 @@ namespace CanvasDiagramEditor
                         {
                             // End
                             string str = string.Format("{3}{2}{0}{2}{1}", 
-                                line.Uid, 
-                                wireEndType,
-                                argumentSeparator,
-                                prefixChildElement);
+                                line.Uid,
+                                Constants.WireEndType,
+                                Constants.ArgumentSeparator,
+                                Constants.PrefixChildElement);
 
                             model.AppendLine(str);
 
@@ -861,7 +943,7 @@ namespace CanvasDiagramEditor
             // create root elements
             foreach (var line in lines)
             {
-                var args = line.Split(argumentSeparator);
+                var args = line.Split(Constants.ArgumentSeparator);
                 int length = args.Length;
 
                 //System.Diagnostics.Debug.Print(line);
@@ -870,15 +952,15 @@ namespace CanvasDiagramEditor
                 {
                     name = args[1];
 
-                    if (CompareString(args[0], prefixRootElement))
+                    if (CompareString(args[0], Constants.PrefixRootElement))
                     {
-                        if (name.StartsWith(tagElementPin, StringComparison.InvariantCultureIgnoreCase) && 
+                        if (name.StartsWith(Constants.TagElementPin, StringComparison.InvariantCultureIgnoreCase) && 
                             length == 4)
                         {
                             double x = double.Parse(args[2]);
                             double y = double.Parse(args[3]);
 
-                            int id = int.Parse(name.Split(tagNameSeparator)[1]);
+                            int id = int.Parse(name.Split(Constants.TagNameSeparator)[1]);
 
                             _pinCounter = Math.Max(_pinCounter, id + 1);
 
@@ -889,13 +971,13 @@ namespace CanvasDiagramEditor
 
                             dict.Add(args[1], tuple);
                         }
-                        else if (name.StartsWith(tagElementInput, StringComparison.InvariantCultureIgnoreCase) && 
+                        else if (name.StartsWith(Constants.TagElementInput, StringComparison.InvariantCultureIgnoreCase) && 
                             length == 4)
                         {
                             double x = double.Parse(args[2]);
                             double y = double.Parse(args[3]);
 
-                            int id = int.Parse(name.Split(tagNameSeparator)[1]);
+                            int id = int.Parse(name.Split(Constants.TagNameSeparator)[1]);
 
                             _inputCounter = Math.Max(_inputCounter, id + 1);
 
@@ -906,13 +988,13 @@ namespace CanvasDiagramEditor
 
                             dict.Add(args[1], tuple);
                         }
-                        else if (name.StartsWith(tagElementOutput, StringComparison.InvariantCultureIgnoreCase) && 
+                        else if (name.StartsWith(Constants.TagElementOutput, StringComparison.InvariantCultureIgnoreCase) && 
                             length == 4)
                         {
                             double x = double.Parse(args[2]);
                             double y = double.Parse(args[3]);
 
-                            int id = int.Parse(name.Split(tagNameSeparator)[1]);
+                            int id = int.Parse(name.Split(Constants.TagNameSeparator)[1]);
 
                             _outputCounter = Math.Max(_outputCounter, id + 1);
 
@@ -923,13 +1005,13 @@ namespace CanvasDiagramEditor
 
                             dict.Add(args[1], tuple);
                         }
-                        else if (name.StartsWith(tagElementAndGate, StringComparison.InvariantCultureIgnoreCase) && 
+                        else if (name.StartsWith(Constants.TagElementAndGate, StringComparison.InvariantCultureIgnoreCase) && 
                             length == 4)
                         {
                             double x = double.Parse(args[2]);  
                             double y = double.Parse(args[3]);
 
-                            int id = int.Parse(name.Split(tagNameSeparator)[1]);
+                            int id = int.Parse(name.Split(Constants.TagNameSeparator)[1]);
 
                             _andGateCounter = Math.Max(_andGateCounter, id + 1);
 
@@ -940,13 +1022,13 @@ namespace CanvasDiagramEditor
 
                             dict.Add(args[1], tuple);
                         }
-                        else if (name.StartsWith(tagElementOrGate, StringComparison.InvariantCultureIgnoreCase) && 
+                        else if (name.StartsWith(Constants.TagElementOrGate, StringComparison.InvariantCultureIgnoreCase) && 
                             length == 4)
                         {
                             double x = double.Parse(args[2]);
                             double y = double.Parse(args[3]);
 
-                            int id = int.Parse(name.Split(tagNameSeparator)[1]);
+                            int id = int.Parse(name.Split(Constants.TagNameSeparator)[1]);
 
                             _orGateCounter = Math.Max(_orGateCounter, id + 1);
 
@@ -957,7 +1039,7 @@ namespace CanvasDiagramEditor
 
                             dict.Add(args[1], tuple);
                         }
-                        else if (name.StartsWith(tagElementWire, StringComparison.InvariantCultureIgnoreCase) && 
+                        else if (name.StartsWith(Constants.TagElementWire, StringComparison.InvariantCultureIgnoreCase) && 
                             length == 6)
                         {
                             double x1 = double.Parse(args[2]);  
@@ -965,7 +1047,7 @@ namespace CanvasDiagramEditor
                             double x2 = double.Parse(args[4]);
                             double y2 = double.Parse(args[5]);
 
-                            int id = int.Parse(name.Split(tagNameSeparator)[1]);
+                            int id = int.Parse(name.Split(Constants.TagNameSeparator)[1]);
 
                             _wireCounter = Math.Max(_wireCounter, id + 1);
 
@@ -980,7 +1062,7 @@ namespace CanvasDiagramEditor
                             dict.Add(args[1], tuple);
                         }
                     }
-                    else if (CompareString(args[0], prefixChildElement))
+                    else if (CompareString(args[0], Constants.PrefixChildElement))
                     {
                         if (tuple != null)
                         {
@@ -1030,26 +1112,27 @@ namespace CanvasDiagramEditor
 
                 if (element.Tag == null)
                 {
-                    element.Tag = new List<TagMap>();
+                    element.Tag = new Selection(false, new List<TagMap>());
                 }
 
                 if (wires.Count > 0)
                 {
-                    var tuples = element.Tag as List<TagMap>;
+                    var selection = element.Tag as Selection;
+                    var tuples = selection.Item2;
 
                     foreach (var wire in wires)
                     {
                         string _name = wire.Item1;
                         string _type = wire.Item2;
 
-                        if (CompareString(_type, wireStartType))
+                        if (CompareString(_type, Constants.WireStartType))
                         {
                             var line = dict[_name].Item1 as Line;
 
                             var _tuple = new TagMap(line, element, null);
                             tuples.Add(_tuple);
                         }
-                        else if (CompareString(_type, wireEndType))
+                        else if (CompareString(_type, Constants.WireEndType))
                         {
                             var line = dict[_name].Item1 as Line;
 
@@ -1068,7 +1151,7 @@ namespace CanvasDiagramEditor
 
             foreach (var element in elements)
             {
-                string[] uid = element.Uid.Split(tagNameSeparator);
+                string[] uid = element.Uid.Split(Constants.TagNameSeparator);
 
                 string type = uid[0];
                 int id = int.Parse(uid[1]);
@@ -1076,27 +1159,27 @@ namespace CanvasDiagramEditor
 
                 switch (type)
                 {
-                    case tagElementWire:
+                    case Constants.TagElementWire:
                         appendedId = this.wireCounter;
                         this.wireCounter += 1;
                         break;
-                    case tagElementInput:
+                    case Constants.TagElementInput:
                         appendedId = this.inputCounter;
                         this.inputCounter += 1;
                         break;
-                    case tagElementOutput:
+                    case Constants.TagElementOutput:
                         appendedId = this.outputCounter;
                         this.outputCounter += 1;
                         break;
-                    case tagElementAndGate:
+                    case Constants.TagElementAndGate:
                         appendedId = this.andGateCounter;
                         this.andGateCounter += 1;
                         break;
-                    case tagElementOrGate:
+                    case Constants.TagElementOrGate:
                         appendedId = this.orGateCounter;
                         this.orGateCounter += 1;
                         break;
-                    case tagElementPin:
+                    case Constants.TagElementPin:
                         appendedId = this.pinCounter;
                         this.pinCounter += 1;
                         break;
@@ -1106,7 +1189,7 @@ namespace CanvasDiagramEditor
 
                 //System.Diagnostics.Debug.Print("+{0}, id: {1} -> {2} ", type, id, appendedId);
 
-                string appendedUid = string.Concat(type, tagNameSeparator, appendedId.ToString());
+                string appendedUid = string.Concat(type, Constants.TagNameSeparator, appendedId.ToString());
                 element.Uid = appendedUid;
 
                 //if (element.Tag != null)
@@ -1196,7 +1279,7 @@ namespace CanvasDiagramEditor
         private bool HandlePreviewLeftDown(Canvas canvas, FrameworkElement pin)
         {
             if (pin != null &&
-                (!CompareString(pin.Name, standalonePinName) || Keyboard.Modifiers == ModifierKeys.Control))
+                (!CompareString(pin.Name, Constants.StandalonePinName) || Keyboard.Modifiers == ModifierKeys.Control))
             {
                 if (this._line == null)
                     AddToHistory(canvas);
@@ -1242,7 +1325,8 @@ namespace CanvasDiagramEditor
                 }
                 else
                 {
-                    var tuples = this._root.Tag as List<TagMap>;
+                    var selection = this._root.Tag as Selection;
+                    var tuples = selection.Item2;
 
                     var last = tuples.LastOrDefault();
                     tuples.Remove(last);
@@ -1271,11 +1355,11 @@ namespace CanvasDiagramEditor
 
             bool snap = (this.snapOnRelease == true && this.enableSnap == true) ? false : this.enableSnap;
 
-            if (Keyboard.Modifiers == ModifierKeys.Control)
+            if (Keyboard.Modifiers == ModifierKeys.Shift || this.moveWithShift == true)
             {
-                // move all elements when Control key is pressed
+                // move all elements when Shift key is pressed
                 var canvas = this.DiagramCanvas;
-                var thumbs = canvas.Children.OfType<Thumb>();
+                var thumbs = canvas.Children.OfType<SelectionThumb>();
 
                 foreach(var thumb in thumbs)
                 {
@@ -1285,7 +1369,7 @@ namespace CanvasDiagramEditor
             else
             {
                 // move only selected element
-                var thumb = sender as Thumb;
+                var thumb = sender as SelectionThumb;
 
                 MoveRoot(thumb, dX, dY, snap);
             }
@@ -1296,31 +1380,87 @@ namespace CanvasDiagramEditor
             var canvas = this.DiagramCanvas;
 
             AddToHistory(canvas);
+
+            if (Keyboard.Modifiers == ModifierKeys.Shift)
+            {
+                var thumbs = canvas.Children.OfType<SelectionThumb>();
+
+                this.moveWithShift = true;
+
+                foreach (var thumb in thumbs)
+                {
+                    // select
+                    SelectionThumb.SetIsSelected(thumb, true);
+                }
+
+                SelectionThumb.SetIsSelected(canvas, true);
+            }
+            else
+            {
+                var thumb = sender as SelectionThumb;
+                this.moveWithShift = false;
+
+                // select
+                SelectionThumb.SetIsSelected(thumb, true);
+            }
         }
 
         private void RootElement_DragCompleted(object sender, DragCompletedEventArgs e)
         {
             if (this.snapOnRelease == true && this.enableSnap == true)
             {
-                if (Keyboard.Modifiers == ModifierKeys.Control)
+                if (Keyboard.Modifiers == ModifierKeys.Shift || this.moveWithShift == true)
                 {
-                    // move all elements when Control key is pressed
+                    // move all elements when Shift key is pressed
                     var canvas = this.DiagramCanvas;
-                    var thumbs = canvas.Children.OfType<Thumb>();
+                    var thumbs = canvas.Children.OfType<SelectionThumb>();
+
+                    SelectionThumb.SetIsSelected(canvas, false);
 
                     foreach (var thumb in thumbs)
                     {
+                        // deselect
+                        SelectionThumb.SetIsSelected(thumb, false);
+
                         MoveRoot(thumb, 0.0, 0.0, this.enableSnap);
                     }
                 }
                 else
                 {
                     // move only selected element
-                    var thumb = sender as Thumb;
+                    var thumb = sender as SelectionThumb;
+
+                    // deselect
+                    SelectionThumb.SetIsSelected(thumb, false);
 
                     MoveRoot(thumb, 0.0, 0.0, this.enableSnap);
                 }
             }
+            else
+            {
+                if (Keyboard.Modifiers == ModifierKeys.Shift || this.moveWithShift == true)
+                {
+                    var canvas = this.DiagramCanvas;
+
+                    SelectionThumb.SetIsSelected(canvas, false);
+
+                    var thumbs = canvas.Children.OfType<SelectionThumb>();
+                    foreach (var thumb in thumbs)
+                    {
+                        // deselect
+                        SelectionThumb.SetIsSelected(thumb, false);
+                    }
+                }
+                else
+                {
+                    var thumb = sender as SelectionThumb;
+
+                    // de-select
+                    SelectionThumb.SetIsSelected(thumb, false);
+                }
+            }
+
+            this.moveWithShift = false;
         }
 
         #endregion
@@ -1542,7 +1682,7 @@ namespace CanvasDiagramEditor
 
             InsertPin(canvas, this.rightClick);
 
-            this.lastInsert = tagElementPin;
+            this.lastInsert = Constants.TagElementPin;
             this.skipLeftClick = false;
         }
 
@@ -1554,7 +1694,7 @@ namespace CanvasDiagramEditor
 
             InsertInput(canvas, this.rightClick);
 
-            this.lastInsert = tagElementInput;
+            this.lastInsert = Constants.TagElementInput;
             this.skipLeftClick = false;
         }
 
@@ -1566,7 +1706,7 @@ namespace CanvasDiagramEditor
 
             InsertOutput(canvas, this.rightClick);
 
-            this.lastInsert = tagElementOutput;
+            this.lastInsert = Constants.TagElementOutput;
             this.skipLeftClick = false;
         }
 
@@ -1578,7 +1718,7 @@ namespace CanvasDiagramEditor
 
             InsertAndGate(canvas, this.rightClick);
 
-            this.lastInsert = tagElementAndGate;
+            this.lastInsert = Constants.TagElementAndGate;
             this.skipLeftClick = false;
         }
 
@@ -1590,7 +1730,7 @@ namespace CanvasDiagramEditor
 
             InsertOrGate(canvas, this.rightClick);
 
-            this.lastInsert = tagElementOrGate;
+            this.lastInsert = Constants.TagElementOrGate;
             this.skipLeftClick = false;
         }
 
@@ -1654,7 +1794,7 @@ namespace CanvasDiagramEditor
             st.ScaleX = zoom;
             st.ScaleY = zoom;
 
-            Application.Current.Resources[keyStrokeThickness] = defaultStrokeThickness / zoom;
+            Application.Current.Resources[Constants.KeyStrokeThickness] = defaultStrokeThickness / zoom;
 
             // zoom to point
             ZoomToPoint(zoom, oldZoom);

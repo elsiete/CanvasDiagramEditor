@@ -1,6 +1,7 @@
 ﻿<Application x:Class="CanvasDiagramEditor.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:CanvasDiagramEditor"
              xmlns:controls="clr-namespace:CanvasDiagramEditor.Controls"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              StartupUri="MainWindow.xaml">
@@ -86,6 +87,10 @@
                     <Setter Property="Stroke" Value="{DynamicResource LogicColorKey}"/>
                     <!--<Setter Property="Cursor" Value="Cross"/>-->
                 </Trigger>
+                <Trigger Property="local:SelectionThumb.IsSelected" Value="True">
+                    <Setter Property="Fill" Value="{DynamicResource LogicSelectedColorKey}"/>
+                    <Setter Property="Stroke" Value="{DynamicResource LogicSelectedColorKey}"/>
+                </Trigger>
             </Style.Triggers>
         </Style>
 
@@ -119,6 +124,9 @@
                     <!--<Setter Property="Stroke" Value="{DynamicResource LogicSelectedColorKey}"/>-->
                     <!--<Setter Property="Cursor" Value="SizeAll"/>-->
                 </Trigger>
+                <Trigger Property="local:SelectionThumb.IsSelected" Value="True">
+                    <Setter Property="Stroke" Value="{DynamicResource LogicSelectedColorKey}"/>
+                </Trigger>
             </Style.Triggers>
         </Style>
 
@@ -140,6 +148,11 @@
             <Setter Property="StrokeEndLineCap" Value="Square"/>
             <Setter Property="StrokeLineJoin" Value="Miter"/>
             <Setter Property="RenderOptions.EdgeMode" Value="Aliased"/>
+            <Style.Triggers>
+                <Trigger Property="local:SelectionThumb.IsSelected" Value="True">
+                    <Setter Property="Stroke" Value="{DynamicResource LogicSelectedColorKey}"/>
+                </Trigger>
+            </Style.Triggers>
         </Style>
   
         <Style x:Key="LogicTextStyleKey" TargetType="TextBlock">
@@ -148,6 +161,11 @@
             <Setter Property="FontSize" Value="15"/>
             <Setter Property="FontWeight" Value="Normal"/>
             <Setter Property="RenderOptions.EdgeMode" Value="Aliased"/>
+            <Style.Triggers>
+                <Trigger Property="local:SelectionThumb.IsSelected" Value="True">
+                    <Setter Property="Foreground" Value="{DynamicResource LogicSelectedColorKey}"/>
+                </Trigger>
+            </Style.Triggers>
         </Style>
 
         <!-- templates -->
