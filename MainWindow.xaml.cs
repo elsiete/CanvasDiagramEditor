@@ -17,6 +17,9 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+using Word = Microsoft.Office.Interop.Word;
+using Office = Microsoft.Office.Core;
+
 #endregion
 
 namespace CanvasDiagramEditor
@@ -107,6 +110,331 @@ namespace CanvasDiagramEditor
 
     #endregion
 
+    #region MsoWordExport
+
+    public class MsoWordExport
+    {
+        #region Microsoft Word 2013 Export
+
+        private Office.MsoShapeStyleIndex defaultShapeStyle = Office.MsoShapeStyleIndex.msoShapeStylePreset25;
+        private Office.MsoShapeStyleIndex defaultLineStyle = Office.MsoShapeStyleIndex.msoLineStylePreset20;
+
+        public void CreateDocument(string fileName, List<string> diagrams)
+        {
+            System.Diagnostics.Debug.Print("Creating document: {0}", fileName);
+
+            var word = new Word.Application();
+
+            var doc = CreateDocument(word, diagrams);
+
+            // save and close document
+            doc.SaveAs2(fileName);
+
+            (doc as Word._Document).Close(Word.WdSaveOptions.wdDoNotSaveChanges);
+            (word as Word._Application).Quit(Word.WdSaveOptions.wdDoNotSaveChanges);
+
+            System.Diagnostics.Debug.Print("Done.");
+        }
+
+        private Word.Document CreateDocument(Word.Application word, List<string> diagrams)
+        {
+            // create new document
+            var doc = word.Documents.Add();
+
+            doc.PageSetup.PaperSize = Word.WdPaperSize.wdPaperA4;
+            doc.PageSetup.Orientation = Word.WdOrientation.wdOrientLandscape;
+
+            // margin = 20.0f;
+            // 801.95 + 40, 555.35 + 40
+            // 841.95, 595.35
+            // 780, 540
+            // left,right: 30.975f top,bottom: 27.675f
+
+            doc.PageSetup.LeftMargin = 30.975f;
+            doc.PageSetup.RightMargin = 30.975f;
+            doc.PageSetup.TopMargin = 27.675f;
+            doc.PageSetup.BottomMargin = 27.675f;
+
+            foreach (var diagram in diagrams)
+            {
+                // create diagram canvas
+                var canvas = CreateCanvas(doc);
+                var items = canvas.CanvasItems;
+
+                CreateElements(items, diagram);
+            }
+
+            return doc;
+        }
+
+        private static Word.Shape CreateCanvas(Word.Document doc)
+        {
+            float left = doc.PageSetup.LeftMargin;
+            float top = doc.PageSetup.TopMargin;
+            float width = doc.PageSetup.PageWidth - doc.PageSetup.LeftMargin - doc.PageSetup.RightMargin;
+            float height = doc.PageSetup.PageHeight - doc.PageSetup.TopMargin - doc.PageSetup.BottomMargin;
+
+            System.Diagnostics.Debug.Print("document width, height: {0},{1}", width, height);
+
+            var canvas = doc.Shapes.AddCanvas(left, top, width, height);
+
+            canvas.WrapFormat.AllowOverlap = (int)Office.MsoTriState.msoFalse;
+            canvas.WrapFormat.Type = Word.WdWrapType.wdWrapInline;
+
+            return canvas;
+        }
+
+        private void CreateElements(Word.CanvasShapes items, string diagram)
+        {
+            string name = null;
+            var lines = diagram.Split(Environment.NewLine.ToCharArray(),
+                StringSplitOptions.RemoveEmptyEntries);
+
+            var elements = new List<Action>();
+            var wires = new List<Action>();
+
+            foreach (var line in lines)
+            {
+                var args = line.Split(Constants.ArgumentSeparator);
+                int length = args.Length;
+
+                if (length >= 2)
+                {
+                    name = args[1];
+
+                    if (CompareString(args[0], Constants.PrefixRootElement))
+                    {
+                        if (name.StartsWith(Constants.TagElementPin, StringComparison.InvariantCultureIgnoreCase) &&
+                            length == 4)
+                        {
+                            float x = float.Parse(args[2]);
+                            float y = float.Parse(args[3]);
+                            int id = int.Parse(name.Split(Constants.TagNameSeparator)[1]);
+
+                            elements.Add(() =>
+                            {
+                                CreatePin(items, x, y);
+                            });
+                        }
+                        else if (name.StartsWith(Constants.TagElementInput, StringComparison.InvariantCultureIgnoreCase) &&
+                            length == 4)
+                        {
+                            float x = float.Parse(args[2]);
+                            float y = float.Parse(args[3]);
+                            int id = int.Parse(name.Split(Constants.TagNameSeparator)[1]);
+
+                            elements.Add(() =>
+                            {
+                                CreateInput(items, x, y, "Input");
+                            });
+                        }
+                        else if (name.StartsWith(Constants.TagElementOutput, StringComparison.InvariantCultureIgnoreCase) &&
+                            length == 4)
+                        {
+                            float x = float.Parse(args[2]);
+                            float y = float.Parse(args[3]);
+                            int id = int.Parse(name.Split(Constants.TagNameSeparator)[1]);
+
+                            elements.Add(() =>
+                            {
+                                CreateOutput(items, x, y, "Output");
+                            });
+                        }
+                        else if (name.StartsWith(Constants.TagElementAndGate, StringComparison.InvariantCultureIgnoreCase) &&
+                            length == 4)
+                        {
+                            float x = float.Parse(args[2]);
+                            float y = float.Parse(args[3]);
+                            int id = int.Parse(name.Split(Constants.TagNameSeparator)[1]);
+
+                            elements.Add(() =>
+                            {
+                                CreateAndGate(items, x, y);
+                            });
+                        }
+                        else if (name.StartsWith(Constants.TagElementOrGate, StringComparison.InvariantCultureIgnoreCase) &&
+                            length == 4)
+                        {
+                            float x = float.Parse(args[2]);
+                            float y = float.Parse(args[3]);
+                            int id = int.Parse(name.Split(Constants.TagNameSeparator)[1]);
+
+                            elements.Add(() =>
+                            {
+                                CreateOrGate(items, x, y);
+                            });
+                        }
+                        else if (name.StartsWith(Constants.TagElementWire, StringComparison.InvariantCultureIgnoreCase) &&
+                            length == 6)
+                        {
+                            float x1 = float.Parse(args[2]);
+                            float y1 = float.Parse(args[3]);
+                            float x2 = float.Parse(args[4]);
+                            float y2 = float.Parse(args[5]);
+                            int id = int.Parse(name.Split(Constants.TagNameSeparator)[1]);
+
+                            wires.Add(() =>
+                            {
+                                CreateWire(items, x1, y1, x2, y2);
+                            });
+                        }
+                    }
+                }
+            }
+
+            // create wires, bottom ZOrder
+            foreach (var action in wires)
+            {
+                action();
+            }
+
+            // create elements, top ZOrder
+            foreach (var action in elements)
+            {
+                action();
+            }
+        }
+
+        private void CreatePin(Word.CanvasShapes items, float x, float y)
+        {
+            var rect = items.AddShape((int)Office.MsoAutoShapeType.msoShapeOval,
+                x - 4.0f, y - 4.0f, 8.0f, 8.0f);
+
+            rect.Fill.ForeColor.RGB = unchecked((int)0x00000000);
+            rect.Line.ForeColor.RGB = unchecked((int)0x00000000);
+            rect.Line.Weight = 1.0f;
+
+            rect.ShapeStyle = defaultShapeStyle;
+        }
+
+        private void CreateWire(Word.CanvasShapes items, float x1, float y1, float x2, float y2)
+        {
+            var line = items.AddLine(x1, y1, x2, y2);
+
+            line.Line.ForeColor.RGB = unchecked((int)0x00000000);
+            line.Line.Weight = 1.0f;
+
+            line.ShapeStyle = defaultLineStyle;
+        }
+
+        private void CreateInput(Word.CanvasShapes items, float x, float y, string text)
+        {
+            var rect = items.AddShape((int)Office.MsoAutoShapeType.msoShapeRectangle,
+                x, y, 180.0f, 30.0f);
+
+            rect.Fill.ForeColor.RGB = unchecked((int)0x00FFFFFF);
+            rect.Line.ForeColor.RGB = unchecked((int)0x00000000);
+            rect.Line.Weight = 1.0f;
+
+            var textFrame = rect.TextFrame;
+
+            SetTextFrameFormat(textFrame);
+
+            textFrame.TextRange.Text = text;
+
+            rect.ShapeStyle = defaultShapeStyle;
+        }
+
+        private void CreateOutput(Word.CanvasShapes items, float x, float y, string text)
+        {
+            var rect = items.AddShape((int)Office.MsoAutoShapeType.msoShapeRectangle,
+                x, y, 180.0f, 30.0f);
+
+            rect.Fill.ForeColor.RGB = unchecked((int)0x00FFFFFF);
+            rect.Line.ForeColor.RGB = unchecked((int)0x00000000);
+            rect.Line.Weight = 1.0f;
+
+            var textFrame = rect.TextFrame;
+
+            SetTextFrameFormat(textFrame);
+
+            textFrame.TextRange.Text = text;
+
+            rect.ShapeStyle = defaultShapeStyle;
+        }
+
+        private void CreateAndGate(Word.CanvasShapes items, float x, float y)
+        {
+            var rect = items.AddShape((int)Office.MsoAutoShapeType.msoShapeRectangle,
+                x, y, 30.0f, 30.0f);
+
+            rect.Fill.ForeColor.RGB = unchecked((int)0x00FFFFFF);
+            rect.Line.ForeColor.RGB = unchecked((int)0x00000000);
+            rect.Line.Weight = 1.0f;
+
+            var textFrame = rect.TextFrame;
+
+            SetTextFrameFormat(textFrame);
+
+            textFrame.TextRange.Text = "&";
+
+            rect.ShapeStyle = defaultShapeStyle;
+        }
+
+        private void CreateOrGate(Word.CanvasShapes items, float x, float y)
+        {
+            var rect = items.AddShape((int)Office.MsoAutoShapeType.msoShapeRectangle,
+                x, y, 30.0f, 30.0f);
+
+            rect.Fill.ForeColor.RGB = unchecked((int)0x00FFFFFF);
+            rect.Line.ForeColor.RGB = unchecked((int)0x00000000);
+            rect.Line.Weight = 1.0f;
+
+            var textFrame = rect.TextFrame;
+
+            SetTextFrameFormat(textFrame);
+
+            textFrame.TextRange.Text = "≥1";
+
+            rect.ShapeStyle = defaultShapeStyle;
+        }
+
+        private void CreateText(Word.CanvasShapes items, float x, float y, float width, float height, string text)
+        {
+            var textBox = items.AddTextbox(Office.MsoTextOrientation.msoTextOrientationHorizontal,
+                x, y, width, height);
+
+            textBox.Line.Visible = Office.MsoTriState.msoFalse;
+            textBox.Fill.Visible = Office.MsoTriState.msoFalse;
+
+            var textFrame = textBox.TextFrame;
+
+            SetTextFrameFormat(textFrame);
+
+            textFrame.TextRange.Text = text;
+        }
+
+        private void SetTextFrameFormat(Word.TextFrame textFrame)
+        {
+            textFrame.AutoSize = (int)Office.MsoAutoSize.msoAutoSizeNone;
+
+            textFrame.VerticalAnchor = Office.MsoVerticalAnchor.msoAnchorMiddle;
+
+            textFrame.MarginLeft = 0.0f;
+            textFrame.MarginTop = 0.0f;
+            textFrame.MarginRight = 0.0f;
+            textFrame.MarginBottom = 0.0f;
+
+            textFrame.TextRange.Font.Name = "Arial";
+            textFrame.TextRange.Font.Size = 12.0f;
+            textFrame.TextRange.Font.TextColor.RGB = unchecked((int)0x00000000);
+
+            textFrame.TextRange.Paragraphs.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
+            textFrame.TextRange.Paragraphs.SpaceAfter = 0.0f;
+            textFrame.TextRange.Paragraphs.SpaceBefore = 0.0f;
+            textFrame.TextRange.Paragraphs.LineSpacingRule = Word.WdLineSpacing.wdLineSpaceSingle;
+        }
+
+        private static bool CompareString(string strA, string strB)
+        {
+            return string.Compare(strA, strB, StringComparison.InvariantCultureIgnoreCase) == 0;
+        }
+
+        #endregion
+    }
+    
+    #endregion
+
     #region MainWindow
 
     public partial class MainWindow : Window
@@ -131,7 +459,7 @@ namespace CanvasDiagramEditor
         private string lastInsert = Constants.TagElementInput;
 
         private double diagramWidth = 780;
-        private double diagramHeight = 660;
+        private double diagramHeight = 540;
 
         private bool enableSnap = true;
         private bool snapOnRelease = false;
@@ -1554,6 +1882,50 @@ namespace CanvasDiagramEditor
             }
         }
 
+        private void Export(bool exportHistory)
+        {
+            var dlg = new Microsoft.Win32.SaveFileDialog()
+            {
+                Filter = "Word Document (*.docx)|*.docx|Word Document (*.doc)|*.doc|All Files (*.*)|*.*",
+                Title = "Export to Word Document",
+                FileName = "diagram"
+            };
+
+            var res = dlg.ShowDialog();
+            if (res == true)
+            {
+                var canvas = this.DiagramCanvas;
+                List<string> models = null;
+
+                var currentModel = GenerateDiagramModel(canvas);
+
+                if (exportHistory == false)
+                {
+                    models = new List<string>();
+                }
+                else
+                {
+                    var history = GetHistory(canvas);
+                    var undoHistory = history.Item1;
+                    var redoHistory = history.Item2;
+
+                    models = undoHistory.ToList();
+                }
+
+                models.Add(currentModel);
+
+                if (models == null)
+                    throw new NullReferenceException();
+
+                var export = new MsoWordExport();
+                export.CreateDocument(dlg.FileName, models);
+
+                MessageBox.Show("Exported document: " +
+                    System.IO.Path.GetFileName(dlg.FileName),
+                    "Export", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
         private void Print()
         {
             var model = GenerateDiagramModel(this.DiagramCanvas);
@@ -1610,6 +1982,16 @@ namespace CanvasDiagramEditor
         private void SaveModel_Click(object sender, RoutedEventArgs e)
         {
             Save();
+        }
+
+        private void ExportModel_Click(object sender, RoutedEventArgs e)
+        {
+            Export(false);
+        }
+
+        private void ExportModelHistory_Click(object sender, RoutedEventArgs e)
+        {
+            Export(true);
         }
 
         private void PrintModel_Click(object sender, RoutedEventArgs e)
