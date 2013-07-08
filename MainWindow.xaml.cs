@@ -116,6 +116,57 @@ namespace CanvasDiagramEditor
 
     #endregion
 
+    #region Parser
+
+    public class IdCounter
+    {
+        public IdCounter()
+        {
+            PinCount = 0;
+            WireCount = 0;
+            InputCount = 0;
+            OutputCount = 0;
+            AndGateCount = 0;
+            OrGateCount = 0;
+        }
+
+        public int PinCount { get; set; }
+        public int WireCount { get; set; }
+        public int InputCount { get; set; }
+        public int OutputCount { get; set; }
+        public int AndGateCount { get; set; }
+        public int OrGateCount { get; set; }
+    }
+
+    public interface IDiagramCreator
+    {
+        object CreatePin(int id, double x, double y);
+        object CreateWire(int id, double x1, double y1, double x2, double y2);
+        object CreateInput(int id, double x, double y, string text);
+        object CreateOutput(int id, double x, double y, string text);
+        object CreateAndGate(int id, double x, double y);
+        object CreateOrGate(int id, double x, double y);
+    }
+
+    public interface IDiagramParser
+    {
+        IEnumerable<object> Parse(string diagram, IDiagramCreator creator);
+    }
+
+    public class DiagramParser : IDiagramParser
+    {
+        public IEnumerable<object> Parse(string diagram, IDiagramCreator creator)
+        {
+            var elements = new List<object>();
+
+            // ...
+
+            return elements;
+        }
+    }
+
+    #endregion
+
     #region MainWindow
 
     public partial class MainWindow : Window
