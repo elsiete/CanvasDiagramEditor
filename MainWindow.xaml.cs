@@ -17,9 +17,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-using Word = Microsoft.Office.Interop.Word;
-using Office = Microsoft.Office.Core;
-
 #endregion
 
 namespace CanvasDiagramEditor
@@ -35,6 +32,41 @@ namespace CanvasDiagramEditor
 
     // Canvas.Tag => Item1: undoHistory, Item2: redoHistory
     using History = Tuple<Stack<string>, Stack<string>>;
+
+    #endregion
+
+    #region SelectionThumb
+
+    public class SelectionThumb : Thumb
+    {
+        #region IsSelected Attached Property
+
+        public static bool GetIsSelected(DependencyObject obj)
+        {
+            return (bool)obj.GetValue(IsSelectedProperty);
+        }
+
+        public static void SetIsSelected(DependencyObject obj, bool value)
+        {
+            obj.SetValue(IsSelectedProperty, value);
+        }
+
+        public static readonly DependencyProperty IsSelectedProperty =
+            DependencyProperty.RegisterAttached("IsSelected", typeof(bool), typeof(SelectionThumb),
+            new FrameworkPropertyMetadata(false,
+                FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender)); 
+
+        #endregion
+    }
+
+    #endregion
+
+    #region IDiagramExport
+
+    public interface IDiagramExport
+    {
+        void CreateDocument(string fileName, IEnumerable<string> diagrams);
+    }
 
     #endregion
 
@@ -84,357 +116,6 @@ namespace CanvasDiagramEditor
 
     #endregion
 
-    #region SelectionThumb
-
-    public class SelectionThumb : Thumb
-    {
-        #region IsSelected Attached Property
-
-        public static bool GetIsSelected(DependencyObject obj)
-        {
-            return (bool)obj.GetValue(IsSelectedProperty);
-        }
-
-        public static void SetIsSelected(DependencyObject obj, bool value)
-        {
-            obj.SetValue(IsSelectedProperty, value);
-        }
-
-        public static readonly DependencyProperty IsSelectedProperty =
-            DependencyProperty.RegisterAttached("IsSelected", typeof(bool), typeof(SelectionThumb),
-            new FrameworkPropertyMetadata(false,
-                FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender)); 
-
-        #endregion
-    }
-
-    #endregion
-
-    #region MsoWordExport
-
-    public class MsoWordExport
-    {
-        #region Microsoft Word 2013 Export
-
-        private Office.MsoShapeStyleIndex defaultShapeStyle = Office.MsoShapeStyleIndex.msoShapeStylePreset25;
-        private Office.MsoShapeStyleIndex defaultLineStyle = Office.MsoShapeStyleIndex.msoLineStylePreset20;
-
-        public void CreateDocument(string fileName, List<string> diagrams)
-        {
-            System.Diagnostics.Debug.Print("Creating document: {0}", fileName);
-
-            var word = new Word.Application();
-
-            var doc = CreateDocument(word, diagrams);
-
-            // save and close document
-            doc.SaveAs2(fileName);
-
-            (doc as Word._Document).Close(Word.WdSaveOptions.wdDoNotSaveChanges);
-            (word as Word._Application).Quit(Word.WdSaveOptions.wdDoNotSaveChanges);
-
-            System.Diagnostics.Debug.Print("Done.");
-        }
-
-        private Word.Document CreateDocument(Word.Application word, List<string> diagrams)
-        {
-            // create new document
-            var doc = word.Documents.Add();
-
-            doc.PageSetup.PaperSize = Word.WdPaperSize.wdPaperA4;
-            doc.PageSetup.Orientation = Word.WdOrientation.wdOrientLandscape;
-
-            // margin = 20.0f;
-            // 801.95 + 40, 555.35 + 40
-            // 841.95, 595.35
-            // 780, 540
-            // left,right: 30.975f top,bottom: 27.675f
-
-            doc.PageSetup.LeftMargin = 30.975f;
-            doc.PageSetup.RightMargin = 30.975f;
-            doc.PageSetup.TopMargin = 27.675f;
-            doc.PageSetup.BottomMargin = 27.675f;
-
-            foreach (var diagram in diagrams)
-            {
-                // create diagram canvas
-                var canvas = CreateCanvas(doc);
-                var items = canvas.CanvasItems;
-
-                CreateElements(items, diagram);
-            }
-
-            return doc;
-        }
-
-        private static Word.Shape CreateCanvas(Word.Document doc)
-        {
-            float left = doc.PageSetup.LeftMargin;
-            float top = doc.PageSetup.TopMargin;
-            float width = doc.PageSetup.PageWidth - doc.PageSetup.LeftMargin - doc.PageSetup.RightMargin;
-            float height = doc.PageSetup.PageHeight - doc.PageSetup.TopMargin - doc.PageSetup.BottomMargin;
-
-            System.Diagnostics.Debug.Print("document width, height: {0},{1}", width, height);
-
-            var canvas = doc.Shapes.AddCanvas(left, top, width, height);
-
-            canvas.WrapFormat.AllowOverlap = (int)Office.MsoTriState.msoFalse;
-            canvas.WrapFormat.Type = Word.WdWrapType.wdWrapInline;
-
-            return canvas;
-        }
-
-        private void CreateElements(Word.CanvasShapes items, string diagram)
-        {
-            string name = null;
-            var lines = diagram.Split(Environment.NewLine.ToCharArray(),
-                StringSplitOptions.RemoveEmptyEntries);
-
-            var elements = new List<Action>();
-            var wires = new List<Action>();
-
-            foreach (var line in lines)
-            {
-                var args = line.Split(Constants.ArgumentSeparator);
-                int length = args.Length;
-
-                if (length >= 2)
-                {
-                    name = args[1];
-
-                    if (CompareString(args[0], Constants.PrefixRootElement))
-                    {
-                        if (name.StartsWith(Constants.TagElementPin, StringComparison.InvariantCultureIgnoreCase) &&
-                            length == 4)
-                        {
-                            float x = float.Parse(args[2]);
-                            float y = float.Parse(args[3]);
-                            int id = int.Parse(name.Split(Constants.TagNameSeparator)[1]);
-
-                            elements.Add(() =>
-                            {
-                                CreatePin(items, x, y);
-                            });
-                        }
-                        else if (name.StartsWith(Constants.TagElementInput, StringComparison.InvariantCultureIgnoreCase) &&
-                            length == 4)
-                        {
-                            float x = float.Parse(args[2]);
-                            float y = float.Parse(args[3]);
-                            int id = int.Parse(name.Split(Constants.TagNameSeparator)[1]);
-
-                            elements.Add(() =>
-                            {
-                                CreateInput(items, x, y, "Input");
-                            });
-                        }
-                        else if (name.StartsWith(Constants.TagElementOutput, StringComparison.InvariantCultureIgnoreCase) &&
-                            length == 4)
-                        {
-                            float x = float.Parse(args[2]);
-                            float y = float.Parse(args[3]);
-                            int id = int.Parse(name.Split(Constants.TagNameSeparator)[1]);
-
-                            elements.Add(() =>
-                            {
-                                CreateOutput(items, x, y, "Output");
-                            });
-                        }
-                        else if (name.StartsWith(Constants.TagElementAndGate, StringComparison.InvariantCultureIgnoreCase) &&
-                            length == 4)
-                        {
-                            float x = float.Parse(args[2]);
-                            float y = float.Parse(args[3]);
-                            int id = int.Parse(name.Split(Constants.TagNameSeparator)[1]);
-
-                            elements.Add(() =>
-                            {
-                                CreateAndGate(items, x, y);
-                            });
-                        }
-                        else if (name.StartsWith(Constants.TagElementOrGate, StringComparison.InvariantCultureIgnoreCase) &&
-                            length == 4)
-                        {
-                            float x = float.Parse(args[2]);
-                            float y = float.Parse(args[3]);
-                            int id = int.Parse(name.Split(Constants.TagNameSeparator)[1]);
-
-                            elements.Add(() =>
-                            {
-                                CreateOrGate(items, x, y);
-                            });
-                        }
-                        else if (name.StartsWith(Constants.TagElementWire, StringComparison.InvariantCultureIgnoreCase) &&
-                            length == 6)
-                        {
-                            float x1 = float.Parse(args[2]);
-                            float y1 = float.Parse(args[3]);
-                            float x2 = float.Parse(args[4]);
-                            float y2 = float.Parse(args[5]);
-                            int id = int.Parse(name.Split(Constants.TagNameSeparator)[1]);
-
-                            wires.Add(() =>
-                            {
-                                CreateWire(items, x1, y1, x2, y2);
-                            });
-                        }
-                    }
-                }
-            }
-
-            // create wires, bottom ZOrder
-            foreach (var action in wires)
-            {
-                action();
-            }
-
-            // create elements, top ZOrder
-            foreach (var action in elements)
-            {
-                action();
-            }
-        }
-
-        private void CreatePin(Word.CanvasShapes items, float x, float y)
-        {
-            var rect = items.AddShape((int)Office.MsoAutoShapeType.msoShapeOval,
-                x - 4.0f, y - 4.0f, 8.0f, 8.0f);
-
-            rect.Fill.ForeColor.RGB = unchecked((int)0x00000000);
-            rect.Line.ForeColor.RGB = unchecked((int)0x00000000);
-            rect.Line.Weight = 1.0f;
-
-            rect.ShapeStyle = defaultShapeStyle;
-        }
-
-        private void CreateWire(Word.CanvasShapes items, float x1, float y1, float x2, float y2)
-        {
-            var line = items.AddLine(x1, y1, x2, y2);
-
-            line.Line.ForeColor.RGB = unchecked((int)0x00000000);
-            line.Line.Weight = 1.0f;
-
-            line.ShapeStyle = defaultLineStyle;
-        }
-
-        private void CreateInput(Word.CanvasShapes items, float x, float y, string text)
-        {
-            var rect = items.AddShape((int)Office.MsoAutoShapeType.msoShapeRectangle,
-                x, y, 180.0f, 30.0f);
-
-            rect.Fill.ForeColor.RGB = unchecked((int)0x00FFFFFF);
-            rect.Line.ForeColor.RGB = unchecked((int)0x00000000);
-            rect.Line.Weight = 1.0f;
-
-            var textFrame = rect.TextFrame;
-
-            SetTextFrameFormat(textFrame);
-
-            textFrame.TextRange.Text = text;
-
-            rect.ShapeStyle = defaultShapeStyle;
-        }
-
-        private void CreateOutput(Word.CanvasShapes items, float x, float y, string text)
-        {
-            var rect = items.AddShape((int)Office.MsoAutoShapeType.msoShapeRectangle,
-                x, y, 180.0f, 30.0f);
-
-            rect.Fill.ForeColor.RGB = unchecked((int)0x00FFFFFF);
-            rect.Line.ForeColor.RGB = unchecked((int)0x00000000);
-            rect.Line.Weight = 1.0f;
-
-            var textFrame = rect.TextFrame;
-
-            SetTextFrameFormat(textFrame);
-
-            textFrame.TextRange.Text = text;
-
-            rect.ShapeStyle = defaultShapeStyle;
-        }
-
-        private void CreateAndGate(Word.CanvasShapes items, float x, float y)
-        {
-            var rect = items.AddShape((int)Office.MsoAutoShapeType.msoShapeRectangle,
-                x, y, 30.0f, 30.0f);
-
-            rect.Fill.ForeColor.RGB = unchecked((int)0x00FFFFFF);
-            rect.Line.ForeColor.RGB = unchecked((int)0x00000000);
-            rect.Line.Weight = 1.0f;
-
-            var textFrame = rect.TextFrame;
-
-            SetTextFrameFormat(textFrame);
-
-            textFrame.TextRange.Text = "&";
-
-            rect.ShapeStyle = defaultShapeStyle;
-        }
-
-        private void CreateOrGate(Word.CanvasShapes items, float x, float y)
-        {
-            var rect = items.AddShape((int)Office.MsoAutoShapeType.msoShapeRectangle,
-                x, y, 30.0f, 30.0f);
-
-            rect.Fill.ForeColor.RGB = unchecked((int)0x00FFFFFF);
-            rect.Line.ForeColor.RGB = unchecked((int)0x00000000);
-            rect.Line.Weight = 1.0f;
-
-            var textFrame = rect.TextFrame;
-
-            SetTextFrameFormat(textFrame);
-
-            textFrame.TextRange.Text = "≥1";
-
-            rect.ShapeStyle = defaultShapeStyle;
-        }
-
-        private void CreateText(Word.CanvasShapes items, float x, float y, float width, float height, string text)
-        {
-            var textBox = items.AddTextbox(Office.MsoTextOrientation.msoTextOrientationHorizontal,
-                x, y, width, height);
-
-            textBox.Line.Visible = Office.MsoTriState.msoFalse;
-            textBox.Fill.Visible = Office.MsoTriState.msoFalse;
-
-            var textFrame = textBox.TextFrame;
-
-            SetTextFrameFormat(textFrame);
-
-            textFrame.TextRange.Text = text;
-        }
-
-        private void SetTextFrameFormat(Word.TextFrame textFrame)
-        {
-            textFrame.AutoSize = (int)Office.MsoAutoSize.msoAutoSizeNone;
-
-            textFrame.VerticalAnchor = Office.MsoVerticalAnchor.msoAnchorMiddle;
-
-            textFrame.MarginLeft = 0.0f;
-            textFrame.MarginTop = 0.0f;
-            textFrame.MarginRight = 0.0f;
-            textFrame.MarginBottom = 0.0f;
-
-            textFrame.TextRange.Font.Name = "Arial";
-            textFrame.TextRange.Font.Size = 12.0f;
-            textFrame.TextRange.Font.TextColor.RGB = unchecked((int)0x00000000);
-
-            textFrame.TextRange.Paragraphs.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
-            textFrame.TextRange.Paragraphs.SpaceAfter = 0.0f;
-            textFrame.TextRange.Paragraphs.SpaceBefore = 0.0f;
-            textFrame.TextRange.Paragraphs.LineSpacingRule = Word.WdLineSpacing.wdLineSpaceSingle;
-        }
-
-        private static bool CompareString(string strA, string strB)
-        {
-            return string.Compare(strA, strB, StringComparison.InvariantCultureIgnoreCase) == 0;
-        }
-
-        #endregion
-    }
-    
-    #endregion
-
     #region MainWindow
 
     public partial class MainWindow : Window
@@ -443,8 +124,8 @@ namespace CanvasDiagramEditor
 
         private bool enableHistory = true;
 
-        private Line _line = null;
-        private FrameworkElement _root = null;
+        private Line currentLine = null;
+        private FrameworkElement currentRoot = null;
 
         private int pinCounter = 0;
         private int wireCounter = 0;
@@ -485,13 +166,60 @@ namespace CanvasDiagramEditor
         private double zoomInFactor = 0.1;
         private double zoomOutFactor = 0.1;
 
+        private Point zoomPoint;
+
         private double reversePanDirection = -1.0; // reverse: 1.0, normal: -1.0
         private double panSpeedFactor = 3.0; // pan speed factor, depends on current zoom
         private MouseButton panButton = MouseButton.Middle;
 
         #endregion
 
-        #region History (Undo/Redo)
+        #region Constructor
+
+        public MainWindow()
+        {
+            InitializeComponent();
+
+            InitializeOptions();
+        }
+
+        private void InitializeOptions()
+        {
+            EnableHistory.IsChecked = this.enableHistory;
+            EnableInsertLast.IsChecked = this.enableInsertLast;
+            EnableSnap.IsChecked = this.enableSnap;
+            SnapOnRelease.IsChecked = this.snapOnRelease;
+        }
+
+        #endregion
+
+        #region Snap
+
+        public double Snap(double original, double snap, double offset)
+        {
+            return Snap(original - offset, snap) + offset;
+        }
+
+        public double Snap(double original, double snap)
+        {
+            return original + ((Math.Round(original / snap) - original / snap) * snap);
+        }
+
+        private double SnapX(double original, bool snap)
+        {
+            return snap == true ?
+                Snap(original, this.snapX, this.snapOffsetX) : original;
+        }
+
+        private double SnapY(double original, bool snap)
+        {
+            return snap == true ?
+                Snap(original, this.snapY, this.snapOffsetY) : original;
+        }
+
+        #endregion
+
+        #region History
 
         private History GetHistory(Canvas canvas)
         {
@@ -617,46 +345,6 @@ namespace CanvasDiagramEditor
 
         #endregion
 
-        #region Constructor
-
-        public MainWindow()
-        {
-            InitializeComponent();
-
-            EnableHistory.IsChecked = this.enableHistory;
-            EnableInsertLast.IsChecked = this.enableInsertLast;
-            EnableSnap.IsChecked = this.enableSnap;
-            SnapOnRelease.IsChecked = this.snapOnRelease;
-        }
-
-        #endregion
-
-        #region Snap
-
-        public double Snap(double original, double snap, double offset)
-        {
-            return Snap(original - offset, snap) + offset;
-        }
-
-        public double Snap(double original, double snap)
-        {
-            return original + ((Math.Round(original / snap) - original / snap) * snap);
-        }
-
-        private double SnapX(double original, bool snap)
-        {
-            return snap == true ?
-                Snap(original, this.snapX, this.snapOffsetX) : original;
-        }
-
-        private double SnapY(double original, bool snap)
-        {
-            return snap == true ?
-                Snap(original, this.snapY, this.snapOffsetY) : original;
-        }
-
-        #endregion
-
         #region Move
 
         private void SetElementPosition(FrameworkElement element, double left, double top, bool snap)
@@ -716,6 +404,112 @@ namespace CanvasDiagramEditor
                     }
                 }
             }
+        }
+
+        #endregion
+
+        #region Drag
+
+        private void Drag(Canvas canvas, SelectionThumb element, double dX, double dY)
+        {
+            bool snap = (this.snapOnRelease == true && this.enableSnap == true) ? false : this.enableSnap;
+
+            if (Keyboard.Modifiers == ModifierKeys.Shift || this.moveWithShift == true)
+            {
+                // move all elements when Shift key is pressed
+                var thumbs = canvas.Children.OfType<SelectionThumb>();
+
+                foreach (var thumb in thumbs)
+                {
+                    MoveRoot(thumb, dX, dY, snap);
+                }
+            }
+            else
+            {
+                // move only selected element
+
+                MoveRoot(element, dX, dY, snap);
+            }
+        }
+
+        private void DragStart(Canvas canvas, SelectionThumb element)
+        {
+            AddToHistory(canvas);
+
+            if (Keyboard.Modifiers == ModifierKeys.Shift)
+            {
+                var thumbs = canvas.Children.OfType<SelectionThumb>();
+
+                this.moveWithShift = true;
+
+                foreach (var thumb in thumbs)
+                {
+                    // select
+                    SelectionThumb.SetIsSelected(thumb, true);
+                }
+
+                SelectionThumb.SetIsSelected(canvas, true);
+            }
+            else
+            {
+                this.moveWithShift = false;
+
+                // select
+                SelectionThumb.SetIsSelected(element, true);
+            }
+        }
+
+        private void DragEnd(Canvas canvas, SelectionThumb element)
+        {
+            if (this.snapOnRelease == true && this.enableSnap == true)
+            {
+                if (Keyboard.Modifiers == ModifierKeys.Shift || this.moveWithShift == true)
+                {
+                    // move all elements when Shift key is pressed
+
+                    var thumbs = canvas.Children.OfType<SelectionThumb>();
+
+                    SelectionThumb.SetIsSelected(canvas, false);
+
+                    foreach (var thumb in thumbs)
+                    {
+                        // deselect
+                        SelectionThumb.SetIsSelected(thumb, false);
+
+                        MoveRoot(thumb, 0.0, 0.0, this.enableSnap);
+                    }
+                }
+                else
+                {
+                    // move only selected element
+
+                    // deselect
+                    SelectionThumb.SetIsSelected(element, false);
+
+                    MoveRoot(element, 0.0, 0.0, this.enableSnap);
+                }
+            }
+            else
+            {
+                if (Keyboard.Modifiers == ModifierKeys.Shift || this.moveWithShift == true)
+                {
+                    SelectionThumb.SetIsSelected(canvas, false);
+
+                    var thumbs = canvas.Children.OfType<SelectionThumb>();
+                    foreach (var thumb in thumbs)
+                    {
+                        // deselect
+                        SelectionThumb.SetIsSelected(thumb, false);
+                    }
+                }
+                else
+                {
+                    // de-select
+                    SelectionThumb.SetIsSelected(element, false);
+                }
+            }
+
+            this.moveWithShift = false;
         }
 
         #endregion
@@ -830,12 +624,12 @@ namespace CanvasDiagramEditor
                     (pin.Parent as FrameworkElement).Parent as FrameworkElement
                 ).TemplatedParent as FrameworkElement;
 
-            this._root = root;
+            this.currentRoot = root;
 
             //System.Diagnostics.Debug.Print("ConnectPins, pin: {0}, {1}", pin.GetType(), pin.Name);
 
-            double rx = Canvas.GetLeft(this._root);
-            double ry = Canvas.GetTop(this._root);
+            double rx = Canvas.GetLeft(this.currentRoot);
+            double ry = Canvas.GetTop(this.currentRoot);
             double px = Canvas.GetLeft(pin);
             double py = Canvas.GetTop(pin);
             double x = rx + px;
@@ -850,44 +644,44 @@ namespace CanvasDiagramEditor
         {
             Line result = null;
 
-            if (this._root.Tag == null)
+            if (this.currentRoot.Tag == null)
             {
-                this._root.Tag = new Selection(false, new List<TagMap>());
+                this.currentRoot.Tag = new Selection(false, new List<TagMap>());
             }
 
-            var selection = this._root.Tag as Selection;
+            var selection = this.currentRoot.Tag as Selection;
             var tuples = selection.Item2;
 
-            if (this._line == null)
+            if (this.currentLine == null)
             {
                 var line = CreateWire(x, y, x, y, this.wireCounter);
                 this.wireCounter += 1;
 
-                this._line = line;
+                this.currentLine = line;
 
                 // update connections
-                var tuple = new TagMap(this._line, this._root, null);
+                var tuple = new TagMap(this.currentLine, this.currentRoot, null);
                 tuples.Add(tuple);
 
-                canvas.Children.Add(this._line);
+                canvas.Children.Add(this.currentLine);
 
                 result = line;
             }
             else
             {
-                var margin = this._line.Margin;
+                var margin = this.currentLine.Margin;
 
-                this._line.X2 = x - margin.Left;
-                this._line.Y2 = y - margin.Top;
+                this.currentLine.X2 = x - margin.Left;
+                this.currentLine.Y2 = y - margin.Top;
 
                 // update connections
-                var tuple = new TagMap(this._line, null, this._root);
+                var tuple = new TagMap(this.currentLine, null, this.currentRoot);
                 tuples.Add(tuple);
 
-                result = this._line;
+                result = this.currentLine;
 
-                this._line = null;
-                this._root = null;
+                this.currentLine = null;
+                this.currentRoot = null;
             }
 
             return result;
@@ -992,36 +786,11 @@ namespace CanvasDiagramEditor
             else
             {
                 canvas.Children.Remove(element);
-
-                //FrameworkElement parent = element.Parent as FrameworkElement;
-                //if (parent != null)
-                //{
-                //    while (!(parent.TemplatedParent is Thumb))
-                //    {
-                //        parent = parent.Parent as FrameworkElement;
-                //        if (parent == null)
-                //            break;
-                //    }
-                //    if (parent != null)
-                //    {
-                //        FrameworkElement root = parent.TemplatedParent as FrameworkElement;
-                //        System.Diagnostics.Debug.Print("DeleteElement, root: {0}, uid: {1}",
-                //            root.GetType(), root.Uid);
-                //        if (root != null && root.Parent == canvas)
-                //        {
-                //            canvas.Children.Remove(root);
-                //        }
-                //    }
-                //}
             }
         }
 
         private FrameworkElement HitTest(Canvas canvas, ref Point point)
         {
-            //var res = VisualTreeHelper.HitTest(canvas, point);
-            //var element = res.VisualHit as FrameworkElement;
-            //return element;
-
             var selectedElements = new List<DependencyObject>();
 
             var elippse = new EllipseGeometry()
@@ -1243,12 +1012,9 @@ namespace CanvasDiagramEditor
             return model.ToString();
         }
 
-        private void ParseDiagramModel(string diagram, 
-            Canvas canvas, 
-            double offsetX, 
-            double offsetY, 
-            bool appendIds,
-            bool updateIds)
+        private void ParseDiagramModel(string diagram, Canvas canvas, 
+            double offsetX, double offsetY, 
+            bool appendIds, bool updateIds)
         {
             int _pinCounter = 0;
             int _wireCounter = 0;
@@ -1567,286 +1333,6 @@ namespace CanvasDiagramEditor
             }
         }
 
-        #endregion
-
-        #region Handlers
-
-        private void HandleLeftDown(Canvas canvas, Point point)
-        {
-            if (this._root != null && this._line != null)
-            {
-                var root = InsertPin(canvas, point);
-
-                this._root = root;
-
-                //System.Diagnostics.Debug.Print("Canvas_MouseLeftButtonDown, root: {0}", root.GetType());
-
-                double rx = Canvas.GetLeft(this._root);
-                double ry = Canvas.GetTop(this._root);
-                double px = 0;
-                double py = 0;
-                double x = rx + px;
-                double y = ry + py;
-
-                //System.Diagnostics.Debug.Print("x: {0}, y: {0}", x, y);
-
-                CreatePinConnection(canvas, x, y);
-
-                this._root = root;
-
-                CreatePinConnection(canvas, x, y);
-            }
-            else if (this.enableInsertLast == true)
-            {
-                AddToHistory(canvas);
-
-                InsertLast(canvas, this.lastInsert, point);
-            }
-        }
-
-        private bool HandlePreviewLeftDown(Canvas canvas, FrameworkElement pin)
-        {
-            if (pin != null &&
-                (!CompareString(pin.Name, Constants.StandalonePinName) || Keyboard.Modifiers == ModifierKeys.Control))
-            {
-                if (this._line == null)
-                    AddToHistory(canvas);
-
-                CreatePinConnection(canvas, pin);
-
-                return true;
-            }
-
-            return false;
-        }
-
-        private void HandleMove(Canvas canvas, Point point)
-        {
-            if (this._root != null && this._line != null)
-            {
-                var margin = this._line.Margin;
-
-                double x = point.X - margin.Left;
-                double y = point.Y - margin.Top;
-
-                if (this._line.X2 != x)
-                {
-                    //this._line.X2 = SnapX(x);
-                    this._line.X2 = x;
-                }
-
-                if (this._line.Y2 != y)
-                {
-                    //this._line.Y2 = SnapY(y);
-                    this._line.Y2 = y;
-                }
-            }
-        }
-
-        private bool HandleRightDown(Canvas canvas)
-        {
-            if (this._root != null && this._line != null)
-            {
-                if (this.enableHistory == true)
-                {
-                    Undo(canvas, false);
-                }
-                else
-                {
-                    var selection = this._root.Tag as Selection;
-                    var tuples = selection.Item2;
-
-                    var last = tuples.LastOrDefault();
-                    tuples.Remove(last);
-
-                    canvas.Children.Remove(this._line);
-
-                    //RollbackUndoHistory(canvas);
-                }
-                this._line = null;
-                this._root = null;
-
-                return true;
-            }
-
-            return false;
-        }
-
-        #endregion
-
-        #region Thumb Events
-
-        private void RootElement_DragDelta(object sender, DragDeltaEventArgs e)
-        {
-            double dX = e.HorizontalChange;
-            double dY = e.VerticalChange;
-
-            bool snap = (this.snapOnRelease == true && this.enableSnap == true) ? false : this.enableSnap;
-
-            if (Keyboard.Modifiers == ModifierKeys.Shift || this.moveWithShift == true)
-            {
-                // move all elements when Shift key is pressed
-                var canvas = this.DiagramCanvas;
-                var thumbs = canvas.Children.OfType<SelectionThumb>();
-
-                foreach(var thumb in thumbs)
-                {
-                    MoveRoot(thumb, dX, dY, snap);
-                }
-            }
-            else
-            {
-                // move only selected element
-                var thumb = sender as SelectionThumb;
-
-                MoveRoot(thumb, dX, dY, snap);
-            }
-        }
-
-        private void RootElement_DragStarted(object sender, DragStartedEventArgs e)
-        {
-            var canvas = this.DiagramCanvas;
-
-            AddToHistory(canvas);
-
-            if (Keyboard.Modifiers == ModifierKeys.Shift)
-            {
-                var thumbs = canvas.Children.OfType<SelectionThumb>();
-
-                this.moveWithShift = true;
-
-                foreach (var thumb in thumbs)
-                {
-                    // select
-                    SelectionThumb.SetIsSelected(thumb, true);
-                }
-
-                SelectionThumb.SetIsSelected(canvas, true);
-            }
-            else
-            {
-                var thumb = sender as SelectionThumb;
-                this.moveWithShift = false;
-
-                // select
-                SelectionThumb.SetIsSelected(thumb, true);
-            }
-        }
-
-        private void RootElement_DragCompleted(object sender, DragCompletedEventArgs e)
-        {
-            if (this.snapOnRelease == true && this.enableSnap == true)
-            {
-                if (Keyboard.Modifiers == ModifierKeys.Shift || this.moveWithShift == true)
-                {
-                    // move all elements when Shift key is pressed
-                    var canvas = this.DiagramCanvas;
-                    var thumbs = canvas.Children.OfType<SelectionThumb>();
-
-                    SelectionThumb.SetIsSelected(canvas, false);
-
-                    foreach (var thumb in thumbs)
-                    {
-                        // deselect
-                        SelectionThumb.SetIsSelected(thumb, false);
-
-                        MoveRoot(thumb, 0.0, 0.0, this.enableSnap);
-                    }
-                }
-                else
-                {
-                    // move only selected element
-                    var thumb = sender as SelectionThumb;
-
-                    // deselect
-                    SelectionThumb.SetIsSelected(thumb, false);
-
-                    MoveRoot(thumb, 0.0, 0.0, this.enableSnap);
-                }
-            }
-            else
-            {
-                if (Keyboard.Modifiers == ModifierKeys.Shift || this.moveWithShift == true)
-                {
-                    var canvas = this.DiagramCanvas;
-
-                    SelectionThumb.SetIsSelected(canvas, false);
-
-                    var thumbs = canvas.Children.OfType<SelectionThumb>();
-                    foreach (var thumb in thumbs)
-                    {
-                        // deselect
-                        SelectionThumb.SetIsSelected(thumb, false);
-                    }
-                }
-                else
-                {
-                    var thumb = sender as SelectionThumb;
-
-                    // de-select
-                    SelectionThumb.SetIsSelected(thumb, false);
-                }
-            }
-
-            this.moveWithShift = false;
-        }
-
-        #endregion
-
-        #region Canvas Events
-
-        private void Canvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            var canvas = this.DiagramCanvas;
-            var point = e.GetPosition(canvas);
-
-            HandleLeftDown(canvas, point);
-        }
-
-        private void Canvas_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            if (this.skipLeftClick == true)
-            {
-                this.skipLeftClick = false;
-                e.Handled = true;
-                return;
-            }
-
-            var canvas = this.DiagramCanvas;
-            var pin = (e.OriginalSource as FrameworkElement).TemplatedParent as FrameworkElement;
-
-            var result = HandlePreviewLeftDown(canvas, pin);
-            if (result == true)
-                e.Handled = true;
-        }
-
-        private void Canvas_MouseMove(object sender, MouseEventArgs e)
-        {
-            var canvas = this.DiagramCanvas;
-
-            var point = e.GetPosition(canvas);
-
-            HandleMove(canvas, point);
-        }
-
-        private void Canvas_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            var canvas = this.DiagramCanvas;
-
-            this.rightClick = e.GetPosition(canvas);
-
-            var result = HandleRightDown(canvas);
-            if (result == true)
-            {
-                this.skipContextMenu = true;
-                e.Handled = true;
-            }
-        }
-
-        #endregion
-
-        #region Button Events
-
         private void Open()
         {
             var dlg = new Microsoft.Win32.OpenFileDialog()
@@ -1882,7 +1368,7 @@ namespace CanvasDiagramEditor
             }
         }
 
-        private void Export(bool exportHistory)
+        private void Export(IDiagramExport export, bool exportHistory)
         {
             var dlg = new Microsoft.Win32.SaveFileDialog()
             {
@@ -1895,13 +1381,13 @@ namespace CanvasDiagramEditor
             if (res == true)
             {
                 var canvas = this.DiagramCanvas;
-                List<string> models = null;
+                List<string> diagrams = null;
 
-                var currentModel = GenerateDiagramModel(canvas);
+                var currentDiagram = GenerateDiagramModel(canvas);
 
                 if (exportHistory == false)
                 {
-                    models = new List<string>();
+                    diagrams = new List<string>();
                 }
                 else
                 {
@@ -1909,21 +1395,15 @@ namespace CanvasDiagramEditor
                     var undoHistory = history.Item1;
                     var redoHistory = history.Item2;
 
-                    models = new List<string>(undoHistory.Reverse());
+                    diagrams = new List<string>(undoHistory.Reverse());
                 }
 
-                models.Add(currentModel);
+                diagrams.Add(currentDiagram);
 
-                if (models == null)
+                if (diagrams == null)
                     throw new NullReferenceException();
 
-                // MsoWordExport
-                //var export = new MsoWordExport();
-                //export.CreateDocument(dlg.FileName, models);
-
-                // OpenXml
-                var export = new OpenXml.OpenXmlExport();
-                export.CreateDocument(dlg.FileName, models);
+                export.CreateDocument(dlg.FileName, diagrams);
 
                 MessageBox.Show("Exported document: " +
                     System.IO.Path.GetFileName(dlg.FileName),
@@ -1979,196 +1459,114 @@ namespace CanvasDiagramEditor
             ParseDiagramModel(diagram, canvas, offsetX, offsetY, true, true);
         }
 
-        private void OpenModel_Click(object sender, RoutedEventArgs e)
-        {
-            Open();
-        }
-
-        private void SaveModel_Click(object sender, RoutedEventArgs e)
-        {
-            Save();
-        }
-
-        private void ExportModel_Click(object sender, RoutedEventArgs e)
-        {
-            Export(false);
-        }
-
-        private void ExportModelHistory_Click(object sender, RoutedEventArgs e)
-        {
-            Export(true);
-        }
-
-        private void PrintModel_Click(object sender, RoutedEventArgs e)
-        {
-            Print();
-        }
-
-        private void UndoHistory_Click(object sender, RoutedEventArgs e)
-        {
-            var canvas = this.DiagramCanvas;
-            this.Undo(canvas, true);
-        }
-
-        private void RedoHistory_Click(object sender, RoutedEventArgs e)
-        {
-            var canvas = this.DiagramCanvas;
-            this.Redo(canvas, true);
-        }
-
-        private void ClearModel_Click(object sender, RoutedEventArgs e)
-        {
-            var canvas = this.DiagramCanvas;
-
-            AddToHistory(canvas);
-
-            ClearDiagramModel(canvas);
-        }
-
-        private void GenerateModel_Click(object sender, RoutedEventArgs e)
-        {
-            var canvas = this.DiagramCanvas;
-
-            var model = GenerateDiagramModel(canvas);
-
-            this.TextModel.Text = model;
-        }
-
-        private void ImportModel_Click(object sender, RoutedEventArgs e)
-        {
-            Import();
-        }
-
-        private void InsertModel_Click(object sender, RoutedEventArgs e)
-        {
-            Insert();
-        }
-
         #endregion
 
-        #region ContextMenu Events
+        #region Handlers
 
-        private void Canvas_ContextMenuOpening(object sender, ContextMenuEventArgs e)
+        private void HandleLeftDown(Canvas canvas, Point point)
         {
-            if (this.skipContextMenu == true)
+            if (this.currentRoot != null && this.currentLine != null)
             {
-                this.skipContextMenu = false;
-                e.Handled = true;
+                var root = InsertPin(canvas, point);
+
+                this.currentRoot = root;
+
+                //System.Diagnostics.Debug.Print("Canvas_MouseLeftButtonDown, root: {0}", root.GetType());
+
+                double rx = Canvas.GetLeft(this.currentRoot);
+                double ry = Canvas.GetTop(this.currentRoot);
+                double px = 0;
+                double py = 0;
+                double x = rx + px;
+                double y = ry + py;
+
+                //System.Diagnostics.Debug.Print("x: {0}, y: {0}", x, y);
+
+                CreatePinConnection(canvas, x, y);
+
+                this.currentRoot = root;
+
+                CreatePinConnection(canvas, x, y);
             }
-            else
+            else if (this.enableInsertLast == true)
             {
-                this.skipLeftClick = true;
-            }
-        }
+                AddToHistory(canvas);
 
-        private void InsertPin_Click(object sender, RoutedEventArgs e)
-        {
-            var canvas = this.DiagramCanvas;
-
-            AddToHistory(canvas);
-
-            InsertPin(canvas, this.rightClick);
-
-            this.lastInsert = Constants.TagElementPin;
-            this.skipLeftClick = false;
-        }
-
-        private void InsertInput_Click(object sender, RoutedEventArgs e)
-        {
-            var canvas = this.DiagramCanvas;
-
-            AddToHistory(canvas);
-
-            InsertInput(canvas, this.rightClick);
-
-            this.lastInsert = Constants.TagElementInput;
-            this.skipLeftClick = false;
-        }
-
-        private void InsertOutput_Click(object sender, RoutedEventArgs e)
-        {
-            var canvas = this.DiagramCanvas;
-
-            AddToHistory(canvas);
-
-            InsertOutput(canvas, this.rightClick);
-
-            this.lastInsert = Constants.TagElementOutput;
-            this.skipLeftClick = false;
-        }
-
-        private void InsertAndGate_Click(object sender, RoutedEventArgs e)
-        {
-            var canvas = this.DiagramCanvas;
-
-            AddToHistory(canvas);
-
-            InsertAndGate(canvas, this.rightClick);
-
-            this.lastInsert = Constants.TagElementAndGate;
-            this.skipLeftClick = false;
-        }
-
-        private void InsertOrGate_Click(object sender, RoutedEventArgs e)
-        {
-            var canvas = this.DiagramCanvas;
-
-            AddToHistory(canvas);
-
-            InsertOrGate(canvas, this.rightClick);
-
-            this.lastInsert = Constants.TagElementOrGate;
-            this.skipLeftClick = false;
-        }
-
-        private void DeleteElement_Click(object sender, RoutedEventArgs e)
-        {
-            var canvas = DiagramCanvas;
-            var menu = sender as MenuItem;
-            var point = new Point(this.rightClick.X, this.rightClick.Y);
-
-            AddToHistory(canvas);
-
-            DeleteElement(canvas, point);
-            this.skipLeftClick = false;
-        }
-
-        #endregion
-
-        #region CheckBox Events
-
-        private void EnableHistory_Click(object sender, RoutedEventArgs e)
-        {
-            this.enableHistory = EnableHistory.IsChecked == true ? true : false;
-
-            if (this.enableHistory == false)
-            {
-                var canvas = this.DiagramCanvas;
-
-                ClearHistory(canvas);
+                InsertLast(canvas, this.lastInsert, point);
             }
         }
 
-        private void EnableSnap_Click(object sender, RoutedEventArgs e)
+        private bool HandlePreviewLeftDown(Canvas canvas, FrameworkElement pin)
         {
-            this.enableSnap = EnableSnap.IsChecked == true ? true : false;
+            if (pin != null &&
+                (!CompareString(pin.Name, Constants.StandalonePinName) || Keyboard.Modifiers == ModifierKeys.Control))
+            {
+                if (this.currentLine == null)
+                    AddToHistory(canvas);
+
+                CreatePinConnection(canvas, pin);
+
+                return true;
+            }
+
+            return false;
         }
 
-        private void SnapOnRelease_Click(object sender, RoutedEventArgs e)
+        private void HandleMove(Canvas canvas, Point point)
         {
-            this.snapOnRelease = SnapOnRelease.IsChecked == true ? true : false;
+            if (this.currentRoot != null && this.currentLine != null)
+            {
+                var margin = this.currentLine.Margin;
+
+                double x = point.X - margin.Left;
+                double y = point.Y - margin.Top;
+
+                if (this.currentLine.X2 != x)
+                {
+                    //this._line.X2 = SnapX(x);
+                    this.currentLine.X2 = x;
+                }
+
+                if (this.currentLine.Y2 != y)
+                {
+                    //this._line.Y2 = SnapY(y);
+                    this.currentLine.Y2 = y;
+                }
+            }
         }
 
-        private void EnableInsertLast_Click(object sender, RoutedEventArgs e)
+        private bool HandleRightDown(Canvas canvas)
         {
-            this.enableInsertLast = EnableInsertLast.IsChecked == true ? true : false;
-        } 
-    
+            if (this.currentRoot != null && this.currentLine != null)
+            {
+                if (this.enableHistory == true)
+                {
+                    Undo(canvas, false);
+                }
+                else
+                {
+                    var selection = this.currentRoot.Tag as Selection;
+                    var tuples = selection.Item2;
+
+                    var last = tuples.LastOrDefault();
+                    tuples.Remove(last);
+
+                    canvas.Children.Remove(this.currentLine);
+
+                    //RollbackUndoHistory(canvas);
+                }
+                this.currentLine = null;
+                this.currentRoot = null;
+
+                return true;
+            }
+
+            return false;
+        }
+
         #endregion
 
         #region Zoom
-
-        private Point zoomPoint;
 
         private void Zoom(double zoom)
         {
@@ -2305,7 +1703,7 @@ namespace CanvasDiagramEditor
                 this.Cursor = Cursors.Arrow;
                 this.PanScrollViewer.ReleaseMouseCapture();
             }
-        } 
+        }
 
         private void PanToPoint(Point point)
         {
@@ -2368,6 +1766,280 @@ namespace CanvasDiagramEditor
 
         #endregion
 
+        #region Button Events
+
+        private void OpenModel_Click(object sender, RoutedEventArgs e)
+        {
+            Open();
+        }
+
+        private void SaveModel_Click(object sender, RoutedEventArgs e)
+        {
+            Save();
+        }
+
+        private void ExportModel_Click(object sender, RoutedEventArgs e)
+        {
+            //Export(new MsoWord.MsoWordExport(), false);
+            Export(new OpenXml.OpenXmlExport(), false);
+        }
+
+        private void ExportModelHistory_Click(object sender, RoutedEventArgs e)
+        {
+            //Export(new MsoWord.MsoWordExport(), true);
+            Export(new OpenXml.OpenXmlExport(), true);
+        }
+
+        private void PrintModel_Click(object sender, RoutedEventArgs e)
+        {
+            Print();
+        }
+
+        private void UndoHistory_Click(object sender, RoutedEventArgs e)
+        {
+            var canvas = this.DiagramCanvas;
+            this.Undo(canvas, true);
+        }
+
+        private void RedoHistory_Click(object sender, RoutedEventArgs e)
+        {
+            var canvas = this.DiagramCanvas;
+            this.Redo(canvas, true);
+        }
+
+        private void ClearModel_Click(object sender, RoutedEventArgs e)
+        {
+            var canvas = this.DiagramCanvas;
+
+            AddToHistory(canvas);
+
+            ClearDiagramModel(canvas);
+        }
+
+        private void GenerateModel_Click(object sender, RoutedEventArgs e)
+        {
+            var canvas = this.DiagramCanvas;
+
+            var model = GenerateDiagramModel(canvas);
+
+            this.TextModel.Text = model;
+        }
+
+        private void ImportModel_Click(object sender, RoutedEventArgs e)
+        {
+            Import();
+        }
+
+        private void InsertModel_Click(object sender, RoutedEventArgs e)
+        {
+            Insert();
+        }
+
+        #endregion
+
+        #region Canvas Events
+
+        private void Canvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            var canvas = this.DiagramCanvas;
+            var point = e.GetPosition(canvas);
+
+            HandleLeftDown(canvas, point);
+        }
+
+        private void Canvas_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (this.skipLeftClick == true)
+            {
+                this.skipLeftClick = false;
+                e.Handled = true;
+                return;
+            }
+
+            var canvas = this.DiagramCanvas;
+            var pin = (e.OriginalSource as FrameworkElement).TemplatedParent as FrameworkElement;
+
+            var result = HandlePreviewLeftDown(canvas, pin);
+            if (result == true)
+                e.Handled = true;
+        }
+
+        private void Canvas_MouseMove(object sender, MouseEventArgs e)
+        {
+            var canvas = this.DiagramCanvas;
+
+            var point = e.GetPosition(canvas);
+
+            HandleMove(canvas, point);
+        }
+
+        private void Canvas_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            var canvas = this.DiagramCanvas;
+
+            this.rightClick = e.GetPosition(canvas);
+
+            var result = HandleRightDown(canvas);
+            if (result == true)
+            {
+                this.skipContextMenu = true;
+                e.Handled = true;
+            }
+        }
+
+        #endregion
+
+        #region Thumb Events
+
+        private void RootElement_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            var canvas = this.DiagramCanvas;
+            var element = sender as SelectionThumb;
+
+            double dX = e.HorizontalChange;
+            double dY = e.VerticalChange;
+
+            Drag(canvas, element, dX, dY);
+        }
+
+        private void RootElement_DragStarted(object sender, DragStartedEventArgs e)
+        {
+            var canvas = this.DiagramCanvas;
+            var element = sender as SelectionThumb;
+
+            DragStart(canvas, element);
+        }
+
+        private void RootElement_DragCompleted(object sender, DragCompletedEventArgs e)
+        {
+            var canvas = this.DiagramCanvas;
+            var element = sender as SelectionThumb;
+
+            DragEnd(canvas, element);
+        }
+
+        #endregion
+
+        #region ContextMenu Events
+
+        private void Canvas_ContextMenuOpening(object sender, ContextMenuEventArgs e)
+        {
+            if (this.skipContextMenu == true)
+            {
+                this.skipContextMenu = false;
+                e.Handled = true;
+            }
+            else
+            {
+                this.skipLeftClick = true;
+            }
+        }
+
+        private void InsertPin_Click(object sender, RoutedEventArgs e)
+        {
+            var canvas = this.DiagramCanvas;
+
+            AddToHistory(canvas);
+
+            InsertPin(canvas, this.rightClick);
+
+            this.lastInsert = Constants.TagElementPin;
+            this.skipLeftClick = false;
+        }
+
+        private void InsertInput_Click(object sender, RoutedEventArgs e)
+        {
+            var canvas = this.DiagramCanvas;
+
+            AddToHistory(canvas);
+
+            InsertInput(canvas, this.rightClick);
+
+            this.lastInsert = Constants.TagElementInput;
+            this.skipLeftClick = false;
+        }
+
+        private void InsertOutput_Click(object sender, RoutedEventArgs e)
+        {
+            var canvas = this.DiagramCanvas;
+
+            AddToHistory(canvas);
+
+            InsertOutput(canvas, this.rightClick);
+
+            this.lastInsert = Constants.TagElementOutput;
+            this.skipLeftClick = false;
+        }
+
+        private void InsertAndGate_Click(object sender, RoutedEventArgs e)
+        {
+            var canvas = this.DiagramCanvas;
+
+            AddToHistory(canvas);
+
+            InsertAndGate(canvas, this.rightClick);
+
+            this.lastInsert = Constants.TagElementAndGate;
+            this.skipLeftClick = false;
+        }
+
+        private void InsertOrGate_Click(object sender, RoutedEventArgs e)
+        {
+            var canvas = this.DiagramCanvas;
+
+            AddToHistory(canvas);
+
+            InsertOrGate(canvas, this.rightClick);
+
+            this.lastInsert = Constants.TagElementOrGate;
+            this.skipLeftClick = false;
+        }
+
+        private void DeleteElement_Click(object sender, RoutedEventArgs e)
+        {
+            var canvas = DiagramCanvas;
+            var menu = sender as MenuItem;
+            var point = new Point(this.rightClick.X, this.rightClick.Y);
+
+            AddToHistory(canvas);
+
+            DeleteElement(canvas, point);
+            this.skipLeftClick = false;
+        }
+
+        #endregion
+
+        #region CheckBox Events
+
+        private void EnableHistory_Click(object sender, RoutedEventArgs e)
+        {
+            this.enableHistory = EnableHistory.IsChecked == true ? true : false;
+
+            if (this.enableHistory == false)
+            {
+                var canvas = this.DiagramCanvas;
+
+                ClearHistory(canvas);
+            }
+        }
+
+        private void EnableSnap_Click(object sender, RoutedEventArgs e)
+        {
+            this.enableSnap = EnableSnap.IsChecked == true ? true : false;
+        }
+
+        private void SnapOnRelease_Click(object sender, RoutedEventArgs e)
+        {
+            this.snapOnRelease = SnapOnRelease.IsChecked == true ? true : false;
+        }
+
+        private void EnableInsertLast_Click(object sender, RoutedEventArgs e)
+        {
+            this.enableInsertLast = EnableInsertLast.IsChecked == true ? true : false;
+        } 
+    
+        #endregion
+
         #region PanScrollViewer Events
 
         private void PanScrollViewer_MouseDown(object sender, MouseButtonEventArgs e)
@@ -2404,6 +2076,343 @@ namespace CanvasDiagramEditor
     #endregion
 }
 
+namespace MsoWord
+{
+    #region References
+
+    using CanvasDiagramEditor;
+    using System;
+    using Word = Microsoft.Office.Interop.Word;
+    using Office = Microsoft.Office.Core;
+
+    #endregion
+
+    #region MsoWordExport
+
+    public class MsoWordExport : IDiagramExport
+    {
+        #region Microsoft Word 2013 Export
+
+        private Office.MsoShapeStyleIndex defaultShapeStyle = Office.MsoShapeStyleIndex.msoShapeStylePreset25;
+        private Office.MsoShapeStyleIndex defaultLineStyle = Office.MsoShapeStyleIndex.msoLineStylePreset20;
+
+        public void CreateDocument(string fileName, IEnumerable<string> diagrams)
+        {
+            System.Diagnostics.Debug.Print("Creating document: {0}", fileName);
+
+            var word = new Word.Application();
+
+            var doc = CreateDocument(word, diagrams);
+
+            // save and close document
+            doc.SaveAs2(fileName);
+
+            (doc as Word._Document).Close(Word.WdSaveOptions.wdDoNotSaveChanges);
+            (word as Word._Application).Quit(Word.WdSaveOptions.wdDoNotSaveChanges);
+
+            System.Diagnostics.Debug.Print("Done.");
+        }
+
+        private Word.Document CreateDocument(Word.Application word, IEnumerable<string> diagrams)
+        {
+            // create new document
+            var doc = word.Documents.Add();
+
+            doc.PageSetup.PaperSize = Word.WdPaperSize.wdPaperA4;
+            doc.PageSetup.Orientation = Word.WdOrientation.wdOrientLandscape;
+
+            // margin = 20.0f;
+            // 801.95 + 40, 555.35 + 40
+            // 841.95, 595.35
+            // 780, 540
+            // left,right: 30.975f top,bottom: 27.675f
+
+            doc.PageSetup.LeftMargin = 30.975f;
+            doc.PageSetup.RightMargin = 30.975f;
+            doc.PageSetup.TopMargin = 27.675f;
+            doc.PageSetup.BottomMargin = 27.675f;
+
+            foreach (var diagram in diagrams)
+            {
+                // create diagram canvas
+                var canvas = CreateCanvas(doc);
+                var items = canvas.CanvasItems;
+
+                CreateElements(items, diagram);
+            }
+
+            return doc;
+        }
+
+        private static Word.Shape CreateCanvas(Word.Document doc)
+        {
+            float left = doc.PageSetup.LeftMargin;
+            float top = doc.PageSetup.TopMargin;
+            float width = doc.PageSetup.PageWidth - doc.PageSetup.LeftMargin - doc.PageSetup.RightMargin;
+            float height = doc.PageSetup.PageHeight - doc.PageSetup.TopMargin - doc.PageSetup.BottomMargin;
+
+            System.Diagnostics.Debug.Print("document width, height: {0},{1}", width, height);
+
+            var canvas = doc.Shapes.AddCanvas(left, top, width, height);
+
+            canvas.WrapFormat.AllowOverlap = (int)Office.MsoTriState.msoFalse;
+            canvas.WrapFormat.Type = Word.WdWrapType.wdWrapInline;
+
+            return canvas;
+        }
+
+        private void CreateElements(Word.CanvasShapes items, string diagram)
+        {
+            string name = null;
+            var lines = diagram.Split(Environment.NewLine.ToCharArray(),
+                StringSplitOptions.RemoveEmptyEntries);
+
+            var elements = new List<Action>();
+            var wires = new List<Action>();
+
+            foreach (var line in lines)
+            {
+                var args = line.Split(Constants.ArgumentSeparator);
+                int length = args.Length;
+
+                if (length >= 2)
+                {
+                    name = args[1];
+
+                    if (CompareString(args[0], Constants.PrefixRootElement))
+                    {
+                        if (name.StartsWith(Constants.TagElementPin, StringComparison.InvariantCultureIgnoreCase) &&
+                            length == 4)
+                        {
+                            float x = float.Parse(args[2]);
+                            float y = float.Parse(args[3]);
+                            int id = int.Parse(name.Split(Constants.TagNameSeparator)[1]);
+
+                            elements.Add(() =>
+                            {
+                                CreatePin(items, x, y);
+                            });
+                        }
+                        else if (name.StartsWith(Constants.TagElementInput, StringComparison.InvariantCultureIgnoreCase) &&
+                            length == 4)
+                        {
+                            float x = float.Parse(args[2]);
+                            float y = float.Parse(args[3]);
+                            int id = int.Parse(name.Split(Constants.TagNameSeparator)[1]);
+
+                            elements.Add(() =>
+                            {
+                                CreateInput(items, x, y, "Input");
+                            });
+                        }
+                        else if (name.StartsWith(Constants.TagElementOutput, StringComparison.InvariantCultureIgnoreCase) &&
+                            length == 4)
+                        {
+                            float x = float.Parse(args[2]);
+                            float y = float.Parse(args[3]);
+                            int id = int.Parse(name.Split(Constants.TagNameSeparator)[1]);
+
+                            elements.Add(() =>
+                            {
+                                CreateOutput(items, x, y, "Output");
+                            });
+                        }
+                        else if (name.StartsWith(Constants.TagElementAndGate, StringComparison.InvariantCultureIgnoreCase) &&
+                            length == 4)
+                        {
+                            float x = float.Parse(args[2]);
+                            float y = float.Parse(args[3]);
+                            int id = int.Parse(name.Split(Constants.TagNameSeparator)[1]);
+
+                            elements.Add(() =>
+                            {
+                                CreateAndGate(items, x, y);
+                            });
+                        }
+                        else if (name.StartsWith(Constants.TagElementOrGate, StringComparison.InvariantCultureIgnoreCase) &&
+                            length == 4)
+                        {
+                            float x = float.Parse(args[2]);
+                            float y = float.Parse(args[3]);
+                            int id = int.Parse(name.Split(Constants.TagNameSeparator)[1]);
+
+                            elements.Add(() =>
+                            {
+                                CreateOrGate(items, x, y);
+                            });
+                        }
+                        else if (name.StartsWith(Constants.TagElementWire, StringComparison.InvariantCultureIgnoreCase) &&
+                            length == 6)
+                        {
+                            float x1 = float.Parse(args[2]);
+                            float y1 = float.Parse(args[3]);
+                            float x2 = float.Parse(args[4]);
+                            float y2 = float.Parse(args[5]);
+                            int id = int.Parse(name.Split(Constants.TagNameSeparator)[1]);
+
+                            wires.Add(() =>
+                            {
+                                CreateWire(items, x1, y1, x2, y2);
+                            });
+                        }
+                    }
+                }
+            }
+
+            // create wires, bottom ZOrder
+            foreach (var action in wires)
+            {
+                action();
+            }
+
+            // create elements, top ZOrder
+            foreach (var action in elements)
+            {
+                action();
+            }
+        }
+
+        private void CreatePin(Word.CanvasShapes items, float x, float y)
+        {
+            var rect = items.AddShape((int)Office.MsoAutoShapeType.msoShapeOval,
+                x - 4.0f, y - 4.0f, 8.0f, 8.0f);
+
+            rect.Fill.ForeColor.RGB = unchecked((int)0x00000000);
+            rect.Line.ForeColor.RGB = unchecked((int)0x00000000);
+            rect.Line.Weight = 1.0f;
+
+            rect.ShapeStyle = defaultShapeStyle;
+        }
+
+        private void CreateWire(Word.CanvasShapes items, float x1, float y1, float x2, float y2)
+        {
+            var line = items.AddLine(x1, y1, x2, y2);
+
+            line.Line.ForeColor.RGB = unchecked((int)0x00000000);
+            line.Line.Weight = 1.0f;
+
+            line.ShapeStyle = defaultLineStyle;
+        }
+
+        private void CreateInput(Word.CanvasShapes items, float x, float y, string text)
+        {
+            var rect = items.AddShape((int)Office.MsoAutoShapeType.msoShapeRectangle,
+                x, y, 180.0f, 30.0f);
+
+            rect.Fill.ForeColor.RGB = unchecked((int)0x00FFFFFF);
+            rect.Line.ForeColor.RGB = unchecked((int)0x00000000);
+            rect.Line.Weight = 1.0f;
+
+            var textFrame = rect.TextFrame;
+
+            SetTextFrameFormat(textFrame);
+
+            textFrame.TextRange.Text = text;
+
+            rect.ShapeStyle = defaultShapeStyle;
+        }
+
+        private void CreateOutput(Word.CanvasShapes items, float x, float y, string text)
+        {
+            var rect = items.AddShape((int)Office.MsoAutoShapeType.msoShapeRectangle,
+                x, y, 180.0f, 30.0f);
+
+            rect.Fill.ForeColor.RGB = unchecked((int)0x00FFFFFF);
+            rect.Line.ForeColor.RGB = unchecked((int)0x00000000);
+            rect.Line.Weight = 1.0f;
+
+            var textFrame = rect.TextFrame;
+
+            SetTextFrameFormat(textFrame);
+
+            textFrame.TextRange.Text = text;
+
+            rect.ShapeStyle = defaultShapeStyle;
+        }
+
+        private void CreateAndGate(Word.CanvasShapes items, float x, float y)
+        {
+            var rect = items.AddShape((int)Office.MsoAutoShapeType.msoShapeRectangle,
+                x, y, 30.0f, 30.0f);
+
+            rect.Fill.ForeColor.RGB = unchecked((int)0x00FFFFFF);
+            rect.Line.ForeColor.RGB = unchecked((int)0x00000000);
+            rect.Line.Weight = 1.0f;
+
+            var textFrame = rect.TextFrame;
+
+            SetTextFrameFormat(textFrame);
+
+            textFrame.TextRange.Text = "&";
+
+            rect.ShapeStyle = defaultShapeStyle;
+        }
+
+        private void CreateOrGate(Word.CanvasShapes items, float x, float y)
+        {
+            var rect = items.AddShape((int)Office.MsoAutoShapeType.msoShapeRectangle,
+                x, y, 30.0f, 30.0f);
+
+            rect.Fill.ForeColor.RGB = unchecked((int)0x00FFFFFF);
+            rect.Line.ForeColor.RGB = unchecked((int)0x00000000);
+            rect.Line.Weight = 1.0f;
+
+            var textFrame = rect.TextFrame;
+
+            SetTextFrameFormat(textFrame);
+
+            textFrame.TextRange.Text = "≥1";
+
+            rect.ShapeStyle = defaultShapeStyle;
+        }
+
+        private void CreateText(Word.CanvasShapes items, float x, float y, float width, float height, string text)
+        {
+            var textBox = items.AddTextbox(Office.MsoTextOrientation.msoTextOrientationHorizontal,
+                x, y, width, height);
+
+            textBox.Line.Visible = Office.MsoTriState.msoFalse;
+            textBox.Fill.Visible = Office.MsoTriState.msoFalse;
+
+            var textFrame = textBox.TextFrame;
+
+            SetTextFrameFormat(textFrame);
+
+            textFrame.TextRange.Text = text;
+        }
+
+        private void SetTextFrameFormat(Word.TextFrame textFrame)
+        {
+            textFrame.AutoSize = (int)Office.MsoAutoSize.msoAutoSizeNone;
+
+            textFrame.VerticalAnchor = Office.MsoVerticalAnchor.msoAnchorMiddle;
+
+            textFrame.MarginLeft = 0.0f;
+            textFrame.MarginTop = 0.0f;
+            textFrame.MarginRight = 0.0f;
+            textFrame.MarginBottom = 0.0f;
+
+            textFrame.TextRange.Font.Name = "Arial";
+            textFrame.TextRange.Font.Size = 12.0f;
+            textFrame.TextRange.Font.TextColor.RGB = unchecked((int)0x00000000);
+
+            textFrame.TextRange.Paragraphs.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
+            textFrame.TextRange.Paragraphs.SpaceAfter = 0.0f;
+            textFrame.TextRange.Paragraphs.SpaceBefore = 0.0f;
+            textFrame.TextRange.Paragraphs.LineSpacingRule = Word.WdLineSpacing.wdLineSpaceSingle;
+        }
+
+        private static bool CompareString(string strA, string strB)
+        {
+            return string.Compare(strA, strB, StringComparison.InvariantCultureIgnoreCase) == 0;
+        }
+
+        #endregion
+    }
+
+    #endregion
+}
+
 namespace OpenXml
 {
     #region References
@@ -2431,7 +2440,7 @@ namespace OpenXml
 
     #region OpenXmlExport
 
-    public class OpenXmlExport
+    public class OpenXmlExport : IDiagramExport
     {
         #region Open XmlOpen XML SDK 2.5 for Microsoft Office
 
@@ -2441,7 +2450,7 @@ namespace OpenXml
         // 1 Centimeter = 360000 EMUs
         private static double emu_1cm = 360000L;
 
-        public void CreateDocument(string filePath, List<string> diagrams)
+        public void CreateDocument(string filePath, IEnumerable<string> diagrams)
         {
             using (WordprocessingDocument document = WordprocessingDocument.Create(filePath, WordprocessingDocumentType.Document))
             {
