@@ -22,7 +22,6 @@
 
         <Style x:Key="MainWindowStyleKey" TargetType="Window">
             <Setter Property="SnapsToDevicePixels" Value="False"/>
-            <Setter Property="UseLayoutRounding" Value="True"/>
         </Style>
         
         <Style x:Key="ControlCanvasStyleKey" TargetType="Canvas">
@@ -54,7 +53,6 @@
             <Setter Property="Cursor" Value="Arrow"/>
             <Setter Property="StrokeThickness" Value="{DynamicResource LogicStrokeThicknessKey}"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
-            <Setter Property="UseLayoutRounding" Value="False"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding ElementName=RootElement, Path=IsMouseOver}" Value="True">
                     <Setter Property="Fill" Value="{DynamicResource LogicColorKey}"/>
@@ -76,7 +74,6 @@
             <!--<Setter Property="Cursor" Value="Arrow"/>-->
             <Setter Property="StrokeThickness" Value="{DynamicResource LogicStrokeThicknessKey}"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
-            <Setter Property="UseLayoutRounding" Value="False"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding ElementName=RootElement, Path=IsMouseOver}" Value="True">
                     <Setter Property="Fill" Value="{DynamicResource LogicColorKey}"/>
@@ -117,7 +114,6 @@
             <Setter Property="StrokeEndLineCap" Value="Square"/>
             <Setter Property="StrokeLineJoin" Value="Miter"/>
             <Setter Property="SnapsToDevicePixels" Value="False"/>
-            <Setter Property="UseLayoutRounding" Value="False"/>
             <Setter Property="RenderOptions.EdgeMode" Value="Aliased"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
