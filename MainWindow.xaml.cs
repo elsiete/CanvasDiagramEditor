@@ -421,6 +421,20 @@ namespace CanvasDiagramEditor
             ParseDiagramModel(model, canvas, 0, 0, false, true);
         }
 
+        private void Undo()
+        {
+            var canvas = this.DiagramCanvas;
+
+            this.Undo(canvas, true);
+        }
+
+        private void Redo()
+        {
+            var canvas = this.DiagramCanvas;
+
+            this.Redo(canvas, true);
+        }
+
         #endregion
 
         #region Move
@@ -516,15 +530,9 @@ namespace CanvasDiagramEditor
 
             if (Keyboard.Modifiers == ModifierKeys.Shift)
             {
-                var thumbs = canvas.Children.OfType<SelectionThumb>();
-
                 this.moveWithShift = true;
 
-                foreach (var thumb in thumbs)
-                {
-                    // select
-                    SelectionThumb.SetIsSelected(thumb, true);
-                }
+                SetSelectionAll(canvas, true);
 
                 SelectionThumb.SetIsSelected(canvas, true);
             }
@@ -573,12 +581,7 @@ namespace CanvasDiagramEditor
                 {
                     SelectionThumb.SetIsSelected(canvas, false);
 
-                    var thumbs = canvas.Children.OfType<SelectionThumb>();
-                    foreach (var thumb in thumbs)
-                    {
-                        // deselect
-                        SelectionThumb.SetIsSelected(thumb, false);
-                    }
+                    SetSelectionAll(canvas, false);
                 }
                 else
                 {
@@ -976,6 +979,15 @@ namespace CanvasDiagramEditor
                     }
                 }
             }
+        }
+
+        private void Delete(Canvas canvas, Point point)
+        {
+            AddToHistory(canvas);
+
+            DeleteElement(canvas, point);
+
+            this.skipLeftClick = false;
         }
 
         #endregion
@@ -1446,6 +1458,18 @@ namespace CanvasDiagramEditor
             }
         }
 
+        private void Export()
+        {
+            //Export(new MsoWord.MsoWordExport(), false);
+            Export(new OpenXml.OpenXmlExport(), false);
+        }
+
+        private void ExportHistory()
+        {
+            //Export(new MsoWord.MsoWordExport(), true);
+            Export(new OpenXml.OpenXmlExport(), true);
+        }
+
         private void Export(IDiagramExport export, bool exportHistory)
         {
             var dlg = new Microsoft.Win32.SaveFileDialog()
@@ -1459,34 +1483,41 @@ namespace CanvasDiagramEditor
             if (res == true)
             {
                 var canvas = this.DiagramCanvas;
-                List<string> diagrams = null;
+                var fileName = dlg.FileName;
 
-                var currentDiagram = GenerateDiagramModel(canvas);
-
-                if (exportHistory == false)
-                {
-                    diagrams = new List<string>();
-                }
-                else
-                {
-                    var history = GetHistory(canvas);
-                    var undoHistory = history.Item1;
-                    var redoHistory = history.Item2;
-
-                    diagrams = new List<string>(undoHistory.Reverse());
-                }
-
-                diagrams.Add(currentDiagram);
-
-                if (diagrams == null)
-                    throw new NullReferenceException();
-
-                export.CreateDocument(dlg.FileName, diagrams);
+                Export(export, exportHistory, canvas, fileName);
 
                 MessageBox.Show("Exported document: " +
                     System.IO.Path.GetFileName(dlg.FileName),
                     "Export", MessageBoxButton.OK, MessageBoxImage.Information);
             }
+        }
+
+        private void Export(IDiagramExport export, bool exportHistory, Canvas canvas, string fileName)
+        {
+            List<string> diagrams = null;
+
+            var currentDiagram = GenerateDiagramModel(canvas);
+
+            if (exportHistory == false)
+            {
+                diagrams = new List<string>();
+            }
+            else
+            {
+                var history = GetHistory(canvas);
+                var undoHistory = history.Item1;
+                var redoHistory = history.Item2;
+
+                diagrams = new List<string>(undoHistory.Reverse());
+            }
+
+            diagrams.Add(currentDiagram);
+
+            if (diagrams == null)
+                throw new NullReferenceException();
+
+            export.CreateDocument(fileName, diagrams);
         }
 
         private void Print()
@@ -1535,6 +1566,82 @@ namespace CanvasDiagramEditor
 
             //ClearDiagramModel(canvas);
             ParseDiagramModel(diagram, canvas, offsetX, offsetY, true, true);
+        }
+
+        private void Clear()
+        {
+            var canvas = this.DiagramCanvas;
+
+            AddToHistory(canvas);
+
+            ClearDiagramModel(canvas);
+        }
+
+        private void Generate()
+        {
+            var canvas = this.DiagramCanvas;
+
+            var model = GenerateDiagramModel(canvas);
+
+            this.TextModel.Text = model;
+        }
+
+        #endregion
+
+        #region Edit
+
+        private void Cut()
+        {
+            throw new NotImplementedException();
+        }
+
+        private void Copy()
+        {
+            throw new NotImplementedException();
+        }
+
+        private void Paste()
+        {
+            throw new NotImplementedException();
+        }
+
+        private void Delete()
+        {
+            throw new NotImplementedException();
+        }
+
+        private void SetSelectionAll(Canvas canvas, bool selected)
+        {
+            var thumbs = canvas.Children.OfType<SelectionThumb>();
+
+            foreach (var thumb in thumbs)
+            {
+                // select
+                SelectionThumb.SetIsSelected(thumb, selected);
+            }
+        }
+
+        private void SelectAll()
+        {
+            var canvas = this.DiagramCanvas;
+
+            SetSelectionAll(canvas, true);
+
+            SelectionThumb.SetIsSelected(canvas, true);
+        }
+
+        private void DeselectAll()
+        {
+            var canvas = this.DiagramCanvas;
+
+            SetSelectionAll(canvas, false);
+
+            SelectionThumb.SetIsSelected(canvas, false);
+        }
+
+        private void Preferences()
+        {
+            throw new NotImplementedException();
         }
 
         #endregion
@@ -1844,73 +1951,34 @@ namespace CanvasDiagramEditor
 
         #endregion
 
-        #region Button Events
+        #region PanScrollViewer Events
 
-        private void OpenModel_Click(object sender, RoutedEventArgs e)
+        private void PanScrollViewer_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            Open();
+            if (e.ChangedButton == panButton)
+            {
+                var point = e.GetPosition(this.PanScrollViewer);
+
+                BeginPan(point);
+            }
         }
 
-        private void SaveModel_Click(object sender, RoutedEventArgs e)
+        private void PanScrollViewer_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            Save();
+            if (e.ChangedButton == panButton)
+            {
+                EndPan();
+            }
         }
 
-        private void ExportModel_Click(object sender, RoutedEventArgs e)
+        private void PanScrollViewer_MouseMove(object sender, MouseEventArgs e)
         {
-            //Export(new MsoWord.MsoWordExport(), false);
-            Export(new OpenXml.OpenXmlExport(), false);
-        }
+            if (this.PanScrollViewer.IsMouseCaptured == true)
+            {
+                var point = e.GetPosition(this.PanScrollViewer);
 
-        private void ExportModelHistory_Click(object sender, RoutedEventArgs e)
-        {
-            //Export(new MsoWord.MsoWordExport(), true);
-            Export(new OpenXml.OpenXmlExport(), true);
-        }
-
-        private void PrintModel_Click(object sender, RoutedEventArgs e)
-        {
-            Print();
-        }
-
-        private void UndoHistory_Click(object sender, RoutedEventArgs e)
-        {
-            var canvas = this.DiagramCanvas;
-            this.Undo(canvas, true);
-        }
-
-        private void RedoHistory_Click(object sender, RoutedEventArgs e)
-        {
-            var canvas = this.DiagramCanvas;
-            this.Redo(canvas, true);
-        }
-
-        private void ClearModel_Click(object sender, RoutedEventArgs e)
-        {
-            var canvas = this.DiagramCanvas;
-
-            AddToHistory(canvas);
-
-            ClearDiagramModel(canvas);
-        }
-
-        private void GenerateModel_Click(object sender, RoutedEventArgs e)
-        {
-            var canvas = this.DiagramCanvas;
-
-            var model = GenerateDiagramModel(canvas);
-
-            this.TextModel.Text = model;
-        }
-
-        private void ImportModel_Click(object sender, RoutedEventArgs e)
-        {
-            Import();
-        }
-
-        private void InsertModel_Click(object sender, RoutedEventArgs e)
-        {
-            Insert();
+                PanToPoint(point);
+            }
         }
 
         #endregion
@@ -2076,13 +2144,9 @@ namespace CanvasDiagramEditor
         private void DeleteElement_Click(object sender, RoutedEventArgs e)
         {
             var canvas = DiagramCanvas;
-            var menu = sender as MenuItem;
             var point = new Point(this.rightClick.X, this.rightClick.Y);
 
-            AddToHistory(canvas);
-
-            DeleteElement(canvas, point);
-            this.skipLeftClick = false;
+            Delete(canvas, point);
         }
 
         #endregion
@@ -2118,34 +2182,105 @@ namespace CanvasDiagramEditor
     
         #endregion
 
-        #region PanScrollViewer Events
+        #region Button Events
 
-        private void PanScrollViewer_MouseDown(object sender, MouseButtonEventArgs e)
+        private void GenerateModel_Click(object sender, RoutedEventArgs e)
         {
-            if (e.ChangedButton == panButton)
-            {
-                var point = e.GetPosition(this.PanScrollViewer);
-
-                BeginPan(point);
-            }
+            Generate();
         }
 
-        private void PanScrollViewer_MouseUp(object sender, MouseButtonEventArgs e)
+        private void InsertModel_Click(object sender, RoutedEventArgs e)
         {
-            if (e.ChangedButton == panButton)
-            {
-                EndPan();
-            }
+            Insert();
         }
 
-        private void PanScrollViewer_MouseMove(object sender, MouseEventArgs e)
-        {
-            if (this.PanScrollViewer.IsMouseCaptured == true)
-            {
-                var point = e.GetPosition(this.PanScrollViewer);
+        #endregion
 
-                PanToPoint(point);
-            }
+        #region Main Menu Events
+
+        private void FileOpen_Click(object sender, RoutedEventArgs e)
+        {
+            Open();
+        }
+
+        private void FileSave_Click(object sender, RoutedEventArgs e)
+        {
+            Save();
+        }
+
+        private void FileImport_Click(object sender, RoutedEventArgs e)
+        {
+            Import();
+        }
+
+        private void FileExport_Click(object sender, RoutedEventArgs e)
+        {
+            Export();
+        }
+
+        private void FileExportHistory_Click(object sender, RoutedEventArgs e)
+        {
+            ExportHistory();
+        }
+
+        private void FilePrint_Click(object sender, RoutedEventArgs e)
+        {
+            Print();
+        }
+
+        private void FileExit_Click(object sender, RoutedEventArgs e)
+        {
+            Application.Current.Shutdown();
+        }
+
+        private void EditUndo_Click(object sender, RoutedEventArgs e)
+        {
+            Undo();
+        }
+
+        private void EditRedo_Click(object sender, RoutedEventArgs e)
+        {
+            Redo();
+        }
+
+        private void EditCut_Click(object sender, RoutedEventArgs e)
+        {
+            Cut();
+        }
+
+        private void EditCopy_Click(object sender, RoutedEventArgs e)
+        {
+            Copy();
+        }
+
+        private void EditPaste_Click(object sender, RoutedEventArgs e)
+        {
+            Paste();
+        }
+
+        private void EditDelete_Click(object sender, RoutedEventArgs e)
+        {
+            Delete();
+        }
+
+        private void EditSelectAll_Click(object sender, RoutedEventArgs e)
+        {
+            SelectAll();
+        }
+
+        private void EditDeselectAll_Click(object sender, RoutedEventArgs e)
+        {
+            DeselectAll();
+        }
+
+        private void EditClear_Click(object sender, RoutedEventArgs e)
+        {
+            Clear();
+        }
+
+        private void EditPreferences_Click(object sender, RoutedEventArgs e)
+        {
+            Preferences();
         }
 
         #endregion
