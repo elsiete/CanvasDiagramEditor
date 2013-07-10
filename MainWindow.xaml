@@ -154,7 +154,6 @@
                 <Separator Margin="2"/>
                 <CheckBox x:Name="EnableInsertLast" Content="Insert Last on Left Click" Margin="2" Click="EnableInsertLast_Click"/>
                 <Separator Margin="2"/>
-                
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="70"/>
