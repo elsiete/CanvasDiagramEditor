@@ -9,7 +9,7 @@
     <Application.Resources>
 
         <sys:Double x:Key="LogicStrokeThicknessKey">1.0</sys:Double>
-        
+
         <!-- colors -->
 
         <SolidColorBrush x:Key="LogicBackgroundColorKey" Color="Black"/>

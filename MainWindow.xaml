@@ -9,7 +9,33 @@
 
     <Window.Resources>
 
-        <Menu x:Key="MainMenuKey">
+        <ContextMenu x:Key="DiagramCanvasContextMenuKey">
+            <MenuItem x:Name="InsertInput" Header="Insert _Input" Click="InsertInput_Click"/>
+            <MenuItem x:Name="InsertOutput" Header="Insert _Output" Click="InsertOutput_Click"/>
+            <Separator/>
+            <MenuItem x:Name="InsertAndGate" Header="Insert _AndGate" Click="InsertAndGate_Click"/>
+            <MenuItem x:Name="InsertOrGate" Header="Insert O_rGate" Click="InsertOrGate_Click"/>
+            <Separator/>
+            <MenuItem x:Name="InsertPin" Header="Insert _Pin" Click="InsertPin_Click"/>
+            <Separator/>
+            <MenuItem x:Name="DeleteElement" Header="_Delete" Click="DeleteElement_Click"/>
+        </ContextMenu>
+
+    </Window.Resources>
+
+    <Grid>
+        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="200"/>
+        </Grid.ColumnDefinitions>
+
+        <Menu Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0">
             <MenuItem Header="_File">
                 <MenuItem x:Name="FileOpen" Header="_Open..." Click="FileOpen_Click"/>
                 <MenuItem x:Name="FileSave" Header="_Save..." Click="FileSave_Click"/>
@@ -41,34 +67,6 @@
             </MenuItem>
         </Menu>
 
-        <ContextMenu x:Key="DiagramCanvasContextMenuKey">
-            <MenuItem x:Name="InsertInput" Header="Insert _Input" Click="InsertInput_Click"/>
-            <MenuItem x:Name="InsertOutput" Header="Insert _Output" Click="InsertOutput_Click"/>
-            <Separator/>
-            <MenuItem x:Name="InsertAndGate" Header="Insert _AndGate" Click="InsertAndGate_Click"/>
-            <MenuItem x:Name="InsertOrGate" Header="Insert O_rGate" Click="InsertOrGate_Click"/>
-            <Separator/>
-            <MenuItem x:Name="InsertPin" Header="Insert _Pin" Click="InsertPin_Click"/>
-            <Separator/>
-            <MenuItem x:Name="DeleteElement" Header="_Delete" Click="DeleteElement_Click"/>
-        </ContextMenu>
-
-    </Window.Resources>
-
-    <Grid>
-        
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="200"/>
-        </Grid.ColumnDefinitions>
-
-        <ContentControl Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Content="{StaticResource MainMenuKey}"/>
-
         <ScrollViewer x:Name="PanScrollViewer" 
                       MouseMove="PanScrollViewer_MouseMove" 
                       MouseDown="PanScrollViewer_MouseDown" 
@@ -98,11 +96,13 @@
                         </TransformGroup>
                     </Grid.RenderTransform>
                     
-                    <Canvas Width="780" Height="540" 
+                    <Canvas x:Name="BackgroundCanvas"
+                        Width="{Binding ElementName=DiagramCanvas, Path=Width}"
+                        Height="{Binding ElementName=DiagramCanvas, Path=Height}" 
                         Grid.Column="0" Grid.Row="0"
                         ClipToBounds="False"
                         Background="{DynamicResource LogicBackgroundColorKey}">
-                        <Path Style="{StaticResource GridPathStyleKey}" Data="M0,30L780,30M0,60L780,60M0,90L780,90M0,120L780,120M0,150L780,150M0,180L780,180M0,210L780,210M0,240L780,240M0,270L780,270M0,300L780,300M0,330L780,330M0,360L780,360M0,390L780,390M0,420L780,420M0,450L780,450M0,480L780,480M0,510L780,510M30,0L30,540M60,0L60,540M90,0L90,540M120,0L120,540M150,0L150,540M180,0L180,540M210,0L210,540M240,0L240,540M270,0L270,540M300,0L300,540M330,0L330,540M360,0L360,540M390,0L390,540M420,0L420,540M450,0L450,540M480,0L480,540M510,0L510,540M540,0L540,540M570,0L570,540M600,0L600,540M630,0L630,540M660,0L660,540M690,0L690,540M720,0L720,540M750,0L750,540"/>
+                        <Path x:Name="PathGrid" Style="{StaticResource GridPathStyleKey}" Data="M0,30L780,30M0,60L780,60M0,90L780,90M0,120L780,120M0,150L780,150M0,180L780,180M0,210L780,210M0,240L780,240M0,270L780,270M0,300L780,300M0,330L780,330M0,360L780,360M0,390L780,390M0,420L780,420M0,450L780,450M0,480L780,480M0,510L780,510M30,0L30,540M60,0L60,540M90,0L90,540M120,0L120,540M150,0L150,540M180,0L180,540M210,0L210,540M240,0L240,540M270,0L270,540M300,0L300,540M330,0L330,540M360,0L360,540M390,0L390,540M420,0L420,540M450,0L450,540M480,0L480,540M510,0L510,540M540,0L540,540M570,0L570,540M600,0L600,540M630,0L630,540M660,0L660,540M690,0L690,540M720,0L720,540M750,0L750,540"/>
                     </Canvas>
 
                     <Canvas x:Name="DiagramCanvas"
@@ -154,6 +154,27 @@
                 <Separator Margin="2"/>
                 <CheckBox x:Name="EnableInsertLast" Content="Insert Last on Left Click" Margin="2" Click="EnableInsertLast_Click"/>
                 <Separator Margin="2"/>
+                
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="70"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Grid Width:" Grid.Column="0" Grid.Row="0" Margin="2" HorizontalAlignment="Right"/>
+                    <TextBox x:Name="TextGridWidth" Text="780" Grid.Column="1" Grid.Row="0" Margin="2"/>
+                    <TextBlock Text="Grid Height:" Grid.Column="0" Grid.Row="1" Margin="2" HorizontalAlignment="Right"/>
+                    <TextBox x:Name="TextGridHeight" Text="540" Grid.Column="1" Grid.Row="1" Margin="2"/>
+                    <TextBlock Text="Grid Size:" Grid.Column="0" Grid.Row="2" Margin="2" HorizontalAlignment="Right"/>
+                    <TextBox x:Name="TextGridSize" Text="30" Grid.Column="1" Grid.Row="2" Margin="2"/>
+                    <Button x:Name="UpdateGrid" Content="Upda_te Grid" Grid.Column="1" Grid.Row="3" Margin="2" Click="UpdateGrid_Click"/>
+                </Grid>
+                <Separator Margin="2"/>
                 <Button x:Name="GenerateModel" Content="_Generate Model" Margin="2" Click="GenerateModel_Click"/>
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -171,7 +192,6 @@
                     <TextBox x:Name="TextOffsetY" Text="0" Grid.Column="1" Grid.Row="1" Margin="2"/>
                     <Button x:Name="IsertModel" Content="_Insert Model" Grid.Column="1" Grid.Row="2" Margin="2" Click="InsertModel_Click"/>
                 </Grid>
-                
             </StackPanel>
 
             <TextBox x:Name="TextModel" Grid.Row="1" 

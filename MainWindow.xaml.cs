@@ -109,7 +109,7 @@ namespace CanvasDiagramEditor
 
         public const char TagNameSeparator = '|';
 
-        public const string TagDiagramHeader = "[Diagram]";
+        public const string TagDiagramHeader = "Diagram";
 
         public const string TagElementPin = "Pin";
         public const string TagElementWire = "Wire";
@@ -220,6 +220,8 @@ namespace CanvasDiagramEditor
         private double diagramWidth = 780;
         private double diagramHeight = 540;
 
+        private double defaultGridSize = 30;
+
         private bool enableSnap = true;
         private bool snapOnRelease = false;
         private double snapX = 15;
@@ -293,6 +295,66 @@ namespace CanvasDiagramEditor
         {
             return snap == true ?
                 Snap(original, this.snapY, this.snapOffsetY) : original;
+        }
+
+        #endregion
+
+        #region Grid
+
+        private void GenerateGrid(Path path, double width, double height, double size)
+        {
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+
+            var sb = new StringBuilder();
+
+            double originX = 0;
+            double originY = 0;
+
+            double startX = size;
+            double startY = size;
+
+            // horizontal lines
+            for (double y = startY + originY /* originY + size */; y < height + originY; y += size)
+            {
+                sb.AppendFormat("M{0},{1}", originX, y);
+                sb.AppendFormat("L{0},{1}", width + originX, y);
+            }
+
+            // vertical lines
+            for (double x = startX + originX /* originX + size */; x < width + originX; x += size)
+            {
+                sb.AppendFormat("M{0},{1}", x, originY);
+                sb.AppendFormat("L{0},{1}", x, height + originY);
+            }
+
+            string s = sb.ToString();
+
+            path.Data = Geometry.Parse(s);
+
+            sw.Stop();
+            System.Diagnostics.Debug.Print("GenerateGrid() in {0}ms", sw.Elapsed.TotalMilliseconds);
+        }
+
+        private void GenerateGrid()
+        {
+            var canvas = this.DiagramCanvas;
+            var path = this.PathGrid;
+
+            int width = int.Parse(TextGridWidth.Text);
+            int height = int.Parse(TextGridHeight.Text);
+            int size = int.Parse(TextGridSize.Text);
+
+            AddToHistory(canvas);
+
+            GenerateGrid(path, width, height, size);
+
+            SetDiagramSize(canvas, width, height);
+        }
+
+        private void SetDiagramSize(Canvas canvas, double width, double height)
+        {
+            canvas.Width = width;
+            canvas.Height = height;
         }
 
         #endregion
@@ -1011,95 +1073,120 @@ namespace CanvasDiagramEditor
             this.orGateCounter = 0;
         }
 
-        private string GenerateDiagramModel(Canvas canvas)
+        private string GenerateDiagramModel(Canvas diagram)
         {
-            var model = new StringBuilder();
+            var diagrams = new List<Canvas>();
 
-            string header = Constants.TagDiagramHeader;
+            diagrams.Add(diagram);
+            
+            return GenerateDiagramModel(diagrams);
+        }
 
-            //System.Diagnostics.Debug.Print("Generating diagram model:");
+        private string GenerateDiagramModel(IEnumerable<Canvas> diagrams)
+        {
+            var sw = System.Diagnostics.Stopwatch.StartNew();
 
-            //System.Diagnostics.Debug.Print(header);
-            model.AppendLine(header);
+            var diagram = new StringBuilder();
 
-            foreach (var child in canvas.Children)
+            foreach (var canvas in diagrams)
             {
-                var element = child as FrameworkElement;
+                var children = canvas.Children;
+                double width = canvas.Width;
+                double height = canvas.Height;
 
-                double x = Canvas.GetLeft(element);
-                double y = Canvas.GetTop(element);
+                string header = string.Format("{0}{1}{2}{1}{3}{1}{4}{1}{5}",
+                    Constants.PrefixRootElement,
+                    Constants.ArgumentSeparator,
+                    Constants.TagDiagramHeader,
+                    width, height, defaultGridSize);
 
-                if (element.Uid.StartsWith(Constants.TagElementWire))
+                diagram.AppendLine(header);
+                //System.Diagnostics.Debug.Print(header);
+
+                foreach (var child in children)
                 {
-                    var line = element as Line;
-                    var margin = line.Margin;
+                    var element = child as FrameworkElement;
 
-                    string str = string.Format("{6}{5}{0}{5}{1}{5}{2}{5}{3}{5}{4}", 
-                        element.Uid,
-                        margin.Left, margin.Top, //line.X1, line.Y1,
-                        line.X2 + margin.Left, line.Y2 + margin.Top,
-                        Constants.ArgumentSeparator,
-                        Constants.PrefixRootElement);
+                    double x = Canvas.GetLeft(element);
+                    double y = Canvas.GetTop(element);
 
-                    model.AppendLine(str);
-
-                    //System.Diagnostics.Debug.Print(str);
-                }
-                else
-                {
-                    string str = string.Format("{4}{3}{0}{3}{1}{3}{2}", 
-                        element.Uid, 
-                        x,  y,
-                        Constants.ArgumentSeparator,
-                        Constants.PrefixRootElement);
-
-                    model.AppendLine(str);
-
-                    //System.Diagnostics.Debug.Print(str);
-                }
-
-                if (element.Tag != null)
-                {
-                    var selection = element.Tag as Selection;
-                    var tuples = selection.Item2;
-
-                    foreach (var tuple in tuples)
+                    if (element.Uid.StartsWith(Constants.TagElementWire))
                     {
-                        var line = tuple.Item1;
-                        var start = tuple.Item2;
-                        var end = tuple.Item3;
+                        var line = element as Line;
+                        var margin = line.Margin;
 
-                        if (start != null)
+                        string str = string.Format("{6}{5}{0}{5}{1}{5}{2}{5}{3}{5}{4}",
+                            element.Uid,
+                            margin.Left, margin.Top, //line.X1, line.Y1,
+                            line.X2 + margin.Left, line.Y2 + margin.Top,
+                            Constants.ArgumentSeparator,
+                            Constants.PrefixRootElement);
+
+                        diagram.AppendLine(str);
+
+                        //System.Diagnostics.Debug.Print(str);
+                    }
+                    else
+                    {
+                        string str = string.Format("{4}{3}{0}{3}{1}{3}{2}",
+                            element.Uid,
+                            x, y,
+                            Constants.ArgumentSeparator,
+                            Constants.PrefixRootElement);
+
+                        diagram.AppendLine(str);
+
+                        //System.Diagnostics.Debug.Print(str);
+                    }
+
+                    if (element.Tag != null)
+                    {
+                        var selection = element.Tag as Selection;
+                        var tuples = selection.Item2;
+
+                        foreach (var tuple in tuples)
                         {
-                            // Start
-                            string str = string.Format("{3}{2}{0}{2}{1}", 
-                                line.Uid,
-                                Constants.WireStartType,
-                                Constants.ArgumentSeparator,
-                                Constants.PrefixChildElement);
+                            var line = tuple.Item1;
+                            var start = tuple.Item2;
+                            var end = tuple.Item3;
 
-                            model.AppendLine(str);
+                            if (start != null)
+                            {
+                                // Start
+                                string str = string.Format("{3}{2}{0}{2}{1}",
+                                    line.Uid,
+                                    Constants.WireStartType,
+                                    Constants.ArgumentSeparator,
+                                    Constants.PrefixChildElement);
 
-                            //System.Diagnostics.Debug.Print(str);
-                        }
-                        else if (end != null)
-                        {
-                            // End
-                            string str = string.Format("{3}{2}{0}{2}{1}", 
-                                line.Uid,
-                                Constants.WireEndType,
-                                Constants.ArgumentSeparator,
-                                Constants.PrefixChildElement);
+                                diagram.AppendLine(str);
 
-                            model.AppendLine(str);
+                                //System.Diagnostics.Debug.Print(str);
+                            }
+                            else if (end != null)
+                            {
+                                // End
+                                string str = string.Format("{3}{2}{0}{2}{1}",
+                                    line.Uid,
+                                    Constants.WireEndType,
+                                    Constants.ArgumentSeparator,
+                                    Constants.PrefixChildElement);
 
-                            //System.Diagnostics.Debug.Print(str);
+                                diagram.AppendLine(str);
+
+                                //System.Diagnostics.Debug.Print(str);
+                            }
                         }
                     }
                 }
             }
 
-            return model.ToString();
+            var result = diagram.ToString();
+
+            sw.Stop();
+            System.Diagnostics.Debug.Print("GenerateDiagramModel() in {0}ms", sw.Elapsed.TotalMilliseconds);
+
+            return result;
         }
 
         private void ParseDiagramModel(string diagram, Canvas canvas, 
@@ -1115,6 +1202,8 @@ namespace CanvasDiagramEditor
 
             WireMap tuple = null;
             string name = null;
+
+            var sw = System.Diagnostics.Stopwatch.StartNew();
 
             var dict = new Dictionary<string, WireMap>();
             var elements = new List<FrameworkElement>();
@@ -1138,7 +1227,19 @@ namespace CanvasDiagramEditor
 
                     if (CompareString(args[0], Constants.PrefixRootElement))
                     {
-                        if (name.StartsWith(Constants.TagElementPin, StringComparison.InvariantCultureIgnoreCase) && 
+                        if (name.StartsWith(Constants.TagDiagramHeader, StringComparison.InvariantCultureIgnoreCase) &&
+                            length == 5)
+                        {
+                            double width = double.Parse(args[2]);
+                            double height = double.Parse(args[3]);
+                            double size = double.Parse(args[4]);
+
+                            var path = this.PathGrid;
+
+                            GenerateGrid(path, width, height, size);
+                            SetDiagramSize(canvas, width, height);
+                        }
+                        else if (name.StartsWith(Constants.TagElementPin, StringComparison.InvariantCultureIgnoreCase) && 
                             length == 4)
                         {
                             double x = double.Parse(args[2]);
@@ -1284,6 +1385,9 @@ namespace CanvasDiagramEditor
             {
                 canvas.Children.Add(element);
             }
+
+            sw.Stop();
+            System.Diagnostics.Debug.Print("ParseDiagramModel() in {0}ms", sw.Elapsed.TotalMilliseconds);
         }
 
         private void UpdateWireConnections(Dictionary<string, WireMap> dict)
@@ -2192,6 +2296,11 @@ namespace CanvasDiagramEditor
         private void InsertModel_Click(object sender, RoutedEventArgs e)
         {
             Insert();
+        }
+
+        private void UpdateGrid_Click(object sender, RoutedEventArgs e)
+        {
+            GenerateGrid();
         }
 
         #endregion
