@@ -9,33 +9,7 @@
 
     <Window.Resources>
 
-        <ContextMenu x:Key="DiagramCanvasContextMenuKey">
-            <MenuItem x:Name="InsertInput" Header="Insert _Input" Click="InsertInput_Click"/>
-            <MenuItem x:Name="InsertOutput" Header="Insert _Output" Click="InsertOutput_Click"/>
-            <Separator/>
-            <MenuItem x:Name="InsertAndGate" Header="Insert _AndGate" Click="InsertAndGate_Click"/>
-            <MenuItem x:Name="InsertOrGate" Header="Insert O_rGate" Click="InsertOrGate_Click"/>
-            <Separator/>
-            <MenuItem x:Name="InsertPin" Header="Insert _Pin" Click="InsertPin_Click"/>
-            <Separator/>
-            <MenuItem x:Name="DeleteElement" Header="_Delete" Click="DeleteElement_Click"/>
-        </ContextMenu>
-
-    </Window.Resources>
-
-    <Grid>
-        
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="200"/>
-        </Grid.ColumnDefinitions>
-
-        <Menu Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0">
+        <Menu x:Key="MainMenuKey">
             <MenuItem Header="_File">
                 <MenuItem x:Name="FileOpen" Header="_Open..." Click="FileOpen_Click"/>
                 <MenuItem x:Name="FileSave" Header="_Save..." Click="FileSave_Click"/>
@@ -66,7 +40,35 @@
                 <MenuItem x:Name="EditPreferences" Header="Prefere_nces" Click="EditPreferences_Click"/>
             </MenuItem>
         </Menu>
+
+        <ContextMenu x:Key="DiagramCanvasContextMenuKey">
+            <MenuItem x:Name="InsertInput" Header="Insert _Input" Click="InsertInput_Click"/>
+            <MenuItem x:Name="InsertOutput" Header="Insert _Output" Click="InsertOutput_Click"/>
+            <Separator/>
+            <MenuItem x:Name="InsertAndGate" Header="Insert _AndGate" Click="InsertAndGate_Click"/>
+            <MenuItem x:Name="InsertOrGate" Header="Insert O_rGate" Click="InsertOrGate_Click"/>
+            <Separator/>
+            <MenuItem x:Name="InsertPin" Header="Insert _Pin" Click="InsertPin_Click"/>
+            <Separator/>
+            <MenuItem x:Name="DeleteElement" Header="_Delete" Click="DeleteElement_Click"/>
+        </ContextMenu>
+
+    </Window.Resources>
+
+    <Grid>
         
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="200"/>
+        </Grid.ColumnDefinitions>
+
+        <ContentControl Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Content="{StaticResource MainMenuKey}"/>
+
         <ScrollViewer x:Name="PanScrollViewer" 
                       MouseMove="PanScrollViewer_MouseMove" 
                       MouseDown="PanScrollViewer_MouseDown" 
