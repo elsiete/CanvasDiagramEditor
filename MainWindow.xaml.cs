@@ -194,63 +194,75 @@ namespace CanvasDiagramEditor
 
     #endregion
 
+    #region Options
+
+    public class Options
+    {
+        #region Fields
+
+        public Canvas currentCanvas = null;
+
+        public bool enableHistory = true;
+
+        public Line currentLine = null;
+        public FrameworkElement currentRoot = null;
+
+        public int pinCounter = 0;
+        public int wireCounter = 0;
+        public int inputCounter = 0;
+        public int outputCounter = 0;
+        public int andGateCounter = 0;
+        public int orGateCounter = 0;
+
+        public Point rightClick;
+
+        public bool enableInsertLast = true;
+        public string lastInsert = Constants.TagElementInput;
+
+        public double defaultGridSize = 30;
+
+        public bool enableSnap = true;
+        public bool snapOnRelease = false;
+        public double snapX = 15;
+        public double snapY = 15;
+        public double snapOffsetX = 0;
+        public double snapOffsetY = 0;
+
+        public bool moveWithShift = false;
+
+        public double hitTestRadiusX = 4.0;
+        public double hitTestRadiusY = 4.0;
+
+        public bool skipContextMenu = false;
+        public bool skipLeftClick = false;
+
+        public Point panStart;
+        public double previousScrollOffsetX = -1.0;
+        public double previousScrollOffsetY = -1.0;
+
+        public double defaultStrokeThickness = 1.0;
+
+        public double zoomInFactor = 0.1;
+        public double zoomOutFactor = 0.1;
+
+        public Point zoomPoint;
+
+        public double reversePanDirection = -1.0; // reverse: 1.0, normal: -1.0
+        public double panSpeedFactor = 3.0; // pan speed factor, depends on current zoom
+        public MouseButton panButton = MouseButton.Middle;
+
+        #endregion
+    }
+
+    #endregion
+
     #region MainWindow
 
     public partial class MainWindow : Window
     {
         #region Fields
 
-        private bool enableHistory = true;
-
-        private Line currentLine = null;
-        private FrameworkElement currentRoot = null;
-
-        private int pinCounter = 0;
-        private int wireCounter = 0;
-        private int inputCounter = 0;
-        private int outputCounter = 0;
-        private int andGateCounter = 0;
-        private int orGateCounter = 0;
-
-        private Point rightClick;
-
-        private bool enableInsertLast = true;
-        private string lastInsert = Constants.TagElementInput;
-
-        private double diagramWidth = 780;
-        private double diagramHeight = 540;
-
-        private double defaultGridSize = 30;
-
-        private bool enableSnap = true;
-        private bool snapOnRelease = false;
-        private double snapX = 15;
-        private double snapY = 15;
-        private double snapOffsetX = 0;
-        private double snapOffsetY = 0;
-
-        private bool moveWithShift = false;
-
-        private double hitTestRadiusX = 4.0;
-        private double hitTestRadiusY = 4.0;
-
-        private bool skipContextMenu = false;
-        private bool skipLeftClick = false;
-
-        private Point panStart;
-        private double previousScrollOffsetX = -1.0;
-        private double previousScrollOffsetY = -1.0;
-
-        private double defaultStrokeThickness = 1.0;
-
-        private double zoomInFactor = 0.1;
-        private double zoomOutFactor = 0.1;
-
-        private Point zoomPoint;
-
-        private double reversePanDirection = -1.0; // reverse: 1.0, normal: -1.0
-        private double panSpeedFactor = 3.0; // pan speed factor, depends on current zoom
-        private MouseButton panButton = MouseButton.Middle;
+        private Options options = null;
 
         #endregion
 
@@ -265,10 +277,14 @@ namespace CanvasDiagramEditor
 
         private void InitializeOptions()
         {
-            EnableHistory.IsChecked = this.enableHistory;
-            EnableInsertLast.IsChecked = this.enableInsertLast;
-            EnableSnap.IsChecked = this.enableSnap;
-            SnapOnRelease.IsChecked = this.snapOnRelease;
+            options = new Options();
+
+            options.currentCanvas = this.DiagramCanvas;
+
+            EnableHistory.IsChecked = options.enableHistory;
+            EnableInsertLast.IsChecked = options.enableInsertLast;
+            EnableSnap.IsChecked = options.enableSnap;
+            SnapOnRelease.IsChecked = options.snapOnRelease;
         }
 
         #endregion
@@ -288,13 +304,13 @@ namespace CanvasDiagramEditor
         private double SnapX(double original, bool snap)
         {
             return snap == true ?
-                Snap(original, this.snapX, this.snapOffsetX) : original;
+                Snap(original, options.snapX, options.snapOffsetX) : original;
         }
 
         private double SnapY(double original, bool snap)
         {
             return snap == true ?
-                Snap(original, this.snapY, this.snapOffsetY) : original;
+                Snap(original, options.snapY, options.snapOffsetY) : original;
         }
 
         #endregion
@@ -337,7 +353,7 @@ namespace CanvasDiagramEditor
 
         private void GenerateGrid()
         {
-            var canvas = this.DiagramCanvas;
+            var canvas = options.currentCanvas;
             var path = this.PathGrid;
 
             int width = int.Parse(TextGridWidth.Text);
@@ -375,7 +391,7 @@ namespace CanvasDiagramEditor
 
         private void AddToHistory(Canvas canvas)
         {
-            if (this.enableHistory != true)
+            if (options.enableHistory != true)
                 return;
 
             var tuple = GetHistory(canvas);
@@ -391,7 +407,7 @@ namespace CanvasDiagramEditor
 
         private void RollbackUndoHistory(Canvas canvas)
         {
-            if (this.enableHistory != true)
+            if (options.enableHistory != true)
                 return;
 
             var tuple = GetHistory(canvas);
@@ -407,7 +423,7 @@ namespace CanvasDiagramEditor
 
         private void RollbackRedoHistory(Canvas canvas)
         {
-            if (this.enableHistory != true)
+            if (options.enableHistory != true)
                 return;
 
             var tuple = GetHistory(canvas);
@@ -433,7 +449,7 @@ namespace CanvasDiagramEditor
 
         private void Undo(Canvas canvas, bool pushRedo)
         {
-            if (this.enableHistory != true)
+            if (options.enableHistory != true)
                 return;
 
             var tuple = GetHistory(canvas);
@@ -459,7 +475,7 @@ namespace CanvasDiagramEditor
 
         private void Redo(Canvas canvas, bool pushUndo)
         {
-            if (this.enableHistory != true)
+            if (options.enableHistory != true)
                 return;
 
             var tuple = GetHistory(canvas);
@@ -485,14 +501,14 @@ namespace CanvasDiagramEditor
 
         private void Undo()
         {
-            var canvas = this.DiagramCanvas;
+            var canvas = options.currentCanvas;
 
             this.Undo(canvas, true);
         }
 
         private void Redo()
         {
-            var canvas = this.DiagramCanvas;
+            var canvas = options.currentCanvas;
 
             this.Redo(canvas, true);
         }
@@ -566,9 +582,9 @@ namespace CanvasDiagramEditor
 
         private void Drag(Canvas canvas, SelectionThumb element, double dX, double dY)
         {
-            bool snap = (this.snapOnRelease == true && this.enableSnap == true) ? false : this.enableSnap;
+            bool snap = (options.snapOnRelease == true && options.enableSnap == true) ? false : options.enableSnap;
 
-            if (Keyboard.Modifiers == ModifierKeys.Shift || this.moveWithShift == true)
+            if (Keyboard.Modifiers == ModifierKeys.Shift || options.moveWithShift == true)
             {
                 // move all elements when Shift key is pressed
                 var thumbs = canvas.Children.OfType<SelectionThumb>();
@@ -592,7 +608,7 @@ namespace CanvasDiagramEditor
 
             if (Keyboard.Modifiers == ModifierKeys.Shift)
             {
-                this.moveWithShift = true;
+                options.moveWithShift = true;
 
                 SetSelectionAll(canvas, true);
 
@@ -600,7 +616,7 @@ namespace CanvasDiagramEditor
             }
             else
             {
-                this.moveWithShift = false;
+                options.moveWithShift = false;
 
                 // select
                 SelectionThumb.SetIsSelected(element, true);
@@ -609,9 +625,9 @@ namespace CanvasDiagramEditor
 
         private void DragEnd(Canvas canvas, SelectionThumb element)
         {
-            if (this.snapOnRelease == true && this.enableSnap == true)
+            if (options.snapOnRelease == true && options.enableSnap == true)
             {
-                if (Keyboard.Modifiers == ModifierKeys.Shift || this.moveWithShift == true)
+                if (Keyboard.Modifiers == ModifierKeys.Shift || options.moveWithShift == true)
                 {
                     // move all elements when Shift key is pressed
 
@@ -624,7 +640,7 @@ namespace CanvasDiagramEditor
                         // deselect
                         SelectionThumb.SetIsSelected(thumb, false);
 
-                        MoveRoot(thumb, 0.0, 0.0, this.enableSnap);
+                        MoveRoot(thumb, 0.0, 0.0, options.enableSnap);
                     }
                 }
                 else
@@ -634,12 +650,12 @@ namespace CanvasDiagramEditor
                     // deselect
                     SelectionThumb.SetIsSelected(element, false);
 
-                    MoveRoot(element, 0.0, 0.0, this.enableSnap);
+                    MoveRoot(element, 0.0, 0.0, options.enableSnap);
                 }
             }
             else
             {
-                if (Keyboard.Modifiers == ModifierKeys.Shift || this.moveWithShift == true)
+                if (Keyboard.Modifiers == ModifierKeys.Shift || options.moveWithShift == true)
                 {
                     SelectionThumb.SetIsSelected(canvas, false);
 
@@ -652,7 +668,7 @@ namespace CanvasDiagramEditor
                 }
             }
 
-            this.moveWithShift = false;
+            options.moveWithShift = false;
         }
 
         #endregion
@@ -767,12 +783,12 @@ namespace CanvasDiagramEditor
                     (pin.Parent as FrameworkElement).Parent as FrameworkElement
                 ).TemplatedParent as FrameworkElement;
 
-            this.currentRoot = root;
+            options.currentRoot = root;
 
             //System.Diagnostics.Debug.Print("ConnectPins, pin: {0}, {1}", pin.GetType(), pin.Name);
 
-            double rx = Canvas.GetLeft(this.currentRoot);
-            double ry = Canvas.GetTop(this.currentRoot);
+            double rx = Canvas.GetLeft(options.currentRoot);
+            double ry = Canvas.GetTop(options.currentRoot);
             double px = Canvas.GetLeft(pin);
             double py = Canvas.GetTop(pin);
             double x = rx + px;
@@ -787,44 +803,44 @@ namespace CanvasDiagramEditor
         {
             Line result = null;
 
-            if (this.currentRoot.Tag == null)
+            if (options.currentRoot.Tag == null)
             {
-                this.currentRoot.Tag = new Selection(false, new List<TagMap>());
+                options.currentRoot.Tag = new Selection(false, new List<TagMap>());
             }
 
-            var selection = this.currentRoot.Tag as Selection;
+            var selection = options.currentRoot.Tag as Selection;
             var tuples = selection.Item2;
 
-            if (this.currentLine == null)
+            if (options.currentLine == null)
             {
-                var line = CreateWire(x, y, x, y, this.wireCounter);
-                this.wireCounter += 1;
+                var line = CreateWire(x, y, x, y, options.wireCounter);
+                options.wireCounter += 1;
 
-                this.currentLine = line;
+                options.currentLine = line;
 
                 // update connections
-                var tuple = new TagMap(this.currentLine, this.currentRoot, null);
+                var tuple = new TagMap(options.currentLine, options.currentRoot, null);
                 tuples.Add(tuple);
 
-                canvas.Children.Add(this.currentLine);
+                canvas.Children.Add(options.currentLine);
 
                 result = line;
             }
             else
             {
-                var margin = this.currentLine.Margin;
+                var margin = options.currentLine.Margin;
 
-                this.currentLine.X2 = x - margin.Left;
-                this.currentLine.Y2 = y - margin.Top;
+                options.currentLine.X2 = x - margin.Left;
+                options.currentLine.Y2 = y - margin.Top;
 
                 // update connections
-                var tuple = new TagMap(this.currentLine, null, this.currentRoot);
+                var tuple = new TagMap(options.currentLine, null, options.currentRoot);
                 tuples.Add(tuple);
 
-                result = this.currentLine;
+                result = options.currentLine;
 
-                this.currentLine = null;
-                this.currentRoot = null;
+                options.currentLine = null;
+                options.currentRoot = null;
             }
 
             return result;
@@ -836,8 +852,8 @@ namespace CanvasDiagramEditor
 
         private FrameworkElement InsertPin(Canvas canvas, Point point)
         {
-            var thumb = CreatePin(point.X, point.Y, this.pinCounter, this.enableSnap);
-            this.pinCounter += 1;
+            var thumb = CreatePin(point.X, point.Y, options.pinCounter, options.enableSnap);
+            options.pinCounter += 1;
 
             canvas.Children.Add(thumb);
 
@@ -846,8 +862,8 @@ namespace CanvasDiagramEditor
 
         private FrameworkElement InsertInput(Canvas canvas, Point point)
         {
-            var thumb = CreateInput(point.X, point.Y, this.inputCounter, this.enableSnap);
-            this.inputCounter += 1;
+            var thumb = CreateInput(point.X, point.Y, options.inputCounter, options.enableSnap);
+            options.inputCounter += 1;
 
             canvas.Children.Add(thumb);
 
@@ -856,8 +872,8 @@ namespace CanvasDiagramEditor
 
         private FrameworkElement InsertOutput(Canvas canvas, Point point)
         {
-            var thumb = CreateOutput(point.X, point.Y, this.outputCounter, this.enableSnap);
-            this.outputCounter += 1;
+            var thumb = CreateOutput(point.X, point.Y, options.outputCounter, options.enableSnap);
+            options.outputCounter += 1;
 
             canvas.Children.Add(thumb);
 
@@ -866,8 +882,8 @@ namespace CanvasDiagramEditor
 
         private FrameworkElement InsertAndGate(Canvas canvas, Point point)
         {
-            var thumb = CreateAndGate(point.X, point.Y, this.andGateCounter, this.enableSnap);
-            this.andGateCounter += 1;
+            var thumb = CreateAndGate(point.X, point.Y, options.andGateCounter, options.enableSnap);
+            options.andGateCounter += 1;
 
             canvas.Children.Add(thumb);
 
@@ -876,8 +892,8 @@ namespace CanvasDiagramEditor
 
         private FrameworkElement InsertOrGate(Canvas canvas, Point point)
         {
-            var thumb = CreateOrGate(point.X, point.Y, this.orGateCounter, this.enableSnap);
-            this.orGateCounter += 1;
+            var thumb = CreateOrGate(point.X, point.Y, options.orGateCounter, options.enableSnap);
+            options.orGateCounter += 1;
 
             canvas.Children.Add(thumb);
 
@@ -938,8 +954,8 @@ namespace CanvasDiagramEditor
 
             var elippse = new EllipseGeometry()
                 {
-                    RadiusX = hitTestRadiusX,
-                    RadiusY = hitTestRadiusY,
+                    RadiusX = options.hitTestRadiusX,
+                    RadiusY = options.hitTestRadiusY,
                     Center = new Point(point.X, point.Y),
                 };
 
@@ -1049,7 +1065,7 @@ namespace CanvasDiagramEditor
 
             DeleteElement(canvas, point);
 
-            this.skipLeftClick = false;
+            options.skipLeftClick = false;
         }
 
         #endregion
@@ -1065,12 +1081,12 @@ namespace CanvasDiagramEditor
         {
             canvas.Children.Clear();
 
-            this.pinCounter = 0;
-            this.wireCounter = 0;
-            this.inputCounter = 0;
-            this.outputCounter = 0;
-            this.andGateCounter = 0;
-            this.orGateCounter = 0;
+            options.pinCounter = 0;
+            options.wireCounter = 0;
+            options.inputCounter = 0;
+            options.outputCounter = 0;
+            options.andGateCounter = 0;
+            options.orGateCounter = 0;
         }
 
         private string GenerateDiagramModel(Canvas diagram)
@@ -1098,7 +1114,7 @@ namespace CanvasDiagramEditor
                     Constants.PrefixRootElement,
                     Constants.ArgumentSeparator,
                     Constants.TagDiagramHeader,
-                    width, height, defaultGridSize);
+                    width, height, options.defaultGridSize);
 
                 diagram.AppendLine(header);
                 //System.Diagnostics.Debug.Print(header);
@@ -1371,12 +1387,12 @@ namespace CanvasDiagramEditor
                 if (updateIds == true)
                 {
                     // reset existing counters
-                    this.pinCounter = Math.Max(this.pinCounter, _pinCounter);
-                    this.wireCounter = Math.Max(this.wireCounter, _wireCounter);
-                    this.inputCounter = Math.Max(this.inputCounter, _inputCounter);
-                    this.outputCounter = Math.Max(this.outputCounter, _outputCounter);
-                    this.andGateCounter = Math.Max(this.andGateCounter, _andGateCounter);
-                    this.orGateCounter = Math.Max(this.orGateCounter, _orGateCounter);
+                    options.pinCounter = Math.Max(options.pinCounter, _pinCounter);
+                    options.wireCounter = Math.Max(options.wireCounter, _wireCounter);
+                    options.inputCounter = Math.Max(options.inputCounter, _inputCounter);
+                    options.outputCounter = Math.Max(options.outputCounter, _outputCounter);
+                    options.andGateCounter = Math.Max(options.andGateCounter, _andGateCounter);
+                    options.orGateCounter = Math.Max(options.orGateCounter, _orGateCounter);
                 }
             }
 
@@ -1448,28 +1464,28 @@ namespace CanvasDiagramEditor
                 switch (type)
                 {
                     case Constants.TagElementWire:
-                        appendedId = this.wireCounter;
-                        this.wireCounter += 1;
+                        appendedId = options.wireCounter;
+                        options.wireCounter += 1;
                         break;
                     case Constants.TagElementInput:
-                        appendedId = this.inputCounter;
-                        this.inputCounter += 1;
+                        appendedId = options.inputCounter;
+                        options.inputCounter += 1;
                         break;
                     case Constants.TagElementOutput:
-                        appendedId = this.outputCounter;
-                        this.outputCounter += 1;
+                        appendedId = options.outputCounter;
+                        options.outputCounter += 1;
                         break;
                     case Constants.TagElementAndGate:
-                        appendedId = this.andGateCounter;
-                        this.andGateCounter += 1;
+                        appendedId = options.andGateCounter;
+                        options.andGateCounter += 1;
                         break;
                     case Constants.TagElementOrGate:
-                        appendedId = this.orGateCounter;
-                        this.orGateCounter += 1;
+                        appendedId = options.orGateCounter;
+                        options.orGateCounter += 1;
                         break;
                     case Constants.TagElementPin:
-                        appendedId = this.pinCounter;
-                        this.pinCounter += 1;
+                        appendedId = options.pinCounter;
+                        options.pinCounter += 1;
                         break;
                     default:
                         throw new Exception("Unknown element type.");
@@ -1538,7 +1554,7 @@ namespace CanvasDiagramEditor
             var res = dlg.ShowDialog();
             if (res == true)
             {
-                var canvas = this.DiagramCanvas;
+                var canvas = options.currentCanvas;
 
                 this.Open(dlg.FileName, canvas);
             }
@@ -1556,7 +1572,7 @@ namespace CanvasDiagramEditor
             var res = dlg.ShowDialog();
             if (res == true)
             {
-                var canvas = this.DiagramCanvas;
+                var canvas = options.currentCanvas;
 
                 this.Save(dlg.FileName, canvas);
             }
@@ -1586,7 +1602,7 @@ namespace CanvasDiagramEditor
             var res = dlg.ShowDialog();
             if (res == true)
             {
-                var canvas = this.DiagramCanvas;
+                var canvas = options.currentCanvas;
                 var fileName = dlg.FileName;
 
                 Export(export, exportHistory, canvas, fileName);
@@ -1626,18 +1642,18 @@ namespace CanvasDiagramEditor
 
         private void Print()
         {
-            var model = GenerateDiagramModel(this.DiagramCanvas);
+            var model = GenerateDiagramModel(options.currentCanvas);
 
             var canvas = new Canvas()
             {
                 Background = Brushes.Black,
-                Width = this.diagramWidth,
-                Height = this.diagramHeight
+                Width = options.currentCanvas.Width,
+                Height = options.currentCanvas.Height
             };
 
             ParseDiagramModel(model, canvas, 0, 0, false, false);
 
-            Visual visual = canvas; // this.DiagramCanvas;
+            Visual visual = canvas;
 
             PrintDialog dlg = new PrintDialog();
             dlg.PrintVisual(visual, "diagram");
@@ -1660,7 +1676,7 @@ namespace CanvasDiagramEditor
 
         private void Insert()
         {
-            var canvas = this.DiagramCanvas;
+            var canvas = options.currentCanvas;
             var diagram = this.TextModel.Text;
 
             double offsetX = double.Parse(TextOffsetX.Text);
@@ -1668,13 +1684,12 @@ namespace CanvasDiagramEditor
 
             AddToHistory(canvas);
 
-            //ClearDiagramModel(canvas);
             ParseDiagramModel(diagram, canvas, offsetX, offsetY, true, true);
         }
 
         private void Clear()
         {
-            var canvas = this.DiagramCanvas;
+            var canvas = options.currentCanvas;
 
             AddToHistory(canvas);
 
@@ -1683,7 +1698,7 @@ namespace CanvasDiagramEditor
 
         private void Generate()
         {
-            var canvas = this.DiagramCanvas;
+            var canvas = options.currentCanvas;
 
             var model = GenerateDiagramModel(canvas);
 
@@ -1727,7 +1742,7 @@ namespace CanvasDiagramEditor
 
         private void SelectAll()
         {
-            var canvas = this.DiagramCanvas;
+            var canvas = options.currentCanvas;
 
             SetSelectionAll(canvas, true);
 
@@ -1736,7 +1751,7 @@ namespace CanvasDiagramEditor
 
         private void DeselectAll()
         {
-            var canvas = this.DiagramCanvas;
+            var canvas = options.currentCanvas;
 
             SetSelectionAll(canvas, false);
 
@@ -1754,16 +1769,16 @@ namespace CanvasDiagramEditor
 
         private void HandleLeftDown(Canvas canvas, Point point)
         {
-            if (this.currentRoot != null && this.currentLine != null)
+            if (options.currentRoot != null && options.currentLine != null)
             {
                 var root = InsertPin(canvas, point);
 
-                this.currentRoot = root;
+                options.currentRoot = root;
 
                 //System.Diagnostics.Debug.Print("Canvas_MouseLeftButtonDown, root: {0}", root.GetType());
 
-                double rx = Canvas.GetLeft(this.currentRoot);
-                double ry = Canvas.GetTop(this.currentRoot);
+                double rx = Canvas.GetLeft(options.currentRoot);
+                double ry = Canvas.GetTop(options.currentRoot);
                 double px = 0;
                 double py = 0;
                 double x = rx + px;
@@ -1773,15 +1788,15 @@ namespace CanvasDiagramEditor
 
                 CreatePinConnection(canvas, x, y);
 
-                this.currentRoot = root;
+                options.currentRoot = root;
 
                 CreatePinConnection(canvas, x, y);
             }
-            else if (this.enableInsertLast == true)
+            else if (options.enableInsertLast == true)
             {
                 AddToHistory(canvas);
 
-                InsertLast(canvas, this.lastInsert, point);
+                InsertLast(canvas, options.lastInsert, point);
             }
         }
 
@@ -1790,7 +1805,7 @@ namespace CanvasDiagramEditor
             if (pin != null &&
                 (!CompareString(pin.Name, Constants.StandalonePinName) || Keyboard.Modifiers == ModifierKeys.Control))
             {
-                if (this.currentLine == null)
+                if (options.currentLine == null)
                     AddToHistory(canvas);
 
                 CreatePinConnection(canvas, pin);
@@ -1803,49 +1818,48 @@ namespace CanvasDiagramEditor
 
         private void HandleMove(Canvas canvas, Point point)
         {
-            if (this.currentRoot != null && this.currentLine != null)
+            if (options.currentRoot != null && options.currentLine != null)
             {
-                var margin = this.currentLine.Margin;
+                var margin = options.currentLine.Margin;
 
                 double x = point.X - margin.Left;
                 double y = point.Y - margin.Top;
 
-                if (this.currentLine.X2 != x)
+                if (options.currentLine.X2 != x)
                 {
                     //this._line.X2 = SnapX(x);
-                    this.currentLine.X2 = x;
+                    options.currentLine.X2 = x;
                 }
 
-                if (this.currentLine.Y2 != y)
+                if (options.currentLine.Y2 != y)
                 {
                     //this._line.Y2 = SnapY(y);
-                    this.currentLine.Y2 = y;
+                    options.currentLine.Y2 = y;
                 }
             }
         }
 
         private bool HandleRightDown(Canvas canvas)
         {
-            if (this.currentRoot != null && this.currentLine != null)
+            if (options.currentRoot != null && options.currentLine != null)
             {
-                if (this.enableHistory == true)
+                if (options.enableHistory == true)
                 {
                     Undo(canvas, false);
                 }
                 else
                 {
-                    var selection = this.currentRoot.Tag as Selection;
+                    var selection = options.currentRoot.Tag as Selection;
                     var tuples = selection.Item2;
 
                     var last = tuples.LastOrDefault();
                     tuples.Remove(last);
 
-                    canvas.Children.Remove(this.currentLine);
-
-                    //RollbackUndoHistory(canvas);
+                    canvas.Children.Remove(options.currentLine);
                 }
-                this.currentLine = null;
-                this.currentRoot = null;
+
+                options.currentLine = null;
+                options.currentRoot = null;
 
                 return true;
             }
@@ -1859,6 +1873,11 @@ namespace CanvasDiagramEditor
 
         private void Zoom(double zoom)
         {
+            if (options == null)
+                return;
+
+            System.Diagnostics.Debug.Print("Zoom: {0}", zoom);
+
             //var tg = RootGrid.RenderTransform as TransformGroup;
             var tg = RootGrid.LayoutTransform as TransformGroup;
             var st = tg.Children.First(t => t is ScaleTransform) as ScaleTransform;
@@ -1868,7 +1887,7 @@ namespace CanvasDiagramEditor
             st.ScaleX = zoom;
             st.ScaleY = zoom;
 
-            Application.Current.Resources[Constants.KeyStrokeThickness] = defaultStrokeThickness / zoom;
+            Application.Current.Resources[Constants.KeyStrokeThickness] = options.defaultStrokeThickness / zoom;
 
             // zoom to point
             ZoomToPoint(zoom, oldZoom);
@@ -1885,11 +1904,11 @@ namespace CanvasDiagramEditor
             double scrollOffsetX = this.PanScrollViewer.HorizontalOffset;
             double scrollOffsetY = this.PanScrollViewer.VerticalOffset;
 
-            double oldX = zoomPoint.X * oldZoom;
-            double oldY = zoomPoint.Y * oldZoom;
+            double oldX = options.zoomPoint.X * oldZoom;
+            double oldY = options.zoomPoint.Y * oldZoom;
 
-            double newX = zoomPoint.X * zoom;
-            double newY = zoomPoint.Y * zoom;
+            double newX = options.zoomPoint.X * zoom;
+            double newY = options.zoomPoint.Y * zoom;
 
             offsetX = newX - oldX;
             offsetY = newY - oldY;
@@ -1914,7 +1933,7 @@ namespace CanvasDiagramEditor
         private void ZoomIn()
         {
             double zoom = ZoomSlider.Value;
-            zoom += zoomInFactor;
+            zoom += options.zoomInFactor;
 
             if (zoom >= ZoomSlider.Minimum && zoom <= ZoomSlider.Maximum)
             {
@@ -1925,7 +1944,7 @@ namespace CanvasDiagramEditor
         private void ZoomOut()
         {
             double zoom = ZoomSlider.Value;
-            zoom -= zoomOutFactor;
+            zoom -= options.zoomOutFactor;
 
             if (zoom >= ZoomSlider.Minimum && zoom <= ZoomSlider.Maximum)
             {
@@ -1936,6 +1955,8 @@ namespace CanvasDiagramEditor
         private void ZoomSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             double zoom = ZoomSlider.Value;
+
+            zoom = Math.Round(zoom, 1);
 
             if (e.OldValue != e.NewValue)
             {
@@ -1948,8 +1969,8 @@ namespace CanvasDiagramEditor
             if (Keyboard.Modifiers == ModifierKeys.Shift)
                 return;
 
-            var canvas = this.DiagramCanvas;
-            this.zoomPoint = e.GetPosition(canvas);
+            var canvas = options.currentCanvas;
+            options.zoomPoint = e.GetPosition(canvas);
 
             if (e.Delta > 0)
             {
@@ -1976,10 +1997,10 @@ namespace CanvasDiagramEditor
 
         private void BeginPan(Point point)
         {
-            this.panStart = point;
+            options.panStart = point;
 
-            this.previousScrollOffsetX = -1.0;
-            this.previousScrollOffsetY = -1.0;
+            options.previousScrollOffsetX = -1.0;
+            options.previousScrollOffsetY = -1.0;
 
             this.Cursor = Cursors.ScrollAll;
             this.PanScrollViewer.CaptureMouse();
@@ -1996,8 +2017,8 @@ namespace CanvasDiagramEditor
 
         private void PanToPoint(Point point)
         {
-            double scrollOffsetX = point.X - panStart.X;
-            double scrollOffsetY = point.Y - panStart.Y;
+            double scrollOffsetX = point.X - options.panStart.X;
+            double scrollOffsetY = point.Y - options.panStart.Y;
 
             double horizontalOffset = this.PanScrollViewer.HorizontalOffset;
             double verticalOffset = this.PanScrollViewer.VerticalOffset;
@@ -2006,10 +2027,10 @@ namespace CanvasDiagramEditor
             double scrollableHeight = this.PanScrollViewer.ScrollableHeight;
 
             double zoom = ZoomSlider.Value;
-            double panSpeed = zoom / panSpeedFactor;
+            double panSpeed = zoom / options.panSpeedFactor;
 
-            scrollOffsetX = Math.Round(horizontalOffset + (scrollOffsetX * panSpeed) * reversePanDirection, 0);
-            scrollOffsetY = Math.Round(verticalOffset + (scrollOffsetY * panSpeed) * reversePanDirection, 0);
+            scrollOffsetX = Math.Round(horizontalOffset + (scrollOffsetX * panSpeed) * options.reversePanDirection, 0);
+            scrollOffsetY = Math.Round(verticalOffset + (scrollOffsetY * panSpeed) * options.reversePanDirection, 0);
 
             scrollOffsetX = scrollOffsetX > scrollableWidth ? scrollableWidth : scrollOffsetX;
             scrollOffsetY = scrollOffsetY > scrollableHeight ? scrollableHeight : scrollOffsetY;
@@ -2017,19 +2038,19 @@ namespace CanvasDiagramEditor
             scrollOffsetX = scrollOffsetX < 0 ? 0.0 : scrollOffsetX;
             scrollOffsetY = scrollOffsetY < 0 ? 0.0 : scrollOffsetY;
 
-            if (scrollOffsetX != this.previousScrollOffsetX)
+            if (scrollOffsetX != options.previousScrollOffsetX)
             {
                 this.PanScrollViewer.ScrollToHorizontalOffset(scrollOffsetX);
-                this.previousScrollOffsetX = scrollOffsetX;
+                options.previousScrollOffsetX = scrollOffsetX;
             }
 
-            if (scrollOffsetY != this.previousScrollOffsetY)
+            if (scrollOffsetY != options.previousScrollOffsetY)
             {
                 this.PanScrollViewer.ScrollToVerticalOffset(scrollOffsetY);
-                this.previousScrollOffsetY = scrollOffsetY;
+                options.previousScrollOffsetY = scrollOffsetY;
             }
 
-            this.panStart = point;
+            options.panStart = point;
         }
 
         private void PanToOffset(double offsetX, double offsetY)
@@ -2059,7 +2080,7 @@ namespace CanvasDiagramEditor
 
         private void PanScrollViewer_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.ChangedButton == panButton)
+            if (e.ChangedButton == options.panButton)
             {
                 var point = e.GetPosition(this.PanScrollViewer);
 
@@ -2069,7 +2090,7 @@ namespace CanvasDiagramEditor
 
         private void PanScrollViewer_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            if (e.ChangedButton == panButton)
+            if (e.ChangedButton == options.panButton)
             {
                 EndPan();
             }
@@ -2091,7 +2112,7 @@ namespace CanvasDiagramEditor
 
         private void Canvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            var canvas = this.DiagramCanvas;
+            var canvas = options.currentCanvas;
             var point = e.GetPosition(canvas);
 
             HandleLeftDown(canvas, point);
@@ -2099,14 +2120,14 @@ namespace CanvasDiagramEditor
 
         private void Canvas_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (this.skipLeftClick == true)
+            if (options.skipLeftClick == true)
             {
-                this.skipLeftClick = false;
+                options.skipLeftClick = false;
                 e.Handled = true;
                 return;
             }
 
-            var canvas = this.DiagramCanvas;
+            var canvas = options.currentCanvas;
             var pin = (e.OriginalSource as FrameworkElement).TemplatedParent as FrameworkElement;
 
             var result = HandlePreviewLeftDown(canvas, pin);
@@ -2116,7 +2137,7 @@ namespace CanvasDiagramEditor
 
         private void Canvas_MouseMove(object sender, MouseEventArgs e)
         {
-            var canvas = this.DiagramCanvas;
+            var canvas = options.currentCanvas;
 
             var point = e.GetPosition(canvas);
 
@@ -2125,14 +2146,14 @@ namespace CanvasDiagramEditor
 
         private void Canvas_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
-            var canvas = this.DiagramCanvas;
+            var canvas = options.currentCanvas;
 
-            this.rightClick = e.GetPosition(canvas);
+            options.rightClick = e.GetPosition(canvas);
 
             var result = HandleRightDown(canvas);
             if (result == true)
             {
-                this.skipContextMenu = true;
+                options.skipContextMenu = true;
                 e.Handled = true;
             }
         }
@@ -2143,7 +2164,7 @@ namespace CanvasDiagramEditor
 
         private void RootElement_DragDelta(object sender, DragDeltaEventArgs e)
         {
-            var canvas = this.DiagramCanvas;
+            var canvas = options.currentCanvas;
             var element = sender as SelectionThumb;
 
             double dX = e.HorizontalChange;
@@ -2154,7 +2175,7 @@ namespace CanvasDiagramEditor
 
         private void RootElement_DragStarted(object sender, DragStartedEventArgs e)
         {
-            var canvas = this.DiagramCanvas;
+            var canvas = options.currentCanvas;
             var element = sender as SelectionThumb;
 
             DragStart(canvas, element);
@@ -2162,7 +2183,7 @@ namespace CanvasDiagramEditor
 
         private void RootElement_DragCompleted(object sender, DragCompletedEventArgs e)
         {
-            var canvas = this.DiagramCanvas;
+            var canvas = options.currentCanvas;
             var element = sender as SelectionThumb;
 
             DragEnd(canvas, element);
@@ -2174,81 +2195,81 @@ namespace CanvasDiagramEditor
 
         private void Canvas_ContextMenuOpening(object sender, ContextMenuEventArgs e)
         {
-            if (this.skipContextMenu == true)
+            if (options.skipContextMenu == true)
             {
-                this.skipContextMenu = false;
+                options.skipContextMenu = false;
                 e.Handled = true;
             }
             else
             {
-                this.skipLeftClick = true;
+                options.skipLeftClick = true;
             }
         }
 
         private void InsertPin_Click(object sender, RoutedEventArgs e)
         {
-            var canvas = this.DiagramCanvas;
+            var canvas = options.currentCanvas;
 
             AddToHistory(canvas);
 
-            InsertPin(canvas, this.rightClick);
+            InsertPin(canvas, options.rightClick);
 
-            this.lastInsert = Constants.TagElementPin;
-            this.skipLeftClick = false;
+            options.lastInsert = Constants.TagElementPin;
+            options.skipLeftClick = false;
         }
 
         private void InsertInput_Click(object sender, RoutedEventArgs e)
         {
-            var canvas = this.DiagramCanvas;
+            var canvas = options.currentCanvas;
 
             AddToHistory(canvas);
 
-            InsertInput(canvas, this.rightClick);
+            InsertInput(canvas, options.rightClick);
 
-            this.lastInsert = Constants.TagElementInput;
-            this.skipLeftClick = false;
+            options.lastInsert = Constants.TagElementInput;
+            options.skipLeftClick = false;
         }
 
         private void InsertOutput_Click(object sender, RoutedEventArgs e)
         {
-            var canvas = this.DiagramCanvas;
+            var canvas = options.currentCanvas;
 
             AddToHistory(canvas);
 
-            InsertOutput(canvas, this.rightClick);
+            InsertOutput(canvas, options.rightClick);
 
-            this.lastInsert = Constants.TagElementOutput;
-            this.skipLeftClick = false;
+            options.lastInsert = Constants.TagElementOutput;
+            options.skipLeftClick = false;
         }
 
         private void InsertAndGate_Click(object sender, RoutedEventArgs e)
         {
-            var canvas = this.DiagramCanvas;
+            var canvas = options.currentCanvas;
 
             AddToHistory(canvas);
 
-            InsertAndGate(canvas, this.rightClick);
+            InsertAndGate(canvas, options.rightClick);
 
-            this.lastInsert = Constants.TagElementAndGate;
-            this.skipLeftClick = false;
+            options.lastInsert = Constants.TagElementAndGate;
+            options.skipLeftClick = false;
         }
 
         private void InsertOrGate_Click(object sender, RoutedEventArgs e)
         {
-            var canvas = this.DiagramCanvas;
+            var canvas = options.currentCanvas;
 
             AddToHistory(canvas);
 
-            InsertOrGate(canvas, this.rightClick);
+            InsertOrGate(canvas, options.rightClick);
 
-            this.lastInsert = Constants.TagElementOrGate;
-            this.skipLeftClick = false;
+            options.lastInsert = Constants.TagElementOrGate;
+            options.skipLeftClick = false;
         }
 
         private void DeleteElement_Click(object sender, RoutedEventArgs e)
         {
-            var canvas = DiagramCanvas;
-            var point = new Point(this.rightClick.X, this.rightClick.Y);
+            var canvas = options.currentCanvas;
+            var point = new Point(options.rightClick.X, options.rightClick.Y);
 
             Delete(canvas, point);
         }
@@ -2259,11 +2280,11 @@ namespace CanvasDiagramEditor
 
         private void EnableHistory_Click(object sender, RoutedEventArgs e)
         {
-            this.enableHistory = EnableHistory.IsChecked == true ? true : false;
+            options.enableHistory = EnableHistory.IsChecked == true ? true : false;
 
-            if (this.enableHistory == false)
+            if (options.enableHistory == false)
             {
-                var canvas = this.DiagramCanvas;
+                var canvas = options.currentCanvas;
 
                 ClearHistory(canvas);
             }
@@ -2271,17 +2292,17 @@ namespace CanvasDiagramEditor
 
         private void EnableSnap_Click(object sender, RoutedEventArgs e)
         {
-            this.enableSnap = EnableSnap.IsChecked == true ? true : false;
+            options.enableSnap = EnableSnap.IsChecked == true ? true : false;
         }
 
         private void SnapOnRelease_Click(object sender, RoutedEventArgs e)
         {
-            this.snapOnRelease = SnapOnRelease.IsChecked == true ? true : false;
+            options.snapOnRelease = SnapOnRelease.IsChecked == true ? true : false;
         }
 
         private void EnableInsertLast_Click(object sender, RoutedEventArgs e)
         {
-            this.enableInsertLast = EnableInsertLast.IsChecked == true ? true : false;
+            options.enableInsertLast = EnableInsertLast.IsChecked == true ? true : false;
         } 
     
         #endregion
