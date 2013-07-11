@@ -99,7 +99,7 @@ namespace CanvasDiagramEditor
 
     #region Constants
 
-    public static class Constants
+    public static class ModelConstants
     {
         #region Model String Constants
 
@@ -122,7 +122,10 @@ namespace CanvasDiagramEditor
         public const string WireEndType = "End";
 
         #endregion
+    }
 
+    public static class ResourceConstants
+    {
         #region Resource String Constants
 
         public const string KeyStrokeThickness = "LogicStrokeThicknessKey";
@@ -218,7 +221,7 @@ namespace CanvasDiagramEditor
         public Point rightClick;
 
         public bool enableInsertLast = false;
-        public string lastInsert = Constants.TagElementInput;
+        public string lastInsert = ModelConstants.TagElementInput;
 
         public double defaultGridSize = 30;
 
@@ -681,9 +684,9 @@ namespace CanvasDiagramEditor
         {
             var thumb = new SelectionThumb()
             {
-                Template = Application.Current.Resources[Constants.KeyTemplatePin] as ControlTemplate,
-                Style = Application.Current.Resources[Constants.KeySyleRootThumb] as Style,
-                Uid = Constants.TagElementPin + Constants.TagNameSeparator + id.ToString()
+                Template = Application.Current.Resources[ResourceConstants.KeyTemplatePin] as ControlTemplate,
+                Style = Application.Current.Resources[ResourceConstants.KeySyleRootThumb] as Style,
+                Uid = ModelConstants.TagElementPin + ModelConstants.TagNameSeparator + id.ToString()
             };
 
             SetThumbEvents(thumb);
@@ -696,13 +699,13 @@ namespace CanvasDiagramEditor
         {
             var line = new Line()
             {
-                Style = Application.Current.Resources[Constants.KeyStyleWireLine] as Style,
+                Style = Application.Current.Resources[ResourceConstants.KeyStyleWireLine] as Style,
                 X1 = 0, //X1 = x1,
                 Y1 = 0, //Y1 = y1,
                 Margin = new Thickness(x1, y1, 0, 0),
                 X2 = x2 - x1, // X2 = x2,
                 Y2 = y2 - y1, // Y2 = y2,
-                Uid = Constants.TagElementWire + Constants.TagNameSeparator + id.ToString()
+                Uid = ModelConstants.TagElementWire + ModelConstants.TagNameSeparator + id.ToString()
             };
 
             return line;
@@ -712,9 +715,9 @@ namespace CanvasDiagramEditor
         {
             var thumb = new SelectionThumb()
             {
-                Template = Application.Current.Resources[Constants.KeyTemplateInput] as ControlTemplate,
-                Style = Application.Current.Resources[Constants.KeySyleRootThumb] as Style,
-                Uid = Constants.TagElementInput + Constants.TagNameSeparator + id.ToString()
+                Template = Application.Current.Resources[ResourceConstants.KeyTemplateInput] as ControlTemplate,
+                Style = Application.Current.Resources[ResourceConstants.KeySyleRootThumb] as Style,
+                Uid = ModelConstants.TagElementInput + ModelConstants.TagNameSeparator + id.ToString()
             };
 
             SetThumbEvents(thumb);
@@ -727,9 +730,9 @@ namespace CanvasDiagramEditor
         {
             var thumb = new SelectionThumb()
             {
-                Template = Application.Current.Resources[Constants.KeyTemplateOutput] as ControlTemplate,
-                Style = Application.Current.Resources[Constants.KeySyleRootThumb] as Style,
-                Uid = Constants.TagElementOutput + Constants.TagNameSeparator + id.ToString()
+                Template = Application.Current.Resources[ResourceConstants.KeyTemplateOutput] as ControlTemplate,
+                Style = Application.Current.Resources[ResourceConstants.KeySyleRootThumb] as Style,
+                Uid = ModelConstants.TagElementOutput + ModelConstants.TagNameSeparator + id.ToString()
             };
 
             SetThumbEvents(thumb);
@@ -742,9 +745,9 @@ namespace CanvasDiagramEditor
         {
             var thumb = new SelectionThumb()
             {
-                Template = Application.Current.Resources[Constants.KeyTemplateAndGate] as ControlTemplate,
-                Style = Application.Current.Resources[Constants.KeySyleRootThumb] as Style,
-                Uid = Constants.TagElementAndGate + Constants.TagNameSeparator + id.ToString()
+                Template = Application.Current.Resources[ResourceConstants.KeyTemplateAndGate] as ControlTemplate,
+                Style = Application.Current.Resources[ResourceConstants.KeySyleRootThumb] as Style,
+                Uid = ModelConstants.TagElementAndGate + ModelConstants.TagNameSeparator + id.ToString()
             };
 
             SetThumbEvents(thumb);
@@ -757,9 +760,9 @@ namespace CanvasDiagramEditor
         {
             var thumb = new SelectionThumb()
             {
-                Template = Application.Current.Resources[Constants.KeyTemplateOrGate] as ControlTemplate,
-                Style = Application.Current.Resources[Constants.KeySyleRootThumb] as Style,
-                Uid = Constants.TagElementOrGate + Constants.TagNameSeparator + id.ToString()
+                Template = Application.Current.Resources[ResourceConstants.KeyTemplateOrGate] as ControlTemplate,
+                Style = Application.Current.Resources[ResourceConstants.KeySyleRootThumb] as Style,
+                Uid = ModelConstants.TagElementOrGate + ModelConstants.TagNameSeparator + id.ToString()
             };
 
             SetThumbEvents(thumb);
@@ -899,15 +902,15 @@ namespace CanvasDiagramEditor
         {
             switch (type)
             {
-                case Constants.TagElementInput:
+                case ModelConstants.TagElementInput:
                     return InsertInput(canvas, point);
-                case Constants.TagElementOutput:
+                case ModelConstants.TagElementOutput:
                     return InsertOutput(canvas, point);
-                case Constants.TagElementAndGate:
+                case ModelConstants.TagElementAndGate:
                     return InsertAndGate(canvas, point);
-                case Constants.TagElementOrGate:
+                case ModelConstants.TagElementOrGate:
                     return InsertOrGate(canvas, point);
-                case Constants.TagElementPin:
+                case ModelConstants.TagElementPin:
                     return InsertPin(canvas, point);
                 default:
                     return null;
@@ -930,7 +933,7 @@ namespace CanvasDiagramEditor
             //    element.GetType(), element.Uid, element.Parent.GetType());
 
             if (element is Line && uid != null &&
-                uid.StartsWith(Constants.TagElementWire, StringComparison.InvariantCultureIgnoreCase))
+                uid.StartsWith(ModelConstants.TagElementWire, StringComparison.InvariantCultureIgnoreCase))
             {
                 var line = element as Line;
 
@@ -1001,7 +1004,7 @@ namespace CanvasDiagramEditor
                 string uid = _element.Uid;
 
                 if (uid != null &&
-                    uid.StartsWith(Constants.TagElementPin, StringComparison.InvariantCultureIgnoreCase))
+                    uid.StartsWith(ModelConstants.TagElementPin, StringComparison.InvariantCultureIgnoreCase))
                 {
                     if (_element.Tag != null)
                     {
@@ -1106,9 +1109,9 @@ namespace CanvasDiagramEditor
                 double height = canvas.Height;
 
                 string header = string.Format("{0}{1}{2}{1}{3}{1}{4}{1}{5}",
-                    Constants.PrefixRootElement,
-                    Constants.ArgumentSeparator,
-                    Constants.TagDiagramHeader,
+                    ModelConstants.PrefixRootElement,
+                    ModelConstants.ArgumentSeparator,
+                    ModelConstants.TagDiagramHeader,
                     width, height, options.defaultGridSize);
 
                 diagram.AppendLine(header);
@@ -1121,7 +1124,7 @@ namespace CanvasDiagramEditor
                     double x = Canvas.GetLeft(element);
                     double y = Canvas.GetTop(element);
 
-                    if (element.Uid.StartsWith(Constants.TagElementWire))
+                    if (element.Uid.StartsWith(ModelConstants.TagElementWire))
                     {
                         var line = element as Line;
                         var margin = line.Margin;
@@ -1130,8 +1133,8 @@ namespace CanvasDiagramEditor
                             element.Uid,
                             margin.Left, margin.Top, //line.X1, line.Y1,
                             line.X2 + margin.Left, line.Y2 + margin.Top,
-                            Constants.ArgumentSeparator,
-                            Constants.PrefixRootElement);
+                            ModelConstants.ArgumentSeparator,
+                            ModelConstants.PrefixRootElement);
 
                         diagram.AppendLine(str);
 
@@ -1142,8 +1145,8 @@ namespace CanvasDiagramEditor
                         string str = string.Format("{4}{3}{0}{3}{1}{3}{2}",
                             element.Uid,
                             x, y,
-                            Constants.ArgumentSeparator,
-                            Constants.PrefixRootElement);
+                            ModelConstants.ArgumentSeparator,
+                            ModelConstants.PrefixRootElement);
 
                         diagram.AppendLine(str);
 
@@ -1166,9 +1169,9 @@ namespace CanvasDiagramEditor
                                 // Start
                                 string str = string.Format("{3}{2}{0}{2}{1}",
                                     line.Uid,
-                                    Constants.WireStartType,
-                                    Constants.ArgumentSeparator,
-                                    Constants.PrefixChildElement);
+                                    ModelConstants.WireStartType,
+                                    ModelConstants.ArgumentSeparator,
+                                    ModelConstants.PrefixChildElement);
 
                                 diagram.AppendLine(str);
 
@@ -1179,9 +1182,9 @@ namespace CanvasDiagramEditor
                                 // End
                                 string str = string.Format("{3}{2}{0}{2}{1}",
                                     line.Uid,
-                                    Constants.WireEndType,
-                                    Constants.ArgumentSeparator,
-                                    Constants.PrefixChildElement);
+                                    ModelConstants.WireEndType,
+                                    ModelConstants.ArgumentSeparator,
+                                    ModelConstants.PrefixChildElement);
 
                                 diagram.AppendLine(str);
 
@@ -1228,7 +1231,7 @@ namespace CanvasDiagramEditor
             // create root elements
             foreach (var line in lines)
             {
-                var args = line.Split(Constants.ArgumentSeparator);
+                var args = line.Split(ModelConstants.ArgumentSeparator);
                 int length = args.Length;
 
                 //System.Diagnostics.Debug.Print(line);
@@ -1237,9 +1240,9 @@ namespace CanvasDiagramEditor
                 {
                     name = args[1];
 
-                    if (CompareString(args[0], Constants.PrefixRootElement))
+                    if (CompareString(args[0], ModelConstants.PrefixRootElement))
                     {
-                        if (name.StartsWith(Constants.TagDiagramHeader, StringComparison.InvariantCultureIgnoreCase) &&
+                        if (name.StartsWith(ModelConstants.TagDiagramHeader, StringComparison.InvariantCultureIgnoreCase) &&
                             length == 5)
                         {
                             double width = double.Parse(args[2]);
@@ -1249,13 +1252,13 @@ namespace CanvasDiagramEditor
                             GenerateGrid(path, width, height, size);
                             SetDiagramSize(canvas, width, height);
                         }
-                        else if (name.StartsWith(Constants.TagElementPin, StringComparison.InvariantCultureIgnoreCase) &&
+                        else if (name.StartsWith(ModelConstants.TagElementPin, StringComparison.InvariantCultureIgnoreCase) &&
                             length == 4)
                         {
                             double x = double.Parse(args[2]);
                             double y = double.Parse(args[3]);
 
-                            int id = int.Parse(name.Split(Constants.TagNameSeparator)[1]);
+                            int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
 
                             _pinCounter = Math.Max(_pinCounter, id + 1);
 
@@ -1266,13 +1269,13 @@ namespace CanvasDiagramEditor
 
                             dict.Add(args[1], tuple);
                         }
-                        else if (name.StartsWith(Constants.TagElementInput, StringComparison.InvariantCultureIgnoreCase) &&
+                        else if (name.StartsWith(ModelConstants.TagElementInput, StringComparison.InvariantCultureIgnoreCase) &&
                             length == 4)
                         {
                             double x = double.Parse(args[2]);
                             double y = double.Parse(args[3]);
 
-                            int id = int.Parse(name.Split(Constants.TagNameSeparator)[1]);
+                            int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
 
                             _inputCounter = Math.Max(_inputCounter, id + 1);
 
@@ -1283,13 +1286,13 @@ namespace CanvasDiagramEditor
 
                             dict.Add(args[1], tuple);
                         }
-                        else if (name.StartsWith(Constants.TagElementOutput, StringComparison.InvariantCultureIgnoreCase) &&
+                        else if (name.StartsWith(ModelConstants.TagElementOutput, StringComparison.InvariantCultureIgnoreCase) &&
                             length == 4)
                         {
                             double x = double.Parse(args[2]);
                             double y = double.Parse(args[3]);
 
-                            int id = int.Parse(name.Split(Constants.TagNameSeparator)[1]);
+                            int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
 
                             _outputCounter = Math.Max(_outputCounter, id + 1);
 
@@ -1300,13 +1303,13 @@ namespace CanvasDiagramEditor
 
                             dict.Add(args[1], tuple);
                         }
-                        else if (name.StartsWith(Constants.TagElementAndGate, StringComparison.InvariantCultureIgnoreCase) &&
+                        else if (name.StartsWith(ModelConstants.TagElementAndGate, StringComparison.InvariantCultureIgnoreCase) &&
                             length == 4)
                         {
                             double x = double.Parse(args[2]);
                             double y = double.Parse(args[3]);
 
-                            int id = int.Parse(name.Split(Constants.TagNameSeparator)[1]);
+                            int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
 
                             _andGateCounter = Math.Max(_andGateCounter, id + 1);
 
@@ -1317,13 +1320,13 @@ namespace CanvasDiagramEditor
 
                             dict.Add(args[1], tuple);
                         }
-                        else if (name.StartsWith(Constants.TagElementOrGate, StringComparison.InvariantCultureIgnoreCase) &&
+                        else if (name.StartsWith(ModelConstants.TagElementOrGate, StringComparison.InvariantCultureIgnoreCase) &&
                             length == 4)
                         {
                             double x = double.Parse(args[2]);
                             double y = double.Parse(args[3]);
 
-                            int id = int.Parse(name.Split(Constants.TagNameSeparator)[1]);
+                            int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
 
                             _orGateCounter = Math.Max(_orGateCounter, id + 1);
 
@@ -1334,7 +1337,7 @@ namespace CanvasDiagramEditor
 
                             dict.Add(args[1], tuple);
                         }
-                        else if (name.StartsWith(Constants.TagElementWire, StringComparison.InvariantCultureIgnoreCase) &&
+                        else if (name.StartsWith(ModelConstants.TagElementWire, StringComparison.InvariantCultureIgnoreCase) &&
                             length == 6)
                         {
                             double x1 = double.Parse(args[2]);
@@ -1342,7 +1345,7 @@ namespace CanvasDiagramEditor
                             double x2 = double.Parse(args[4]);
                             double y2 = double.Parse(args[5]);
 
-                            int id = int.Parse(name.Split(Constants.TagNameSeparator)[1]);
+                            int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
 
                             _wireCounter = Math.Max(_wireCounter, id + 1);
 
@@ -1357,7 +1360,7 @@ namespace CanvasDiagramEditor
                             dict.Add(args[1], tuple);
                         }
                     }
-                    else if (CompareString(args[0], Constants.PrefixChildElement))
+                    else if (CompareString(args[0], ModelConstants.PrefixChildElement))
                     {
                         if (tuple != null)
                         {
@@ -1423,14 +1426,14 @@ namespace CanvasDiagramEditor
                         string _name = wire.Item1;
                         string _type = wire.Item2;
 
-                        if (CompareString(_type, Constants.WireStartType))
+                        if (CompareString(_type, ModelConstants.WireStartType))
                         {
                             var line = dict[_name].Item1 as Line;
 
                             var _tuple = new TagMap(line, element, null);
                             tuples.Add(_tuple);
                         }
-                        else if (CompareString(_type, Constants.WireEndType))
+                        else if (CompareString(_type, ModelConstants.WireEndType))
                         {
                             var line = dict[_name].Item1 as Line;
 
@@ -1449,7 +1452,7 @@ namespace CanvasDiagramEditor
 
             foreach (var element in elements)
             {
-                string[] uid = element.Uid.Split(Constants.TagNameSeparator);
+                string[] uid = element.Uid.Split(ModelConstants.TagNameSeparator);
 
                 string type = uid[0];
                 int id = int.Parse(uid[1]);
@@ -1457,27 +1460,27 @@ namespace CanvasDiagramEditor
 
                 switch (type)
                 {
-                    case Constants.TagElementWire:
+                    case ModelConstants.TagElementWire:
                         appendedId = options.wireCounter;
                         options.wireCounter += 1;
                         break;
-                    case Constants.TagElementInput:
+                    case ModelConstants.TagElementInput:
                         appendedId = options.inputCounter;
                         options.inputCounter += 1;
                         break;
-                    case Constants.TagElementOutput:
+                    case ModelConstants.TagElementOutput:
                         appendedId = options.outputCounter;
                         options.outputCounter += 1;
                         break;
-                    case Constants.TagElementAndGate:
+                    case ModelConstants.TagElementAndGate:
                         appendedId = options.andGateCounter;
                         options.andGateCounter += 1;
                         break;
-                    case Constants.TagElementOrGate:
+                    case ModelConstants.TagElementOrGate:
                         appendedId = options.orGateCounter;
                         options.orGateCounter += 1;
                         break;
-                    case Constants.TagElementPin:
+                    case ModelConstants.TagElementPin:
                         appendedId = options.pinCounter;
                         options.pinCounter += 1;
                         break;
@@ -1487,7 +1490,7 @@ namespace CanvasDiagramEditor
 
                 //System.Diagnostics.Debug.Print("+{0}, id: {1} -> {2} ", type, id, appendedId);
 
-                string appendedUid = string.Concat(type, Constants.TagNameSeparator, appendedId.ToString());
+                string appendedUid = string.Concat(type, ModelConstants.TagNameSeparator, appendedId.ToString());
                 element.Uid = appendedUid;
 
                 //if (element.Tag != null)
@@ -1802,7 +1805,7 @@ namespace CanvasDiagramEditor
         public bool HandlePreviewLeftDown(Canvas canvas, FrameworkElement pin)
         {
             if (pin != null &&
-                (!CompareString(pin.Name, Constants.StandalonePinName) || Keyboard.Modifiers == ModifierKeys.Control))
+                (!CompareString(pin.Name, ResourceConstants.StandalonePinName) || Keyboard.Modifiers == ModifierKeys.Control))
             {
                 if (options.currentLine == null)
                     AddToHistory(canvas);
@@ -2040,7 +2043,7 @@ namespace CanvasDiagramEditor
             st.ScaleX = zoom_fx;
             st.ScaleY = zoom_fx;
 
-            Application.Current.Resources[Constants.KeyStrokeThickness] = editor.options.defaultStrokeThickness / zoom_fx;
+            Application.Current.Resources[ResourceConstants.KeyStrokeThickness] = editor.options.defaultStrokeThickness / zoom_fx;
 
             // zoom to point
             ZoomToPoint(zoom_fx, oldZoom);
@@ -2256,7 +2259,7 @@ namespace CanvasDiagramEditor
 
             editor.InsertPin(canvas, editor.options.rightClick);
 
-            editor.options.lastInsert = Constants.TagElementPin;
+            editor.options.lastInsert = ModelConstants.TagElementPin;
             editor.options.skipLeftClick = false;
         }
 
@@ -2268,7 +2271,7 @@ namespace CanvasDiagramEditor
 
             editor.InsertInput(canvas, editor.options.rightClick);
 
-            editor.options.lastInsert = Constants.TagElementInput;
+            editor.options.lastInsert = ModelConstants.TagElementInput;
             editor.options.skipLeftClick = false;
         }
 
@@ -2280,7 +2283,7 @@ namespace CanvasDiagramEditor
 
             editor.InsertOutput(canvas, editor.options.rightClick);
 
-            editor.options.lastInsert = Constants.TagElementOutput;
+            editor.options.lastInsert = ModelConstants.TagElementOutput;
             editor.options.skipLeftClick = false;
         }
 
@@ -2292,7 +2295,7 @@ namespace CanvasDiagramEditor
 
             editor.InsertAndGate(canvas, editor.options.rightClick);
 
-            editor.options.lastInsert = Constants.TagElementAndGate;
+            editor.options.lastInsert = ModelConstants.TagElementAndGate;
             editor.options.skipLeftClick = false;
         }
 
@@ -2304,7 +2307,7 @@ namespace CanvasDiagramEditor
 
             editor.InsertOrGate(canvas, editor.options.rightClick);
 
-            editor.options.lastInsert = Constants.TagElementOrGate;
+            editor.options.lastInsert = ModelConstants.TagElementOrGate;
             editor.options.skipLeftClick = false;
         }
 
@@ -2573,83 +2576,83 @@ namespace MsoWord
 
             foreach (var line in lines)
             {
-                var args = line.Split(Constants.ArgumentSeparator);
+                var args = line.Split(ModelConstants.ArgumentSeparator);
                 int length = args.Length;
 
                 if (length >= 2)
                 {
                     name = args[1];
 
-                    if (CompareString(args[0], Constants.PrefixRootElement))
+                    if (CompareString(args[0], ModelConstants.PrefixRootElement))
                     {
-                        if (name.StartsWith(Constants.TagElementPin, StringComparison.InvariantCultureIgnoreCase) &&
+                        if (name.StartsWith(ModelConstants.TagElementPin, StringComparison.InvariantCultureIgnoreCase) &&
                             length == 4)
                         {
                             float x = float.Parse(args[2]);
                             float y = float.Parse(args[3]);
-                            int id = int.Parse(name.Split(Constants.TagNameSeparator)[1]);
+                            int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
 
                             elements.Add(() =>
                             {
                                 CreatePin(items, x, y);
                             });
                         }
-                        else if (name.StartsWith(Constants.TagElementInput, StringComparison.InvariantCultureIgnoreCase) &&
+                        else if (name.StartsWith(ModelConstants.TagElementInput, StringComparison.InvariantCultureIgnoreCase) &&
                             length == 4)
                         {
                             float x = float.Parse(args[2]);
                             float y = float.Parse(args[3]);
-                            int id = int.Parse(name.Split(Constants.TagNameSeparator)[1]);
+                            int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
 
                             elements.Add(() =>
                             {
                                 CreateInput(items, x, y, "Input");
                             });
                         }
-                        else if (name.StartsWith(Constants.TagElementOutput, StringComparison.InvariantCultureIgnoreCase) &&
+                        else if (name.StartsWith(ModelConstants.TagElementOutput, StringComparison.InvariantCultureIgnoreCase) &&
                             length == 4)
                         {
                             float x = float.Parse(args[2]);
                             float y = float.Parse(args[3]);
-                            int id = int.Parse(name.Split(Constants.TagNameSeparator)[1]);
+                            int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
 
                             elements.Add(() =>
                             {
                                 CreateOutput(items, x, y, "Output");
                             });
                         }
-                        else if (name.StartsWith(Constants.TagElementAndGate, StringComparison.InvariantCultureIgnoreCase) &&
+                        else if (name.StartsWith(ModelConstants.TagElementAndGate, StringComparison.InvariantCultureIgnoreCase) &&
                             length == 4)
                         {
                             float x = float.Parse(args[2]);
                             float y = float.Parse(args[3]);
-                            int id = int.Parse(name.Split(Constants.TagNameSeparator)[1]);
+                            int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
 
                             elements.Add(() =>
                             {
                                 CreateAndGate(items, x, y);
                             });
                         }
-                        else if (name.StartsWith(Constants.TagElementOrGate, StringComparison.InvariantCultureIgnoreCase) &&
+                        else if (name.StartsWith(ModelConstants.TagElementOrGate, StringComparison.InvariantCultureIgnoreCase) &&
                             length == 4)
                         {
                             float x = float.Parse(args[2]);
                             float y = float.Parse(args[3]);
-                            int id = int.Parse(name.Split(Constants.TagNameSeparator)[1]);
+                            int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
 
                             elements.Add(() =>
                             {
                                 CreateOrGate(items, x, y);
                             });
                         }
-                        else if (name.StartsWith(Constants.TagElementWire, StringComparison.InvariantCultureIgnoreCase) &&
+                        else if (name.StartsWith(ModelConstants.TagElementWire, StringComparison.InvariantCultureIgnoreCase) &&
                             length == 6)
                         {
                             float x1 = float.Parse(args[2]);
                             float y1 = float.Parse(args[3]);
                             float x2 = float.Parse(args[4]);
                             float y2 = float.Parse(args[5]);
-                            int id = int.Parse(name.Split(Constants.TagNameSeparator)[1]);
+                            int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
 
                             wires.Add(() =>
                             {
@@ -3039,21 +3042,21 @@ namespace OpenXml
 
             foreach (var line in lines)
             {
-                var args = line.Split(Constants.ArgumentSeparator);
+                var args = line.Split(ModelConstants.ArgumentSeparator);
                 int length = args.Length;
 
                 if (length >= 2)
                 {
                     name = args[1];
 
-                    if (CompareString(args[0], Constants.PrefixRootElement))
+                    if (CompareString(args[0], ModelConstants.PrefixRootElement))
                     {
-                        if (name.StartsWith(Constants.TagElementPin, StringComparison.InvariantCultureIgnoreCase) &&
+                        if (name.StartsWith(ModelConstants.TagElementPin, StringComparison.InvariantCultureIgnoreCase) &&
                             length == 4)
                         {
                             float x = float.Parse(args[2]);
                             float y = float.Parse(args[3]);
-                            int id = int.Parse(name.Split(Constants.TagNameSeparator)[1]);
+                            int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
 
                             elements.Add(() =>
                             {
@@ -3061,12 +3064,12 @@ namespace OpenXml
                                 //wordprocessingCanvas.Append(wordprocessingShape);
                             });
                         }
-                        else if (name.StartsWith(Constants.TagElementInput, StringComparison.InvariantCultureIgnoreCase) &&
+                        else if (name.StartsWith(ModelConstants.TagElementInput, StringComparison.InvariantCultureIgnoreCase) &&
                             length == 4)
                         {
                             float x = float.Parse(args[2]);
                             float y = float.Parse(args[3]);
-                            int id = int.Parse(name.Split(Constants.TagNameSeparator)[1]);
+                            int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
 
                             elements.Add(() =>
                             {
@@ -3074,12 +3077,12 @@ namespace OpenXml
                                 wordprocessingCanvas.Append(wordprocessingShape);
                             });
                         }
-                        else if (name.StartsWith(Constants.TagElementOutput, StringComparison.InvariantCultureIgnoreCase) &&
+                        else if (name.StartsWith(ModelConstants.TagElementOutput, StringComparison.InvariantCultureIgnoreCase) &&
                             length == 4)
                         {
                             float x = float.Parse(args[2]);
                             float y = float.Parse(args[3]);
-                            int id = int.Parse(name.Split(Constants.TagNameSeparator)[1]);
+                            int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
 
                             elements.Add(() =>
                             {
@@ -3087,12 +3090,12 @@ namespace OpenXml
                                 wordprocessingCanvas.Append(wordprocessingShape);
                             });
                         }
-                        else if (name.StartsWith(Constants.TagElementAndGate, StringComparison.InvariantCultureIgnoreCase) &&
+                        else if (name.StartsWith(ModelConstants.TagElementAndGate, StringComparison.InvariantCultureIgnoreCase) &&
                             length == 4)
                         {
                             float x = float.Parse(args[2]);
                             float y = float.Parse(args[3]);
-                            int id = int.Parse(name.Split(Constants.TagNameSeparator)[1]);
+                            int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
 
                             elements.Add(() =>
                             {
@@ -3100,12 +3103,12 @@ namespace OpenXml
                                 wordprocessingCanvas.Append(wordprocessingShape);
                             });
                         }
-                        else if (name.StartsWith(Constants.TagElementOrGate, StringComparison.InvariantCultureIgnoreCase) &&
+                        else if (name.StartsWith(ModelConstants.TagElementOrGate, StringComparison.InvariantCultureIgnoreCase) &&
                             length == 4)
                         {
                             float x = float.Parse(args[2]);
                             float y = float.Parse(args[3]);
-                            int id = int.Parse(name.Split(Constants.TagNameSeparator)[1]);
+                            int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
 
                             elements.Add(() =>
                             {
@@ -3113,14 +3116,14 @@ namespace OpenXml
                                 wordprocessingCanvas.Append(wordprocessingShape);
                             });
                         }
-                        else if (name.StartsWith(Constants.TagElementWire, StringComparison.InvariantCultureIgnoreCase) &&
+                        else if (name.StartsWith(ModelConstants.TagElementWire, StringComparison.InvariantCultureIgnoreCase) &&
                             length == 6)
                         {
                             float x1 = float.Parse(args[2]);
                             float y1 = float.Parse(args[3]);
                             float x2 = float.Parse(args[4]);
                             float y2 = float.Parse(args[5]);
-                            int id = int.Parse(name.Split(Constants.TagNameSeparator)[1]);
+                            int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
 
                             wires.Add(() =>
                             {
