@@ -18,6 +18,9 @@
             <Separator/>
             <MenuItem x:Name="InsertPin" Header="Insert _Pin" Click="InsertPin_Click"/>
             <Separator/>
+            <MenuItem x:Name="InvertStart" Header="Invert _Start" Click="InvertStart_Click"/>
+            <MenuItem x:Name="InvertEnd" Header="Invert _End" Click="InvertEnd_Click"/>
+            <Separator/>
             <MenuItem x:Name="DeleteElement" Header="_Delete" Click="DeleteElement_Click"/>
         </ContextMenu>
 

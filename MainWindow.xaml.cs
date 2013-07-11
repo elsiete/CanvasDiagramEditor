@@ -1234,6 +1234,60 @@ namespace CanvasDiagramEditor
 
         #endregion
 
+        #region Invert
+
+        public LineEx FindLineEx(Canvas canvas, Point point)
+        {
+            var element = HitTest(canvas, ref point);
+            if (element == null)
+                return null;
+
+            string uid = element.Uid;
+
+            //System.Diagnostics.Debug.Print("FindLineEx, element: {0}, uid: {1}, parent: {2}", 
+            //    element.GetType(), element.Uid, element.Parent.GetType());
+
+            if (element is LineEx && uid != null &&
+                uid.StartsWith(ModelConstants.TagElementWire, StringComparison.InvariantCultureIgnoreCase))
+            {
+                var line = element as LineEx;
+
+                return line;
+            }
+
+            return null;
+        }
+
+        public void ToggleStart(Canvas canvas, Point point)
+        {
+            var line = FindLineEx(canvas, point);
+
+            if (line != null)
+            {
+                AddToHistory(canvas);
+
+                line.IsStartVisible = line.IsStartVisible == true ? false : true;
+
+                options.skipLeftClick = false;
+            }
+        }
+
+        public void ToggleEnd(Canvas canvas, Point point)
+        {
+            var line = FindLineEx(canvas, point);
+
+            if (line != null)
+            {
+                AddToHistory(canvas);
+
+                line.IsEndVisible = line.IsEndVisible == true ? false : true;
+
+                options.skipLeftClick = false;
+            }
+        }
+
+        #endregion
+
         #region Diagram Model
 
         private static bool CompareString(string strA, string strB)
@@ -2494,6 +2548,23 @@ namespace CanvasDiagramEditor
             var point = new Point(editor.options.rightClick.X, editor.options.rightClick.Y);
 
             editor.Delete(canvas, point);
+        }
+
+        private void InvertStart_Click(object sender, RoutedEventArgs e)
+        {
+            var canvas = editor.options.currentCanvas;
+            var point = new Point(editor.options.rightClick.X, editor.options.rightClick.Y);
+
+            editor.ToggleStart(canvas, point);
+        }
+
+        private void InvertEnd_Click(object sender, RoutedEventArgs e)
+        {
+            var canvas = editor.options.currentCanvas;
+            var point = new Point(editor.options.rightClick.X, editor.options.rightClick.Y);
+
+
+            editor.ToggleEnd(canvas, point);
         }
 
         #endregion
