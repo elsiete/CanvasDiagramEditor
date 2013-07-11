@@ -106,15 +106,19 @@
             <Setter Property="Margin" Value="-4,-4,0,0"/>
         </Style>
 
-        <Style x:Key="LineStyleKey" TargetType="Line">
+        <Style x:Key="LineStyleKey" TargetType="local:LineEx">
             <Setter Property="Panel.ZIndex" Value="1"/>
             <Setter Property="Stroke" Value="{DynamicResource LogicColorKey}"/>
             <Setter Property="StrokeThickness" Value="{DynamicResource LogicStrokeThicknessKey}"/>
             <Setter Property="StrokeStartLineCap" Value="Square"/>
             <Setter Property="StrokeEndLineCap" Value="Square"/>
             <Setter Property="StrokeLineJoin" Value="Miter"/>
+            <Setter Property="Fill" Value="Transparent"/>
             <Setter Property="SnapsToDevicePixels" Value="False"/>
             <Setter Property="RenderOptions.EdgeMode" Value="Aliased"/>
+            <Setter Property="Radius" Value="4.0"/>
+            <Setter Property="IsStartVisible" Value="False"/>
+            <Setter Property="IsEndVisible" Value="False"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
                     <!--<Setter Property="Stroke" Value="{DynamicResource LogicSelectedColorKey}"/>-->

@@ -23,11 +23,11 @@ namespace CanvasDiagramEditor
     #region Tuple Aliases
 
     using PinMap = Tuple<string, string>;
-    using TagMap = Tuple<Line, FrameworkElement, FrameworkElement>;
+    using TagMap = Tuple<LineEx, FrameworkElement, FrameworkElement>;
     using WireMap = Tuple<FrameworkElement, List<Tuple<string, string>>>;
 
     // TemplatedParent.Tag: Item1: IsSelected, Item2: TagMap
-    using Selection = Tuple<bool, List<Tuple<Line, FrameworkElement, FrameworkElement>>>;
+    using Selection = Tuple<bool, List<Tuple<LineEx, FrameworkElement, FrameworkElement>>>;
 
     // Canvas.Tag => Item1: undoHistory, Item2: redoHistory
     using History = Tuple<Stack<string>, Stack<string>>;
@@ -58,6 +58,171 @@ namespace CanvasDiagramEditor
             Item2 = item2;
             Item3 = item3;
         }
+    }
+
+    #endregion
+
+    #region LineEx
+
+    public class LineEx : Shape
+    {
+        #region Properties
+
+        public double X1
+        {
+            get { return (double)GetValue(X1Property); }
+            set { SetValue(X1Property, value); }
+        }
+
+        public static readonly DependencyProperty X1Property =
+            DependencyProperty.Register("X1", typeof(double), typeof(LineEx),
+            new FrameworkPropertyMetadata(0.0,
+                FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender));
+
+        public double Y1
+        {
+            get { return (double)GetValue(Y1Property); }
+            set { SetValue(Y1Property, value); }
+        }
+
+        public static readonly DependencyProperty Y1Property =
+            DependencyProperty.Register("Y1", typeof(double), typeof(LineEx),
+            new FrameworkPropertyMetadata(0.0,
+                FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender));
+
+        public double X2
+        {
+            get { return (double)GetValue(X2Property); }
+            set { SetValue(X2Property, value); }
+        }
+
+        public static readonly DependencyProperty X2Property =
+            DependencyProperty.Register("X2", typeof(double), typeof(LineEx),
+            new FrameworkPropertyMetadata(0.0,
+                FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender));
+
+        public double Y2
+        {
+            get { return (double)GetValue(Y2Property); }
+            set { SetValue(Y2Property, value); }
+        }
+
+        public static readonly DependencyProperty Y2Property =
+            DependencyProperty.Register("Y2", typeof(double), typeof(LineEx),
+            new FrameworkPropertyMetadata(0.0,
+                FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender));
+
+        public double Radius
+        {
+            get { return (double)GetValue(RadiusProperty); }
+            set { SetValue(RadiusProperty, value); }
+        }
+
+        public static readonly DependencyProperty RadiusProperty =
+            DependencyProperty.Register("Radius", typeof(double), typeof(LineEx),
+            new FrameworkPropertyMetadata(3.0,
+                FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender));
+
+        public bool IsStartVisible
+        {
+            get { return (bool)GetValue(IsStartVisibleProperty); }
+            set { SetValue(IsStartVisibleProperty, value); }
+        }
+
+        public static readonly DependencyProperty IsStartVisibleProperty =
+            DependencyProperty.Register("IsStartVisible", typeof(bool), typeof(LineEx),
+            new FrameworkPropertyMetadata(false,
+                FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender));
+
+        public bool IsEndVisible
+        {
+            get { return (bool)GetValue(IsEndVisibleProperty); }
+            set { SetValue(IsEndVisibleProperty, value); }
+        }
+
+        public static readonly DependencyProperty IsEndVisibleProperty =
+            DependencyProperty.Register("IsEndVisible", typeof(bool), typeof(LineEx),
+            new FrameworkPropertyMetadata(false,
+                FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender));
+
+        #endregion
+
+        #region Geometry
+
+        protected override Geometry DefiningGeometry
+        {
+            get
+            {
+                var g = GetDefiningGeometry();
+                return g;
+            }
+        }
+
+        protected GeometryGroup GetDefiningGeometry()
+        {
+            double radius = Radius;
+            double thickness = StrokeThickness / 2.0;
+
+            double startX = X1;
+            double startY = Y1;
+            double endX = X2;
+            double endY = Y2;
+
+            double alpha = Math.Atan2(startY - endY, endX - startX);
+            double theta = Math.PI - alpha;
+            double zet = theta - Math.PI / 2;
+            double sizeX = Math.Sin(zet) * (radius + thickness);
+            double sizeY = Math.Cos(zet) * (radius + thickness);
+
+            Point lineStart;
+            Point ellipseStartCenter;
+
+            Point lineEnd;
+            Point ellipseEndCenter;
+
+            if (IsStartVisible)
+            {
+                ellipseStartCenter = new Point(startX + sizeX, startY - sizeY);
+                lineStart = new Point(startX + (2 * sizeX), startY - (2 * sizeY));
+            }
+            else
+            {
+                ellipseStartCenter = new Point(startX, startY);
+                lineStart = new Point(startX, startY);
+            }
+
+            if (IsEndVisible)
+            {
+                ellipseEndCenter = new Point(endX - sizeX, endY + sizeY);
+                lineEnd = new Point(endX - (2 * sizeX), endY + (2 * sizeY));
+            }
+            else
+            {
+                ellipseEndCenter = new Point(endX, endY);
+                lineEnd = new Point(endX, endY);
+            }
+
+            var g = new GeometryGroup() { FillRule = FillRule.Nonzero };
+
+            if (IsStartVisible == true)
+            {
+                var startEllipse = new EllipseGeometry(ellipseStartCenter, Radius, Radius);
+                g.Children.Add(startEllipse);
+            }
+
+            if (IsEndVisible == true)
+            {
+                var endEllipse = new EllipseGeometry(ellipseEndCenter, Radius, Radius);
+                g.Children.Add(endEllipse);
+            }
+
+            var line = new LineGeometry(lineStart, lineEnd);
+            g.Children.Add(line);
+
+            return g;
+        }
+
+        #endregion
     }
 
     #endregion
@@ -208,7 +373,7 @@ namespace CanvasDiagramEditor
 
         public bool enableHistory = true;
 
-        public Line currentLine = null;
+        public LineEx currentLine = null;
         public FrameworkElement currentRoot = null;
 
         public int pinCounter = 0;
@@ -695,9 +860,9 @@ namespace CanvasDiagramEditor
             return thumb;
         }
 
-        private Line CreateWire(double x1, double y1, double x2, double y2, int id)
+        private LineEx CreateWire(double x1, double y1, double x2, double y2, bool start, bool end, int id)
         {
-            var line = new Line()
+            var line = new LineEx()
             {
                 Style = Application.Current.Resources[ResourceConstants.KeyStyleWireLine] as Style,
                 X1 = 0, //X1 = x1,
@@ -705,6 +870,8 @@ namespace CanvasDiagramEditor
                 Margin = new Thickness(x1, y1, 0, 0),
                 X2 = x2 - x1, // X2 = x2,
                 Y2 = y2 - y1, // Y2 = y2,
+                IsStartVisible = start,
+                IsEndVisible = end,
                 Uid = ModelConstants.TagElementWire + ModelConstants.TagNameSeparator + id.ToString()
             };
 
@@ -797,9 +964,9 @@ namespace CanvasDiagramEditor
             CreatePinConnection(canvas, x, y);
         }
 
-        private Line CreatePinConnection(Canvas canvas, double x, double y)
+        private LineEx CreatePinConnection(Canvas canvas, double x, double y)
         {
-            Line result = null;
+            LineEx result = null;
 
             if (options.currentRoot.Tag == null)
             {
@@ -811,7 +978,7 @@ namespace CanvasDiagramEditor
 
             if (options.currentLine == null)
             {
-                var line = CreateWire(x, y, x, y, options.wireCounter);
+                var line = CreateWire(x, y, x, y, false, false, options.wireCounter);
                 options.wireCounter += 1;
 
                 options.currentLine = line;
@@ -932,13 +1099,12 @@ namespace CanvasDiagramEditor
             //System.Diagnostics.Debug.Print("DeleteElement, element: {0}, uid: {1}, parent: {2}", 
             //    element.GetType(), element.Uid, element.Parent.GetType());
 
-            if (element is Line && uid != null &&
+            if (element is LineEx && uid != null &&
                 uid.StartsWith(ModelConstants.TagElementWire, StringComparison.InvariantCultureIgnoreCase))
             {
-                var line = element as Line;
+                var line = element as LineEx;
 
                 DeleteWire(canvas, line);
-
             }
             else
             {
@@ -976,7 +1142,7 @@ namespace CanvasDiagramEditor
             return selectedElements.FirstOrDefault() as FrameworkElement;
         }
 
-        private static void DeleteWire(Canvas canvas, Line line)
+        private static void DeleteWire(Canvas canvas, LineEx line)
         {
             canvas.Children.Remove(line);
 
@@ -1026,7 +1192,7 @@ namespace CanvasDiagramEditor
             return pins;
         }
 
-        private static void RemoveWireConnections(Canvas canvas, Line line)
+        private static void RemoveWireConnections(Canvas canvas, LineEx line)
         {
             foreach (var child in canvas.Children)
             {
@@ -1126,15 +1292,16 @@ namespace CanvasDiagramEditor
 
                     if (element.Uid.StartsWith(ModelConstants.TagElementWire))
                     {
-                        var line = element as Line;
+                        var line = element as LineEx;
                         var margin = line.Margin;
 
-                        string str = string.Format("{6}{5}{0}{5}{1}{5}{2}{5}{3}{5}{4}",
+                        string str = string.Format("{6}{5}{0}{5}{1}{5}{2}{5}{3}{5}{4}{5}{7}{5}{8}",
                             element.Uid,
                             margin.Left, margin.Top, //line.X1, line.Y1,
                             line.X2 + margin.Left, line.Y2 + margin.Top,
                             ModelConstants.ArgumentSeparator,
-                            ModelConstants.PrefixRootElement);
+                            ModelConstants.PrefixRootElement,
+                            line.IsStartVisible, line.IsEndVisible);
 
                         diagram.AppendLine(str);
 
@@ -1338,12 +1505,21 @@ namespace CanvasDiagramEditor
                             dict.Add(args[1], tuple);
                         }
                         else if (name.StartsWith(ModelConstants.TagElementWire, StringComparison.InvariantCultureIgnoreCase) &&
-                            length == 6)
+                            (length == 6 || length == 8))
                         {
                             double x1 = double.Parse(args[2]);
                             double y1 = double.Parse(args[3]);
                             double x2 = double.Parse(args[4]);
                             double y2 = double.Parse(args[5]);
+
+                            bool start = false;
+                            bool end = false;
+
+                            if (length == 8)
+                            {
+                                start = bool.Parse(args[6]);
+                                end = bool.Parse(args[7]);
+                            }
 
                             int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
 
@@ -1351,6 +1527,7 @@ namespace CanvasDiagramEditor
 
                             var element = CreateWire(x1 + offsetX, y1 + offsetY,
                                 x2 + offsetX, y2 + offsetY,
+                                start, end,
                                 id);
 
                             elements.Add(element);
@@ -1428,14 +1605,14 @@ namespace CanvasDiagramEditor
 
                         if (CompareString(_type, ModelConstants.WireStartType))
                         {
-                            var line = dict[_name].Item1 as Line;
+                            var line = dict[_name].Item1 as LineEx;
 
                             var _tuple = new TagMap(line, element, null);
                             tuples.Add(_tuple);
                         }
                         else if (CompareString(_type, ModelConstants.WireEndType))
                         {
-                            var line = dict[_name].Item1 as Line;
+                            var line = dict[_name].Item1 as LineEx;
 
                             var _tuple = new TagMap(line, null, element);
                             tuples.Add(_tuple);
@@ -2646,7 +2823,7 @@ namespace MsoWord
                             });
                         }
                         else if (name.StartsWith(ModelConstants.TagElementWire, StringComparison.InvariantCultureIgnoreCase) &&
-                            length == 6)
+                            (length == 6 || length == 8))
                         {
                             float x1 = float.Parse(args[2]);
                             float y1 = float.Parse(args[3]);
@@ -2654,9 +2831,18 @@ namespace MsoWord
                             float y2 = float.Parse(args[5]);
                             int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
 
+                            bool start = false;
+                            bool end = false;
+
+                            if (length == 8)
+                            {
+                                start = bool.Parse(args[6]);
+                                end = bool.Parse(args[7]);
+                            }
+
                             wires.Add(() =>
                             {
-                                CreateWire(items, x1, y1, x2, y2);
+                                CreateWire(items, x1, y1, x2, y2, start, end);
                             });
                         }
                     }
@@ -2688,7 +2874,7 @@ namespace MsoWord
             rect.ShapeStyle = defaultShapeStyle;
         }
 
-        private void CreateWire(Word.CanvasShapes items, float x1, float y1, float x2, float y2)
+        private void CreateWire(Word.CanvasShapes items, float x1, float y1, float x2, float y2, bool start, bool end)
         {
             var line = items.AddLine(x1, y1, x2, y2);
 
@@ -2696,6 +2882,20 @@ namespace MsoWord
             line.Line.Weight = 1.0f;
 
             line.ShapeStyle = defaultLineStyle;
+
+            if (start == true)
+            {
+                line.Line.BeginArrowheadStyle = Office.MsoArrowheadStyle.msoArrowheadOval;
+                line.Line.BeginArrowheadWidth = Office.MsoArrowheadWidth.msoArrowheadWidthMedium;
+                line.Line.BeginArrowheadLength = Office.MsoArrowheadLength.msoArrowheadLengthMedium;
+            }
+
+            if (end == true)
+            {
+                line.Line.EndArrowheadStyle = Office.MsoArrowheadStyle.msoArrowheadOval;
+                line.Line.EndArrowheadWidth = Office.MsoArrowheadWidth.msoArrowheadWidthMedium;
+                line.Line.EndArrowheadLength = Office.MsoArrowheadLength.msoArrowheadLengthMedium;
+            }
         }
 
         private void CreateInput(Word.CanvasShapes items, float x, float y, string text)
@@ -3117,7 +3317,7 @@ namespace OpenXml
                             });
                         }
                         else if (name.StartsWith(ModelConstants.TagElementWire, StringComparison.InvariantCultureIgnoreCase) &&
-                            length == 6)
+                            (length == 6 || length == 8))
                         {
                             float x1 = float.Parse(args[2]);
                             float y1 = float.Parse(args[3]);
@@ -3125,9 +3325,18 @@ namespace OpenXml
                             float y2 = float.Parse(args[5]);
                             int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
 
+                            bool start = false;
+                            bool end = false;
+
+                            if (length == 8)
+                            {
+                                start = bool.Parse(args[6]);
+                                end = bool.Parse(args[7]);
+                            }
+
                             wires.Add(() =>
                             {
-                                Wps.WordprocessingShape wordprocessingShape = CreateWpShapeWire(x1 / xamlToCm, y1 / xamlToCm, x2 / xamlToCm, y2 / xamlToCm);
+                                Wps.WordprocessingShape wordprocessingShape = CreateWpShapeWire(x1 / xamlToCm, y1 / xamlToCm, x2 / xamlToCm, y2 / xamlToCm, start, end);
                                 wordprocessingCanvas.Append(wordprocessingShape);
                             });
                         }
@@ -3192,7 +3401,7 @@ namespace OpenXml
             return wordprocessingShape2;
         }
 
-        private static Wps.WordprocessingShape CreateWpShapeWire(double x1, double y1, double x2, double y2)
+        private static Wps.WordprocessingShape CreateWpShapeWire(double x1, double y1, double x2, double y2, bool start, bool end)
         {
             // x1, y1, x2, y2 are in Centimeters
 
@@ -3242,6 +3451,20 @@ namespace OpenXml
 
             presetGeometry2.Append(adjustValueList3);
             A.Outline outline1 = new A.Outline() { Width = 12700 };
+
+            if (start == true)
+            {
+                A.HeadEnd headEnd1 = new A.HeadEnd() { Type = A.LineEndValues.Oval };
+
+                outline1.Append(headEnd1);
+            }
+
+            if (end == true)
+            {
+                A.TailEnd tailEnd1 = new A.TailEnd() { Type = A.LineEndValues.Oval };
+
+                outline1.Append(tailEnd1);
+            }
 
             shapeProperties2.Append(transform2D2);
             shapeProperties2.Append(presetGeometry2);
