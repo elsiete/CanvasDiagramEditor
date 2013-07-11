@@ -217,7 +217,7 @@ namespace CanvasDiagramEditor
 
         public Point rightClick;
 
-        public bool enableInsertLast = true;
+        public bool enableInsertLast = false;
         public string lastInsert = Constants.TagElementInput;
 
         public double defaultGridSize = 30;
@@ -2011,12 +2011,25 @@ namespace CanvasDiagramEditor
 
         #region Zoom
 
+        private double zoomLogBase = 1.8;
+        private double zoomExpFactor = 1.3;
+
+        public double CalculateZoom(double x)
+        {
+            double l = Math.Log(x, zoomLogBase);
+            double e = Math.Exp(l / zoomExpFactor);
+            double y = x + x * l * e;
+            return y;
+        }
+
         private void Zoom(double zoom)
         {
             if (editor == null || editor.options == null)
                 return;
 
-            System.Diagnostics.Debug.Print("Zoom: {0}", zoom);
+            double zoom_fx = CalculateZoom(zoom);
+
+            System.Diagnostics.Debug.Print("Zoom: {0}, zoom_fx: {1}", zoom, zoom_fx);
 
             //var tg = RootGrid.RenderTransform as TransformGroup;
             var tg = RootGrid.LayoutTransform as TransformGroup;
@@ -2024,13 +2037,13 @@ namespace CanvasDiagramEditor
 
             double oldZoom = st.ScaleX; // ScaleX == ScaleY
 
-            st.ScaleX = zoom;
-            st.ScaleY = zoom;
+            st.ScaleX = zoom_fx;
+            st.ScaleY = zoom_fx;
 
-            Application.Current.Resources[Constants.KeyStrokeThickness] = editor.options.defaultStrokeThickness / zoom;
+            Application.Current.Resources[Constants.KeyStrokeThickness] = editor.options.defaultStrokeThickness / zoom_fx;
 
             // zoom to point
-            ZoomToPoint(zoom, oldZoom);
+            ZoomToPoint(zoom_fx, oldZoom);
         }
 
         private void ZoomToPoint(double zoom, double oldZoom)
