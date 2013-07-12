@@ -34,7 +34,7 @@ namespace CanvasDiagramEditor
 
     #endregion
 
-    #region  Tuple .NET 3.5
+    #region Tuple .NET 3.5
 
     public class Tuple<T1, T2>
     {
@@ -149,7 +149,7 @@ namespace CanvasDiagramEditor
 
         #region Calculate Size
 
-        private static double CalculateZet(double startX, double startY, double endX, double endY)
+        public static double CalculateZet(double startX, double startY, double endX, double endY)
         {
             double alpha = Math.Atan2(startY - endY, endX - startX);
             double theta = Math.PI - alpha;
@@ -157,13 +157,13 @@ namespace CanvasDiagramEditor
             return zet;
         }
 
-        private static double CalculateSizeX(double radius, double thickness, double zet)
+        public static double CalculateSizeX(double radius, double thickness, double zet)
         {
             double sizeX = Math.Sin(zet) * (radius + thickness);
             return sizeX;
         }
 
-        private static double CalculateSizeY(double radius, double thickness, double zet)
+        public static double CalculateSizeY(double radius, double thickness, double zet)
         {
             double sizeY = Math.Cos(zet) * (radius + thickness);
             return sizeY;
@@ -173,11 +173,11 @@ namespace CanvasDiagramEditor
 
         #region Get Points
 
-        private Point GetLineStart(double startX, double startY, double sizeX, double sizeY)
+        public static Point GetLineStart(double startX, double startY, double sizeX, double sizeY, bool isStartVisible)
         {
             Point lineStart;
 
-            if (IsStartVisible)
+            if (isStartVisible)
             {
                 double lx = startX + (2 * sizeX);
                 double ly = startY - (2 * sizeY);
@@ -192,11 +192,11 @@ namespace CanvasDiagramEditor
             return lineStart;
         }
 
-        private Point GetLineEnd(double endX, double endY, double sizeX, double sizeY)
+        public static Point GetLineEnd(double endX, double endY, double sizeX, double sizeY, bool isEndVisible)
         {
             Point lineEnd;
 
-            if (IsEndVisible)
+            if (isEndVisible)
             {
                 double lx = endX - (2 * sizeX);
                 double ly = endY + (2 * sizeY);
@@ -210,12 +210,12 @@ namespace CanvasDiagramEditor
 
             return lineEnd;
         }
-        
-        private Point GetEllipseStartCenter(double startX, double startY, double sizeX, double sizeY)
+
+        public static Point GetEllipseStartCenter(double startX, double startY, double sizeX, double sizeY, bool isStartVisible)
         {
             Point ellipseStartCenter;
 
-            if (IsStartVisible)
+            if (isStartVisible)
             {
                 double ex = startX + sizeX;
                 double ey = startY - sizeY;
@@ -230,11 +230,11 @@ namespace CanvasDiagramEditor
             return ellipseStartCenter;
         }
 
-        private Point GetEllipseEndCenter(double endX, double endY, double sizeX, double sizeY)
+        public static Point GetEllipseEndCenter(double endX, double endY, double sizeX, double sizeY, bool isEndVisible)
         {
             Point ellipseEndCenter;
 
-            if (IsEndVisible)
+            if (isEndVisible)
             {
                 double ex = endX - sizeX;
                 double ey = endY + sizeY;
@@ -253,10 +253,18 @@ namespace CanvasDiagramEditor
 
         #region Get DefiningGeometry
 
-        protected GeometryGroup GetDefiningGeometry()
+        public double GetThickness()
         {
+            return StrokeThickness / 2.0;
+        }
+
+        protected virtual Geometry GetDefiningGeometry()
+        {
+            bool isStartVisible = IsStartVisible;
+            bool isEndVisible = IsEndVisible;
+
             double radius = Radius;
-            double thickness = StrokeThickness / 2.0;
+            double thickness = GetThickness();
 
             double startX = X1;
             double startY = Y1;
@@ -267,22 +275,22 @@ namespace CanvasDiagramEditor
             double sizeX = CalculateSizeX(radius, thickness, zet);
             double sizeY = CalculateSizeY(radius, thickness, zet);
 
-            Point ellipseStartCenter = GetEllipseStartCenter(startX, startY, sizeX, sizeY);
-            Point ellipseEndCenter = GetEllipseEndCenter(endX, endY, sizeX, sizeY);
-            Point lineStart = GetLineStart(startX, startY, sizeX, sizeY);
-            Point lineEnd = GetLineEnd(endX, endY, sizeX, sizeY);
+            Point ellipseStartCenter = GetEllipseStartCenter(startX, startY, sizeX, sizeY, isStartVisible);
+            Point ellipseEndCenter = GetEllipseEndCenter(endX, endY, sizeX, sizeY, isEndVisible);
+            Point lineStart = GetLineStart(startX, startY, sizeX, sizeY, isStartVisible);
+            Point lineEnd = GetLineEnd(endX, endY, sizeX, sizeY, isEndVisible);
 
             var g = new GeometryGroup() { FillRule = FillRule.Nonzero };
 
-            if (IsStartVisible == true)
+            if (isStartVisible == true)
             {
-                var startEllipse = new EllipseGeometry(ellipseStartCenter, Radius, Radius);
+                var startEllipse = new EllipseGeometry(ellipseStartCenter, radius, radius);
                 g.Children.Add(startEllipse);
             }
 
-            if (IsEndVisible == true)
+            if (isEndVisible == true)
             {
-                var endEllipse = new EllipseGeometry(ellipseEndCenter, Radius, Radius);
+                var endEllipse = new EllipseGeometry(ellipseEndCenter, radius, radius);
                 g.Children.Add(endEllipse);
             }
 
