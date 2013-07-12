@@ -147,16 +147,111 @@ namespace CanvasDiagramEditor
 
         #endregion
 
-        #region Geometry
+        #region Calculate Size
 
-        protected override Geometry DefiningGeometry
+        private static double CalculateZet(double startX, double startY, double endX, double endY)
         {
-            get
-            {
-                var g = GetDefiningGeometry();
-                return g;
-            }
+            double alpha = Math.Atan2(startY - endY, endX - startX);
+            double theta = Math.PI - alpha;
+            double zet = theta - Math.PI / 2;
+            return zet;
         }
+
+        private static double CalculateSizeX(double radius, double thickness, double zet)
+        {
+            double sizeX = Math.Sin(zet) * (radius + thickness);
+            return sizeX;
+        }
+
+        private static double CalculateSizeY(double radius, double thickness, double zet)
+        {
+            double sizeY = Math.Cos(zet) * (radius + thickness);
+            return sizeY;
+        }
+
+        #endregion
+
+        #region Get Points
+
+        private Point GetLineStart(double startX, double startY, double sizeX, double sizeY)
+        {
+            Point lineStart;
+
+            if (IsStartVisible)
+            {
+                double lx = startX + (2 * sizeX);
+                double ly = startY - (2 * sizeY);
+
+                lineStart = new Point(lx, ly);
+            }
+            else
+            {
+                lineStart = new Point(startX, startY);
+            }
+
+            return lineStart;
+        }
+
+        private Point GetLineEnd(double endX, double endY, double sizeX, double sizeY)
+        {
+            Point lineEnd;
+
+            if (IsEndVisible)
+            {
+                double lx = endX - (2 * sizeX);
+                double ly = endY + (2 * sizeY);
+
+                lineEnd = new Point(lx, ly);
+            }
+            else
+            {
+                lineEnd = new Point(endX, endY);
+            }
+
+            return lineEnd;
+        }
+        
+        private Point GetEllipseStartCenter(double startX, double startY, double sizeX, double sizeY)
+        {
+            Point ellipseStartCenter;
+
+            if (IsStartVisible)
+            {
+                double ex = startX + sizeX;
+                double ey = startY - sizeY;
+
+                ellipseStartCenter = new Point(ex, ey);
+            }
+            else
+            {
+                ellipseStartCenter = new Point(startX, startY);
+            }
+
+            return ellipseStartCenter;
+        }
+
+        private Point GetEllipseEndCenter(double endX, double endY, double sizeX, double sizeY)
+        {
+            Point ellipseEndCenter;
+
+            if (IsEndVisible)
+            {
+                double ex = endX - sizeX;
+                double ey = endY + sizeY;
+
+                ellipseEndCenter = new Point(ex, ey);
+            }
+            else
+            {
+                ellipseEndCenter = new Point(endX, endY);
+            }
+
+            return ellipseEndCenter;
+        }
+
+        #endregion
+
+        #region Get DefiningGeometry
 
         protected GeometryGroup GetDefiningGeometry()
         {
@@ -168,39 +263,14 @@ namespace CanvasDiagramEditor
             double endX = X2;
             double endY = Y2;
 
-            double alpha = Math.Atan2(startY - endY, endX - startX);
-            double theta = Math.PI - alpha;
-            double zet = theta - Math.PI / 2;
-            double sizeX = Math.Sin(zet) * (radius + thickness);
-            double sizeY = Math.Cos(zet) * (radius + thickness);
+            double zet = CalculateZet(startX, startY, endX, endY);
+            double sizeX = CalculateSizeX(radius, thickness, zet);
+            double sizeY = CalculateSizeY(radius, thickness, zet);
 
-            Point lineStart;
-            Point ellipseStartCenter;
-
-            Point lineEnd;
-            Point ellipseEndCenter;
-
-            if (IsStartVisible)
-            {
-                ellipseStartCenter = new Point(startX + sizeX, startY - sizeY);
-                lineStart = new Point(startX + (2 * sizeX), startY - (2 * sizeY));
-            }
-            else
-            {
-                ellipseStartCenter = new Point(startX, startY);
-                lineStart = new Point(startX, startY);
-            }
-
-            if (IsEndVisible)
-            {
-                ellipseEndCenter = new Point(endX - sizeX, endY + sizeY);
-                lineEnd = new Point(endX - (2 * sizeX), endY + (2 * sizeY));
-            }
-            else
-            {
-                ellipseEndCenter = new Point(endX, endY);
-                lineEnd = new Point(endX, endY);
-            }
+            Point ellipseStartCenter = GetEllipseStartCenter(startX, startY, sizeX, sizeY);
+            Point ellipseEndCenter = GetEllipseEndCenter(endX, endY, sizeX, sizeY);
+            Point lineStart = GetLineStart(startX, startY, sizeX, sizeY);
+            Point lineEnd = GetLineEnd(endX, endY, sizeX, sizeY);
 
             var g = new GeometryGroup() { FillRule = FillRule.Nonzero };
 
@@ -220,6 +290,19 @@ namespace CanvasDiagramEditor
             g.Children.Add(line);
 
             return g;
+        }
+
+        #endregion
+
+        #region DefiningGeometry
+
+        protected override Geometry DefiningGeometry
+        {
+            get
+            {
+                var g = GetDefiningGeometry();
+                return g;
+            }
         }
 
         #endregion
