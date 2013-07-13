@@ -63,7 +63,7 @@ namespace CanvasDiagramEditor
     #endregion
 
     #region LineEx
-
+    
     public class LineEx : Shape
     {
         #region Properties
@@ -3487,19 +3487,59 @@ namespace OpenXml
                             float y2 = float.Parse(args[5]);
                             int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
 
-                            bool start = false;
-                            bool end = false;
+                            bool isStartVisible = false;
+                            bool isEndVisible = false;
 
                             if (length == 8)
                             {
-                                start = bool.Parse(args[6]);
-                                end = bool.Parse(args[7]);
+                                isStartVisible = bool.Parse(args[6]);
+                                isEndVisible = bool.Parse(args[7]);
                             }
+
+                            double radius = 4.0;
+                            double thickness = 1.0 / 2.0;
+
+                            double startX = x1;
+                            double startY = y1;
+                            double endX = x2;
+                            double endY = y2;
+
+                            double zet = LineEx.CalculateZet(startX, startY, endX, endY);
+                            double sizeX = LineEx.CalculateSizeX(radius, thickness, zet);
+                            double sizeY = LineEx.CalculateSizeY(radius, thickness, zet);
+
+                            Point ellipseStartCenter = LineEx.GetEllipseStartCenter(startX, startY, sizeX, sizeY, isStartVisible);
+                            Point ellipseEndCenter = LineEx.GetEllipseEndCenter(endX, endY, sizeX, sizeY, isEndVisible);
+                            Point lineStart = LineEx.GetLineStart(startX, startY, sizeX, sizeY, isStartVisible);
+                            Point lineEnd = LineEx.GetLineEnd(endX, endY, sizeX, sizeY, isEndVisible);
 
                             wires.Add(() =>
                             {
-                                Wps.WordprocessingShape wordprocessingShape = CreateWpShapeWire(x1 / xamlToCm, y1 / xamlToCm, x2 / xamlToCm, y2 / xamlToCm, start, end);
+                                // line
+                                Wps.WordprocessingShape wordprocessingShape = CreateWpShapeWire(
+                                    lineStart.X / xamlToCm, lineStart.Y / xamlToCm, 
+                                    lineEnd.X / xamlToCm, lineEnd.Y / xamlToCm,
+                                    isStartVisible, isEndVisible);
+
                                 wordprocessingCanvas.Append(wordprocessingShape);
+
+                                // start inverter
+                                if (isStartVisible == true)
+                                {
+                                    Wps.WordprocessingShape wordprocessingShapeInverter = CreateWpShapeInverter(
+                                        ellipseStartCenter.X / xamlToCm, ellipseStartCenter.Y / xamlToCm);
+
+                                    wordprocessingCanvas.Append(wordprocessingShapeInverter);
+                                }
+
+                                // end inverter
+                                if (isEndVisible == true)
+                                {
+                                    Wps.WordprocessingShape wordprocessingShapeInverter = CreateWpShapeInverter(
+                                        ellipseEndCenter.X / xamlToCm, ellipseEndCenter.Y / xamlToCm);
+
+                                    wordprocessingCanvas.Append(wordprocessingShapeInverter);
+                                }
                             });
                         }
                     }
@@ -3563,6 +3603,52 @@ namespace OpenXml
             return wordprocessingShape2;
         }
 
+        private static Wps.WordprocessingShape CreateWpShapeInverter(double x, double y)
+        {
+            // x, y are in Centimeters
+
+            Int64 X = (Int64)(x * emu_1cm) - 48000L;
+            Int64 Y = (Int64)(y * emu_1cm) - 48000L;
+
+            Wps.WordprocessingShape wordprocessingShape2 = new Wps.WordprocessingShape();
+
+            Wps.NonVisualDrawingProperties nonVisualDrawingProperties2 = new Wps.NonVisualDrawingProperties() { Id = (UInt32Value)3U, Name = Guid.NewGuid().ToString() };
+            Wps.NonVisualConnectorProperties nonVisualConnectorProperties1 = new Wps.NonVisualConnectorProperties();
+
+            Wps.ShapeProperties shapeProperties2 = new Wps.ShapeProperties();
+
+            A.Transform2D transform2D2 = new A.Transform2D();
+            A.Offset offset2 = new A.Offset() { X = X, Y = Y };
+            A.Extents extents2 = new A.Extents() { Cx = 96000L, Cy = 96000L }; // Width,Height = 96000L, Margin Left/Top = -48000L;
+
+            transform2D2.Append(offset2);
+            transform2D2.Append(extents2);
+
+            A.PresetGeometry presetGeometry2 = new A.PresetGeometry() { Preset = A.ShapeTypeValues.Ellipse };
+            A.AdjustValueList adjustValueList3 = new A.AdjustValueList();
+
+            presetGeometry2.Append(adjustValueList3);
+            A.NoFill noFill1 = new A.NoFill();
+            A.Outline outline1 = new A.Outline() { Width = 12700 };
+
+            shapeProperties2.Append(transform2D2);
+            shapeProperties2.Append(presetGeometry2);
+            shapeProperties2.Append(noFill1);
+            shapeProperties2.Append(outline1);
+
+            Wps.ShapeStyle shapeStyle2 = CreateShapeStyleInverter();
+
+            Wps.TextBodyProperties textBodyProperties2 = new Wps.TextBodyProperties();
+
+            wordprocessingShape2.Append(nonVisualDrawingProperties2);
+            wordprocessingShape2.Append(nonVisualConnectorProperties1);
+            wordprocessingShape2.Append(shapeProperties2);
+            wordprocessingShape2.Append(shapeStyle2);
+            wordprocessingShape2.Append(textBodyProperties2);
+
+            return wordprocessingShape2;
+        }
+
         private static Wps.WordprocessingShape CreateWpShapeWire(double x1, double y1, double x2, double y2, bool start, bool end)
         {
             // x1, y1, x2, y2 are in Centimeters
@@ -3614,19 +3700,17 @@ namespace OpenXml
             presetGeometry2.Append(adjustValueList3);
             A.Outline outline1 = new A.Outline() { Width = 12700 };
 
-            if (start == true)
-            {
-                A.HeadEnd headEnd1 = new A.HeadEnd() { Type = A.LineEndValues.Oval };
+            //if (start == true)
+            //{
+            //    A.HeadEnd headEnd1 = new A.HeadEnd() { Type = A.LineEndValues.Oval };
+            //    outline1.Append(headEnd1);
+            //}
 
-                outline1.Append(headEnd1);
-            }
-
-            if (end == true)
-            {
-                A.TailEnd tailEnd1 = new A.TailEnd() { Type = A.LineEndValues.Oval };
-
-                outline1.Append(tailEnd1);
-            }
+            //if (end == true)
+            //{
+            //    A.TailEnd tailEnd1 = new A.TailEnd() { Type = A.LineEndValues.Oval };
+            //    outline1.Append(tailEnd1);
+            //}
 
             shapeProperties2.Append(transform2D2);
             shapeProperties2.Append(presetGeometry2);
@@ -4199,6 +4283,39 @@ namespace OpenXml
 
         // Pin Style
         private static Wps.ShapeStyle CreateShapeStylePin()
+        {
+            Wps.ShapeStyle shapeStyle1 = new Wps.ShapeStyle();
+
+            A.LineReference lineReference1 = new A.LineReference() { Index = (UInt32Value)2U };
+            A.SchemeColor schemeColor1 = new A.SchemeColor() { Val = A.SchemeColorValues.Dark1 };
+
+            lineReference1.Append(schemeColor1);
+
+            A.FillReference fillReference1 = new A.FillReference() { Index = (UInt32Value)1U };
+            A.SchemeColor schemeColor2 = new A.SchemeColor() { Val = A.SchemeColorValues.Dark1 };
+
+            fillReference1.Append(schemeColor2);
+
+            A.EffectReference effectReference1 = new A.EffectReference() { Index = (UInt32Value)0U };
+            A.SchemeColor schemeColor3 = new A.SchemeColor() { Val = A.SchemeColorValues.Dark1 };
+
+            effectReference1.Append(schemeColor3);
+
+            A.FontReference fontReference1 = new A.FontReference() { Index = A.FontCollectionIndexValues.Minor };
+            A.SchemeColor schemeColor4 = new A.SchemeColor() { Val = A.SchemeColorValues.Dark1 };
+
+            fontReference1.Append(schemeColor4);
+
+            shapeStyle1.Append(lineReference1);
+            shapeStyle1.Append(fillReference1);
+            shapeStyle1.Append(effectReference1);
+            shapeStyle1.Append(fontReference1);
+
+            return shapeStyle1;
+        }
+
+        // Inverter Style
+        private static Wps.ShapeStyle CreateShapeStyleInverter()
         {
             Wps.ShapeStyle shapeStyle1 = new Wps.ShapeStyle();
 
