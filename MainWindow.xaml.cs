@@ -490,8 +490,8 @@ namespace CanvasDiagramEditor
 
         public bool moveWithShift = false;
 
-        public double hitTestRadiusX = 4.0;
-        public double hitTestRadiusY = 4.0;
+        public double hitTestRadiusX = 6.0;
+        public double hitTestRadiusY = 6.0;
 
         public bool skipContextMenu = false;
         public bool skipLeftClick = false;
@@ -820,7 +820,6 @@ namespace CanvasDiagramEditor
             else
             {
                 // move only selected element
-
                 MoveRoot(element, dX, dY, snap);
             }
         }
@@ -833,7 +832,8 @@ namespace CanvasDiagramEditor
             {
                 options.moveWithShift = true;
 
-                SetSelectionAll(canvas, true);
+                SetSelectionThumbsSelection(canvas, true);
+                SetLinesSelection(canvas, true);
 
                 SelectionThumb.SetIsSelected(canvas, true);
             }
@@ -882,7 +882,8 @@ namespace CanvasDiagramEditor
                 {
                     SelectionThumb.SetIsSelected(canvas, false);
 
-                    SetSelectionAll(canvas, false);
+                    SetSelectionThumbsSelection(canvas, false);
+                    SetLinesSelection(canvas, false);
                 }
                 else
                 {
@@ -2053,14 +2054,25 @@ namespace CanvasDiagramEditor
             throw new NotImplementedException();
         }
 
-        public void SetSelectionAll(Canvas canvas, bool selected)
+        public static void SetSelectionThumbsSelection(Canvas canvas, bool isSelected)
         {
             var thumbs = canvas.Children.OfType<SelectionThumb>();
 
             foreach (var thumb in thumbs)
             {
                 // select
-                SelectionThumb.SetIsSelected(thumb, selected);
+                SelectionThumb.SetIsSelected(thumb, isSelected);
+            }
+        }
+
+        public static void SetLinesSelection(Canvas canvas, bool isSelected)
+        {
+            var lines = canvas.Children.OfType<LineEx>();
+
+            // deselect all lines
+            foreach (var line in lines)
+            {
+                SelectionThumb.SetIsSelected(line, isSelected);
             }
         }
 
@@ -2068,7 +2080,8 @@ namespace CanvasDiagramEditor
         {
             var canvas = options.currentCanvas;
 
-            SetSelectionAll(canvas, true);
+            SetSelectionThumbsSelection(canvas, true);
+            SetLinesSelection(canvas, true);
 
             SelectionThumb.SetIsSelected(canvas, true);
         }
@@ -2077,7 +2090,8 @@ namespace CanvasDiagramEditor
         {
             var canvas = options.currentCanvas;
 
-            SetSelectionAll(canvas, false);
+            SetSelectionThumbsSelection(canvas, false);
+            SetLinesSelection(canvas, false);
 
             SelectionThumb.SetIsSelected(canvas, false);
         }
@@ -2124,8 +2138,40 @@ namespace CanvasDiagramEditor
             }
         }
 
-        public bool HandlePreviewLeftDown(Canvas canvas, FrameworkElement pin)
+        private static void ToggleLineSelection(FrameworkElement element)
         {
+            string uid = element.Uid;
+
+            System.Diagnostics.Debug.Print("ToggleLineSelection: {0}, uid: {1}, parent: {2}",
+                element.GetType(), element.Uid, element.Parent.GetType());
+
+            if (element is LineEx && uid != null &&
+                uid.StartsWith(ModelConstants.TagElementWire, StringComparison.InvariantCultureIgnoreCase))
+            {
+                var line = element as LineEx;
+
+                // select/deselect line
+                bool isSelected = SelectionThumb.GetIsSelected(line);
+                SelectionThumb.SetIsSelected(line, isSelected ? false : true);
+            }
+        }
+
+
+        public bool HandlePreviewLeftDown(Canvas canvas, Point point, FrameworkElement pin)
+        {
+            if (options.currentRoot == null && options.currentLine == null)
+            {
+                var element = HitTest(canvas, ref point);
+                if (element != null)
+                {
+                    ToggleLineSelection(element);
+                }
+                else
+                {
+                    SetLinesSelection(canvas, false);
+                }
+            }
+
             if (pin != null &&
                 (!CompareString(pin.Name, ResourceConstants.StandalonePinName) || Keyboard.Modifiers == ModifierKeys.Control))
             {
@@ -2525,9 +2571,10 @@ namespace CanvasDiagramEditor
             }
 
             var canvas = editor.options.currentCanvas;
+            var point = e.GetPosition(canvas);
             var pin = (e.OriginalSource as FrameworkElement).TemplatedParent as FrameworkElement;
 
-            var result = editor.HandlePreviewLeftDown(canvas, pin);
+            var result = editor.HandlePreviewLeftDown(canvas, point, pin);
             if (result == true)
                 e.Handled = true;
         }
