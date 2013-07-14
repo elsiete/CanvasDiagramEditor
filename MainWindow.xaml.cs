@@ -408,6 +408,11 @@ namespace CanvasDiagramEditor
     {
         public IdCounter()
         {
+            Reset();
+        }
+
+        public void Reset()
+        {
             PinCount = 0;
             WireCount = 0;
             InputCount = 0;
@@ -467,12 +472,7 @@ namespace CanvasDiagramEditor
         public LineEx currentLine = null;
         public FrameworkElement currentRoot = null;
 
-        public int pinCounter = 0;
-        public int wireCounter = 0;
-        public int inputCounter = 0;
-        public int outputCounter = 0;
-        public int andGateCounter = 0;
-        public int orGateCounter = 0;
+        public IdCounter counter = new IdCounter();
 
         public Point rightClick;
 
@@ -1070,8 +1070,8 @@ namespace CanvasDiagramEditor
 
             if (options.currentLine == null)
             {
-                var line = CreateWire(x, y, x, y, false, false, options.wireCounter);
-                options.wireCounter += 1;
+                var line = CreateWire(x, y, x, y, false, false, options.counter.WireCount);
+                options.counter.WireCount += 1;
 
                 options.currentLine = line;
 
@@ -1109,8 +1109,8 @@ namespace CanvasDiagramEditor
 
         public FrameworkElement InsertPin(Canvas canvas, Point point)
         {
-            var thumb = CreatePin(point.X, point.Y, options.pinCounter, options.enableSnap);
-            options.pinCounter += 1;
+            var thumb = CreatePin(point.X, point.Y, options.counter.PinCount, options.enableSnap);
+            options.counter.PinCount += 1;
 
             canvas.Children.Add(thumb);
 
@@ -1119,8 +1119,8 @@ namespace CanvasDiagramEditor
 
         public FrameworkElement InsertInput(Canvas canvas, Point point)
         {
-            var thumb = CreateInput(point.X, point.Y, options.inputCounter, options.enableSnap);
-            options.inputCounter += 1;
+            var thumb = CreateInput(point.X, point.Y, options.counter.InputCount, options.enableSnap);
+            options.counter.InputCount += 1;
 
             canvas.Children.Add(thumb);
 
@@ -1129,8 +1129,8 @@ namespace CanvasDiagramEditor
 
         public FrameworkElement InsertOutput(Canvas canvas, Point point)
         {
-            var thumb = CreateOutput(point.X, point.Y, options.outputCounter, options.enableSnap);
-            options.outputCounter += 1;
+            var thumb = CreateOutput(point.X, point.Y, options.counter.OutputCount, options.enableSnap);
+            options.counter.OutputCount += 1;
 
             canvas.Children.Add(thumb);
 
@@ -1139,8 +1139,8 @@ namespace CanvasDiagramEditor
 
         public FrameworkElement InsertAndGate(Canvas canvas, Point point)
         {
-            var thumb = CreateAndGate(point.X, point.Y, options.andGateCounter, options.enableSnap);
-            options.andGateCounter += 1;
+            var thumb = CreateAndGate(point.X, point.Y, options.counter.AndGateCount, options.enableSnap);
+            options.counter.AndGateCount += 1;
 
             canvas.Children.Add(thumb);
 
@@ -1149,8 +1149,8 @@ namespace CanvasDiagramEditor
 
         public FrameworkElement InsertOrGate(Canvas canvas, Point point)
         {
-            var thumb = CreateOrGate(point.X, point.Y, options.orGateCounter, options.enableSnap);
-            options.orGateCounter += 1;
+            var thumb = CreateOrGate(point.X, point.Y, options.counter.OrGateCount, options.enableSnap);
+            options.counter.OrGateCount += 1;
 
             canvas.Children.Add(thumb);
 
@@ -1391,12 +1391,7 @@ namespace CanvasDiagramEditor
         {
             canvas.Children.Clear();
 
-            options.pinCounter = 0;
-            options.wireCounter = 0;
-            options.inputCounter = 0;
-            options.outputCounter = 0;
-            options.andGateCounter = 0;
-            options.orGateCounter = 0;
+            options.counter.Reset();
         }
 
         private string GenerateDiagramModel(Canvas diagram)
@@ -1521,13 +1516,7 @@ namespace CanvasDiagramEditor
             double offsetX, double offsetY,
             bool appendIds, bool updateIds)
         {
-            int _pinCounter = 0;
-            int _wireCounter = 0;
-            int _inputCounter = 0;
-            int _outputCounter = 0;
-            int _andGateCounter = 0;
-            int _orGateCounter = 0;
-
+            var counter = new IdCounter();
             WireMap tuple = null;
             string name = null;
 
@@ -1573,7 +1562,7 @@ namespace CanvasDiagramEditor
 
                             int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
 
-                            _pinCounter = Math.Max(_pinCounter, id + 1);
+                            counter.PinCount = Math.Max(counter.PinCount, id + 1);
 
                             var element = CreatePin(x + offsetX, y + offsetY, id, false);
                             elements.Add(element);
@@ -1590,7 +1579,7 @@ namespace CanvasDiagramEditor
 
                             int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
 
-                            _inputCounter = Math.Max(_inputCounter, id + 1);
+                            counter.InputCount = Math.Max(counter.InputCount, id + 1);
 
                             var element = CreateInput(x + offsetX, y + offsetY, id, false);
                             elements.Add(element);
@@ -1607,7 +1596,7 @@ namespace CanvasDiagramEditor
 
                             int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
 
-                            _outputCounter = Math.Max(_outputCounter, id + 1);
+                            counter.OutputCount = Math.Max(counter.OutputCount, id + 1);
 
                             var element = CreateOutput(x + offsetX, y + offsetY, id, false);
                             elements.Add(element);
@@ -1624,7 +1613,7 @@ namespace CanvasDiagramEditor
 
                             int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
 
-                            _andGateCounter = Math.Max(_andGateCounter, id + 1);
+                            counter.AndGateCount = Math.Max(counter.AndGateCount, id + 1);
 
                             var element = CreateAndGate(x + offsetX, y + offsetY, id, false);
                             elements.Add(element);
@@ -1641,7 +1630,7 @@ namespace CanvasDiagramEditor
 
                             int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
 
-                            _orGateCounter = Math.Max(_orGateCounter, id + 1);
+                            counter.OrGateCount = Math.Max(counter.OrGateCount, id + 1);
 
                             var element = CreateOrGate(x + offsetX, y + offsetY, id, false);
                             elements.Add(element);
@@ -1669,7 +1658,7 @@ namespace CanvasDiagramEditor
 
                             int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
 
-                            _wireCounter = Math.Max(_wireCounter, id + 1);
+                            counter.WireCount = Math.Max(counter.WireCount, id + 1);
 
                             var element = CreateWire(x1 + offsetX, y1 + offsetY,
                                 x2 + offsetX, y2 + offsetY,
@@ -1700,20 +1689,12 @@ namespace CanvasDiagramEditor
 
             if (appendIds == true)
             {
-                AppendElementIds(elements);
+                AppendElementIds(options, elements);
             }
-            else
+
+            if (updateIds == true)
             {
-                if (updateIds == true)
-                {
-                    // reset existing counters
-                    options.pinCounter = Math.Max(options.pinCounter, _pinCounter);
-                    options.wireCounter = Math.Max(options.wireCounter, _wireCounter);
-                    options.inputCounter = Math.Max(options.inputCounter, _inputCounter);
-                    options.outputCounter = Math.Max(options.outputCounter, _outputCounter);
-                    options.andGateCounter = Math.Max(options.andGateCounter, _andGateCounter);
-                    options.orGateCounter = Math.Max(options.orGateCounter, _orGateCounter);
-                }
+                UpdateIdCounter(options, counter);
             }
 
             // add elements to canvas
@@ -1726,7 +1707,17 @@ namespace CanvasDiagramEditor
             System.Diagnostics.Debug.Print("ParseDiagramModel() in {0}ms", sw.Elapsed.TotalMilliseconds);
         }
 
-        private void UpdateWireConnections(Dictionary<string, WireMap> dict)
+        private static void UpdateIdCounter(DiagramEditorOptions options, IdCounter counter)
+        {
+            options.counter.PinCount = Math.Max(options.counter.PinCount, counter.PinCount);
+            options.counter.WireCount = Math.Max(options.counter.WireCount, counter.WireCount);
+            options.counter.InputCount = Math.Max(options.counter.InputCount, counter.InputCount);
+            options.counter.OutputCount = Math.Max(options.counter.OutputCount, counter.OutputCount);
+            options.counter.AndGateCount = Math.Max(options.counter.AndGateCount, counter.AndGateCount);
+            options.counter.OrGateCount = Math.Max(options.counter.OrGateCount, counter.OrGateCount);
+        }
+
+        private static void UpdateWireConnections(Dictionary<string, WireMap> dict)
         {
             // update wire to element connections
             foreach (var item in dict)
@@ -1768,7 +1759,7 @@ namespace CanvasDiagramEditor
             }
         }
 
-        private void AppendElementIds(List<FrameworkElement> elements)
+        private static void AppendElementIds(DiagramEditorOptions options, List<FrameworkElement> elements)
         {
             // append ids to the existing elements in canvas
             //System.Diagnostics.Debug.Print("Appending Ids:");
@@ -1779,37 +1770,8 @@ namespace CanvasDiagramEditor
 
                 string type = uid[0];
                 int id = int.Parse(uid[1]);
-                int appendedId = -1;
 
-                switch (type)
-                {
-                    case ModelConstants.TagElementWire:
-                        appendedId = options.wireCounter;
-                        options.wireCounter += 1;
-                        break;
-                    case ModelConstants.TagElementInput:
-                        appendedId = options.inputCounter;
-                        options.inputCounter += 1;
-                        break;
-                    case ModelConstants.TagElementOutput:
-                        appendedId = options.outputCounter;
-                        options.outputCounter += 1;
-                        break;
-                    case ModelConstants.TagElementAndGate:
-                        appendedId = options.andGateCounter;
-                        options.andGateCounter += 1;
-                        break;
-                    case ModelConstants.TagElementOrGate:
-                        appendedId = options.orGateCounter;
-                        options.orGateCounter += 1;
-                        break;
-                    case ModelConstants.TagElementPin:
-                        appendedId = options.pinCounter;
-                        options.pinCounter += 1;
-                        break;
-                    default:
-                        throw new Exception("Unknown element type.");
-                }
+                int appendedId = GetUpdatedId(options.counter, type);
 
                 //System.Diagnostics.Debug.Print("+{0}, id: {1} -> {2} ", type, id, appendedId);
 
@@ -1825,6 +1787,43 @@ namespace CanvasDiagramEditor
                 //    }
                 //}
             }
+        }
+
+        private static int GetUpdatedId(IdCounter counter, string type)
+        {
+            int appendedId = -1;
+
+            switch (type)
+            {
+                case ModelConstants.TagElementWire:
+                    appendedId = counter.WireCount;
+                    counter.WireCount += 1;
+                    break;
+                case ModelConstants.TagElementInput:
+                    appendedId = counter.InputCount;
+                    counter.InputCount += 1;
+                    break;
+                case ModelConstants.TagElementOutput:
+                    appendedId = counter.OutputCount;
+                    counter.OutputCount += 1;
+                    break;
+                case ModelConstants.TagElementAndGate:
+                    appendedId = counter.AndGateCount;
+                    counter.AndGateCount += 1;
+                    break;
+                case ModelConstants.TagElementOrGate:
+                    appendedId = counter.OrGateCount;
+                    counter.OrGateCount += 1;
+                    break;
+                case ModelConstants.TagElementPin:
+                    appendedId = counter.PinCount;
+                    counter.PinCount += 1;
+                    break;
+                default:
+                    throw new Exception("Unknown element type.");
+            }
+
+            return appendedId;
         }
 
         #endregion
