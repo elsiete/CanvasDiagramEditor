@@ -344,6 +344,88 @@ namespace CanvasDiagramEditor
 
     #endregion
 
+    #region SelectionAdorner
+
+    public class SelectionAdorner : Adorner
+    {
+        #region Properties
+
+        public double Zoom
+        {
+            get { return (double)GetValue(ZoomProperty); }
+            set { SetValue(ZoomProperty, value); }
+        }
+
+        public static readonly DependencyProperty ZoomProperty =
+            DependencyProperty.Register("Zoom", typeof(double), typeof(SelectionAdorner),
+            new FrameworkPropertyMetadata(1.0,
+                FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender));
+
+        public Point SelectionOrigin
+        {
+            get { return (Point)GetValue(SelectionOriginProperty); }
+            set { SetValue(SelectionOriginProperty, value); }
+        }
+
+        public static readonly DependencyProperty SelectionOriginProperty =
+            DependencyProperty.Register("SelectionOrigin", typeof(Point), typeof(SelectionAdorner),
+            new FrameworkPropertyMetadata(new Point(),
+                FrameworkPropertyMetadataOptions.None));
+
+        public Rect SelectionRect
+        {
+            get { return (Rect)GetValue(SelectionRectProperty); }
+            set { SetValue(SelectionRectProperty, value); }
+        }
+
+        public static readonly DependencyProperty SelectionRectProperty =
+            DependencyProperty.Register("SelectionRect", typeof(Rect), typeof(SelectionAdorner),
+            new FrameworkPropertyMetadata(new Rect(),
+                FrameworkPropertyMetadataOptions.None));
+
+        #endregion
+
+        #region Fields
+
+        private SolidColorBrush brush = new SolidColorBrush(Color.FromArgb(0x90, 0x50, 0x50, 0x50));
+        private Pen pen = new Pen(new SolidColorBrush(Color.FromArgb(0xF0, 0x90, 0x90, 0x90)), 1.0);
+        private double defaultThickness = 1.0;
+
+        #endregion
+
+        #region Constructor
+
+        public SelectionAdorner(UIElement adornedElement)
+            : base(adornedElement)
+        {
+
+        } 
+
+        #endregion
+
+        #region OnRender
+
+        protected override void OnRender(DrawingContext drawingContext)
+        {
+            var rect = SelectionRect;
+
+            if (rect != null)
+            {
+                double zoom = Zoom;
+                double thickness = defaultThickness / zoom;
+                double half = thickness / 2.0;
+
+                pen.Thickness = thickness;
+
+                drawingContext.DrawRectangle(brush, pen, rect);
+            }
+        } 
+
+        #endregion
+    }
+
+    #endregion
+
     #region IDiagramExport
 
     public interface IDiagramExport
@@ -488,7 +570,7 @@ namespace CanvasDiagramEditor
         public double snapOffsetX = 0;
         public double snapOffsetY = 0;
 
-        public bool moveWithShift = false;
+        public bool moveAllSelected = false;
 
         public double hitTestRadiusX = 6.0;
         public double hitTestRadiusY = 6.0;
@@ -807,10 +889,10 @@ namespace CanvasDiagramEditor
         {
             bool snap = (options.snapOnRelease == true && options.enableSnap == true) ? false : options.enableSnap;
 
-            if (Keyboard.Modifiers == ModifierKeys.Shift || options.moveWithShift == true)
+            if (options.moveAllSelected == true)
             {
-                // move all elements when Shift key is pressed
-                var thumbs = canvas.Children.OfType<SelectionThumb>();
+                // move all selected elements
+                var thumbs = canvas.Children.OfType<SelectionThumb>().Where(x => SelectionThumb.GetIsSelected(x));
 
                 foreach (var thumb in thumbs)
                 {
@@ -828,18 +910,13 @@ namespace CanvasDiagramEditor
         {
             AddToHistory(canvas);
 
-            if (Keyboard.Modifiers == ModifierKeys.Shift)
+            if (SelectionThumb.GetIsSelected(element) == true)
             {
-                options.moveWithShift = true;
-
-                SetSelectionThumbsSelection(canvas, true);
-                SetLinesSelection(canvas, true);
-
-                SelectionThumb.SetIsSelected(canvas, true);
+                options.moveAllSelected = true;
             }
             else
             {
-                options.moveWithShift = false;
+                options.moveAllSelected = false;
 
                 // select
                 SelectionThumb.SetIsSelected(element, true);
@@ -850,19 +927,13 @@ namespace CanvasDiagramEditor
         {
             if (options.snapOnRelease == true && options.enableSnap == true)
             {
-                if (Keyboard.Modifiers == ModifierKeys.Shift || options.moveWithShift == true)
+                if (options.moveAllSelected == true)
                 {
-                    // move all elements when Shift key is pressed
-
-                    var thumbs = canvas.Children.OfType<SelectionThumb>();
-
-                    SelectionThumb.SetIsSelected(canvas, false);
+                    // move all selected elements
+                    var thumbs = canvas.Children.OfType<SelectionThumb>().Where(x => SelectionThumb.GetIsSelected(x));
 
                     foreach (var thumb in thumbs)
                     {
-                        // deselect
-                        SelectionThumb.SetIsSelected(thumb, false);
-
                         MoveRoot(thumb, 0.0, 0.0, options.enableSnap);
                     }
                 }
@@ -878,21 +949,14 @@ namespace CanvasDiagramEditor
             }
             else
             {
-                if (Keyboard.Modifiers == ModifierKeys.Shift || options.moveWithShift == true)
-                {
-                    SelectionThumb.SetIsSelected(canvas, false);
-
-                    SetSelectionThumbsSelection(canvas, false);
-                    SetLinesSelection(canvas, false);
-                }
-                else
+                if (options.moveAllSelected != true)
                 {
                     // de-select
                     SelectionThumb.SetIsSelected(element, false);
                 }
             }
 
-            options.moveWithShift = false;
+            options.moveAllSelected = false;
         }
 
         #endregion
@@ -1186,6 +1250,11 @@ namespace CanvasDiagramEditor
             if (element == null)
                 return;
 
+            DeleteElement(canvas, element);
+        }
+
+        private void DeleteElement(Canvas canvas, FrameworkElement element)
+        {
             string uid = element.Uid;
 
             //System.Diagnostics.Debug.Print("DeleteElement, element: {0}, uid: {1}, parent: {2}", 
@@ -1204,7 +1273,7 @@ namespace CanvasDiagramEditor
             }
         }
 
-        private FrameworkElement HitTest(Canvas canvas, ref Point point)
+        public FrameworkElement HitTest(Canvas canvas, ref Point point)
         {
             var selectedElements = new List<DependencyObject>();
 
@@ -1232,6 +1301,31 @@ namespace CanvasDiagramEditor
             VisualTreeHelper.HitTest(canvas, filterCallback, resultCallback, hitTestParams);
 
             return selectedElements.FirstOrDefault() as FrameworkElement;
+        }
+
+        public IEnumerable<FrameworkElement> HitTest(Canvas canvas, ref Rect rect)
+        {
+            var selectedElements = new List<DependencyObject>();
+
+            var rectangle = new RectangleGeometry(rect, 0.0, 0.0);
+
+            var hitTestParams = new GeometryHitTestParameters(rectangle);
+
+            var resultCallback = new HitTestResultCallback(result => HitTestResultBehavior.Continue);
+
+            var filterCallback = new HitTestFilterCallback(
+                element =>
+                {
+                    if (VisualTreeHelper.GetParent(element) == canvas)
+                    {
+                        selectedElements.Add(element);
+                    }
+                    return HitTestFilterBehavior.Continue;
+                });
+
+            VisualTreeHelper.HitTest(canvas, filterCallback, resultCallback, hitTestParams);
+
+            return selectedElements.Cast<FrameworkElement>();
         }
 
         private static void DeleteWire(Canvas canvas, LineEx line)
@@ -2050,7 +2144,38 @@ namespace CanvasDiagramEditor
 
         public void Delete()
         {
-            throw new NotImplementedException();
+            var canvas = options.currentCanvas;
+
+            var elements = new List<FrameworkElement>();
+
+            // get selected thumbs
+            var thumbs = canvas.Children.OfType<SelectionThumb>();
+
+            foreach (var thumb in thumbs)
+            {
+                if (SelectionThumb.GetIsSelected(thumb) == true)
+                {
+                    elements.Add(thumb);
+                }
+            }
+
+            // get selected lines
+            var lines = canvas.Children.OfType<LineEx>();
+
+            foreach (var line in lines)
+            {
+                if (SelectionThumb.GetIsSelected(line) == true)
+                {
+                    elements.Add(line);
+                }
+            }
+
+            // delete selected thumbs & lines
+
+            foreach (var element in elements)
+            {
+                DeleteElement(canvas, element);
+            }
         }
 
         public static void SetSelectionThumbsSelection(Canvas canvas, bool isSelected)
@@ -2155,7 +2280,6 @@ namespace CanvasDiagramEditor
             }
         }
 
-
         public bool HandlePreviewLeftDown(Canvas canvas, Point point, FrameworkElement pin)
         {
             if (options.currentRoot == null && options.currentLine == null)
@@ -2248,6 +2372,9 @@ namespace CanvasDiagramEditor
         #region Fields
 
         private DiagramEditor editor = null;
+
+        private Point selectionOrigin;
+        private SelectionAdorner adorner = null;
 
         #endregion
 
@@ -2401,9 +2528,7 @@ namespace CanvasDiagramEditor
 
             System.Diagnostics.Debug.Print("Zoom: {0}, zoom_fx: {1}", zoom, zoom_fx);
 
-            //var tg = RootGrid.RenderTransform as TransformGroup;
-            var tg = RootGrid.LayoutTransform as TransformGroup;
-            var st = tg.Children.First(t => t is ScaleTransform) as ScaleTransform;
+            var st = GetZoomScaleTransform();
 
             double oldZoom = st.ScaleX; // ScaleX == ScaleY
 
@@ -2414,6 +2539,15 @@ namespace CanvasDiagramEditor
 
             // zoom to point
             ZoomToPoint(zoom_fx, oldZoom);
+        }
+
+        private ScaleTransform GetZoomScaleTransform()
+        {
+            //var tg = RootGrid.RenderTransform as TransformGroup;
+            var tg = RootGrid.LayoutTransform as TransformGroup;
+            var st = tg.Children.First(t => t is ScaleTransform) as ScaleTransform;
+
+            return st;
         }
 
         private void ZoomToPoint(double zoom, double oldZoom)
@@ -2451,6 +2585,11 @@ namespace CanvasDiagramEditor
                 offsetY = 0.0;
 
             PanToOffset(offsetX, offsetY);
+
+            if (adorner != null)
+            {
+                adorner.Zoom = zoom;
+            }
         }
 
         private void ZoomIn()
@@ -2550,6 +2689,46 @@ namespace CanvasDiagramEditor
 
         #endregion
 
+        #region Selection Adorner
+
+        private void CreateAdorner(Canvas canvas, Point origin, Point point)
+        {
+            var layer = AdornerLayer.GetAdornerLayer(canvas);
+
+            adorner = new SelectionAdorner(canvas);
+            adorner.Zoom = GetZoomScaleTransform().ScaleX;
+            adorner.SelectionOrigin = new Point(origin.X, origin.Y);
+
+            adorner.SelectionRect = new Rect(origin, point);
+
+            adorner.SnapsToDevicePixels = false;
+            RenderOptions.SetEdgeMode(adorner, EdgeMode.Aliased);
+
+            layer.Add(adorner);
+            adorner.InvalidateVisual();
+        }
+
+        private void RemoveAdorner(Canvas canvas)
+        {
+            var layer = AdornerLayer.GetAdornerLayer(canvas);
+
+            layer.Remove(adorner);
+
+            adorner = null;
+        }
+
+        private void UpdateAdorner(Point point)
+        {
+            var origin = adorner.SelectionOrigin;
+            double width = Math.Abs(point.X - origin.X);
+            double height = Math.Abs(point.Y - origin.Y);
+
+            adorner.SelectionRect = new Rect(point, origin);
+            adorner.InvalidateVisual();
+        }
+
+        #endregion
+
         #region Canvas Events
 
         private void Canvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -2557,7 +2736,44 @@ namespace CanvasDiagramEditor
             var canvas = editor.options.currentCanvas;
             var point = e.GetPosition(canvas);
 
-            editor.HandleLeftDown(canvas, point);
+            if (editor.options.currentRoot == null && editor.options.currentLine == null && editor.options.enableInsertLast == false)
+            {
+                selectionOrigin = point;
+
+                editor.DeselectAll();
+
+                canvas.CaptureMouse();
+            }
+            else
+            {
+                editor.HandleLeftDown(canvas, point);
+            }
+        }
+
+        private void Canvas_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            var canvas = editor.options.currentCanvas;
+
+            if (canvas.IsMouseCaptured)
+            {
+                canvas.ReleaseMouseCapture();
+
+                if (adorner != null)
+                {
+                    var rect = adorner.SelectionRect;
+                    var elements = editor.HitTest(canvas, ref rect);
+
+                    if (elements != null)
+                    {
+                        foreach (var element in elements)
+                        {
+                            SelectionThumb.SetIsSelected(element, true);
+                        }
+                    }
+
+                    RemoveAdorner(canvas);
+                }
+            }
         }
 
         private void Canvas_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -2584,7 +2800,19 @@ namespace CanvasDiagramEditor
 
             var point = e.GetPosition(canvas);
 
-            editor.HandleMove(canvas, point);
+            if (canvas.IsMouseCaptured)
+            {
+                if (adorner == null)
+                {
+                    CreateAdorner(canvas, selectionOrigin, point);
+                }
+
+                UpdateAdorner(point);
+            }
+            else
+            {
+                editor.HandleMove(canvas, point);
+            }
         }
 
         private void Canvas_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)

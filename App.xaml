@@ -63,6 +63,11 @@
                     <Setter Property="Stroke" Value="{DynamicResource LogicColorKey}"/>
                     <Setter Property="Cursor" Value="Cross"/>
                 </Trigger>
+                <Trigger Property="local:SelectionThumb.IsSelected" Value="True">
+                    <Setter Property="Fill" Value="{DynamicResource LogicHiddenColorKey}"/>
+                    <Setter Property="Stroke" Value="{DynamicResource LogicHiddenColorKey}"/>
+                    <Setter Property="Cursor" Value="Arrow"/>
+                </Trigger>
             </Style.Triggers>
         </Style>
 

@@ -113,6 +113,7 @@
                         Grid.Column="0" Grid.Row="0"
                         Background="{DynamicResource LogicHiddenColorKey}" 
                         MouseLeftButtonDown="Canvas_MouseLeftButtonDown"
+                        MouseLeftButtonUp="Canvas_MouseLeftButtonUp"
                         PreviewMouseLeftButtonDown="Canvas_PreviewMouseLeftButtonDown"
                         MouseMove="Canvas_MouseMove"
                         PreviewMouseRightButtonDown="Canvas_PreviewMouseRightButtonDown"
