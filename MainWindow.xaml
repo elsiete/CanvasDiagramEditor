@@ -41,29 +41,29 @@
 
         <Menu Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0">
             <MenuItem Header="_File">
-                <MenuItem x:Name="FileOpen" Header="_Open..." Click="FileOpen_Click"/>
-                <MenuItem x:Name="FileSave" Header="_Save..." Click="FileSave_Click"/>
+                <MenuItem x:Name="FileOpen" Header="_Open..." Click="FileOpen_Click" InputGestureText="Ctrl+O"/>
+                <MenuItem x:Name="FileSave" Header="_Save..." Click="FileSave_Click"  InputGestureText="Ctrl+S"/>
                 <Separator/>
-                <MenuItem x:Name="FileImport" Header="_Import..." Click="FileImport_Click"/>
+                <MenuItem x:Name="FileImport" Header="_Import..." Click="FileImport_Click" InputGestureText="Ctrl+I"/>
                 <Separator/>
-                <MenuItem x:Name="FileExport" Header="_Export..." Click="FileExport_Click"/>
-                <MenuItem x:Name="FileExportHistory" Header="Export with _History..." Click="FileExportHistory_Click"/>
+                <MenuItem x:Name="FileExport" Header="_Export..." Click="FileExport_Click" InputGestureText="Ctrl+E"/>
+                <MenuItem x:Name="FileExportHistory" Header="Export with _History..." Click="FileExportHistory_Click" InputGestureText="Ctrl+H"/>
                 <Separator/>
-                <MenuItem x:Name="FilePrint" Header="_Print..." Click="FilePrint_Click"/>
+                <MenuItem x:Name="FilePrint" Header="_Print..." Click="FilePrint_Click" InputGestureText="Ctrl+P"/>
                 <Separator/>
-                <MenuItem x:Name="FileExit" Header="E_xit" Click="FileExit_Click"/>
+                <MenuItem x:Name="FileExit" Header="E_xit" Click="FileExit_Click"  InputGestureText="Alt+F4"/>
             </MenuItem>
             <MenuItem Header="_Edit">
-                <MenuItem x:Name="EditUndo" Header="_Undo" Click="EditUndo_Click"/>
-                <MenuItem x:Name="EditRedo" Header="_Redo" Click="EditRedo_Click"/>
+                <MenuItem x:Name="EditUndo" Header="_Undo" Click="EditUndo_Click" InputGestureText="Ctrl+Z"/>
+                <MenuItem x:Name="EditRedo" Header="_Redo" Click="EditRedo_Click" InputGestureText="Ctrl+Y"/>
                 <Separator/>
-                <MenuItem x:Name="EditCut" Header="Cu_t" Click="EditCut_Click"/>
-                <MenuItem x:Name="EditCopy" Header="_Copy" Click="EditCopy_Click"/>
-                <MenuItem x:Name="EditPaste" Header="_Paste" Click="EditPaste_Click"/>
-                <MenuItem x:Name="EditDelete" Header="_Delete" Click="EditDelete_Click"/>
+                <MenuItem x:Name="EditCut" Header="Cu_t" Click="EditCut_Click" InputGestureText="Ctrl+X"/>
+                <MenuItem x:Name="EditCopy" Header="_Copy" Click="EditCopy_Click" InputGestureText="Ctrl+C"/>
+                <MenuItem x:Name="EditPaste" Header="_Paste" Click="EditPaste_Click"  InputGestureText="Ctrl+V"/>
+                <MenuItem x:Name="EditDelete" Header="_Delete" Click="EditDelete_Click"  InputGestureText="Del"/>
                 <Separator/>
-                <MenuItem x:Name="EditSelectAll" Header="Select _All" Click="EditSelectAll_Click"/>
-                <MenuItem x:Name="EditDeselectAll" Header="De_select All" Click="EditDeselectAll_Click"/>
+                <MenuItem x:Name="EditSelectAll" Header="Select _All" Click="EditSelectAll_Click" InputGestureText="Ctrl+A"/>
+                <MenuItem x:Name="EditDeselectAll" Header="_Select None" Click="EditDeselectAll_Click"/>
                 <Separator/>
                 <MenuItem x:Name="EditClear" Header="C_lear" Click="EditClear_Click"/>
                 <Separator/>
@@ -180,6 +180,7 @@
                 </Grid>
                 <Separator Margin="2"/>
                 <Button x:Name="GenerateModel" Content="_Generate Model" Margin="2" Click="GenerateModel_Click"/>
+                <Button x:Name="GenerateModelFromSelected" Content="Generate Model (from selected)" Margin="2" Click="GenerateModelFromSelected_Click"/>
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="70"/>

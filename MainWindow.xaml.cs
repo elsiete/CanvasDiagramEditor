@@ -765,7 +765,7 @@ namespace CanvasDiagramEditor
             var model = undoHistory.Pop();
 
             ClearDiagramModel(canvas);
-            ParseDiagramModel(model, canvas, path, 0, 0, false, true);
+            ParseDiagramModel(model, canvas, path, 0, 0, false, true, false);
         }
 
         private void Redo(Canvas canvas, Path path, bool pushUndo)
@@ -791,7 +791,7 @@ namespace CanvasDiagramEditor
             var model = redoHistory.Pop();
 
             ClearDiagramModel(canvas);
-            ParseDiagramModel(model, canvas, path, 0, 0, false, true);
+            ParseDiagramModel(model, canvas, path, 0, 0, false, true, false);
         }
 
         public void Undo()
@@ -873,6 +873,17 @@ namespace CanvasDiagramEditor
             }
         }
 
+        public void MoveSelectedElements(Canvas canvas, double dX, double dY, bool snap)
+        {
+            // move all selected elements
+            var thumbs = canvas.Children.OfType<SelectionThumb>().Where(x => SelectionThumb.GetIsSelected(x));
+
+            foreach (var thumb in thumbs)
+            {
+                MoveRoot(thumb, dX, dY, snap);
+            }
+        }
+
         #endregion
 
         #region Drag
@@ -889,17 +900,6 @@ namespace CanvasDiagramEditor
             {
                 // move only selected element
                 MoveRoot(element, dX, dY, snap);
-            }
-        }
-
-        public void MoveSelectedElements(Canvas canvas, double dX, double dY, bool snap)
-        {
-            // move all selected elements
-            var thumbs = canvas.Children.OfType<SelectionThumb>().Where(x => SelectionThumb.GetIsSelected(x));
-
-            foreach (var thumb in thumbs)
-            {
-                MoveRoot(thumb, dX, dY, snap);
             }
         }
 
@@ -1496,7 +1496,7 @@ namespace CanvasDiagramEditor
 
             foreach (var canvas in diagrams)
             {
-                var children = canvas.Children;
+                var elements = canvas.Children.Cast<FrameworkElement>();
                 double width = canvas.Width;
                 double height = canvas.Height;
 
@@ -1509,83 +1509,7 @@ namespace CanvasDiagramEditor
                 diagram.AppendLine(header);
                 //System.Diagnostics.Debug.Print(header);
 
-                foreach (var child in children)
-                {
-                    var element = child as FrameworkElement;
-
-                    double x = Canvas.GetLeft(element);
-                    double y = Canvas.GetTop(element);
-
-                    if (element.Uid.StartsWith(ModelConstants.TagElementWire))
-                    {
-                        var line = element as LineEx;
-                        var margin = line.Margin;
-
-                        string str = string.Format("{6}{5}{0}{5}{1}{5}{2}{5}{3}{5}{4}{5}{7}{5}{8}",
-                            element.Uid,
-                            margin.Left, margin.Top, //line.X1, line.Y1,
-                            line.X2 + margin.Left, line.Y2 + margin.Top,
-                            ModelConstants.ArgumentSeparator,
-                            ModelConstants.PrefixRootElement,
-                            line.IsStartVisible, line.IsEndVisible);
-
-                        diagram.AppendLine(str);
-
-                        //System.Diagnostics.Debug.Print(str);
-                    }
-                    else
-                    {
-                        string str = string.Format("{4}{3}{0}{3}{1}{3}{2}",
-                            element.Uid,
-                            x, y,
-                            ModelConstants.ArgumentSeparator,
-                            ModelConstants.PrefixRootElement);
-
-                        diagram.AppendLine(str);
-
-                        //System.Diagnostics.Debug.Print(str);
-                    }
-
-                    if (element.Tag != null)
-                    {
-                        var selection = element.Tag as Selection;
-                        var tuples = selection.Item2;
-
-                        foreach (var tuple in tuples)
-                        {
-                            var line = tuple.Item1;
-                            var start = tuple.Item2;
-                            var end = tuple.Item3;
-
-                            if (start != null)
-                            {
-                                // Start
-                                string str = string.Format("{3}{2}{0}{2}{1}",
-                                    line.Uid,
-                                    ModelConstants.WireStartType,
-                                    ModelConstants.ArgumentSeparator,
-                                    ModelConstants.PrefixChildElement);
-
-                                diagram.AppendLine(str);
-
-                                //System.Diagnostics.Debug.Print(str);
-                            }
-                            else if (end != null)
-                            {
-                                // End
-                                string str = string.Format("{3}{2}{0}{2}{1}",
-                                    line.Uid,
-                                    ModelConstants.WireEndType,
-                                    ModelConstants.ArgumentSeparator,
-                                    ModelConstants.PrefixChildElement);
-
-                                diagram.AppendLine(str);
-
-                                //System.Diagnostics.Debug.Print(str);
-                            }
-                        }
-                    }
-                }
+                GenerateDiagramModel(diagram, elements);
             }
 
             var result = diagram.ToString();
@@ -1596,10 +1520,108 @@ namespace CanvasDiagramEditor
             return result;
         }
 
+        private string GenerateDiagramModelFromSelected(Canvas canvas)
+        {
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+
+            var diagram = new StringBuilder();
+
+            var elements = GetSelectedElements(canvas);
+
+            GenerateDiagramModel(diagram, elements);
+
+            var result = diagram.ToString();
+
+            sw.Stop();
+            System.Diagnostics.Debug.Print("GenerateDiagramModelFromSelected() in {0}ms", sw.Elapsed.TotalMilliseconds);
+
+            return result;
+        }
+
+        private static void GenerateDiagramModel(StringBuilder diagram, IEnumerable<FrameworkElement> elements)
+        {
+            foreach (var element in elements)
+            {
+                double x = Canvas.GetLeft(element);
+                double y = Canvas.GetTop(element);
+
+                if (element.Uid.StartsWith(ModelConstants.TagElementWire))
+                {
+                    var line = element as LineEx;
+                    var margin = line.Margin;
+
+                    string str = string.Format("{6}{5}{0}{5}{1}{5}{2}{5}{3}{5}{4}{5}{7}{5}{8}",
+                        element.Uid,
+                        margin.Left, margin.Top, //line.X1, line.Y1,
+                        line.X2 + margin.Left, line.Y2 + margin.Top,
+                        ModelConstants.ArgumentSeparator,
+                        ModelConstants.PrefixRootElement,
+                        line.IsStartVisible, line.IsEndVisible);
+
+                    diagram.AppendLine(str);
+
+                    //System.Diagnostics.Debug.Print(str);
+                }
+                else
+                {
+                    string str = string.Format("{4}{3}{0}{3}{1}{3}{2}",
+                        element.Uid,
+                        x, y,
+                        ModelConstants.ArgumentSeparator,
+                        ModelConstants.PrefixRootElement);
+
+                    diagram.AppendLine(str);
+
+                    //System.Diagnostics.Debug.Print(str);
+                }
+
+                if (element.Tag != null)
+                {
+                    var selection = element.Tag as Selection;
+                    var tuples = selection.Item2;
+
+                    foreach (var tuple in tuples)
+                    {
+                        var line = tuple.Item1;
+                        var start = tuple.Item2;
+                        var end = tuple.Item3;
+
+                        if (start != null)
+                        {
+                            // Start
+                            string str = string.Format("{3}{2}{0}{2}{1}",
+                                line.Uid,
+                                ModelConstants.WireStartType,
+                                ModelConstants.ArgumentSeparator,
+                                ModelConstants.PrefixChildElement);
+
+                            diagram.AppendLine(str);
+
+                            //System.Diagnostics.Debug.Print(str);
+                        }
+                        else if (end != null)
+                        {
+                            // End
+                            string str = string.Format("{3}{2}{0}{2}{1}",
+                                line.Uid,
+                                ModelConstants.WireEndType,
+                                ModelConstants.ArgumentSeparator,
+                                ModelConstants.PrefixChildElement);
+
+                            diagram.AppendLine(str);
+
+                            //System.Diagnostics.Debug.Print(str);
+                        }
+                    }
+                }
+            }
+        }
+
         private void ParseDiagramModel(string diagram,
             Canvas canvas, Path path,
             double offsetX, double offsetY,
-            bool appendIds, bool updateIds)
+            bool appendIds, bool updateIds,
+            bool select)
         {
             var counter = new IdCounter();
             WireMap tuple = null;
@@ -1609,6 +1631,9 @@ namespace CanvasDiagramEditor
 
             var dict = new Dictionary<string, WireMap>();
             var elements = new List<FrameworkElement>();
+
+            if (diagram == null)
+                return;
 
             var lines = diagram.Split(Environment.NewLine.ToCharArray(),
                 StringSplitOptions.RemoveEmptyEntries);
@@ -1786,6 +1811,11 @@ namespace CanvasDiagramEditor
             foreach (var element in elements)
             {
                 canvas.Children.Add(element);
+
+                if (select == true)
+                {
+                    SelectionThumb.SetIsSelected(element, true);
+                }
             }
 
             sw.Stop();
@@ -1934,7 +1964,7 @@ namespace CanvasDiagramEditor
                 AddToHistory(canvas);
 
                 ClearDiagramModel(canvas);
-                ParseDiagramModel(diagram, canvas, path, 0, 0, false, true);
+                ParseDiagramModel(diagram, canvas, path, 0, 0, false, true, false);
             }
         }
 
@@ -2059,7 +2089,7 @@ namespace CanvasDiagramEditor
 
             Path path = new Path();
 
-            ParseDiagramModel(model, canvas, path, 0, 0, false, false);
+            ParseDiagramModel(model, canvas, path, 0, 0, false, false, false);
 
             Visual visual = canvas;
 
@@ -2072,7 +2102,7 @@ namespace CanvasDiagramEditor
             var dlg = new Microsoft.Win32.OpenFileDialog()
             {
                 Filter = "Diagram (*.txt)|*.txt|All Files (*.*)|*.*",
-                Title = "Open Diagram"
+                Title = "Import Diagram"
             };
 
             var res = dlg.ShowDialog();
@@ -2093,7 +2123,8 @@ namespace CanvasDiagramEditor
 
             AddToHistory(canvas);
 
-            ParseDiagramModel(diagram, canvas, path, offsetX, offsetY, true, true);
+            DeselectAll();
+            ParseDiagramModel(diagram, canvas, path, offsetX, offsetY, true, true, true);
         }
 
         public void Clear()
@@ -2114,29 +2145,59 @@ namespace CanvasDiagramEditor
             return diagram;
         }
 
+        public string GenerateFromSelected()
+        {
+            var canvas = options.currentCanvas;
+
+            var diagram = GenerateDiagramModelFromSelected(canvas);
+
+            return diagram;
+        }
+
         #endregion
 
         #region Edit
 
+        private string copy = null;
+
         public void Cut()
         {
-            throw new NotImplementedException();
+            var canvas = options.currentCanvas;
+
+            copy = GenerateDiagramModelFromSelected(canvas);
+
+            Delete();
         }
 
         public void Copy()
         {
-            throw new NotImplementedException();
+            var canvas = options.currentCanvas;
+
+            copy = GenerateDiagramModelFromSelected(canvas);
         }
 
-        public void Paste()
+        public void Paste(Point point)
         {
-            throw new NotImplementedException();
+            Insert(copy, point.X, point.Y);
         }
 
         public void Delete()
         {
             var canvas = options.currentCanvas;
+            var elements = GetSelectedElements(canvas);
 
+            AddToHistory(canvas);
+
+            // delete selected thumbs & lines
+
+            foreach (var element in elements)
+            {
+                DeleteElement(canvas, element);
+            }
+        }
+
+        private static IEnumerable<FrameworkElement> GetSelectedElements(Canvas canvas)
+        {
             var elements = new List<FrameworkElement>();
 
             // get selected thumbs
@@ -2161,12 +2222,7 @@ namespace CanvasDiagramEditor
                 }
             }
 
-            // delete selected thumbs & lines
-
-            foreach (var element in elements)
-            {
-                DeleteElement(canvas, element);
-            }
+            return elements;
         }
 
         public static void SetSelectionThumbsSelection(Canvas canvas, bool isSelected)
@@ -2376,6 +2432,13 @@ namespace CanvasDiagramEditor
             InitializeComponent();
 
             InitializeOptions();
+
+            this.Loaded += MainWindow_Loaded;
+        }
+
+        void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            PanScrollViewer.Focus();
         }
 
         private void InitializeOptions()
@@ -2970,6 +3033,13 @@ namespace CanvasDiagramEditor
             this.TextModel.Text = diagram;
         }
 
+        private void GenerateModelFromSelected_Click(object sender, RoutedEventArgs e)
+        {
+            var diagram = editor.GenerateFromSelected();
+
+            this.TextModel.Text = diagram;
+        }
+
         private void InsertModel_Click(object sender, RoutedEventArgs e)
         {
             var diagram = this.TextModel.Text;
@@ -3050,7 +3120,9 @@ namespace CanvasDiagramEditor
 
         private void EditPaste_Click(object sender, RoutedEventArgs e)
         {
-            editor.Paste();
+            var point = new Point(0.0, 0.0);
+
+            editor.Paste(point);
         }
 
         private void EditDelete_Click(object sender, RoutedEventArgs e)
@@ -3132,7 +3204,7 @@ namespace CanvasDiagramEditor
 
         #endregion
 
-        #region Window Events
+        #region Window Key Events
 
         private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
         {
@@ -3141,9 +3213,125 @@ namespace CanvasDiagramEditor
             if (e.OriginalSource is ScrollViewer && Keyboard.Modifiers != ModifierKeys.Shift)
             {
                 var canvas = editor.options.currentCanvas;
+                bool isControl = Keyboard.Modifiers == ModifierKeys.Control;
 
                 switch (e.Key)
                 {
+                    case Key.O:
+                        {
+                            if (isControl == true)
+                            {
+                                editor.Open();
+                                e.Handled = true;
+                            }
+                        }
+                        break;
+                    case Key.S:
+                        {
+                            if (isControl == true)
+                            {
+                                editor.Save();
+                                e.Handled = true;
+                            }
+                        }
+                        break;
+                    case Key.I:
+                        {
+                            if (isControl == true)
+                            {
+                                editor.Import();
+                                e.Handled = true;
+                            }
+                        }
+                        break;
+                    case Key.E:
+                        {
+                            if (isControl == true)
+                            {
+                                editor.Export();
+                                e.Handled = true;
+                            }
+                        }
+                        break;
+                    case Key.H:
+                        {
+                            if (isControl == true)
+                            {
+                                editor.ExportHistory();
+                                e.Handled = true;
+                            }
+                        }
+                        break;
+                    case Key.P:
+                        {
+                            if (isControl == true)
+                            {
+                                editor.Print();
+                                e.Handled = true;
+                            }
+                        }
+                        break;
+                    case Key.Z:
+                        {
+                            if (isControl == true)
+                            {
+                                editor.Undo();
+                                e.Handled = true;
+                            }
+                        }
+                        break;
+                    case Key.Y:
+                        {
+                            if (isControl == true)
+                            {
+                                editor.Redo();
+                                e.Handled = true;
+                            }
+                        }
+                        break;
+                    case Key.X:
+                        {
+                            if (isControl == true)
+                            {
+                                editor.Cut();
+                                e.Handled = true;
+                            }
+                        }
+                        break;
+                    case Key.C:
+                        {
+                            if (isControl == true)
+                            {
+                                editor.Copy();
+                                e.Handled = true;
+                            }
+                        }
+                        break;
+                    case Key.V:
+                        {
+                            if (isControl == true)
+                            {
+                                var point = new Point(0.0, 0.0);
+                                editor.Paste(point);
+                                e.Handled = true;
+                            }
+                        }
+                        break;
+                    case Key.A:
+                        {
+                            if (isControl == true)
+                            {
+                                editor.SelectAll();
+                                e.Handled = true;
+                            }
+                        }
+                        break;
+                    case Key.Delete:
+                        {
+                            editor.Delete();
+                            e.Handled = true;
+                        }
+                        break;
                     case Key.Up:
                         {
                             MoveUp(canvas);
