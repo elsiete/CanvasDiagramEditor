@@ -25,9 +25,11 @@
             <MenuItem x:Name="DeleteElement" Header="_Delete" Click="DeleteElement_Click"/>
         </ContextMenu>
 
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+
     </Window.Resources>
 
-    <Grid>
+    <Grid Background="LightGray">
         
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -36,10 +38,11 @@
 
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="4"/>
             <ColumnDefinition Width="230"/>
         </Grid.ColumnDefinitions>
 
-        <Menu Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0">
+        <Menu Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Background="LightGray" Margin="0">
             <MenuItem Header="_File">
                 <MenuItem x:Name="FileOpen" Header="_Open..." Click="FileOpen_Click" InputGestureText="Ctrl+O"/>
                 <MenuItem x:Name="FileSave" Header="_Save..." Click="FileSave_Click"  InputGestureText="Ctrl+S"/>
@@ -76,11 +79,12 @@
                       MouseDown="PanScrollViewer_MouseDown" 
                       MouseUp="PanScrollViewer_MouseUp"
                       VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" 
-                      Grid.Column="0" Grid.Row="1">
+                      Grid.Column="0" Grid.Row="1"
+                      Margin="4,4,0,4">
 
             <Border Background="Transparent" BorderThickness="0" BorderBrush="Transparent" ClipToBounds="True" PreviewMouseWheel="Border_PreviewMouseWheel">
-                
-                <Grid x:Name="RootGrid" RenderTransformOrigin="0.5,0.5" Background="Transparent" ClipToBounds="True">
+
+                <Grid x:Name="RootGrid" RenderTransformOrigin="0.5,0.5" Background="LightGray" ClipToBounds="True">
                     
                     <Grid.LayoutTransform>
                         <TransformGroup>
@@ -99,27 +103,58 @@
                             <TranslateTransform X="0" Y="0"/>
                         </TransformGroup>
                     </Grid.RenderTransform>
-                    
-                    <Canvas x:Name="BackgroundCanvas"
-                        Width="{Binding ElementName=DiagramCanvas, Path=Width}"
-                        Height="{Binding ElementName=DiagramCanvas, Path=Height}" 
-                        Grid.Column="0" Grid.Row="0"
-                        ClipToBounds="False"
-                        Background="{DynamicResource LogicBackgroundColorKey}">
-                        <Path x:Name="PathGrid" Style="{StaticResource GridPathStyleKey}" Data="M0,30L780,30M0,60L780,60M0,90L780,90M0,120L780,120M0,150L780,150M0,180L780,180M0,210L780,210M0,240L780,240M0,270L780,270M0,300L780,300M0,330L780,330M0,360L780,360M0,390L780,390M0,420L780,420M0,450L780,450M0,480L780,480M0,510L780,510M30,0L30,540M60,0L60,540M90,0L90,540M120,0L120,540M150,0L150,540M180,0L180,540M210,0L210,540M240,0L240,540M270,0L270,540M300,0L300,540M330,0L330,540M360,0L360,540M390,0L390,540M420,0L420,540M450,0L450,540M480,0L480,540M510,0L510,540M540,0L540,540M570,0L570,540M600,0L600,540M630,0L630,540M660,0L660,540M690,0L690,540M720,0L720,540M750,0L750,540"/>
+
+                    <Canvas x:Name="BackgroudCanvas"
+                            Width="{Binding ElementName=DiagramCanvas, Path=Width}"
+                            Height="{Binding ElementName=DiagramCanvas, Path=Height}" 
+                            Grid.Column="0" Grid.Row="0"
+                            ClipToBounds="False"
+                            Background="{DynamicResource LogicBackgroundColorKey}"
+                            Visibility="Visible">
+                    </Canvas>
+
+                    <Canvas x:Name="GridCanvas"
+                            Width="{Binding ElementName=DiagramCanvas, Path=Width}"
+                            Height="{Binding ElementName=DiagramCanvas, Path=Height}" 
+                            Grid.Column="0" Grid.Row="0"
+                            ClipToBounds="False"
+                            Background="{DynamicResource LogicTransparentColorKey}"
+                            Visibility="{Binding ElementName=EnablePageGrid, Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <Path x:Name="PathGrid" Style="{StaticResource GridPathStyleKey}"/>
+                    </Canvas>
+
+                    <Canvas x:Name="TemplateCanvas"
+                            Width="{Binding ElementName=DiagramCanvas, Path=Width}"
+                            Height="{Binding ElementName=DiagramCanvas, Path=Height}" 
+                            Grid.Column="0" Grid.Row="0"
+                            ClipToBounds="False"
+                            Background="{DynamicResource LogicTransparentColorKey}"
+                            Visibility="{Binding ElementName=EnablePageTemplate, Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <!-- inputs -->
+                        <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="15" Canvas.Top="35" Data="M 30,0 L 30,750 M 240,750 L 240,0"/>
+                        <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="15" Canvas.Top="35" Data="M 315,0 L 0,0 M 0,750 L 315,750"/>
+                        <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="15" Canvas.Top="35" Data="M 0,30 L 315,30 M 315,60 L 0,60 M 0,90 L 315,90 M 315,120 L 0,120 M 0,150 L 315,150 M 315,180 L 0,180 M 0,210 L 315,210 M 315,240 L 0,240 M 0,270 L 315,270 M 315,300 L 0,300 M 0,330 L 315,330 M 315,360 L 0,360 M 0,390 L 315,390 M 315,420 L 0,420 M 0,450 L 315,450 M 315,480 L 0,480 M 0,510 L 315,510 M 315,540 L 0,540 M 0,570 L 315,570 M 315,600 L 0,600 M 0,630 L 315,630 M 315,660 L 0,660 M 0,690 L 315,690 M 315,720 L 0,720"/>
+                        <!-- outputs -->
+                        <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="930" Canvas.Top="35" Data="M 210,0 L 210,750 M 285,750 L 285,0"/>
+                        <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="930" Canvas.Top="35" Data="M 315,0 L 0,0 M 0,750 L 315,750"/>
+                        <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="930" Canvas.Top="35" Data="M 0,30 L 315,30 M 315,60 L 0,60 M 0,90 L 315,90 M 315,120 L 0,120 M 0,150 L 315,150 M 315,180 L 0,180 M 0,210 L 315,210 M 315,240 L 0,240 M 0,270 L 315,270 M 315,300 L 0,300 M 0,330 L 315,330 M 315,360 L 0,360 M 0,390 L 315,390 M 315,420 L 0,420 M 0,450 L 315,450 M 315,480 L 0,480 M 0,510 L 315,510 M 315,540 L 0,540 M 0,570 L 315,570 M 315,600 L 0,600 M 0,630 L 315,630 M 315,660 L 0,660 M 0,690 L 315,690 M 315,720 L 0,720"/>
+                        <!-- frame -->
+                        <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="330" Canvas.Top="15" Data="M 0,20 L 600,20 M 600,770 L 0,770 M 0,770 L 0,0 M 600,0 L 600,770"/>
+                        <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="0" Canvas.Top="0" Data="M 15,15 L 1245,15 M 1245,816 L 15,816 M 15,876 L 1245,876 M 1245,876 L 1245,15 M 15,15 L 15,876"/>
+                        <!--<Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="0" Canvas.Top="0" Data="M 1,1 L 1259,1 M 1259,890 L 1,890 M 1,890 L 1,1 M 1259,1 L 1259,890"/>-->
                     </Canvas>
 
                     <Canvas x:Name="DiagramCanvas"
-                        Width="780" Height="540" 
-                        Grid.Column="0" Grid.Row="0"
-                        Background="{DynamicResource LogicHiddenColorKey}" 
-                        MouseLeftButtonDown="Canvas_MouseLeftButtonDown"
-                        MouseLeftButtonUp="Canvas_MouseLeftButtonUp"
-                        PreviewMouseLeftButtonDown="Canvas_PreviewMouseLeftButtonDown"
-                        MouseMove="Canvas_MouseMove"
-                        PreviewMouseRightButtonDown="Canvas_PreviewMouseRightButtonDown"
-                        ContextMenu="{StaticResource DiagramCanvasContextMenuKey}"
-                        ContextMenuOpening="Canvas_ContextMenuOpening">
+                            Width="1260" Height="891" 
+                            Grid.Column="0" Grid.Row="0"
+                            Background="{DynamicResource LogicTransparentColorKey}" 
+                            MouseLeftButtonDown="Canvas_MouseLeftButtonDown"
+                            MouseLeftButtonUp="Canvas_MouseLeftButtonUp"
+                            PreviewMouseLeftButtonDown="Canvas_PreviewMouseLeftButtonDown"
+                            MouseMove="Canvas_MouseMove"
+                            PreviewMouseRightButtonDown="Canvas_PreviewMouseRightButtonDown"
+                            ContextMenu="{StaticResource DiagramCanvasContextMenuKey}"
+                            ContextMenuOpening="Canvas_ContextMenuOpening">
                     </Canvas>
 
                 </Grid>
@@ -128,85 +163,134 @@
 
         </ScrollViewer>
 
-        <Grid Grid.Column="1" Grid.Row="1">
+        <GridSplitter Grid.Column="1" Grid.Row="1" Background="Transparent" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+        
+        <ScrollViewer Grid.Column="2" Grid.Row="1"
+                      VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+            <Grid Background="LightGray">
 
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="5"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
-            <StackPanel Grid.Column="1" Grid.Row="0">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="40"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                    </Grid.RowDefinitions>
-                    <TextBlock Text="Zoom:" Grid.Column="0" Grid.Row="0" Margin="2" HorizontalAlignment="Right"/>
-                    <Slider x:Name="ZoomSlider" Grid.Column="1" Grid.Row="0" Minimum="0.1" Maximum="5.0" TickFrequency="0.1" IsSnapToTickEnabled="True" Value="1.0" ValueChanged="ZoomSlider_ValueChanged"/>
-                    <Button x:Name="ResetZoom" Grid.Column="2" Grid.Row="0" Content="Re_set" Margin="2" Click="ResetZoom_Click"/>
-                </Grid>
-                <Separator Margin="2"/>
-                <CheckBox x:Name="EnableHistory" Content="Enable _History" Margin="2" Click="EnableHistory_Click"/>
-                <Separator Margin="2"/>
-                <CheckBox x:Name="EnableSnap" Content="Enable S_nap to Grid" Margin="2" Click="EnableSnap_Click"/>
-                <CheckBox x:Name="SnapOnRelease" Content="Snap to Gri_d on Release" Margin="2" Click="SnapOnRelease_Click"/>
-                <Separator Margin="2"/>
-                <CheckBox x:Name="EnableInsertLast" Content="Insert Last on Left _Click" Margin="2" Click="EnableInsertLast_Click"/>
-                <Separator Margin="2"/>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="70"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                    </Grid.RowDefinitions>
-                    <TextBlock Text="Grid Width:" Grid.Column="0" Grid.Row="0" Margin="2" HorizontalAlignment="Right"/>
-                    <TextBox x:Name="TextGridWidth" Text="1260" Grid.Column="1" Grid.Row="0" Margin="2"/>
-                    <TextBlock Text="Grid Height:" Grid.Column="0" Grid.Row="1" Margin="2" HorizontalAlignment="Right"/>
-                    <TextBox x:Name="TextGridHeight" Text="891" Grid.Column="1" Grid.Row="1" Margin="2"/>
-                    <TextBlock Text="Grid Size:" Grid.Column="0" Grid.Row="2" Margin="2" HorizontalAlignment="Right"/>
-                    <TextBox x:Name="TextGridSize" Text="30" Grid.Column="1" Grid.Row="2" Margin="2"/>
-                    <Button x:Name="UpdateGrid" Content="Upda_te Grid" Grid.Column="1" Grid.Row="3" Margin="2" Click="UpdateGrid_Click"/>
-                </Grid>
-                <Separator Margin="2"/>
-                <Button x:Name="GenerateModel" Content="_Generate Model" Margin="2" Click="GenerateModel_Click"/>
-                <Button x:Name="GenerateModelFromSelected" Content="Generate Model (from selected)" Margin="2" Click="GenerateModelFromSelected_Click"/>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="70"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                    </Grid.RowDefinitions>
-                    <TextBlock Text="Offset X:" Grid.Column="0" Grid.Row="0" Margin="2" HorizontalAlignment="Right"/>
-                    <TextBox x:Name="TextOffsetX" Text="0" Grid.Column="1" Grid.Row="0" Margin="2"/>
-                    <TextBlock Text="Offset Y:" Grid.Column="0" Grid.Row="1" Margin="2" HorizontalAlignment="Right"/>
-                    <TextBox x:Name="TextOffsetY" Text="0" Grid.Column="1" Grid.Row="1" Margin="2"/>
-                    <Button x:Name="IsertModel" Content="_Insert Model" Grid.Column="1" Grid.Row="2" Margin="2" Click="InsertModel_Click"/>
-                </Grid>
-            </StackPanel>
+                <ScrollViewer Grid.Column="1" Grid.Row="0"
+                              VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
 
-            <TextBox x:Name="TextModel" Grid.Row="1" 
+                    <StackPanel Background="LightGray" Margin="0,4,4,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="40"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="Zoom:" Grid.Column="0" Grid.Row="0" Margin="2" HorizontalAlignment="Right"/>
+                            <Slider x:Name="ZoomSlider" Grid.Column="1" Grid.Row="0" Minimum="0.1" Maximum="5.0" TickFrequency="0.1" IsSnapToTickEnabled="True" Value="1.0" ValueChanged="ZoomSlider_ValueChanged"/>
+                            <Button x:Name="ResetZoom" Grid.Column="2" Grid.Row="0" Content="Re_set" Margin="2" Click="ResetZoom_Click"/>
+                        </Grid>
+                        <Separator Margin="2"/>
+
+                        <Expander Header="_Options" IsExpanded="False">
+                            <StackPanel>
+                                <CheckBox x:Name="EnableHistory" Content="Enable _History" Margin="2" Click="EnableHistory_Click"/>
+                                <Separator Margin="2"/>
+                                <CheckBox x:Name="EnableSnap" Content="Enable S_nap to Grid" Margin="2" Click="EnableSnap_Click"/>
+                                <CheckBox x:Name="SnapOnRelease" Content="Snap to Gri_d on Release" Margin="2" Click="SnapOnRelease_Click"/>
+                                <Separator Margin="2"/>
+                                <CheckBox x:Name="EnableInsertLast" Content="Insert Last on Left _Click" Margin="2" Click="EnableInsertLast_Click"/>
+                                <Separator Margin="2"/>
+                                <CheckBox x:Name="EnablePageGrid" Content="Enable Page Grid" Margin="2" Click="EnablePageGrid_Click"/>
+                                <CheckBox x:Name="EnablePageTemplate" Content="Enable Page Template" Margin="2" Click="EnablePageTemplate_Click"/>
+                            </StackPanel>
+                        </Expander>
+
+                        <Separator Margin="2"/>
+                        <Expander Header="Diagram _Properties" IsExpanded="False">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="80"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="Page Width:" Grid.Column="0" Grid.Row="0" Margin="2" HorizontalAlignment="Right"/>
+                                <TextBox x:Name="TextPageWidth" Text="1260" Grid.Column="1" Grid.Row="0" Margin="2"/>
+                                <TextBlock Text="Page Height:" Grid.Column="0" Grid.Row="1" Margin="2" HorizontalAlignment="Right"/>
+                                <TextBox x:Name="TextPageHeight" Text="891" Grid.Column="1" Grid.Row="1" Margin="2"/>
+                                <TextBlock Text="Grid Origin X:" Grid.Column="0" Grid.Row="2" Margin="2" HorizontalAlignment="Right"/>
+                                <TextBox x:Name="TextGridOriginX" Text="330" Grid.Column="1" Grid.Row="2" Margin="2"/>
+                                <TextBlock Text="Grid Origin Y:" Grid.Column="0" Grid.Row="3" Margin="2" HorizontalAlignment="Right"/>
+                                <TextBox x:Name="TextGridOriginY" Text="35" Grid.Column="1" Grid.Row="3" Margin="2"/>
+                                <TextBlock Text="Grid Width:" Grid.Column="0" Grid.Row="4" Margin="2" HorizontalAlignment="Right"/>
+                                <TextBox x:Name="TextGridWidth" Text="600" Grid.Column="1" Grid.Row="4" Margin="2"/>
+                                <TextBlock Text="Grid Height:" Grid.Column="0" Grid.Row="5" Margin="2" HorizontalAlignment="Right"/>
+                                <TextBox x:Name="TextGridHeight" Text="750" Grid.Column="1" Grid.Row="5" Margin="2"/>
+                                <TextBlock Text="Grid Size:" Grid.Column="0" Grid.Row="6" Margin="2" HorizontalAlignment="Right"/>
+                                <TextBox x:Name="TextGridSize" Text="30" Grid.Column="1" Grid.Row="6" Margin="2"/>
+                                <TextBlock Text="SnapX:" Grid.Column="0" Grid.Row="7" Margin="2" HorizontalAlignment="Right"/>
+                                <TextBox x:Name="TextSnapX" Text="15" Grid.Column="1" Grid.Row="7" Margin="2"/>
+                                <TextBlock Text="SnapY:" Grid.Column="0" Grid.Row="8" Margin="2" HorizontalAlignment="Right"/>
+                                <TextBox x:Name="TextSnapY" Text="15" Grid.Column="1" Grid.Row="8" Margin="2"/>
+                                <TextBlock Text="SnapOffsetX:" Grid.Column="0" Grid.Row="9" Margin="2" HorizontalAlignment="Right"/>
+                                <TextBox x:Name="TextSnapOffsetX" Text="0" Grid.Column="1" Grid.Row="9" Margin="2"/>
+                                <TextBlock Text="SnapOffsetY:" Grid.Column="0" Grid.Row="10" Margin="2" HorizontalAlignment="Right"/>
+                                <TextBox x:Name="TextSnapOffsetY" Text="5" Grid.Column="1" Grid.Row="10" Margin="2"/>
+                                <Button x:Name="UpdateGrid" Content="Upda_te Properties" Grid.Column="1" Grid.Row="11" Margin="2" Click="UpdateGrid_Click"/>
+                            </Grid>
+                        </Expander>
+                        <Separator Margin="2"/>
+                        <Button x:Name="GenerateModel" Content="_Generate Model" Margin="2" Click="GenerateModel_Click"/>
+                        <Button x:Name="GenerateModelFromSelected" Content="Generate Model (from selected)" Margin="2" Click="GenerateModelFromSelected_Click"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="70"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="Offset X:" Grid.Column="0" Grid.Row="0" Margin="2" HorizontalAlignment="Right"/>
+                            <TextBox x:Name="TextOffsetX" Text="0" Grid.Column="1" Grid.Row="0" Margin="2"/>
+                            <TextBlock Text="Offset Y:" Grid.Column="0" Grid.Row="1" Margin="2" HorizontalAlignment="Right"/>
+                            <TextBox x:Name="TextOffsetY" Text="0" Grid.Column="1" Grid.Row="1" Margin="2"/>
+                            <Button x:Name="IsertModel" Content="_Insert Model" Grid.Column="1" Grid.Row="2" Margin="2" Click="InsertModel_Click"/>
+                        </Grid>
+                    </StackPanel>
+
+                </ScrollViewer>
+
+                <GridSplitter Grid.Column="0" Grid.Row="1" Background="Transparent" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                
+                <TextBox x:Name="TextModel" Grid.Row="2" 
                      AcceptsReturn="True" AcceptsTab="True" 
                      VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                     Margin="2" Padding="2"
+                     Margin="0,0,4,4" Padding="2"
                      VerticalScrollBarVisibility="Auto">
-            </TextBox>
+                </TextBox>
 
-        </Grid>
+            </Grid>
+
+        </ScrollViewer>
 
     </Grid>
 

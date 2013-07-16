@@ -244,7 +244,7 @@ namespace CanvasDiagramEditor.Export
         private void CreateInput(Word.CanvasShapes items, float x, float y, string text)
         {
             var rect = items.AddShape((int)Office.MsoAutoShapeType.msoShapeRectangle,
-                x, y, 180.0f, 30.0f);
+                x, y, 285.0f, 30.0f);
 
             rect.Fill.ForeColor.RGB = unchecked((int)0x00FFFFFF);
             rect.Line.ForeColor.RGB = unchecked((int)0x00000000);
@@ -262,7 +262,7 @@ namespace CanvasDiagramEditor.Export
         private void CreateOutput(Word.CanvasShapes items, float x, float y, string text)
         {
             var rect = items.AddShape((int)Office.MsoAutoShapeType.msoShapeRectangle,
-                x, y, 180.0f, 30.0f);
+                x, y, 285.0f, 30.0f);
 
             rect.Fill.ForeColor.RGB = unchecked((int)0x00FFFFFF);
             rect.Line.ForeColor.RGB = unchecked((int)0x00000000);

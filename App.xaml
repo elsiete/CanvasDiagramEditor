@@ -13,9 +13,10 @@
         <!-- colors -->
 
         <SolidColorBrush x:Key="LogicBackgroundColorKey" Color="Black"/>
-        <SolidColorBrush x:Key="LogicGridColorKey" Color="#FF404040"/>
+        <SolidColorBrush x:Key="LogicGridColorKey" Color="#FF212121"/>
+        <SolidColorBrush x:Key="LogicTemplateColorKey" Color="#FF555555"/>
         <SolidColorBrush x:Key="LogicColorKey" Color="Yellow"/>
-        <SolidColorBrush x:Key="LogicHiddenColorKey" Color="Transparent"/>
+        <SolidColorBrush x:Key="LogicTransparentColorKey" Color="Transparent"/>
         <SolidColorBrush x:Key="LogicSelectedColorKey" Color="DeepPink"/>
         
         <!-- styles -->
@@ -31,12 +32,12 @@
 
         <Style x:Key="PinControlCanvasStyleKey" TargetType="Canvas">
             <Setter Property="ClipToBounds" Value="False"/>
-            <Setter Property="Background" Value="{DynamicResource LogicHiddenColorKey}"/>
+            <Setter Property="Background" Value="{DynamicResource LogicTransparentColorKey}"/>
         </Style>
 
         <Style x:Key="RootCanvasStyleKey" TargetType="Canvas">
             <Setter Property="ClipToBounds" Value="False"/>
-            <Setter Property="Background" Value="{DynamicResource LogicHiddenColorKey}"/>
+            <Setter Property="Background" Value="{DynamicResource LogicTransparentColorKey}"/>
             <Setter Property="Cursor" Value="Arrow"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
@@ -48,8 +49,8 @@
         <Style x:Key="PinEllipseStyleKey" TargetType="Ellipse">
             <Setter Property="Width" Value="8"/>
             <Setter Property="Height" Value="8"/>
-            <Setter Property="Fill" Value="{DynamicResource LogicHiddenColorKey}"/>
-            <Setter Property="Stroke" Value="{DynamicResource LogicHiddenColorKey}"/>
+            <Setter Property="Fill" Value="{DynamicResource LogicTransparentColorKey}"/>
+            <Setter Property="Stroke" Value="{DynamicResource LogicTransparentColorKey}"/>
             <Setter Property="Cursor" Value="Arrow"/>
             <Setter Property="StrokeThickness" Value="{DynamicResource LogicStrokeThicknessKey}"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -64,8 +65,8 @@
                     <Setter Property="Cursor" Value="Cross"/>
                 </Trigger>
                 <Trigger Property="local:SelectionThumb.IsSelected" Value="True">
-                    <Setter Property="Fill" Value="{DynamicResource LogicHiddenColorKey}"/>
-                    <Setter Property="Stroke" Value="{DynamicResource LogicHiddenColorKey}"/>
+                    <Setter Property="Fill" Value="{DynamicResource LogicTransparentColorKey}"/>
+                    <Setter Property="Stroke" Value="{DynamicResource LogicTransparentColorKey}"/>
                     <Setter Property="Cursor" Value="Arrow"/>
                 </Trigger>
             </Style.Triggers>
@@ -74,8 +75,8 @@
         <Style x:Key="PinControlEllipseStyleKey" TargetType="Ellipse">
             <Setter Property="Width" Value="8"/>
             <Setter Property="Height" Value="8"/>
-            <Setter Property="Fill" Value="{DynamicResource LogicHiddenColorKey}"/>
-            <Setter Property="Stroke" Value="{DynamicResource LogicHiddenColorKey}"/>
+            <Setter Property="Fill" Value="{DynamicResource LogicTransparentColorKey}"/>
+            <Setter Property="Stroke" Value="{DynamicResource LogicTransparentColorKey}"/>
             <!--<Setter Property="Cursor" Value="Arrow"/>-->
             <Setter Property="StrokeThickness" Value="{DynamicResource LogicStrokeThicknessKey}"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -141,6 +142,16 @@
             <Setter Property="StrokeThickness" Value="{DynamicResource LogicStrokeThicknessKey}"/>
             <Setter Property="StrokeStartLineCap" Value="Flat"/>
             <Setter Property="StrokeEndLineCap" Value="Flat"/>
+            <Setter Property="StrokeLineJoin" Value="Miter"/>
+            <Setter Property="RenderOptions.EdgeMode" Value="Aliased"/>
+        </Style>
+
+        <Style x:Key="TemplatePathStyleKey" TargetType="Path">
+            <Setter Property="Stroke" Value="{DynamicResource LogicTemplateColorKey}"/>
+            <Setter Property="Fill" Value="Transparent"/>
+            <Setter Property="StrokeThickness" Value="{DynamicResource LogicStrokeThicknessKey}"/>
+            <Setter Property="StrokeStartLineCap" Value="Square"/>
+            <Setter Property="StrokeEndLineCap" Value="Square"/>
             <Setter Property="StrokeLineJoin" Value="Miter"/>
             <Setter Property="RenderOptions.EdgeMode" Value="Aliased"/>
         </Style>

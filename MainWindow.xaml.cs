@@ -478,6 +478,25 @@ namespace CanvasDiagramEditor
 
     #region Parser
 
+    public class DiagramProperties
+    {
+        public DiagramProperties()
+        {
+        }
+
+        public int PageWidth { get; set; }
+        public int PageHeight { get; set; }
+        public int GridOriginX { get; set; }
+        public int GridOriginY { get; set; }
+        public int GridWidth { get; set; }
+        public int GridHeight { get; set; }
+        public int GridSize { get; set; }
+        public double SnapX { get; set; }
+        public double SnapY { get; set; }
+        public double SnapOffsetX { get; set; }
+        public double SnapOffsetY { get; set; }
+    }
+
     public class IdCounter
     {
         public IdCounter()
@@ -538,6 +557,8 @@ namespace CanvasDiagramEditor
     {
         #region Fields
 
+        public DiagramProperties currentProperties = new DiagramProperties();
+
         public Canvas currentCanvas = null;
         public Path currentPathGrid = null;
 
@@ -553,14 +574,13 @@ namespace CanvasDiagramEditor
         public bool enableInsertLast = false;
         public string lastInsert = ModelConstants.TagElementInput;
 
+        public bool enablePageGrid = true;
+        public bool enablePageTemplate = true;
+
         public double defaultGridSize = 30;
 
         public bool enableSnap = true;
         public bool snapOnRelease = false;
-        public double snapX = 15;
-        public double snapY = 15;
-        public double snapOffsetX = 0;
-        public double snapOffsetY = 0;
 
         public bool moveAllSelected = false;
 
@@ -612,30 +632,39 @@ namespace CanvasDiagramEditor
             return original + ((Math.Round(original / snap) - original / snap) * snap);
         }
 
+        private double SnapOffsetX(double original, bool snap)
+        {
+            return snap == true ?
+                Snap(original, options.currentProperties.SnapX, options.currentProperties.SnapOffsetX) : original;
+        }
+
+        private double SnapOffsetY(double original, bool snap)
+        {
+            return snap == true ?
+                Snap(original, options.currentProperties.SnapY, options.currentProperties.SnapOffsetY) : original;
+        }
+
         private double SnapX(double original, bool snap)
         {
             return snap == true ?
-                Snap(original, options.snapX, options.snapOffsetX) : original;
+                Snap(original, options.currentProperties.SnapX) : original;
         }
 
         private double SnapY(double original, bool snap)
         {
             return snap == true ?
-                Snap(original, options.snapY, options.snapOffsetY) : original;
+                Snap(original, options.currentProperties.SnapY) : original;
         }
 
         #endregion
 
         #region Grid
 
-        public void GenerateGrid(Path path, double width, double height, double size)
+        public void GenerateGrid(Path path, double originX, double originY, double width, double height, double size)
         {
             var sw = System.Diagnostics.Stopwatch.StartNew();
 
             var sb = new StringBuilder();
-
-            double originX = 0;
-            double originY = 0;
 
             double startX = size;
             double startY = size;
@@ -816,8 +845,8 @@ namespace CanvasDiagramEditor
 
         private void SetElementPosition(FrameworkElement element, double left, double top, bool snap)
         {
-            Canvas.SetLeft(element, SnapX(left, snap));
-            Canvas.SetTop(element, SnapY(top, snap));
+            Canvas.SetLeft(element, SnapOffsetX(left, snap));
+            Canvas.SetTop(element, SnapOffsetY(top, snap));
         }
 
         private void MoveRoot(FrameworkElement element, double dX, double dY, bool snap)
@@ -843,19 +872,19 @@ namespace CanvasDiagramEditor
                     var start = tuple.Item2;
                     var end = tuple.Item3;
 
-                    var margin = line.Margin;
-                    double left = margin.Left;
-                    double top = margin.Top;
-                    double x = 0;
-                    double y = 0;
-
                     if (start != null)
                     {
-                        //line.X1 = SnapX(line.X1 + dX, snap);
-                        //line.Y1 = SnapY(line.Y1 + dY, snap);
+                        var margin = line.Margin;
+                        double left = margin.Left;
+                        double top = margin.Top;
+                        double x = 0.0;
+                        double y = 0.0;
 
-                        x = SnapX(left + dX, snap);
-                        y = SnapX(top + dY, snap);
+                        //line.X1 = SnapOffsetX(line.X1 + dX, snap);
+                        //line.Y1 = SnapOffsetY(line.Y1 + dY, snap);
+
+                        x = SnapOffsetX(left + dX, snap);
+                        y = SnapOffsetY(top + dY, snap);
 
                         if (left != x || top != y)
                         {
@@ -864,10 +893,19 @@ namespace CanvasDiagramEditor
                             line.Margin = new Thickness(x, y, 0, 0);
                         }
                     }
-                    else if (end != null)
+                    
+                    if (end != null)
                     {
-                        line.X2 = SnapX(line.X2 + dX, snap);
-                        line.Y2 = SnapY(line.Y2 + dY, snap);
+                        double left = line.X2;
+                        double top = line.Y2;
+                        double x = 0.0;
+                        double y = 0.0;
+
+                        x = SnapX(left + dX, snap);
+                        y = SnapY(top + dY, snap);
+
+                        line.X2 = x;
+                        line.Y2 = y;  
                     }
                 }
             }
@@ -1497,14 +1535,18 @@ namespace CanvasDiagramEditor
             foreach (var canvas in diagrams)
             {
                 var elements = canvas.Children.Cast<FrameworkElement>();
-                double width = canvas.Width;
-                double height = canvas.Height;
+                var prop = options.currentProperties;
 
-                string header = string.Format("{0}{1}{2}{1}{3}{1}{4}{1}{5}",
+                string header = string.Format("{0}{1}{2}{1}{3}{1}{4}{1}{5}{1}{6}{1}{7}{1}{8}{1}{9}{1}{10}{1}{11}{1}{12}{1}{13}",
                     ModelConstants.PrefixRootElement,
                     ModelConstants.ArgumentSeparator,
                     ModelConstants.TagDiagramHeader,
-                    width, height, options.defaultGridSize);
+                    prop.PageWidth, prop.PageHeight,
+                    prop.GridOriginX, prop.GridOriginY,
+                    prop.GridWidth, prop.GridHeight,
+                    prop.GridSize,
+                    prop.SnapX, prop.SnapY,
+                    prop.SnapOffsetX, prop.SnapOffsetY);
 
                 diagram.AppendLine(header);
                 //System.Diagnostics.Debug.Print(header);
@@ -1655,14 +1697,30 @@ namespace CanvasDiagramEditor
                     if (CompareString(args[0], ModelConstants.PrefixRootElement))
                     {
                         if (name.StartsWith(ModelConstants.TagDiagramHeader, StringComparison.InvariantCultureIgnoreCase) &&
-                            length == 5)
+                            length == 13)
                         {
-                            double width = double.Parse(args[2]);
-                            double height = double.Parse(args[3]);
-                            double size = double.Parse(args[4]);
+                            var prop = new DiagramProperties();
 
-                            GenerateGrid(path, width, height, size);
-                            SetDiagramSize(canvas, width, height);
+                            prop.PageWidth = int.Parse(args[2]);
+                            prop.PageHeight = int.Parse(args[3]);
+                            prop.GridOriginX = int.Parse(args[4]);
+                            prop.GridOriginY = int.Parse(args[5]);
+                            prop.GridWidth = int.Parse(args[6]);
+                            prop.GridHeight = int.Parse(args[7]);
+                            prop.GridSize = int.Parse(args[8]);
+                            prop.SnapX = double.Parse(args[9]);
+                            prop.SnapY = double.Parse(args[10]);
+                            prop.SnapOffsetX = double.Parse(args[11]);
+                            prop.SnapOffsetY = double.Parse(args[12]);
+
+                            GenerateGrid(path, 
+                                prop.GridOriginX, prop.GridOriginY, 
+                                prop.GridWidth, prop.GridHeight, 
+                                prop.GridSize);
+
+                            SetDiagramSize(canvas, prop.PageWidth, prop.PageHeight);
+
+                            options.currentProperties = prop;
                         }
                         else if (name.StartsWith(ModelConstants.TagElementPin, StringComparison.InvariantCultureIgnoreCase) &&
                             length == 4)
@@ -2433,6 +2491,8 @@ namespace CanvasDiagramEditor
 
             InitializeOptions();
 
+            GenerateGrid(false);
+
             this.Loaded += MainWindow_Loaded;
         }
 
@@ -2446,11 +2506,15 @@ namespace CanvasDiagramEditor
             editor = new DiagramEditor();
             editor.options = new DiagramEditorOptions();
 
+            UpdateDiagramProperties();
+
             editor.options.currentCanvas = this.DiagramCanvas;
             editor.options.currentPathGrid = this.PathGrid;
 
             EnableHistory.IsChecked = editor.options.enableHistory;
             EnableInsertLast.IsChecked = editor.options.enableInsertLast;
+            EnablePageGrid.IsChecked = editor.options.enablePageGrid;
+            EnablePageTemplate.IsChecked = editor.options.enablePageTemplate;
             EnableSnap.IsChecked = editor.options.enableSnap;
             SnapOnRelease.IsChecked = editor.options.snapOnRelease;
         }
@@ -2459,20 +2523,45 @@ namespace CanvasDiagramEditor
 
         #region Grid
 
-        private void GenerateGrid()
+        private void UpdateDiagramProperties()
+        {
+            var prop = editor.options.currentProperties;
+
+            prop.PageWidth = int.Parse(TextPageWidth.Text);
+            prop.PageHeight = int.Parse(TextPageHeight.Text);
+
+            prop.GridOriginX = int.Parse(TextGridOriginX.Text);
+            prop.GridOriginY = int.Parse(TextGridOriginY.Text);
+            prop.GridWidth = int.Parse(TextGridWidth.Text);
+            prop.GridHeight = int.Parse(TextGridHeight.Text);
+            prop.GridSize = int.Parse(TextGridSize.Text);
+
+            prop.SnapX = double.Parse(TextSnapX.Text);
+            prop.SnapY = double.Parse(TextSnapY.Text);
+            prop.SnapOffsetX = double.Parse(TextSnapOffsetX.Text);
+            prop.SnapOffsetY = double.Parse(TextSnapOffsetY.Text);
+        }
+
+        private void GenerateGrid(bool undo)
         {
             var canvas = editor.options.currentCanvas;
             var path = this.PathGrid;
 
-            int width = int.Parse(TextGridWidth.Text);
-            int height = int.Parse(TextGridHeight.Text);
-            int size = int.Parse(TextGridSize.Text);
+            UpdateDiagramProperties();
 
-            editor.AddToHistory(canvas);
+            if (undo == true)
+            {
+                editor.AddToHistory(canvas);
+            }
 
-            editor.GenerateGrid(path, width, height, size);
+            var prop = editor.options.currentProperties;
 
-            editor.SetDiagramSize(canvas, width, height);
+            editor.GenerateGrid(path, 
+                prop.GridOriginX, prop.GridOriginY,
+                prop.GridWidth, prop.GridHeight,
+                prop.GridSize);
+
+            editor.SetDiagramSize(canvas, prop.PageWidth, prop.PageHeight);
         }
 
         #endregion
@@ -3015,8 +3104,18 @@ namespace CanvasDiagramEditor
         private void EnableInsertLast_Click(object sender, RoutedEventArgs e)
         {
             editor.options.enableInsertLast = EnableInsertLast.IsChecked == true ? true : false;
-        } 
-    
+        }
+
+        private void EnablePageGrid_Click(object sender, RoutedEventArgs e)
+        {
+            editor.options.enablePageGrid = EnablePageGrid.IsChecked == true ? true : false;
+        }
+
+        private void EnablePageTemplate_Click(object sender, RoutedEventArgs e)
+        {
+            editor.options.enablePageTemplate = EnablePageTemplate.IsChecked == true ? true : false;
+        }
+
         #endregion
 
         #region Button Events
@@ -3051,7 +3150,7 @@ namespace CanvasDiagramEditor
 
         private void UpdateGrid_Click(object sender, RoutedEventArgs e)
         {
-            GenerateGrid();
+            GenerateGrid(true);
         }
 
         #endregion

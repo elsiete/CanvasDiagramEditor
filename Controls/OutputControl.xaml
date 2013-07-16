@@ -4,14 +4,18 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
-             d:DesignHeight="30" d:DesignWidth="180">
-    
-    <Canvas Width="180" Height="30" Style="{StaticResource ControlCanvasStyleKey}">
+             d:DesignHeight="30" d:DesignWidth="285">
 
-        <Canvas x:Name="RootElement" Width="180" Height="30" Style="{StaticResource RootCanvasStyleKey}">
-            <Path Data="M 0,0 L 180,0 M 0,30 L 180,30 M 0,0 L 0,30 M 180,0 L 180,30" Style="{StaticResource LogicPathStyleKey}"/>
-            <Grid Width="180" Height="30">
-                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Text="Output" Style="{StaticResource LogicTextStyleKey}"/>
+    <Canvas Width="285" Height="30" Style="{StaticResource ControlCanvasStyleKey}">
+
+        <Canvas x:Name="RootElement" Width="285" Height="30" Style="{StaticResource RootCanvasStyleKey}">
+            <Path Data="M 0,0 L 285,0 M 285,30 L 0,30 M 0,30  L 0,0 M 210,0 L 210,30 M 285,30 L 285,0" Style="{StaticResource LogicPathStyleKey}"/>
+            <Grid Width="285" Height="30">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="210"/>
+                    <ColumnDefinition Width="75"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Center" Text="Output" Style="{StaticResource LogicTextStyleKey}"/>
             </Grid>
         </Canvas>
 
