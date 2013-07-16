@@ -883,18 +883,23 @@ namespace CanvasDiagramEditor
 
             if (options.moveAllSelected == true)
             {
-                // move all selected elements
-                var thumbs = canvas.Children.OfType<SelectionThumb>().Where(x => SelectionThumb.GetIsSelected(x));
-
-                foreach (var thumb in thumbs)
-                {
-                    MoveRoot(thumb, dX, dY, snap);
-                }
+                MoveSelectedElements(canvas, dX, dY, snap);
             }
             else
             {
                 // move only selected element
                 MoveRoot(element, dX, dY, snap);
+            }
+        }
+
+        public void MoveSelectedElements(Canvas canvas, double dX, double dY, bool snap)
+        {
+            // move all selected elements
+            var thumbs = canvas.Children.OfType<SelectionThumb>().Where(x => SelectionThumb.GetIsSelected(x));
+
+            foreach (var thumb in thumbs)
+            {
+                MoveRoot(thumb, dX, dY, snap);
             }
         }
 
@@ -921,13 +926,7 @@ namespace CanvasDiagramEditor
             {
                 if (options.moveAllSelected == true)
                 {
-                    // move all selected elements
-                    var thumbs = canvas.Children.OfType<SelectionThumb>().Where(x => SelectionThumb.GetIsSelected(x));
-
-                    foreach (var thumb in thumbs)
-                    {
-                        MoveRoot(thumb, 0.0, 0.0, options.enableSnap);
-                    }
+                    MoveSelectedElements(canvas, 0.0, 0.0, options.enableSnap);
                 }
                 else
                 {
@@ -3078,6 +3077,100 @@ namespace CanvasDiagramEditor
         {
             editor.Preferences();
         }
+
+        #endregion
+
+        #region Move Elements
+
+        private void MoveLeft(Canvas canvas)
+        {
+            if (editor.options.enableSnap == true)
+            {
+                editor.MoveSelectedElements(canvas, -editor.options.defaultGridSize, 0.0, false);
+            }
+            else
+            {
+                editor.MoveSelectedElements(canvas, -1.0, 0.0, false);
+            }
+        }
+
+        private void MoveRight(Canvas canvas)
+        {
+            if (editor.options.enableSnap == true)
+            {
+                editor.MoveSelectedElements(canvas, editor.options.defaultGridSize, 0.0, false);
+            }
+            else
+            {
+                editor.MoveSelectedElements(canvas, 1.0, 0.0, false);
+            }
+        }
+
+        private void MoveUp(Canvas canvas)
+        {
+            if (editor.options.enableSnap == true)
+            {
+                editor.MoveSelectedElements(canvas, 0.0, -editor.options.defaultGridSize, false);
+            }
+            else
+            {
+                editor.MoveSelectedElements(canvas, 0.0, -1.0, false);
+            }
+        }
+
+        private void MoveDown(Canvas canvas)
+        {
+            if (editor.options.enableSnap == true)
+            {
+                editor.MoveSelectedElements(canvas, 0.0, editor.options.defaultGridSize, false);
+            }
+            else
+            {
+                editor.MoveSelectedElements(canvas, 0.0, 1.0, false);
+            }
+        }
+
+        #endregion
+
+        #region Window Events
+
+        private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            //System.Diagnostics.Debug.Print("PreviewKeyDown sender: {0}, source: {1}", sender.GetType(), e.OriginalSource.GetType());
+
+            if (e.OriginalSource is ScrollViewer && Keyboard.Modifiers != ModifierKeys.Shift)
+            {
+                var canvas = editor.options.currentCanvas;
+
+                switch (e.Key)
+                {
+                    case Key.Up:
+                        {
+                            MoveUp(canvas);
+                            e.Handled = true;
+                        }
+                        break;
+                    case Key.Down:
+                        {
+                            MoveDown(canvas);
+                            e.Handled = true;
+                        }
+                        break;
+                    case Key.Left:
+                        {
+                            MoveLeft(canvas);
+                            e.Handled = true;
+                        }
+                        break;
+                    case Key.Right:
+                        {
+                            MoveRight(canvas);
+                            e.Handled = true;
+                        }
+                        break;
+                }
+            }
+        } 
 
         #endregion
     }

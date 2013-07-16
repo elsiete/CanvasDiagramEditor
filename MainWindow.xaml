@@ -5,7 +5,8 @@
         x:Class="CanvasDiagramEditor.MainWindow"
         Title="Canvas Diagram Editor" Height="710" Width="1035"
         WindowStartupLocation="CenterScreen" WindowState="Maximized"
-        Style="{StaticResource MainWindowStyleKey}">
+        Style="{StaticResource MainWindowStyleKey}"
+        PreviewKeyDown="Window_PreviewKeyDown">
 
     <Window.Resources>
 
