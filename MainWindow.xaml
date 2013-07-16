@@ -172,7 +172,7 @@
                     <TextBlock Text="Grid Width:" Grid.Column="0" Grid.Row="0" Margin="2" HorizontalAlignment="Right"/>
                     <TextBox x:Name="TextGridWidth" Text="1260" Grid.Column="1" Grid.Row="0" Margin="2"/>
                     <TextBlock Text="Grid Height:" Grid.Column="0" Grid.Row="1" Margin="2" HorizontalAlignment="Right"/>
-                    <TextBox x:Name="TextGridHeight" Text="890" Grid.Column="1" Grid.Row="1" Margin="2"/>
+                    <TextBox x:Name="TextGridHeight" Text="891" Grid.Column="1" Grid.Row="1" Margin="2"/>
                     <TextBlock Text="Grid Size:" Grid.Column="0" Grid.Row="2" Margin="2" HorizontalAlignment="Right"/>
                     <TextBox x:Name="TextGridSize" Text="30" Grid.Column="1" Grid.Row="2" Margin="2"/>
                     <Button x:Name="UpdateGrid" Content="Upda_te Grid" Grid.Column="1" Grid.Row="3" Margin="2" Click="UpdateGrid_Click"/>
