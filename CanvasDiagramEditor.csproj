@@ -104,6 +104,9 @@
     <Compile Include="Controls\PinControl.xaml.cs">
       <DependentUpon>PinControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Export\IDiagramExport.cs" />
+    <Compile Include="Export\MsoWordExport.cs" />
+    <Compile Include="Export\OpenXmlExport.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
