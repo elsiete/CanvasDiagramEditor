@@ -33,6 +33,9 @@ namespace CanvasDiagramEditor
     // Canvas.Tag => Item1: undoHistory, Item2: redoHistory
     using History = Tuple<Stack<string>, Stack<string>>;
 
+    // Diagram: TreeViewItem.Tag => Item1: model, Item2: History
+    using Diagram = Tuple<string, Tuple<Stack<string>, Stack<string>>>;
+
     #endregion
 
     #region Tuple .NET 3.5
@@ -298,6 +301,8 @@ namespace CanvasDiagramEditor
             var line = new LineGeometry(lineStart, lineEnd);
             g.Children.Add(line);
 
+            g.Freeze();
+
             return g;
         }
 
@@ -388,8 +393,8 @@ namespace CanvasDiagramEditor
 
         #region Fields
 
-        private SolidColorBrush brush = new SolidColorBrush(Color.FromArgb(0x90, 0x50, 0x50, 0x50));
-        private Pen pen = new Pen(new SolidColorBrush(Color.FromArgb(0xF0, 0x90, 0x90, 0x90)), 1.0);
+        private SolidColorBrush brush = null;
+        private Pen pen = null;
         private double defaultThickness = 1.0;
 
         #endregion
@@ -399,8 +404,9 @@ namespace CanvasDiagramEditor
         public SelectionAdorner(UIElement adornedElement)
             : base(adornedElement)
         {
-
-        } 
+            brush = new SolidColorBrush(Color.FromArgb(0x90, 0x50, 0x50, 0x50));
+            pen = new Pen(new SolidColorBrush(Color.FromArgb(0xF0, 0x90, 0x90, 0x90)), defaultThickness);
+        }
 
         #endregion
 
@@ -439,6 +445,7 @@ namespace CanvasDiagramEditor
 
         public const char TagNameSeparator = '|';
 
+        public const string TagProjectHeader = "Project";
         public const string TagDiagramHeader = "Diagram";
 
         public const string TagElementPin = "Pin";
@@ -501,10 +508,10 @@ namespace CanvasDiagramEditor
     {
         public IdCounter()
         {
-            Reset();
+            ResetAll();
         }
 
-        public void Reset()
+        public void ResetDiagram()
         {
             PinCount = 0;
             WireCount = 0;
@@ -514,6 +521,16 @@ namespace CanvasDiagramEditor
             OrGateCount = 0;
         }
 
+        public void ResetAll()
+        {
+            ProjectCount = 0;
+            DiagramCount = 0;
+
+            ResetDiagram();
+        }
+
+        public int ProjectCount { get; set; }
+        public int DiagramCount { get; set; }
         public int PinCount { get; set; }
         public int WireCount { get; set; }
         public int InputCount { get; set; }
@@ -713,10 +730,10 @@ namespace CanvasDiagramEditor
             return tuple;
         }
 
-        public void AddToHistory(Canvas canvas)
+        public string AddToHistory(Canvas canvas)
         {
             if (options.enableHistory != true)
-                return;
+                return null;
 
             var tuple = GetHistory(canvas);
             var undoHistory = tuple.Item1;
@@ -727,6 +744,8 @@ namespace CanvasDiagramEditor
             undoHistory.Push(model);
 
             redoHistory.Clear();
+
+            return model;
         }
 
         private void RollbackUndoHistory(Canvas canvas)
@@ -1510,14 +1529,14 @@ namespace CanvasDiagramEditor
             return string.Compare(strA, strB, StringComparison.InvariantCultureIgnoreCase) == 0;
         }
 
-        private void ClearDiagramModel(Canvas canvas)
+        public void ClearDiagramModel(Canvas canvas)
         {
             canvas.Children.Clear();
 
-            options.counter.Reset();
+            options.counter.ResetDiagram();
         }
 
-        private string GenerateDiagramModel(Canvas diagram)
+        public string GenerateDiagramModel(Canvas diagram)
         {
             var diagrams = new List<Canvas>();
 
@@ -1526,7 +1545,7 @@ namespace CanvasDiagramEditor
             return GenerateDiagramModel(diagrams);
         }
 
-        private string GenerateDiagramModel(IEnumerable<Canvas> diagrams)
+        public string GenerateDiagramModel(IEnumerable<Canvas> diagrams)
         {
             var sw = System.Diagnostics.Stopwatch.StartNew();
 
@@ -1659,7 +1678,7 @@ namespace CanvasDiagramEditor
             }
         }
 
-        private void ParseDiagramModel(string diagram,
+        public void ParseDiagramModel(string diagram,
             Canvas canvas, Path path,
             double offsetX, double offsetY,
             bool appendIds, bool updateIds,
@@ -2505,6 +2524,9 @@ namespace CanvasDiagramEditor
         {
             editor = new DiagramEditor();
             editor.options = new DiagramEditorOptions();
+
+            editor.options.counter.ProjectCount = 1;
+            editor.options.counter.DiagramCount = 2;
 
             UpdateDiagramProperties();
 
@@ -3458,6 +3480,136 @@ namespace CanvasDiagramEditor
                 }
             }
         } 
+
+        #endregion
+
+        #region TreeView Events
+
+        private TreeViewItem CreateProjectItem()
+        {
+            var project = new TreeViewItem();
+
+            project.Header = "Project";
+            project.ContextMenu = this.Resources["ProjectContextMenuKey"] as ContextMenu;
+            project.MouseRightButtonDown += TreeViewItem_MouseRightButtonDown;
+
+            var counter = editor.options.counter;
+            int id = counter.ProjectCount;
+
+            project.Uid = ModelConstants.TagProjectHeader + ModelConstants.TagNameSeparator + id.ToString();
+            counter.ProjectCount++;
+
+            project.IsExpanded = true;
+
+            return project;
+        }
+
+        private TreeViewItem CreateDiagramItem()
+        {
+            var diagram = new TreeViewItem();
+
+            diagram.Header = "Diagram";
+            diagram.ContextMenu = this.Resources["DiagramContextMenuKey"] as ContextMenu;
+            diagram.MouseRightButtonDown += TreeViewItem_MouseRightButtonDown;
+
+            var counter = editor.options.counter;
+            int id = counter.DiagramCount;
+
+            diagram.Uid = ModelConstants.TagDiagramHeader + ModelConstants.TagNameSeparator + id.ToString();
+            counter.DiagramCount++;
+
+            return diagram;
+        }
+
+        private void TreeViewItem_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            TreeViewItem item = sender as TreeViewItem;
+            if (item != null)
+            {
+                item.IsSelected = true;
+                //item.Focus();
+                item.BringIntoView();
+
+                e.Handled = true;
+            }
+        }
+
+        private void SolutionTree_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            if (editor == null)
+                return;
+
+            var canvas = editor.options.currentCanvas;
+
+            var oldItem = e.OldValue as TreeViewItem;
+            var newItem = e.NewValue as TreeViewItem;
+
+            // TODO:
+            // diagram Tag for TreeViewItem:  Tuple<string, History>, where string is diagram model
+
+            // store current model
+            var oldModel = editor.GenerateDiagramModel(canvas);
+
+            if (oldItem != null)
+            {
+                oldItem.Tag = new Diagram(oldModel, canvas.Tag as History);
+            }
+
+            System.Diagnostics.Debug.Print("Selected Uid: {0}", newItem.Uid);
+
+            // load new model
+            var tag = newItem.Tag;
+
+            editor.ClearDiagramModel(canvas);
+
+            if (tag != null)
+            {
+                var diagram = tag as Diagram;
+
+                var model = diagram.Item1;
+                var history = diagram.Item2;
+
+                canvas.Tag = history;
+
+                editor.ParseDiagramModel(model, canvas, editor.options.currentPathGrid, 0, 0, false, true, false);
+            }
+            else
+            {
+                GenerateGrid(false);
+            }
+        }
+
+        private void SolutionAddProject_Click(object sender, RoutedEventArgs e)
+        {
+            var solution = SolutionTree.SelectedItem as TreeViewItem;
+
+            var project = CreateProjectItem();
+
+            solution.Items.Add(project);
+
+            System.Diagnostics.Debug.Print("Added project: {0} to solution: {1}", project.Uid, solution.Uid);
+        } 
+
+        private void ProjectAddDiagram_Click(object sender, RoutedEventArgs e)
+        {
+            var project = SolutionTree.SelectedItem as TreeViewItem;
+
+            var diagram = CreateDiagramItem();
+
+            project.Items.Add(diagram);
+
+            System.Diagnostics.Debug.Print("Added diagram: {0} to project: {1}", diagram.Uid, project.Uid);
+        }
+
+        private void SolutionDeleteProject_Click(object sender, RoutedEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void ProjectDeleteDiagram_Click(object sender, RoutedEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
 
         #endregion
     }
