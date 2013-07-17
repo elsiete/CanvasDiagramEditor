@@ -739,7 +739,7 @@ namespace CanvasDiagramEditor
             var undoHistory = tuple.Item1;
             var redoHistory = tuple.Item2;
 
-            var model = GenerateDiagramModel(canvas);
+            var model = GenerateDiagramModel(canvas, null);
 
             undoHistory.Push(model);
 
@@ -805,7 +805,7 @@ namespace CanvasDiagramEditor
             // save current model
             if (pushRedo == true)
             {
-                var current = GenerateDiagramModel(canvas);
+                var current = GenerateDiagramModel(canvas, null);
                 redoHistory.Push(current);
             }
 
@@ -831,7 +831,7 @@ namespace CanvasDiagramEditor
             // save current model
             if (pushUndo == true)
             {
-                var current = GenerateDiagramModel(canvas);
+                var current = GenerateDiagramModel(canvas, null);
                 undoHistory.Push(current);
             }
 
@@ -1536,42 +1536,30 @@ namespace CanvasDiagramEditor
             options.counter.ResetDiagram();
         }
 
-        public string GenerateDiagramModel(Canvas diagram)
-        {
-            var diagrams = new List<Canvas>();
-
-            diagrams.Add(diagram);
-
-            return GenerateDiagramModel(diagrams);
-        }
-
-        public string GenerateDiagramModel(IEnumerable<Canvas> diagrams)
+        public string GenerateDiagramModel(Canvas canvas, string uid)
         {
             var sw = System.Diagnostics.Stopwatch.StartNew();
 
             var diagram = new StringBuilder();
 
-            foreach (var canvas in diagrams)
-            {
-                var elements = canvas.Children.Cast<FrameworkElement>();
-                var prop = options.currentProperties;
+            var elements = canvas.Children.Cast<FrameworkElement>();
+            var prop = options.currentProperties;
 
-                string header = string.Format("{0}{1}{2}{1}{3}{1}{4}{1}{5}{1}{6}{1}{7}{1}{8}{1}{9}{1}{10}{1}{11}{1}{12}{1}{13}",
-                    ModelConstants.PrefixRootElement,
-                    ModelConstants.ArgumentSeparator,
-                    ModelConstants.TagDiagramHeader,
-                    prop.PageWidth, prop.PageHeight,
-                    prop.GridOriginX, prop.GridOriginY,
-                    prop.GridWidth, prop.GridHeight,
-                    prop.GridSize,
-                    prop.SnapX, prop.SnapY,
-                    prop.SnapOffsetX, prop.SnapOffsetY);
+            string header = string.Format("{0}{1}{2}{1}{3}{1}{4}{1}{5}{1}{6}{1}{7}{1}{8}{1}{9}{1}{10}{1}{11}{1}{12}{1}{13}",
+                ModelConstants.PrefixRootElement,
+                ModelConstants.ArgumentSeparator,
+                uid == null ? ModelConstants.TagDiagramHeader : uid,
+                prop.PageWidth, prop.PageHeight,
+                prop.GridOriginX, prop.GridOriginY,
+                prop.GridWidth, prop.GridHeight,
+                prop.GridSize,
+                prop.SnapX, prop.SnapY,
+                prop.SnapOffsetX, prop.SnapOffsetY);
 
-                diagram.AppendLine(header);
-                //System.Diagnostics.Debug.Print(header);
+            diagram.AppendLine(header);
+            //System.Diagnostics.Debug.Print(header);
 
-                GenerateDiagramModel(diagram, elements);
-            }
+            GenerateDiagramModel(diagram, elements);
 
             var result = diagram.ToString();
 
@@ -2026,7 +2014,7 @@ namespace CanvasDiagramEditor
         {
             using (var writer = new System.IO.StreamWriter(fileName))
             {
-                string model = GenerateDiagramModel(canvas);
+                string model = GenerateDiagramModel(canvas, null);
 
                 writer.Write(model);
             }
@@ -2130,7 +2118,7 @@ namespace CanvasDiagramEditor
         {
             List<string> diagrams = null;
 
-            var currentDiagram = GenerateDiagramModel(canvas);
+            var currentDiagram = GenerateDiagramModel(canvas, null);
 
             if (exportHistory == false)
             {
@@ -2155,7 +2143,7 @@ namespace CanvasDiagramEditor
 
         public void Print()
         {
-            var model = GenerateDiagramModel(options.currentCanvas);
+            var model = GenerateDiagramModel(options.currentCanvas, null);
 
             var canvas = new Canvas()
             {
@@ -2217,7 +2205,7 @@ namespace CanvasDiagramEditor
         {
             var canvas = options.currentCanvas;
 
-            var diagram = GenerateDiagramModel(canvas);
+            var diagram = GenerateDiagramModel(canvas, null);
 
             return diagram;
         }
@@ -3140,6 +3128,85 @@ namespace CanvasDiagramEditor
 
         #endregion
 
+        #region Solution
+
+        private void UpdateSelectedDiagramModel()
+        {
+            var canvas = editor.options.currentCanvas;
+            var diagram = SolutionTree.SelectedItem as TreeViewItem;
+            var uid = diagram.Uid;
+            var model = editor.GenerateDiagramModel(canvas, uid);
+
+            if (diagram != null)
+            {
+                diagram.Tag = new Diagram(model, canvas.Tag as History);
+            }
+        }
+
+        public string GenerateSolution()
+        {
+            var solution = SolutionTree.Items.Cast<TreeViewItem>().First();
+            var projects = solution.Items.Cast<TreeViewItem>();
+            string line = null;
+
+            var sb = new StringBuilder();
+
+            // update current diagram
+            UpdateSelectedDiagramModel();
+
+            // Solution
+            line = string.Format("{0}{1}{2}",
+                ModelConstants.PrefixRootElement,
+                ModelConstants.ArgumentSeparator,
+                solution.Uid);
+
+            sb.AppendLine(line);
+
+            //System.Diagnostics.Debug.Print(line);
+
+            foreach (var project in projects)
+            {
+                var diagrams = project.Items.Cast<TreeViewItem>();
+
+                // Project
+                line = string.Format("{0}{1}{2}",
+                    ModelConstants.PrefixRootElement,
+                    ModelConstants.ArgumentSeparator,
+                    project.Uid);
+
+                sb.AppendLine(line);
+
+                //System.Diagnostics.Debug.Print(line);
+
+                foreach (var diagram in diagrams)
+                {
+                    // Diagram
+
+                    //line = string.Format("{0}{1}{2}",
+                    //    ModelConstants.PrefixRootElement,
+                    //    ModelConstants.ArgumentSeparator,
+                    //    diagram.Uid);
+                    //sb.AppendLine(line);
+                    //System.Diagnostics.Debug.Print(line);
+
+                    // Diagram Elements
+                    if (diagram.Tag != null)
+                    {
+                        var _diagram = diagram.Tag as Diagram;
+
+                        var model = _diagram.Item1;
+                        var history = _diagram.Item2;
+
+                        sb.Append(model);
+                    }
+                }
+            }
+
+            return sb.ToString();
+        }
+
+        #endregion
+
         #region Button Events
 
         private void ResetZoom_Click(object sender, RoutedEventArgs e)
@@ -3149,9 +3216,12 @@ namespace CanvasDiagramEditor
 
         private void GenerateModel_Click(object sender, RoutedEventArgs e)
         {
-            var diagram = editor.Generate();
+            //var diagram = editor.Generate();
+            //this.TextModel.Text = diagram;
 
-            this.TextModel.Text = diagram;
+            var solution = GenerateSolution();
+
+            this.TextModel.Text = solution;
         }
 
         private void GenerateModelFromSelected_Click(object sender, RoutedEventArgs e)
@@ -3548,7 +3618,8 @@ namespace CanvasDiagramEditor
             // diagram Tag for TreeViewItem:  Tuple<string, History>, where string is diagram model
 
             // store current model
-            var oldModel = editor.GenerateDiagramModel(canvas);
+            var uid = oldItem.Uid;
+            var oldModel = editor.GenerateDiagramModel(canvas, uid);
 
             if (oldItem != null)
             {
@@ -3603,12 +3674,25 @@ namespace CanvasDiagramEditor
 
         private void SolutionDeleteProject_Click(object sender, RoutedEventArgs e)
         {
-            throw new NotImplementedException();
+            var project = SolutionTree.SelectedItem as TreeViewItem;
+            var solution = project.Parent as TreeViewItem;
+
+            var diagrams = project.Items.Cast<TreeViewItem>().ToList();
+
+            foreach (var diagram in diagrams)
+            {
+                project.Items.Remove(diagram);
+            }
+
+            solution.Items.Remove(project);
         }
 
         private void ProjectDeleteDiagram_Click(object sender, RoutedEventArgs e)
         {
-            throw new NotImplementedException();
+            var diagram = SolutionTree.SelectedItem as TreeViewItem;
+            var project = diagram.Parent as TreeViewItem;
+
+            project.Items.Remove(diagram);
         }
 
         #endregion
