@@ -53,7 +53,7 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="4"/>
-            <ColumnDefinition Width="230"/>
+            <ColumnDefinition Width="300"/>
         </Grid.ColumnDefinitions>
 
         <Menu Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Background="LightGray" Margin="0">
@@ -186,13 +186,13 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="5"/>
-                    <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
                 <TreeView x:Name="SolutionTree" 
                           Grid.Column="0" Grid.Row="0" 
+                          Margin="0,4,4,0"
+                          MinHeight="200"
                           SelectedItemChanged="SolutionTree_SelectedItemChanged">
 
                     <TreeViewItem Header="Solution" IsExpanded="True" x:Uid="Solution|0" ContextMenu="{StaticResource SolutionContextMenuKey}" MouseRightButtonDown="TreeViewItem_MouseRightButtonDown">
@@ -206,116 +206,110 @@
 
                 </TreeView>
 
-                <ScrollViewer Grid.Column="1" Grid.Row="1"
-                              VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
-
-                    <StackPanel Background="LightGray" Margin="0,4,4,0">
+                <StackPanel Background="LightGray" Margin="0,4,4,4" Grid.Column="0" Grid.Row="1">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="40"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Zoom:" Grid.Column="0" Grid.Row="0" Margin="0,0,4,0" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                        <Slider x:Name="ZoomSlider" Grid.Column="1" Grid.Row="0" Minimum="0.1" Maximum="5.0" TickFrequency="0.1" IsSnapToTickEnabled="True" Value="1.0" ValueChanged="ZoomSlider_ValueChanged"/>
+                        <Button x:Name="ResetZoom" Grid.Column="2" Grid.Row="0" Content="Re_set" Margin="4,0,0,0" Click="ResetZoom_Click"/>
+                    </Grid>
+                    <Separator Margin="2"/>
+                    <Expander Header="_Options" IsExpanded="False">
+                        <StackPanel>
+                            <CheckBox x:Name="EnableHistory" Content="Enable _History" Margin="2" Click="EnableHistory_Click"/>
+                            <Separator Margin="2"/>
+                            <CheckBox x:Name="EnableSnap" Content="Enable S_nap to Grid" Margin="2" Click="EnableSnap_Click"/>
+                            <CheckBox x:Name="SnapOnRelease" Content="Snap to Gri_d on Release" Margin="2" Click="SnapOnRelease_Click"/>
+                            <Separator Margin="2"/>
+                            <CheckBox x:Name="EnableInsertLast" Content="Insert Last on Left _Click" Margin="2" Click="EnableInsertLast_Click"/>
+                            <Separator Margin="2"/>
+                            <CheckBox x:Name="EnablePageGrid" Content="Enable Page Grid" Margin="2" Click="EnablePageGrid_Click"/>
+                            <CheckBox x:Name="EnablePageTemplate" Content="Enable Page Template" Margin="2" Click="EnablePageTemplate_Click"/>
+                        </StackPanel>
+                    </Expander>
+                    <Separator Margin="2"/>
+                    <Expander Header="Diagram _Properties" IsExpanded="False">
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="40"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                            </Grid.RowDefinitions>
-                            <TextBlock Text="Zoom:" Grid.Column="0" Grid.Row="0" Margin="2" HorizontalAlignment="Right"/>
-                            <Slider x:Name="ZoomSlider" Grid.Column="1" Grid.Row="0" Minimum="0.1" Maximum="5.0" TickFrequency="0.1" IsSnapToTickEnabled="True" Value="1.0" ValueChanged="ZoomSlider_ValueChanged"/>
-                            <Button x:Name="ResetZoom" Grid.Column="2" Grid.Row="0" Content="Re_set" Margin="2" Click="ResetZoom_Click"/>
-                        </Grid>
-                        <Separator Margin="2"/>
-                        
-                        <Expander Header="_Options" IsExpanded="False">
-                            <StackPanel>
-                                <CheckBox x:Name="EnableHistory" Content="Enable _History" Margin="2" Click="EnableHistory_Click"/>
-                                <Separator Margin="2"/>
-                                <CheckBox x:Name="EnableSnap" Content="Enable S_nap to Grid" Margin="2" Click="EnableSnap_Click"/>
-                                <CheckBox x:Name="SnapOnRelease" Content="Snap to Gri_d on Release" Margin="2" Click="SnapOnRelease_Click"/>
-                                <Separator Margin="2"/>
-                                <CheckBox x:Name="EnableInsertLast" Content="Insert Last on Left _Click" Margin="2" Click="EnableInsertLast_Click"/>
-                                <Separator Margin="2"/>
-                                <CheckBox x:Name="EnablePageGrid" Content="Enable Page Grid" Margin="2" Click="EnablePageGrid_Click"/>
-                                <CheckBox x:Name="EnablePageTemplate" Content="Enable Page Template" Margin="2" Click="EnablePageTemplate_Click"/>
-                            </StackPanel>
-                        </Expander>
-
-                        <Separator Margin="2"/>
-                        <Expander Header="Diagram _Properties" IsExpanded="False">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="80"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                </Grid.RowDefinitions>
-                                <TextBlock Text="Page Width:" Grid.Column="0" Grid.Row="0" Margin="2" HorizontalAlignment="Right"/>
-                                <TextBox x:Name="TextPageWidth" Text="1260" Grid.Column="1" Grid.Row="0" Margin="2"/>
-                                <TextBlock Text="Page Height:" Grid.Column="0" Grid.Row="1" Margin="2" HorizontalAlignment="Right"/>
-                                <TextBox x:Name="TextPageHeight" Text="891" Grid.Column="1" Grid.Row="1" Margin="2"/>
-                                <TextBlock Text="Grid Origin X:" Grid.Column="0" Grid.Row="2" Margin="2" HorizontalAlignment="Right"/>
-                                <TextBox x:Name="TextGridOriginX" Text="330" Grid.Column="1" Grid.Row="2" Margin="2"/>
-                                <TextBlock Text="Grid Origin Y:" Grid.Column="0" Grid.Row="3" Margin="2" HorizontalAlignment="Right"/>
-                                <TextBox x:Name="TextGridOriginY" Text="35" Grid.Column="1" Grid.Row="3" Margin="2"/>
-                                <TextBlock Text="Grid Width:" Grid.Column="0" Grid.Row="4" Margin="2" HorizontalAlignment="Right"/>
-                                <TextBox x:Name="TextGridWidth" Text="600" Grid.Column="1" Grid.Row="4" Margin="2"/>
-                                <TextBlock Text="Grid Height:" Grid.Column="0" Grid.Row="5" Margin="2" HorizontalAlignment="Right"/>
-                                <TextBox x:Name="TextGridHeight" Text="750" Grid.Column="1" Grid.Row="5" Margin="2"/>
-                                <TextBlock Text="Grid Size:" Grid.Column="0" Grid.Row="6" Margin="2" HorizontalAlignment="Right"/>
-                                <TextBox x:Name="TextGridSize" Text="30" Grid.Column="1" Grid.Row="6" Margin="2"/>
-                                <TextBlock Text="SnapX:" Grid.Column="0" Grid.Row="7" Margin="2" HorizontalAlignment="Right"/>
-                                <TextBox x:Name="TextSnapX" Text="15" Grid.Column="1" Grid.Row="7" Margin="2"/>
-                                <TextBlock Text="SnapY:" Grid.Column="0" Grid.Row="8" Margin="2" HorizontalAlignment="Right"/>
-                                <TextBox x:Name="TextSnapY" Text="15" Grid.Column="1" Grid.Row="8" Margin="2"/>
-                                <TextBlock Text="SnapOffsetX:" Grid.Column="0" Grid.Row="9" Margin="2" HorizontalAlignment="Right"/>
-                                <TextBox x:Name="TextSnapOffsetX" Text="0" Grid.Column="1" Grid.Row="9" Margin="2"/>
-                                <TextBlock Text="SnapOffsetY:" Grid.Column="0" Grid.Row="10" Margin="2" HorizontalAlignment="Right"/>
-                                <TextBox x:Name="TextSnapOffsetY" Text="5" Grid.Column="1" Grid.Row="10" Margin="2"/>
-                                <Button x:Name="UpdateGrid" Content="Upda_te Properties" Grid.Column="1" Grid.Row="11" Margin="2" Click="UpdateGrid_Click"/>
-                            </Grid>
-                        </Expander>
-                        <Separator Margin="2"/>
-                        <Button x:Name="GenerateModel" Content="_Generate Model" Margin="2" Click="GenerateModel_Click"/>
-                        <Button x:Name="GenerateModelFromSelected" Content="Generate Model (from selected)" Margin="2" Click="GenerateModelFromSelected_Click"/>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="70"/>
+                                <ColumnDefinition Width="80"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
                                 <RowDefinition/>
                                 <RowDefinition/>
                                 <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
                             </Grid.RowDefinitions>
-                            <TextBlock Text="Offset X:" Grid.Column="0" Grid.Row="0" Margin="2" HorizontalAlignment="Right"/>
-                            <TextBox x:Name="TextOffsetX" Text="0" Grid.Column="1" Grid.Row="0" Margin="2"/>
-                            <TextBlock Text="Offset Y:" Grid.Column="0" Grid.Row="1" Margin="2" HorizontalAlignment="Right"/>
-                            <TextBox x:Name="TextOffsetY" Text="0" Grid.Column="1" Grid.Row="1" Margin="2"/>
-                            <Button x:Name="IsertModel" Content="_Insert Model" Grid.Column="1" Grid.Row="2" Margin="2" Click="InsertModel_Click"/>
+                            <TextBlock Text="Page Width:" Grid.Column="0" Grid.Row="0" Margin="2" HorizontalAlignment="Right"/>
+                            <TextBox x:Name="TextPageWidth" Text="1260" Grid.Column="1" Grid.Row="0" Margin="2"/>
+                            <TextBlock Text="Page Height:" Grid.Column="0" Grid.Row="1" Margin="2" HorizontalAlignment="Right"/>
+                            <TextBox x:Name="TextPageHeight" Text="891" Grid.Column="1" Grid.Row="1" Margin="2"/>
+                            <TextBlock Text="Grid Origin X:" Grid.Column="0" Grid.Row="2" Margin="2" HorizontalAlignment="Right"/>
+                            <TextBox x:Name="TextGridOriginX" Text="330" Grid.Column="1" Grid.Row="2" Margin="2"/>
+                            <TextBlock Text="Grid Origin Y:" Grid.Column="0" Grid.Row="3" Margin="2" HorizontalAlignment="Right"/>
+                            <TextBox x:Name="TextGridOriginY" Text="35" Grid.Column="1" Grid.Row="3" Margin="2"/>
+                            <TextBlock Text="Grid Width:" Grid.Column="0" Grid.Row="4" Margin="2" HorizontalAlignment="Right"/>
+                            <TextBox x:Name="TextGridWidth" Text="600" Grid.Column="1" Grid.Row="4" Margin="2"/>
+                            <TextBlock Text="Grid Height:" Grid.Column="0" Grid.Row="5" Margin="2" HorizontalAlignment="Right"/>
+                            <TextBox x:Name="TextGridHeight" Text="750" Grid.Column="1" Grid.Row="5" Margin="2"/>
+                            <TextBlock Text="Grid Size:" Grid.Column="0" Grid.Row="6" Margin="2" HorizontalAlignment="Right"/>
+                            <TextBox x:Name="TextGridSize" Text="30" Grid.Column="1" Grid.Row="6" Margin="2"/>
+                            <TextBlock Text="SnapX:" Grid.Column="0" Grid.Row="7" Margin="2" HorizontalAlignment="Right"/>
+                            <TextBox x:Name="TextSnapX" Text="15" Grid.Column="1" Grid.Row="7" Margin="2"/>
+                            <TextBlock Text="SnapY:" Grid.Column="0" Grid.Row="8" Margin="2" HorizontalAlignment="Right"/>
+                            <TextBox x:Name="TextSnapY" Text="15" Grid.Column="1" Grid.Row="8" Margin="2"/>
+                            <TextBlock Text="SnapOffsetX:" Grid.Column="0" Grid.Row="9" Margin="2" HorizontalAlignment="Right"/>
+                            <TextBox x:Name="TextSnapOffsetX" Text="0" Grid.Column="1" Grid.Row="9" Margin="2"/>
+                            <TextBlock Text="SnapOffsetY:" Grid.Column="0" Grid.Row="10" Margin="2" HorizontalAlignment="Right"/>
+                            <TextBox x:Name="TextSnapOffsetY" Text="5" Grid.Column="1" Grid.Row="10" Margin="2"/>
+                            <Button x:Name="UpdateGrid" Content="Upda_te Properties" Grid.Column="1" Grid.Row="11" Margin="2" Click="UpdateGrid_Click"/>
                         </Grid>
-                    </StackPanel>
+                    </Expander>
+                    <Separator Margin="2"/>
+                    <Button x:Name="GenerateModel" Content="_Generate Model" Margin="2" Click="GenerateModel_Click"/>
+                    <Button x:Name="GenerateModelFromSelected" Content="Generate Model (from selected)" Margin="2" Click="GenerateModelFromSelected_Click"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="70"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Offset X:" Grid.Column="0" Grid.Row="0" Margin="2" HorizontalAlignment="Right"/>
+                        <TextBox x:Name="TextOffsetX" Text="0" Grid.Column="1" Grid.Row="0" Margin="2"/>
+                        <TextBlock Text="Offset Y:" Grid.Column="0" Grid.Row="1" Margin="2" HorizontalAlignment="Right"/>
+                        <TextBox x:Name="TextOffsetY" Text="0" Grid.Column="1" Grid.Row="1" Margin="2"/>
+                        <Button x:Name="IsertModel" Content="_Insert Model" Grid.Column="1" Grid.Row="2" Margin="2" Click="InsertModel_Click"/>
+                    </Grid>
+                </StackPanel>
 
-                </ScrollViewer>
-
-                <GridSplitter Grid.Column="0" Grid.Row="2" Background="Transparent" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-                
-                <TextBox x:Name="TextModel" Grid.Row="3" 
-                         AcceptsReturn="True" AcceptsTab="True" 
-                         VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                         Margin="0,0,4,4" Padding="2"
-                         VerticalScrollBarVisibility="Auto">
+                <TextBox x:Name="TextModel" 
+                        Grid.Column="0"
+                        Grid.Row="2" 
+                        MinHeight="200"
+                        AcceptsReturn="True" AcceptsTab="True" 
+                        VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                        Margin="4,0,4,4" Padding="2"
+                        VerticalScrollBarVisibility="Auto">
                 </TextBox>
 
             </Grid>
