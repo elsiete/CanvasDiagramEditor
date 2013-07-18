@@ -3568,9 +3568,9 @@ namespace CanvasDiagramEditor
 
         #endregion
 
-        #region TreeView Events
+        #region Solution
 
-        private TreeViewItem CreateProjectItem()
+        private TreeViewItem CreateProjectItem(string uid)
         {
             var project = new TreeViewItem();
 
@@ -3578,18 +3578,25 @@ namespace CanvasDiagramEditor
             project.ContextMenu = this.Resources["ProjectContextMenuKey"] as ContextMenu;
             project.MouseRightButtonDown += TreeViewItem_MouseRightButtonDown;
 
-            var counter = editor.options.counter;
-            int id = counter.ProjectCount;
+            if (uid == null)
+            {
+                var counter = editor.options.counter;
+                int id = counter.ProjectCount;
 
-            project.Uid = ModelConstants.TagProjectHeader + ModelConstants.TagNameSeparator + id.ToString();
-            counter.ProjectCount++;
+                project.Uid = ModelConstants.TagProjectHeader + ModelConstants.TagNameSeparator + id.ToString();
+                counter.ProjectCount++;
+            }
+            else
+            {
+                project.Uid = uid;
+            }
 
             project.IsExpanded = true;
 
             return project;
         }
 
-        private TreeViewItem CreateDiagramItem()
+        private TreeViewItem CreateDiagramItem(string uid)
         {
             var diagram = new TreeViewItem();
 
@@ -3597,14 +3604,64 @@ namespace CanvasDiagramEditor
             diagram.ContextMenu = this.Resources["DiagramContextMenuKey"] as ContextMenu;
             diagram.MouseRightButtonDown += TreeViewItem_MouseRightButtonDown;
 
-            var counter = editor.options.counter;
-            int id = counter.DiagramCount;
+            if (uid == null)
+            {
+                var counter = editor.options.counter;
+                int id = counter.DiagramCount;
 
-            diagram.Uid = ModelConstants.TagDiagramHeader + ModelConstants.TagNameSeparator + id.ToString();
-            counter.DiagramCount++;
+                diagram.Uid = ModelConstants.TagDiagramHeader + ModelConstants.TagNameSeparator + id.ToString();
+                counter.DiagramCount++; 
+            }
+            else
+            {
+                diagram.Uid = uid;
+            }
 
             return diagram;
         }
+
+        private void AddProject(TreeViewItem solution)
+        {
+            var project = CreateProjectItem(null);
+
+            solution.Items.Add(project);
+
+            System.Diagnostics.Debug.Print("Added project: {0} to solution: {1}", project.Uid, solution.Uid);
+        }
+
+        private void AddDiagram(TreeViewItem project)
+        {
+            var diagram = CreateDiagramItem(null);
+
+            project.Items.Add(diagram);
+
+            System.Diagnostics.Debug.Print("Added diagram: {0} to project: {1}", diagram.Uid, project.Uid);
+        }
+
+        private void DeleteProject(TreeViewItem project)
+        {
+            var solution = project.Parent as TreeViewItem;
+
+            var diagrams = project.Items.Cast<TreeViewItem>().ToList();
+
+            foreach (var diagram in diagrams)
+            {
+                project.Items.Remove(diagram);
+            }
+
+            solution.Items.Remove(project);
+        }
+
+        private void DeleteDiagram(TreeViewItem diagram)
+        {
+            var project = diagram.Parent as TreeViewItem;
+
+            project.Items.Remove(diagram);
+        }
+
+        #endregion
+
+        #region TreeView Events
 
         private void TreeViewItem_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
@@ -3671,45 +3728,28 @@ namespace CanvasDiagramEditor
         {
             var solution = SolutionTree.SelectedItem as TreeViewItem;
 
-            var project = CreateProjectItem();
-
-            solution.Items.Add(project);
-
-            System.Diagnostics.Debug.Print("Added project: {0} to solution: {1}", project.Uid, solution.Uid);
-        } 
+            AddProject(solution);
+        }
 
         private void ProjectAddDiagram_Click(object sender, RoutedEventArgs e)
         {
             var project = SolutionTree.SelectedItem as TreeViewItem;
 
-            var diagram = CreateDiagramItem();
-
-            project.Items.Add(diagram);
-
-            System.Diagnostics.Debug.Print("Added diagram: {0} to project: {1}", diagram.Uid, project.Uid);
+            AddDiagram(project);
         }
 
         private void SolutionDeleteProject_Click(object sender, RoutedEventArgs e)
         {
             var project = SolutionTree.SelectedItem as TreeViewItem;
-            var solution = project.Parent as TreeViewItem;
 
-            var diagrams = project.Items.Cast<TreeViewItem>().ToList();
-
-            foreach (var diagram in diagrams)
-            {
-                project.Items.Remove(diagram);
-            }
-
-            solution.Items.Remove(project);
+            DeleteProject(project);
         }
 
         private void ProjectDeleteDiagram_Click(object sender, RoutedEventArgs e)
         {
             var diagram = SolutionTree.SelectedItem as TreeViewItem;
-            var project = diagram.Parent as TreeViewItem;
 
-            project.Items.Remove(diagram);
+            DeleteDiagram(diagram);
         }
 
         #endregion
