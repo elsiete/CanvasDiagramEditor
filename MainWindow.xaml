@@ -94,7 +94,8 @@
                       MouseUp="PanScrollViewer_MouseUp"
                       VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" 
                       Grid.Column="0" Grid.Row="1"
-                      Margin="4,4,0,4">
+                      Margin="4,4,0,4"
+                      Visibility="{Binding ElementName=EnablePage, Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}">
 
             <Border Background="Transparent" BorderThickness="0" BorderBrush="Transparent" ClipToBounds="True" PreviewMouseWheel="Border_PreviewMouseWheel">
 
@@ -191,12 +192,10 @@
                             SelectedItemChanged="SolutionTree_SelectedItemChanged">
 
                         <TreeViewItem Header="Solution" IsExpanded="True" x:Uid="Solution|0" ContextMenu="{StaticResource SolutionContextMenuKey}" MouseRightButtonDown="TreeViewItem_MouseRightButtonDown">
-
                             <TreeViewItem Header="Project" IsExpanded="True" x:Uid="Project|0" ContextMenu="{StaticResource ProjectContextMenuKey}" MouseRightButtonDown="TreeViewItem_MouseRightButtonDown">
                                 <TreeViewItem IsSelected="True" Header="Diagram" x:Uid="Diagram|0" ContextMenu="{StaticResource DiagramContextMenuKey}" MouseRightButtonDown="TreeViewItem_MouseRightButtonDown"/>
                                 <TreeViewItem Header="Diagram" x:Uid="Diagram|1" ContextMenu="{StaticResource DiagramContextMenuKey}" MouseRightButtonDown="TreeViewItem_MouseRightButtonDown"/>
                             </TreeViewItem>
-
                         </TreeViewItem>
 
                     </TreeView>
@@ -233,8 +232,9 @@
                                 <Separator Margin="2"/>
                                 <CheckBox x:Name="EnableInsertLast" Content="Insert Last on Left _Click" Margin="2" Click="EnableInsertLast_Click"/>
                                 <Separator Margin="2"/>
-                                <CheckBox x:Name="EnablePageGrid" Content="Enable Page Grid" Margin="2" Click="EnablePageGrid_Click"/>
-                                <CheckBox x:Name="EnablePageTemplate" Content="Enable Page Template" Margin="2" Click="EnablePageTemplate_Click"/>
+                                <CheckBox x:Name="EnablePage" IsChecked="True" Content="Enable Page" Margin="2" Click="EnablePage_Click"/>
+                                <CheckBox x:Name="EnablePageGrid" IsChecked="True" Content="Enable Page Grid" Margin="2" Click="EnablePageGrid_Click"/>
+                                <CheckBox x:Name="EnablePageTemplate" IsChecked="True" Content="Enable Page Template" Margin="2" Click="EnablePageTemplate_Click"/>
                             </StackPanel>
                         </Expander>
                         <Separator Margin="2"/>
