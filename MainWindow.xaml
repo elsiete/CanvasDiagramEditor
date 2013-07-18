@@ -232,7 +232,7 @@
                                 <Separator Margin="2"/>
                                 <CheckBox x:Name="EnableInsertLast" Content="Insert Last on Left _Click" Margin="2" Click="EnableInsertLast_Click"/>
                                 <Separator Margin="2"/>
-                                <CheckBox x:Name="EnablePage" IsChecked="True" Content="Enable Page" Margin="2" Click="EnablePage_Click"/>
+                                <CheckBox x:Name="EnablePage" IsChecked="True" Content="Enable Page" Margin="2"/>
                                 <CheckBox x:Name="EnablePageGrid" IsChecked="True" Content="Enable Page Grid" Margin="2" Click="EnablePageGrid_Click"/>
                                 <CheckBox x:Name="EnablePageTemplate" IsChecked="True" Content="Enable Page Template" Margin="2" Click="EnablePageTemplate_Click"/>
                             </StackPanel>

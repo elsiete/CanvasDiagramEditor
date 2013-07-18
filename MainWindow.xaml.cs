@@ -3783,11 +3783,6 @@ namespace CanvasDiagramEditor
         }
 
         #endregion
-
-        private void EnablePage_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
     }
 
     #endregion
