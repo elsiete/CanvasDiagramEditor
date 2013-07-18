@@ -2694,7 +2694,7 @@ namespace CanvasDiagramEditor
 
             double zoom_fx = CalculateZoom(zoom);
 
-            System.Diagnostics.Debug.Print("Zoom: {0}, zoom_fx: {1}", zoom, zoom_fx);
+            //System.Diagnostics.Debug.Print("Zoom: {0}, zoom_fx: {1}", zoom, zoom_fx);
 
             var st = GetZoomScaleTransform();
 
@@ -3686,22 +3686,41 @@ namespace CanvasDiagramEditor
             var oldItem = e.OldValue as TreeViewItem;
             var newItem = e.NewValue as TreeViewItem;
 
-            // TODO:
-            // diagram Tag for TreeViewItem:  Tuple<string, History>, where string is diagram model
+            SwitchItems(canvas, oldItem, newItem);
+        }
 
-            // store current model
-            var uid = oldItem.Uid;
-            var oldModel = editor.GenerateDiagramModel(canvas, uid);
+        private void SwitchItems(Canvas canvas, TreeViewItem oldItem, TreeViewItem newItem)
+        {
+            string oldUid = oldItem.Uid;
+            string newUid = newItem.Uid;
 
-            if (oldItem != null)
+            bool isOldItemDiagram = StringUtil.StartsWith(oldUid, ModelConstants.TagDiagramHeader);
+            bool isNewItemDiagram = StringUtil.StartsWith(newUid, ModelConstants.TagDiagramHeader);
+
+            if (isOldItemDiagram == true)
             {
-                oldItem.Tag = new Diagram(oldModel, canvas.Tag as History);
+                // save current model
+                SaveModel(canvas, oldItem);
             }
 
-            System.Diagnostics.Debug.Print("Selected Uid: {0}", newItem.Uid);
+            if (isNewItemDiagram == true)
+            {
+                // load new model
+                LoadModel(canvas, newItem);
 
-            // load new model
-            var tag = newItem.Tag;
+                EnablePage.IsChecked = true;
+            }
+            else
+            {
+                EnablePage.IsChecked = false;
+            }
+
+            System.Diagnostics.Debug.Print("Old Uid: {0}, new Uid: {1}", oldUid, newUid);
+        }
+
+        private void LoadModel(Canvas canvas, TreeViewItem item)
+        {
+            var tag = item.Tag;
 
             editor.ClearDiagramModel(canvas);
 
@@ -3721,6 +3740,17 @@ namespace CanvasDiagramEditor
                 canvas.Tag = new History(new Stack<string>(), new Stack<string>());
 
                 GenerateGrid(false);
+            }
+        }
+
+        private void SaveModel(Canvas canvas, TreeViewItem item)
+        {
+            var uid = item.Uid;
+            var model = editor.GenerateDiagramModel(canvas, uid);
+
+            if (item != null)
+            {
+                item.Tag = new Diagram(model, canvas.Tag as History);
             }
         }
 
@@ -3753,6 +3783,11 @@ namespace CanvasDiagramEditor
         }
 
         #endregion
+
+        private void EnablePage_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 
     #endregion
