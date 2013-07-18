@@ -103,7 +103,7 @@ namespace CanvasDiagramEditor.Export
                 {
                     name = args[1];
 
-                    if (StringUtil.Compare(args[0], ModelConstants.PrefixRootElement))
+                    if (StringUtil.Compare(args[0], ModelConstants.PrefixRoot))
                     {
                         if (StringUtil.StartsWith(name, ModelConstants.TagElementPin) &&
                             length == 4)

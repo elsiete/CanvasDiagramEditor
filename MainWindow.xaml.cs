@@ -457,13 +457,14 @@ namespace CanvasDiagramEditor
         #region Model String Constants
 
         public const char ArgumentSeparator = ';';
-        public const string PrefixRootElement = "+";
-        public const string PrefixChildElement = "-";
+        public const string PrefixRoot = "+";
+        public const string PrefixChild = "-";
 
         public const char TagNameSeparator = '|';
 
-        public const string TagProjectHeader = "Project";
-        public const string TagDiagramHeader = "Diagram";
+        public const string TagHeaderSolution = "Solution";
+        public const string TagHeaderProject = "Project";
+        public const string TagHeaderDiagram = "Diagram";
 
         public const string TagElementPin = "Pin";
         public const string TagElementWire = "Wire";
@@ -1557,9 +1558,9 @@ namespace CanvasDiagramEditor
             var prop = options.currentProperties;
 
             string header = string.Format("{0}{1}{2}{1}{3}{1}{4}{1}{5}{1}{6}{1}{7}{1}{8}{1}{9}{1}{10}{1}{11}{1}{12}{1}{13}",
-                ModelConstants.PrefixRootElement,
+                ModelConstants.PrefixRoot,
                 ModelConstants.ArgumentSeparator,
-                uid == null ? ModelConstants.TagDiagramHeader : uid,
+                uid == null ? ModelConstants.TagHeaderDiagram : uid,
                 prop.PageWidth, prop.PageHeight,
                 prop.GridOriginX, prop.GridOriginY,
                 prop.GridWidth, prop.GridHeight,
@@ -1615,7 +1616,7 @@ namespace CanvasDiagramEditor
                         margin.Left, margin.Top, //line.X1, line.Y1,
                         line.X2 + margin.Left, line.Y2 + margin.Top,
                         ModelConstants.ArgumentSeparator,
-                        ModelConstants.PrefixRootElement,
+                        ModelConstants.PrefixRoot,
                         line.IsStartVisible, line.IsEndVisible);
 
                     diagram.AppendLine("".PadLeft(4, ' ') + str);
@@ -1628,7 +1629,7 @@ namespace CanvasDiagramEditor
                         element.Uid,
                         x, y,
                         ModelConstants.ArgumentSeparator,
-                        ModelConstants.PrefixRootElement);
+                        ModelConstants.PrefixRoot);
 
                     diagram.AppendLine("".PadLeft(4, ' ') + str);
 
@@ -1653,7 +1654,7 @@ namespace CanvasDiagramEditor
                                 line.Uid,
                                 ModelConstants.WireStartType,
                                 ModelConstants.ArgumentSeparator,
-                                ModelConstants.PrefixChildElement);
+                                ModelConstants.PrefixChild);
 
                             diagram.AppendLine("".PadLeft(8, ' ') + str);
 
@@ -1666,7 +1667,7 @@ namespace CanvasDiagramEditor
                                 line.Uid,
                                 ModelConstants.WireEndType,
                                 ModelConstants.ArgumentSeparator,
-                                ModelConstants.PrefixChildElement);
+                                ModelConstants.PrefixChild);
 
                             diagram.AppendLine("".PadLeft(8, ' ') + str);
 
@@ -1712,9 +1713,9 @@ namespace CanvasDiagramEditor
                 {
                     name = args[1];
 
-                    if (StringUtil.Compare(args[0], ModelConstants.PrefixRootElement))
+                    if (StringUtil.Compare(args[0], ModelConstants.PrefixRoot))
                     {
-                        if (StringUtil.StartsWith(name, ModelConstants.TagDiagramHeader) &&
+                        if (StringUtil.StartsWith(name, ModelConstants.TagHeaderDiagram) &&
                             length == 13)
                         {
                             var prop = new DiagramProperties();
@@ -1858,7 +1859,7 @@ namespace CanvasDiagramEditor
                             dict.Add(args[1], tuple);
                         }
                     }
-                    else if (StringUtil.Compare(args[0], ModelConstants.PrefixChildElement))
+                    else if (StringUtil.Compare(args[0], ModelConstants.PrefixChild))
                     {
                         if (tuple != null)
                         {
@@ -3165,7 +3166,7 @@ namespace CanvasDiagramEditor
 
             // Solution
             line = string.Format("{0}{1}{2}",
-                ModelConstants.PrefixRootElement,
+                ModelConstants.PrefixRoot,
                 ModelConstants.ArgumentSeparator,
                 solution.Uid);
 
@@ -3179,7 +3180,7 @@ namespace CanvasDiagramEditor
 
                 // Project
                 line = string.Format("{0}{1}{2}",
-                    ModelConstants.PrefixRootElement,
+                    ModelConstants.PrefixRoot,
                     ModelConstants.ArgumentSeparator,
                     project.Uid);
 
@@ -3426,7 +3427,8 @@ namespace CanvasDiagramEditor
                                 var project = SolutionTree.SelectedItem as TreeViewItem;
 
                                 string uid = project.Uid;
-                                bool isSelectedProject = StringUtil.StartsWith(uid, ModelConstants.TagProjectHeader);
+                                bool isSelectedProject = StringUtil.StartsWith(uid, ModelConstants.TagHeaderProject);
+                                bool isSelectedDiagram = StringUtil.StartsWith(uid, ModelConstants.TagHeaderDiagram);
 
                                 if (isSelectedProject == true)
                                 {
@@ -3633,8 +3635,8 @@ namespace CanvasDiagramEditor
             string oldUid = oldItem.Uid;
             string newUid = newItem.Uid;
 
-            bool isOldItemDiagram = StringUtil.StartsWith(oldUid, ModelConstants.TagDiagramHeader);
-            bool isNewItemDiagram = StringUtil.StartsWith(newUid, ModelConstants.TagDiagramHeader);
+            bool isOldItemDiagram = StringUtil.StartsWith(oldUid, ModelConstants.TagHeaderDiagram);
+            bool isNewItemDiagram = StringUtil.StartsWith(newUid, ModelConstants.TagHeaderDiagram);
 
             if (isOldItemDiagram == true)
             {
@@ -3706,7 +3708,7 @@ namespace CanvasDiagramEditor
                 var counter = editor.options.counter;
                 int id = counter.ProjectCount;
 
-                project.Uid = ModelConstants.TagProjectHeader + ModelConstants.TagNameSeparator + id.ToString();
+                project.Uid = ModelConstants.TagHeaderProject + ModelConstants.TagNameSeparator + id.ToString();
                 counter.ProjectCount++;
             }
             else
@@ -3732,7 +3734,7 @@ namespace CanvasDiagramEditor
                 var counter = editor.options.counter;
                 int id = counter.DiagramCount;
 
-                diagram.Uid = ModelConstants.TagDiagramHeader + ModelConstants.TagNameSeparator + id.ToString();
+                diagram.Uid = ModelConstants.TagHeaderDiagram + ModelConstants.TagNameSeparator + id.ToString();
                 counter.DiagramCount++; 
             }
             else
