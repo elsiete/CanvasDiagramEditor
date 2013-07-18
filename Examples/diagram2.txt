@@ -1,18 +1,18 @@
 +;Diagram;1260;891;330;35;600;750;30;15;15;0;5
-+;Input|0;45;275
--;Wire|0;Start
-+;Input|1;45;365
--;Wire|2;Start
-+;AndGate|0;510;365
--;Wire|1;End
--;Wire|2;End
--;Wire|3;Start
-+;Output|0;930;365
--;Wire|3;End
-+;Wire|0;330;290;525;290;False;False
-+;Pin|0;525;290
--;Wire|0;End
--;Wire|1;Start
-+;Wire|1;525;290;525;365;False;False
-+;Wire|2;330;380;510;380;False;False
-+;Wire|3;540;380;930;380;False;False
+    +;Input|0;45;275
+        -;Wire|0;Start
+    +;Input|1;45;365
+        -;Wire|2;Start
+    +;AndGate|0;510;365
+        -;Wire|1;End
+        -;Wire|2;End
+        -;Wire|3;Start
+    +;Output|0;930;365
+        -;Wire|3;End
+    +;Wire|0;330;290;525;290;False;False
+    +;Pin|0;525;290
+        -;Wire|0;End
+        -;Wire|1;Start
+    +;Wire|1;525;290;525;365;False;False
+    +;Wire|2;330;380;510;380;False;False
+    +;Wire|3;540;380;930;380;False;False
