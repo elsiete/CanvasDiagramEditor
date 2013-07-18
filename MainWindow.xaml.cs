@@ -21,8 +21,9 @@ using System.Windows.Shapes;
 
 namespace CanvasDiagramEditor
 {
-    #region Tuple Aliases
+    #region Aliases
 
+    // Maps
     using PinMap = Tuple<string, string>;
     using TagMap = Tuple<LineEx, FrameworkElement, FrameworkElement>;
     using WireMap = Tuple<FrameworkElement, List<Tuple<string, string>>>;
@@ -33,6 +34,16 @@ namespace CanvasDiagramEditor
     // Canvas.Tag => Item1: undoHistory, Item2: redoHistory
     using History = Tuple<Stack<string>, Stack<string>>;
 
+    // Diagram: TreeViewItem.Tag => Item1: model, Item2: History
+    using Diagram = Tuple<string, Tuple<Stack<string>, Stack<string>>>;
+
+    // Solution Tree
+    using TreeDiagram = Stack<string>;
+    using TreeDiagrams = Stack<Stack<string>>; // Stack<TreeDiagram>
+    using TreeProject = Tuple<string, Stack<Stack<string>>>; // Tuple<string, TreeDiagrams>, where string is Project Name
+    using TreeProjects = Stack<Tuple<string, Stack<Stack<string>>>>; // Stack<Tuple<string, TreeProject>>, 
+    using TreeSolution = Tuple<string, Stack<Tuple<string, Stack<Stack<string>>>>>; // Tuple<string, TreeProjects>, where string is Solution Name 
+    
     #endregion
 
     #region Tuple .NET 3.5
@@ -58,6 +69,23 @@ namespace CanvasDiagramEditor
             Item1 = item1;
             Item2 = item2;
             Item3 = item3;
+        }
+    }
+
+    #endregion
+
+    #region StringUtil
+
+    public static class StringUtil
+    {
+        public static bool Compare(string strA, string strB)
+        {
+            return string.Compare(strA, strB, StringComparison.InvariantCultureIgnoreCase) == 0;
+        }
+
+        public static bool StartsWith(string str, string value)
+        {
+            return str.StartsWith(value, StringComparison.InvariantCultureIgnoreCase);
         }
     }
 
@@ -298,6 +326,8 @@ namespace CanvasDiagramEditor
             var line = new LineGeometry(lineStart, lineEnd);
             g.Children.Add(line);
 
+            g.Freeze();
+
             return g;
         }
 
@@ -388,8 +418,8 @@ namespace CanvasDiagramEditor
 
         #region Fields
 
-        private SolidColorBrush brush = new SolidColorBrush(Color.FromArgb(0x90, 0x50, 0x50, 0x50));
-        private Pen pen = new Pen(new SolidColorBrush(Color.FromArgb(0xF0, 0x90, 0x90, 0x90)), 1.0);
+        private SolidColorBrush brush = null;
+        private Pen pen = null;
         private double defaultThickness = 1.0;
 
         #endregion
@@ -399,8 +429,9 @@ namespace CanvasDiagramEditor
         public SelectionAdorner(UIElement adornedElement)
             : base(adornedElement)
         {
-
-        } 
+            brush = new SolidColorBrush(Color.FromArgb(0x90, 0x50, 0x50, 0x50));
+            pen = new Pen(new SolidColorBrush(Color.FromArgb(0xF0, 0x90, 0x90, 0x90)), defaultThickness);
+        }
 
         #endregion
 
@@ -434,12 +465,14 @@ namespace CanvasDiagramEditor
         #region Model String Constants
 
         public const char ArgumentSeparator = ';';
-        public const string PrefixRootElement = "+";
-        public const string PrefixChildElement = "-";
+        public const string PrefixRoot = "+";
+        public const string PrefixChild = "-";
 
         public const char TagNameSeparator = '|';
 
-        public const string TagDiagramHeader = "Diagram";
+        public const string TagHeaderSolution = "Solution";
+        public const string TagHeaderProject = "Project";
+        public const string TagHeaderDiagram = "Diagram";
 
         public const string TagElementPin = "Pin";
         public const string TagElementWire = "Wire";
@@ -501,10 +534,10 @@ namespace CanvasDiagramEditor
     {
         public IdCounter()
         {
-            Reset();
+            ResetAll();
         }
 
-        public void Reset()
+        public void ResetDiagram()
         {
             PinCount = 0;
             WireCount = 0;
@@ -514,6 +547,16 @@ namespace CanvasDiagramEditor
             OrGateCount = 0;
         }
 
+        public void ResetAll()
+        {
+            ProjectCount = 0;
+            DiagramCount = 0;
+
+            ResetDiagram();
+        }
+
+        public int ProjectCount { get; set; }
+        public int DiagramCount { get; set; }
         public int PinCount { get; set; }
         public int WireCount { get; set; }
         public int InputCount { get; set; }
@@ -602,7 +645,6 @@ namespace CanvasDiagramEditor
         public Point zoomPoint;
 
         public double reversePanDirection = -1.0; // reverse: 1.0, normal: -1.0
-        public double panSpeedFactor = 3.0; // pan speed factor, depends on current zoom
         public MouseButton panButton = MouseButton.Middle;
 
         #endregion
@@ -713,20 +755,22 @@ namespace CanvasDiagramEditor
             return tuple;
         }
 
-        public void AddToHistory(Canvas canvas)
+        public string AddToHistory(Canvas canvas)
         {
             if (options.enableHistory != true)
-                return;
+                return null;
 
             var tuple = GetHistory(canvas);
             var undoHistory = tuple.Item1;
             var redoHistory = tuple.Item2;
 
-            var model = GenerateDiagramModel(canvas);
+            var model = GenerateDiagramModel(canvas, null);
 
             undoHistory.Push(model);
 
             redoHistory.Clear();
+
+            return model;
         }
 
         private void RollbackUndoHistory(Canvas canvas)
@@ -786,7 +830,7 @@ namespace CanvasDiagramEditor
             // save current model
             if (pushRedo == true)
             {
-                var current = GenerateDiagramModel(canvas);
+                var current = GenerateDiagramModel(canvas, null);
                 redoHistory.Push(current);
             }
 
@@ -794,7 +838,7 @@ namespace CanvasDiagramEditor
             var model = undoHistory.Pop();
 
             ClearDiagramModel(canvas);
-            ParseDiagramModel(model, canvas, path, 0, 0, false, true, false);
+            ParseDiagramModel(model, canvas, path, 0, 0, false, true, false, true);
         }
 
         private void Redo(Canvas canvas, Path path, bool pushUndo)
@@ -812,7 +856,7 @@ namespace CanvasDiagramEditor
             // save current model
             if (pushUndo == true)
             {
-                var current = GenerateDiagramModel(canvas);
+                var current = GenerateDiagramModel(canvas, null);
                 undoHistory.Push(current);
             }
 
@@ -820,7 +864,7 @@ namespace CanvasDiagramEditor
             var model = redoHistory.Pop();
 
             ClearDiagramModel(canvas);
-            ParseDiagramModel(model, canvas, path, 0, 0, false, true, false);
+            ParseDiagramModel(model, canvas, path, 0, 0, false, true, false, true);
         }
 
         public void Undo()
@@ -1290,7 +1334,7 @@ namespace CanvasDiagramEditor
             //    element.GetType(), element.Uid, element.Parent.GetType());
 
             if (element is LineEx && uid != null &&
-                uid.StartsWith(ModelConstants.TagElementWire, StringComparison.InvariantCultureIgnoreCase))
+                StringUtil.StartsWith(uid, ModelConstants.TagElementWire))
             {
                 var line = element as LineEx;
 
@@ -1385,7 +1429,7 @@ namespace CanvasDiagramEditor
                 string uid = _element.Uid;
 
                 if (uid != null &&
-                    uid.StartsWith(ModelConstants.TagElementPin, StringComparison.InvariantCultureIgnoreCase))
+                    StringUtil.StartsWith(uid, ModelConstants.TagElementPin))
                 {
                     if (_element.Tag != null)
                     {
@@ -1424,7 +1468,7 @@ namespace CanvasDiagramEditor
                     {
                         var _line = tuple.Item1;
 
-                        if (CompareString(_line.Uid, line.Uid))
+                        if (StringUtil.Compare(_line.Uid, line.Uid))
                         {
                             remove.Add(tuple);
                         }
@@ -1463,7 +1507,7 @@ namespace CanvasDiagramEditor
             //    element.GetType(), element.Uid, element.Parent.GetType());
 
             if (element is LineEx && uid != null &&
-                uid.StartsWith(ModelConstants.TagElementWire, StringComparison.InvariantCultureIgnoreCase))
+                StringUtil.StartsWith(uid, ModelConstants.TagElementWire))
             {
                 var line = element as LineEx;
 
@@ -1505,54 +1549,37 @@ namespace CanvasDiagramEditor
 
         #region Diagram Model
 
-        private static bool CompareString(string strA, string strB)
-        {
-            return string.Compare(strA, strB, StringComparison.InvariantCultureIgnoreCase) == 0;
-        }
-
-        private void ClearDiagramModel(Canvas canvas)
+        public void ClearDiagramModel(Canvas canvas)
         {
             canvas.Children.Clear();
 
-            options.counter.Reset();
+            options.counter.ResetDiagram();
         }
 
-        private string GenerateDiagramModel(Canvas diagram)
-        {
-            var diagrams = new List<Canvas>();
-
-            diagrams.Add(diagram);
-
-            return GenerateDiagramModel(diagrams);
-        }
-
-        private string GenerateDiagramModel(IEnumerable<Canvas> diagrams)
+        public string GenerateDiagramModel(Canvas canvas, string uid)
         {
             var sw = System.Diagnostics.Stopwatch.StartNew();
 
             var diagram = new StringBuilder();
 
-            foreach (var canvas in diagrams)
-            {
-                var elements = canvas.Children.Cast<FrameworkElement>();
-                var prop = options.currentProperties;
+            var elements = canvas.Children.Cast<FrameworkElement>();
+            var prop = options.currentProperties;
 
-                string header = string.Format("{0}{1}{2}{1}{3}{1}{4}{1}{5}{1}{6}{1}{7}{1}{8}{1}{9}{1}{10}{1}{11}{1}{12}{1}{13}",
-                    ModelConstants.PrefixRootElement,
-                    ModelConstants.ArgumentSeparator,
-                    ModelConstants.TagDiagramHeader,
-                    prop.PageWidth, prop.PageHeight,
-                    prop.GridOriginX, prop.GridOriginY,
-                    prop.GridWidth, prop.GridHeight,
-                    prop.GridSize,
-                    prop.SnapX, prop.SnapY,
-                    prop.SnapOffsetX, prop.SnapOffsetY);
+            string header = string.Format("{0}{1}{2}{1}{3}{1}{4}{1}{5}{1}{6}{1}{7}{1}{8}{1}{9}{1}{10}{1}{11}{1}{12}{1}{13}",
+                ModelConstants.PrefixRoot,
+                ModelConstants.ArgumentSeparator,
+                uid == null ? ModelConstants.TagHeaderDiagram : uid,
+                prop.PageWidth, prop.PageHeight,
+                prop.GridOriginX, prop.GridOriginY,
+                prop.GridWidth, prop.GridHeight,
+                prop.GridSize,
+                prop.SnapX, prop.SnapY,
+                prop.SnapOffsetX, prop.SnapOffsetY);
 
-                diagram.AppendLine(header);
-                //System.Diagnostics.Debug.Print(header);
+            diagram.AppendLine(header);
+            //System.Diagnostics.Debug.Print(header);
 
-                GenerateDiagramModel(diagram, elements);
-            }
+            GenerateDiagramModel(diagram, elements);
 
             var result = diagram.ToString();
 
@@ -1597,10 +1624,10 @@ namespace CanvasDiagramEditor
                         margin.Left, margin.Top, //line.X1, line.Y1,
                         line.X2 + margin.Left, line.Y2 + margin.Top,
                         ModelConstants.ArgumentSeparator,
-                        ModelConstants.PrefixRootElement,
+                        ModelConstants.PrefixRoot,
                         line.IsStartVisible, line.IsEndVisible);
 
-                    diagram.AppendLine(str);
+                    diagram.AppendLine("".PadLeft(4, ' ') + str);
 
                     //System.Diagnostics.Debug.Print(str);
                 }
@@ -1610,9 +1637,9 @@ namespace CanvasDiagramEditor
                         element.Uid,
                         x, y,
                         ModelConstants.ArgumentSeparator,
-                        ModelConstants.PrefixRootElement);
+                        ModelConstants.PrefixRoot);
 
-                    diagram.AppendLine(str);
+                    diagram.AppendLine("".PadLeft(4, ' ') + str);
 
                     //System.Diagnostics.Debug.Print(str);
                 }
@@ -1635,9 +1662,9 @@ namespace CanvasDiagramEditor
                                 line.Uid,
                                 ModelConstants.WireStartType,
                                 ModelConstants.ArgumentSeparator,
-                                ModelConstants.PrefixChildElement);
+                                ModelConstants.PrefixChild);
 
-                            diagram.AppendLine(str);
+                            diagram.AppendLine("".PadLeft(8, ' ') + str);
 
                             //System.Diagnostics.Debug.Print(str);
                         }
@@ -1648,9 +1675,9 @@ namespace CanvasDiagramEditor
                                 line.Uid,
                                 ModelConstants.WireEndType,
                                 ModelConstants.ArgumentSeparator,
-                                ModelConstants.PrefixChildElement);
+                                ModelConstants.PrefixChild);
 
-                            diagram.AppendLine(str);
+                            diagram.AppendLine("".PadLeft(8, ' ') + str);
 
                             //System.Diagnostics.Debug.Print(str);
                         }
@@ -1659,45 +1686,88 @@ namespace CanvasDiagramEditor
             }
         }
 
-        private void ParseDiagramModel(string diagram,
-            Canvas canvas, Path path,
-            double offsetX, double offsetY,
-            bool appendIds, bool updateIds,
-            bool select)
+        public TreeSolution ParseDiagramModel(string model,
+            Canvas canvas, 
+            Path path,
+            double offsetX, 
+            double offsetY,
+            bool appendIds, 
+            bool updateIds,
+            bool select,
+            bool createElements)
         {
-            var counter = new IdCounter();
-            WireMap tuple = null;
-            string name = null;
+            if (model == null)
+                return null;
 
             var sw = System.Diagnostics.Stopwatch.StartNew();
 
-            var dict = new Dictionary<string, WireMap>();
+            string name = null;
+            var counter = new IdCounter();
             var elements = new List<FrameworkElement>();
+            WireMap tuple = null;
+            var dict = new Dictionary<string, WireMap>();
 
-            if (diagram == null)
-                return;
+            TreeSolution solution = null;
+            TreeProjects projects = null;
+            TreeProject project = null;
+            TreeDiagrams diagrams = null;
+            TreeDiagram diagram = null;
 
-            var lines = diagram.Split(Environment.NewLine.ToCharArray(),
+            var lines = model.Split(Environment.NewLine.ToCharArray(),
                 StringSplitOptions.RemoveEmptyEntries);
 
-            //System.Diagnostics.Debug.Print("Parsing diagram model:");
+            //System.Diagnostics.Debug.Print("Parsing model:");
 
-            // create root elements
             foreach (var line in lines)
             {
-                var args = line.Split(ModelConstants.ArgumentSeparator);
+                var args = line.Split(new char[] { ModelConstants.ArgumentSeparator, '\t', ' ' }, 
+                    StringSplitOptions.RemoveEmptyEntries);
+
                 int length = args.Length;
 
                 //System.Diagnostics.Debug.Print(line);
 
-                if (length >= 2)
-                {
-                    name = args[1];
+                if (length < 2)
+                    continue;
 
-                    if (CompareString(args[0], ModelConstants.PrefixRootElement))
+                name = args[1];
+
+                // root element
+                if (StringUtil.Compare(args[0], ModelConstants.PrefixRoot))
+                {
+                    // Solution
+                    if (StringUtil.StartsWith(name, ModelConstants.TagHeaderSolution) &&
+                        length == 2)
                     {
-                        if (name.StartsWith(ModelConstants.TagDiagramHeader, StringComparison.InvariantCultureIgnoreCase) &&
-                            length == 13)
+                        projects = new TreeProjects();
+                        solution = new TreeSolution(name, projects);
+                    }
+
+                    // Project
+                    else if (StringUtil.StartsWith(name, ModelConstants.TagHeaderProject) &&
+                        length == 2)
+                    {
+                        if (projects != null)
+                        {
+                            diagrams = new TreeDiagrams();
+                            project = new TreeProject(name, diagrams);
+                            projects.Push(project);
+                        }
+                    }
+
+                    // Diagram
+
+                    else if (StringUtil.StartsWith(name, ModelConstants.TagHeaderDiagram) &&
+                        length == 13)
+                    {
+                        if (diagrams != null)
+                        {
+                            diagram = new TreeDiagram();
+                            diagrams.Push(diagram);
+                            diagram.Push(line);
+                        }
+
+                        if (createElements == true)
                         {
                             var prop = new DiagramProperties();
 
@@ -1713,17 +1783,27 @@ namespace CanvasDiagramEditor
                             prop.SnapOffsetX = double.Parse(args[11]);
                             prop.SnapOffsetY = double.Parse(args[12]);
 
-                            GenerateGrid(path, 
-                                prop.GridOriginX, prop.GridOriginY, 
-                                prop.GridWidth, prop.GridHeight, 
+                            GenerateGrid(path,
+                                prop.GridOriginX, prop.GridOriginY,
+                                prop.GridWidth, prop.GridHeight,
                                 prop.GridSize);
 
                             SetDiagramSize(canvas, prop.PageWidth, prop.PageHeight);
 
                             options.currentProperties = prop;
                         }
-                        else if (name.StartsWith(ModelConstants.TagElementPin, StringComparison.InvariantCultureIgnoreCase) &&
-                            length == 4)
+                    } 
+
+                    // Pin
+                    else if (StringUtil.StartsWith(name, ModelConstants.TagElementPin) &&
+                        length == 4)
+                    {
+                        if (diagram != null)
+                        {
+                            diagram.Push(line);
+                        }
+
+                        if (createElements == true)
                         {
                             double x = double.Parse(args[2]);
                             double y = double.Parse(args[3]);
@@ -1739,8 +1819,18 @@ namespace CanvasDiagramEditor
 
                             dict.Add(args[1], tuple);
                         }
-                        else if (name.StartsWith(ModelConstants.TagElementInput, StringComparison.InvariantCultureIgnoreCase) &&
-                            length == 4)
+                    }
+
+                    // Input
+                    else if (StringUtil.StartsWith(name, ModelConstants.TagElementInput) &&
+                        length == 4)
+                    {
+                        if (diagram != null)
+                        {
+                            diagram.Push(line);
+                        }
+
+                        if (createElements == true)
                         {
                             double x = double.Parse(args[2]);
                             double y = double.Parse(args[3]);
@@ -1756,8 +1846,18 @@ namespace CanvasDiagramEditor
 
                             dict.Add(args[1], tuple);
                         }
-                        else if (name.StartsWith(ModelConstants.TagElementOutput, StringComparison.InvariantCultureIgnoreCase) &&
-                            length == 4)
+                    }
+
+                    // Output
+                    else if (StringUtil.StartsWith(name, ModelConstants.TagElementOutput) &&
+                        length == 4)
+                    {
+                        if (diagram != null)
+                        {
+                            diagram.Push(line);
+                        }
+
+                        if (createElements == true)
                         {
                             double x = double.Parse(args[2]);
                             double y = double.Parse(args[3]);
@@ -1773,8 +1873,18 @@ namespace CanvasDiagramEditor
 
                             dict.Add(args[1], tuple);
                         }
-                        else if (name.StartsWith(ModelConstants.TagElementAndGate, StringComparison.InvariantCultureIgnoreCase) &&
-                            length == 4)
+                    }
+
+                    // AndGate
+                    else if (StringUtil.StartsWith(name, ModelConstants.TagElementAndGate) &&
+                        length == 4)
+                    {
+                        if (diagram != null)
+                        {
+                            diagram.Push(line);
+                        }
+
+                        if (createElements == true)
                         {
                             double x = double.Parse(args[2]);
                             double y = double.Parse(args[3]);
@@ -1790,8 +1900,18 @@ namespace CanvasDiagramEditor
 
                             dict.Add(args[1], tuple);
                         }
-                        else if (name.StartsWith(ModelConstants.TagElementOrGate, StringComparison.InvariantCultureIgnoreCase) &&
-                            length == 4)
+                    }
+
+                    // OrGate
+                    else if (StringUtil.StartsWith(name, ModelConstants.TagElementOrGate) &&
+                        length == 4)
+                    {
+                        if (diagram != null)
+                        {
+                            diagram.Push(line);
+                        }
+
+                        if (createElements == true)
                         {
                             double x = double.Parse(args[2]);
                             double y = double.Parse(args[3]);
@@ -1807,8 +1927,18 @@ namespace CanvasDiagramEditor
 
                             dict.Add(args[1], tuple);
                         }
-                        else if (name.StartsWith(ModelConstants.TagElementWire, StringComparison.InvariantCultureIgnoreCase) &&
-                            (length == 6 || length == 8))
+                    }
+
+                    // Wire
+                    else if (StringUtil.StartsWith(name, ModelConstants.TagElementWire) &&
+                        (length == 6 || length == 8))
+                    {
+                        if (diagram != null)
+                        {
+                            diagram.Push(line);
+                        }
+
+                        if (createElements == true)
                         {
                             double x1 = double.Parse(args[2]);
                             double y1 = double.Parse(args[3]);
@@ -1840,9 +1970,20 @@ namespace CanvasDiagramEditor
                             dict.Add(args[1], tuple);
                         }
                     }
-                    else if (CompareString(args[0], ModelConstants.PrefixChildElement))
+                }
+
+                // child element
+                else if (StringUtil.Compare(args[0], ModelConstants.PrefixChild))
+                {
+                    if (StringUtil.StartsWith(name, ModelConstants.TagElementWire) && 
+                        length == 3)
                     {
-                        if (tuple != null)
+                        if (diagram != null)
+                        {
+                            diagram.Push(line);
+                        }
+
+                        if (createElements == true && tuple != null)
                         {
                             var wires = tuple.Item2;
 
@@ -1852,20 +1993,31 @@ namespace CanvasDiagramEditor
                 }
             }
 
-            // update wire connections
-            UpdateWireConnections(dict);
-
-            if (appendIds == true)
+            if (createElements == true)
             {
-                AppendElementIds(options, elements);
+                UpdateWireConnections(dict);
+
+                if (appendIds == true)
+                {
+                    AppendElementIds(options, elements);
+                }
+
+                if (updateIds == true)
+                {
+                    UpdateIdCounter(options, counter);
+                }
+
+                AddElementsToCanvas(canvas, elements, select);
             }
 
-            if (updateIds == true)
-            {
-                UpdateIdCounter(options, counter);
-            }
+            sw.Stop();
+            System.Diagnostics.Debug.Print("ParseDiagramModel() in {0}ms", sw.Elapsed.TotalMilliseconds);
 
-            // add elements to canvas
+            return solution;
+        }
+
+        private static void AddElementsToCanvas(Canvas canvas, List<FrameworkElement> elements, bool select)
+        {
             foreach (var element in elements)
             {
                 canvas.Children.Add(element);
@@ -1875,9 +2027,6 @@ namespace CanvasDiagramEditor
                     SelectionThumb.SetIsSelected(element, true);
                 }
             }
-
-            sw.Stop();
-            System.Diagnostics.Debug.Print("ParseDiagramModel() in {0}ms", sw.Elapsed.TotalMilliseconds);
         }
 
         private static void UpdateIdCounter(DiagramEditorOptions options, IdCounter counter)
@@ -1913,14 +2062,14 @@ namespace CanvasDiagramEditor
                         string _name = wire.Item1;
                         string _type = wire.Item2;
 
-                        if (CompareString(_type, ModelConstants.WireStartType))
+                        if (StringUtil.Compare(_type, ModelConstants.WireStartType))
                         {
                             var line = dict[_name].Item1 as LineEx;
 
                             var _tuple = new TagMap(line, element, null);
                             tuples.Add(_tuple);
                         }
-                        else if (CompareString(_type, ModelConstants.WireEndType))
+                        else if (StringUtil.Compare(_type, ModelConstants.WireEndType))
                         {
                             var line = dict[_name].Item1 as LineEx;
 
@@ -2003,17 +2152,22 @@ namespace CanvasDiagramEditor
 
         #region Open/Save
 
-        private void Save(string fileName, Canvas canvas)
+        private void SaveModel(string fileName, string model)
         {
             using (var writer = new System.IO.StreamWriter(fileName))
             {
-                string model = GenerateDiagramModel(canvas);
-
                 writer.Write(model);
             }
         }
 
-        private void Open(string fileName, Canvas canvas, Path path)
+        private void SaveDiagram(string fileName, Canvas canvas)
+        {
+            string model = GenerateDiagramModel(canvas, null);
+
+            SaveModel(fileName, model);
+        }
+
+        private void OpenDiagram(string fileName, Canvas canvas, Path path)
         {
             using (var reader = new System.IO.StreamReader(fileName))
             {
@@ -2022,11 +2176,25 @@ namespace CanvasDiagramEditor
                 AddToHistory(canvas);
 
                 ClearDiagramModel(canvas);
-                ParseDiagramModel(diagram, canvas, path, 0, 0, false, true, false);
+                ParseDiagramModel(diagram, canvas, path, 0, 0, false, true, false, true);
             }
         }
 
-        public string Import(string fileName)
+        private TreeSolution OpenSolution(string fileName)
+        {
+            TreeSolution solution = null;
+
+            using (var reader = new System.IO.StreamReader(fileName))
+            {
+                string diagram = reader.ReadToEnd();
+
+                solution = ParseDiagramModel(diagram, null, null, 0, 0, false, false, false, false);
+            }
+
+            return solution;
+        }
+
+        public string ImportModel(string fileName)
         {
             using (var reader = new System.IO.StreamReader(fileName))
             {
@@ -2036,7 +2204,7 @@ namespace CanvasDiagramEditor
             }
         }
 
-        public void Open()
+        public void OpenDiagram()
         {
             var dlg = new Microsoft.Win32.OpenFileDialog()
             {
@@ -2050,11 +2218,34 @@ namespace CanvasDiagramEditor
                 var canvas = options.currentCanvas;
                 var path = options.currentPathGrid;
 
-                this.Open(dlg.FileName, canvas, path);
+                this.OpenDiagram(dlg.FileName, canvas, path);
             }
         }
 
-        public void Save()
+        public TreeSolution OpenSolution()
+        {
+            var dlg = new Microsoft.Win32.OpenFileDialog()
+            {
+                Filter = "Solution (*.txt)|*.txt|All Files (*.*)|*.*",
+                Title = "Open Solution"
+            };
+
+            TreeSolution solution = null;
+
+            var res = dlg.ShowDialog();
+            if (res == true)
+            {
+                var canvas = options.currentCanvas;
+
+                ClearDiagramModel(canvas);
+
+                solution = OpenSolution(dlg.FileName);
+            }
+
+            return solution;
+        }
+
+        public void SaveDiagram()
         {
             var dlg = new Microsoft.Win32.SaveFileDialog()
             {
@@ -2068,17 +2259,33 @@ namespace CanvasDiagramEditor
             {
                 var canvas = options.currentCanvas;
 
-                this.Save(dlg.FileName, canvas);
+                this.SaveDiagram(dlg.FileName, canvas);
             }
         }
 
-        public void Export()
+        public void SaveSolution(string model)
+        {
+            var dlg = new Microsoft.Win32.SaveFileDialog()
+            {
+                Filter = "Solution (*.txt)|*.txt|All Files (*.*)|*.*",
+                Title = "Save Solution",
+                FileName = "solution"
+            };
+
+            var res = dlg.ShowDialog();
+            if (res == true)
+            {
+                this.SaveModel(dlg.FileName, model);
+            }
+        }
+
+        public void ExportDiagram()
         {
             //Export(new MsoWordExport(), false);
             Export(new OpenXmlExport(), false);
         }
 
-        public void ExportHistory()
+        public void ExportDiagramHistory()
         {
             //Export(new MsoWordExport(), true);
             Export(new OpenXmlExport(), true);
@@ -2111,7 +2318,7 @@ namespace CanvasDiagramEditor
         {
             List<string> diagrams = null;
 
-            var currentDiagram = GenerateDiagramModel(canvas);
+            var currentDiagram = GenerateDiagramModel(canvas, null);
 
             if (exportHistory == false)
             {
@@ -2136,7 +2343,7 @@ namespace CanvasDiagramEditor
 
         public void Print()
         {
-            var model = GenerateDiagramModel(options.currentCanvas);
+            var model = GenerateDiagramModel(options.currentCanvas, null);
 
             var canvas = new Canvas()
             {
@@ -2147,7 +2354,7 @@ namespace CanvasDiagramEditor
 
             Path path = new Path();
 
-            ParseDiagramModel(model, canvas, path, 0, 0, false, false, false);
+            ParseDiagramModel(model, canvas, path, 0, 0, false, false, false, true);
 
             Visual visual = canvas;
 
@@ -2166,7 +2373,7 @@ namespace CanvasDiagramEditor
             var res = dlg.ShowDialog();
             if (res == true)
             {
-                var diagram = this.Import(dlg.FileName);
+                var diagram = this.ImportModel(dlg.FileName);
 
                 return diagram;
             }
@@ -2182,7 +2389,7 @@ namespace CanvasDiagramEditor
             AddToHistory(canvas);
 
             DeselectAll();
-            ParseDiagramModel(diagram, canvas, path, offsetX, offsetY, true, true, true);
+            ParseDiagramModel(diagram, canvas, path, offsetX, offsetY, true, true, true, true);
         }
 
         public void Clear()
@@ -2198,7 +2405,7 @@ namespace CanvasDiagramEditor
         {
             var canvas = options.currentCanvas;
 
-            var diagram = GenerateDiagramModel(canvas);
+            var diagram = GenerateDiagramModel(canvas, null);
 
             return diagram;
         }
@@ -2311,8 +2518,6 @@ namespace CanvasDiagramEditor
 
             SetSelectionThumbsSelection(canvas, true);
             SetLinesSelection(canvas, true);
-
-            SelectionThumb.SetIsSelected(canvas, true);
         }
 
         public void DeselectAll()
@@ -2321,8 +2526,6 @@ namespace CanvasDiagramEditor
 
             SetSelectionThumbsSelection(canvas, false);
             SetLinesSelection(canvas, false);
-
-            SelectionThumb.SetIsSelected(canvas, false);
         }
 
         public void Preferences()
@@ -2375,7 +2578,7 @@ namespace CanvasDiagramEditor
                 element.GetType(), element.Uid, element.Parent.GetType());
 
             if (element is LineEx && uid != null &&
-                uid.StartsWith(ModelConstants.TagElementWire, StringComparison.InvariantCultureIgnoreCase))
+                StringUtil.StartsWith(uid, ModelConstants.TagElementWire))
             {
                 var line = element as LineEx;
 
@@ -2401,7 +2604,7 @@ namespace CanvasDiagramEditor
             }
 
             if (pin != null &&
-                (!CompareString(pin.Name, ResourceConstants.StandalonePinName) || Keyboard.Modifiers == ModifierKeys.Control))
+                (!StringUtil.Compare(pin.Name, ResourceConstants.StandalonePinName) || Keyboard.Modifiers == ModifierKeys.Control))
             {
                 if (options.currentLine == null)
                     AddToHistory(canvas);
@@ -2506,6 +2709,9 @@ namespace CanvasDiagramEditor
             editor = new DiagramEditor();
             editor.options = new DiagramEditorOptions();
 
+            editor.options.counter.ProjectCount = 1;
+            editor.options.counter.DiagramCount = 2;
+
             UpdateDiagramProperties();
 
             editor.options.currentCanvas = this.DiagramCanvas;
@@ -2600,10 +2806,9 @@ namespace CanvasDiagramEditor
             double scrollableHeight = this.PanScrollViewer.ScrollableHeight;
 
             double zoom = ZoomSlider.Value;
-            double panSpeed = zoom / editor.options.panSpeedFactor;
 
-            scrollOffsetX = Math.Round(horizontalOffset + (scrollOffsetX * panSpeed) * editor.options.reversePanDirection, 0);
-            scrollOffsetY = Math.Round(verticalOffset + (scrollOffsetY * panSpeed) * editor.options.reversePanDirection, 0);
+            scrollOffsetX = Math.Round(horizontalOffset + (scrollOffsetX * 1.0) * editor.options.reversePanDirection, 0);
+            scrollOffsetY = Math.Round(verticalOffset + (scrollOffsetY * 1.0) * editor.options.reversePanDirection, 0);
 
             scrollOffsetX = scrollOffsetX > scrollableWidth ? scrollableWidth : scrollOffsetX;
             scrollOffsetY = scrollOffsetY > scrollableHeight ? scrollableHeight : scrollOffsetY;
@@ -2669,7 +2874,7 @@ namespace CanvasDiagramEditor
 
             double zoom_fx = CalculateZoom(zoom);
 
-            System.Diagnostics.Debug.Print("Zoom: {0}, zoom_fx: {1}", zoom, zoom_fx);
+            //System.Diagnostics.Debug.Print("Zoom: {0}, zoom_fx: {1}", zoom, zoom_fx);
 
             var st = GetZoomScaleTransform();
 
@@ -3118,6 +3323,176 @@ namespace CanvasDiagramEditor
 
         #endregion
 
+        #region Solution
+
+        private void UpdateSelectedDiagramModel()
+        {
+            var canvas = editor.options.currentCanvas;
+            var item = SolutionTree.SelectedItem as TreeViewItem;
+
+            if (item != null)
+            {
+                string uid = item.Uid;
+                bool isDiagram = StringUtil.StartsWith(uid, ModelConstants.TagHeaderDiagram);
+
+                if (isDiagram == true)
+                {
+                    var model = editor.GenerateDiagramModel(canvas, uid);
+
+                    item.Tag = new Diagram(model, canvas.Tag as History);
+                }
+            }
+        }
+
+        public string GenerateSolution()
+        {
+            var solution = SolutionTree.Items.Cast<TreeViewItem>().First();
+            var projects = solution.Items.Cast<TreeViewItem>();
+            string line = null;
+
+            var sb = new StringBuilder();
+
+            // update current diagram
+            UpdateSelectedDiagramModel();
+
+            // Solution
+            line = string.Format("{0}{1}{2}",
+                ModelConstants.PrefixRoot,
+                ModelConstants.ArgumentSeparator,
+                solution.Uid);
+
+            sb.AppendLine(line);
+
+            //System.Diagnostics.Debug.Print(line);
+
+            foreach (var project in projects)
+            {
+                var diagrams = project.Items.Cast<TreeViewItem>();
+
+                // Project
+                line = string.Format("{0}{1}{2}",
+                    ModelConstants.PrefixRoot,
+                    ModelConstants.ArgumentSeparator,
+                    project.Uid);
+
+                sb.AppendLine(line);
+
+                //System.Diagnostics.Debug.Print(line);
+
+                foreach (var diagram in diagrams)
+                {
+                    // Diagram
+
+                    //line = string.Format("{0}{1}{2}",
+                    //    ModelConstants.PrefixRootElement,
+                    //    ModelConstants.ArgumentSeparator,
+                    //    diagram.Uid);
+                    //sb.AppendLine(line);
+                    //System.Diagnostics.Debug.Print(line);
+
+                    // Diagram Elements
+                    if (diagram.Tag != null)
+                    {
+                        var _diagram = diagram.Tag as Diagram;
+
+                        var model = _diagram.Item1;
+                        var history = _diagram.Item2;
+
+                        sb.Append(model);
+                    }
+                }
+            }
+
+            return sb.ToString();
+        }
+
+        public void OpenSolution()
+        {
+            var solution = editor.OpenSolution();
+
+            if (solution != null)
+            {
+                var tree = SolutionTree;
+                TreeViewItem firstDiagram = null;
+                bool haveFirstDiagram = false;
+
+                // clear solution tree
+                var items = tree.Items.Cast<TreeViewItem>().ToList();
+
+                foreach (var item in items)
+                {
+                    DeleteSolution(item);
+                }
+
+                // create solution
+                string name = null;
+
+                name = solution.Item1;
+                var projects = solution.Item2.Reverse();
+
+                //System.Diagnostics.Debug.Print("Solution: {0}", name);
+
+                var solutionItem = CreateSolutionItem(name);
+                tree.Items.Add(solutionItem);
+
+                // create projects
+                foreach (var project in projects)
+                {
+                    name = project.Item1;
+                    var diagrams = project.Item2.Reverse();
+
+                    //System.Diagnostics.Debug.Print("Project: {0}", name);
+
+                    // create project
+                    var projectItem = CreateProjectItem(name);
+                    solutionItem.Items.Add(projectItem);
+
+                    // create diagrams
+                    foreach (var diagram in diagrams)
+                    {
+                        var lines = diagram.Reverse();
+                        var sb = new StringBuilder();
+                        string model = null;
+
+                        var firstLine = lines.First().Split(new char[] { ModelConstants.ArgumentSeparator, '\t', ' ' },
+                            StringSplitOptions.RemoveEmptyEntries);
+
+                        name = firstLine.Length >= 1 ? firstLine[1] : null;
+
+                        // create diagram
+                        foreach (var line in lines)
+                        {
+                            sb.AppendLine(line);
+                        }
+
+                        model = sb.ToString();
+
+                        //System.Diagnostics.Debug.Print(model);
+
+                        var diagramItem = CreateDiagramItem(name);
+
+                        diagramItem.Tag = new Diagram(model, null);
+
+                        projectItem.Items.Add(diagramItem);
+
+                        if (haveFirstDiagram == false)
+                        {
+                            firstDiagram = diagramItem;
+                            haveFirstDiagram = true;
+                        }
+                    }
+                }
+
+                // select first diagram in tree
+                if (haveFirstDiagram == true)
+                {
+                    firstDiagram.IsSelected = true;
+                }
+            }
+        }
+
+        #endregion
+
         #region Button Events
 
         private void ResetZoom_Click(object sender, RoutedEventArgs e)
@@ -3127,9 +3502,12 @@ namespace CanvasDiagramEditor
 
         private void GenerateModel_Click(object sender, RoutedEventArgs e)
         {
-            var diagram = editor.Generate();
+            //var diagram = editor.Generate();
+            //this.TextModel.Text = diagram;
 
-            this.TextModel.Text = diagram;
+            var solution = GenerateSolution();
+
+            this.TextModel.Text = solution;
         }
 
         private void GenerateModelFromSelected_Click(object sender, RoutedEventArgs e)
@@ -3159,12 +3537,24 @@ namespace CanvasDiagramEditor
 
         private void FileOpen_Click(object sender, RoutedEventArgs e)
         {
-            editor.Open();
+            OpenSolution();
         }
 
         private void FileSave_Click(object sender, RoutedEventArgs e)
         {
-            editor.Save();
+            var model = GenerateSolution();
+
+            editor.SaveSolution(model);
+        }
+
+        private void FileOpenDiagram_Click(object sender, RoutedEventArgs e)
+        {
+            editor.OpenDiagram();
+        }
+
+        private void FileSaveDiagram_Click(object sender, RoutedEventArgs e)
+        {
+            editor.SaveDiagram();
         }
 
         private void FileImport_Click(object sender, RoutedEventArgs e)
@@ -3179,12 +3569,12 @@ namespace CanvasDiagramEditor
 
         private void FileExport_Click(object sender, RoutedEventArgs e)
         {
-            editor.Export();
+            editor.ExportDiagram();
         }
 
         private void FileExportHistory_Click(object sender, RoutedEventArgs e)
         {
-            editor.ExportHistory();
+            editor.ExportDiagramHistory();
         }
 
         private void FilePrint_Click(object sender, RoutedEventArgs e)
@@ -3255,6 +3645,8 @@ namespace CanvasDiagramEditor
 
         private void MoveLeft(Canvas canvas)
         {
+            editor.AddToHistory(canvas);
+
             if (editor.options.enableSnap == true)
             {
                 editor.MoveSelectedElements(canvas, -editor.options.defaultGridSize, 0.0, false);
@@ -3267,6 +3659,8 @@ namespace CanvasDiagramEditor
 
         private void MoveRight(Canvas canvas)
         {
+            editor.AddToHistory(canvas);
+
             if (editor.options.enableSnap == true)
             {
                 editor.MoveSelectedElements(canvas, editor.options.defaultGridSize, 0.0, false);
@@ -3279,6 +3673,8 @@ namespace CanvasDiagramEditor
 
         private void MoveUp(Canvas canvas)
         {
+            editor.AddToHistory(canvas);
+
             if (editor.options.enableSnap == true)
             {
                 editor.MoveSelectedElements(canvas, 0.0, -editor.options.defaultGridSize, false);
@@ -3291,6 +3687,8 @@ namespace CanvasDiagramEditor
 
         private void MoveDown(Canvas canvas)
         {
+            editor.AddToHistory(canvas);
+
             if (editor.options.enableSnap == true)
             {
                 editor.MoveSelectedElements(canvas, 0.0, editor.options.defaultGridSize, false);
@@ -3309,31 +3707,56 @@ namespace CanvasDiagramEditor
         {
             //System.Diagnostics.Debug.Print("PreviewKeyDown sender: {0}, source: {1}", sender.GetType(), e.OriginalSource.GetType());
 
-            if (e.OriginalSource is ScrollViewer && Keyboard.Modifiers != ModifierKeys.Shift)
+            if (!(e.OriginalSource is TextBox) && 
+                Keyboard.Modifiers != ModifierKeys.Shift)
             {
                 var canvas = editor.options.currentCanvas;
                 bool isControl = Keyboard.Modifiers == ModifierKeys.Control;
 
                 switch (e.Key)
                 {
+                    // add diagram to selected project is solution explorer
+                    case Key.M:
+                        {
+                            if (isControl == true)
+                            {
+                                var project = SolutionTree.SelectedItem as TreeViewItem;
+
+                                string uid = project.Uid;
+                                bool isSelectedProject = StringUtil.StartsWith(uid, ModelConstants.TagHeaderProject);
+                                bool isSelectedDiagram = StringUtil.StartsWith(uid, ModelConstants.TagHeaderDiagram);
+
+                                if (isSelectedProject == true)
+                                {
+                                    AddDiagram(project);
+                                }
+                            }
+                        }
+                        break;
+
+                    // open solution
                     case Key.O:
                         {
                             if (isControl == true)
                             {
-                                editor.Open();
+                                editor.OpenDiagram();
                                 e.Handled = true;
                             }
                         }
                         break;
+
+                    // save solution
                     case Key.S:
                         {
                             if (isControl == true)
                             {
-                                editor.Save();
+                                editor.SaveDiagram();
                                 e.Handled = true;
                             }
                         }
                         break;
+
+                    // import
                     case Key.I:
                         {
                             if (isControl == true)
@@ -3343,24 +3766,30 @@ namespace CanvasDiagramEditor
                             }
                         }
                         break;
+
+                    // export
                     case Key.E:
                         {
                             if (isControl == true)
                             {
-                                editor.Export();
+                                editor.ExportDiagram();
                                 e.Handled = true;
                             }
                         }
                         break;
+
+                    // export history
                     case Key.H:
                         {
                             if (isControl == true)
                             {
-                                editor.ExportHistory();
+                                editor.ExportDiagramHistory();
                                 e.Handled = true;
                             }
                         }
                         break;
+
+                    //
                     case Key.P:
                         {
                             if (isControl == true)
@@ -3370,6 +3799,8 @@ namespace CanvasDiagramEditor
                             }
                         }
                         break;
+
+                    // undo
                     case Key.Z:
                         {
                             if (isControl == true)
@@ -3379,6 +3810,8 @@ namespace CanvasDiagramEditor
                             }
                         }
                         break;
+
+                    // redo
                     case Key.Y:
                         {
                             if (isControl == true)
@@ -3388,6 +3821,8 @@ namespace CanvasDiagramEditor
                             }
                         }
                         break;
+
+                    // cut
                     case Key.X:
                         {
                             if (isControl == true)
@@ -3397,6 +3832,8 @@ namespace CanvasDiagramEditor
                             }
                         }
                         break;
+
+                    // copy
                     case Key.C:
                         {
                             if (isControl == true)
@@ -3406,6 +3843,8 @@ namespace CanvasDiagramEditor
                             }
                         }
                         break;
+
+                    // paste
                     case Key.V:
                         {
                             if (isControl == true)
@@ -3416,6 +3855,8 @@ namespace CanvasDiagramEditor
                             }
                         }
                         break;
+
+                    // select all
                     case Key.A:
                         {
                             if (isControl == true)
@@ -3425,39 +3866,327 @@ namespace CanvasDiagramEditor
                             }
                         }
                         break;
+
+                    // delete
                     case Key.Delete:
                         {
                             editor.Delete();
                             e.Handled = true;
                         }
                         break;
+
+                    // move up
                     case Key.Up:
                         {
-                            MoveUp(canvas);
-                            e.Handled = true;
+                            if (e.OriginalSource is ScrollViewer)
+                            {
+                                MoveUp(canvas);
+                                e.Handled = true;
+                            }
                         }
                         break;
+
+                    // move down
                     case Key.Down:
                         {
-                            MoveDown(canvas);
-                            e.Handled = true;
+                            if (e.OriginalSource is ScrollViewer)
+                            {
+                                MoveDown(canvas);
+                                e.Handled = true;
+                            }
                         }
                         break;
+
+                    // move left
                     case Key.Left:
                         {
-                            MoveLeft(canvas);
-                            e.Handled = true;
+                            if (e.OriginalSource is ScrollViewer)
+                            {
+                                MoveLeft(canvas);
+                                e.Handled = true;
+                            }
                         }
                         break;
+
+                    // move right
                     case Key.Right:
                         {
-                            MoveRight(canvas);
-                            e.Handled = true;
+                            if (e.OriginalSource is ScrollViewer)
+                            {
+                                MoveRight(canvas);
+                                e.Handled = true;
+                            }
                         }
                         break;
                 }
             }
         } 
+
+        #endregion
+
+        #region Solution
+
+        private void SwitchItems(Canvas canvas, TreeViewItem oldItem, TreeViewItem newItem)
+        {
+            if (newItem == null)
+                return;
+
+            string oldUid = oldItem == null ? null : oldItem.Uid;
+            string newUid = newItem == null ? null : newItem.Uid;
+
+            bool isOldItemDiagram = oldUid == null ? false : StringUtil.StartsWith(oldUid, ModelConstants.TagHeaderDiagram);
+            bool isNewItemDiagram = newUid == null ? false : StringUtil.StartsWith(newUid, ModelConstants.TagHeaderDiagram);
+
+            if (isOldItemDiagram == true)
+            {
+                // save current model
+                StoreModel(canvas, oldItem);
+            }
+
+            if (isNewItemDiagram == true)
+            {
+                // load new model
+                LoadModel(canvas, newItem);
+
+                EnablePage.IsChecked = true;
+            }
+            else
+            {
+                EnablePage.IsChecked = false;
+            }
+
+            System.Diagnostics.Debug.Print("Old Uid: {0}, new Uid: {1}", oldUid, newUid);
+        }
+
+        private void LoadModel(Canvas canvas, TreeViewItem item)
+        {
+            var tag = item.Tag;
+
+            editor.ClearDiagramModel(canvas);
+
+            if (tag != null)
+            {
+                var diagram = tag as Diagram;
+
+                var model = diagram.Item1;
+                var history = diagram.Item2;
+
+                canvas.Tag = history;
+
+                editor.ParseDiagramModel(model, canvas, editor.options.currentPathGrid, 0, 0, false, true, false, true);
+            }
+            else
+            {
+                canvas.Tag = new History(new Stack<string>(), new Stack<string>());
+
+                GenerateGrid(false);
+            }
+        }
+
+        private void StoreModel(Canvas canvas, TreeViewItem item)
+        {
+            var uid = item.Uid;
+            var model = editor.GenerateDiagramModel(canvas, uid);
+
+            if (item != null)
+            {
+                item.Tag = new Diagram(model, canvas.Tag as History);
+            }
+        }
+
+        private TreeViewItem CreateSolutionItem(string uid)
+        {
+            var solution = new TreeViewItem();
+
+            solution.Header = "Solution";
+            solution.ContextMenu = this.Resources["SolutionContextMenuKey"] as ContextMenu;
+            solution.MouseRightButtonDown += TreeViewItem_MouseRightButtonDown;
+
+            if (uid == null)
+            {
+                var counter = editor.options.counter;
+                int id = 0; // there is only one solution allowed
+
+                solution.Uid = ModelConstants.TagHeaderSolution + ModelConstants.TagNameSeparator + id.ToString();
+                counter.ProjectCount++;
+            }
+            else
+            {
+                solution.Uid = uid;
+            }
+
+            solution.IsExpanded = true;
+
+            return solution;
+        }
+
+        private TreeViewItem CreateProjectItem(string uid)
+        {
+            var project = new TreeViewItem();
+
+            project.Header = "Project";
+            project.ContextMenu = this.Resources["ProjectContextMenuKey"] as ContextMenu;
+            project.MouseRightButtonDown += TreeViewItem_MouseRightButtonDown;
+
+            if (uid == null)
+            {
+                var counter = editor.options.counter;
+                int id = counter.ProjectCount;
+
+                project.Uid = ModelConstants.TagHeaderProject + ModelConstants.TagNameSeparator + id.ToString();
+                counter.ProjectCount++;
+            }
+            else
+            {
+                project.Uid = uid;
+            }
+
+            project.IsExpanded = true;
+
+            return project;
+        }
+
+        private TreeViewItem CreateDiagramItem(string uid)
+        {
+            var diagram = new TreeViewItem();
+
+            diagram.Header = "Diagram";
+            diagram.ContextMenu = this.Resources["DiagramContextMenuKey"] as ContextMenu;
+            diagram.MouseRightButtonDown += TreeViewItem_MouseRightButtonDown;
+
+            if (uid == null)
+            {
+                var counter = editor.options.counter;
+                int id = counter.DiagramCount;
+
+                diagram.Uid = ModelConstants.TagHeaderDiagram + ModelConstants.TagNameSeparator + id.ToString();
+                counter.DiagramCount++; 
+            }
+            else
+            {
+                diagram.Uid = uid;
+            }
+
+            return diagram;
+        }
+
+        private void AddProject(TreeViewItem solution)
+        {
+            var project = CreateProjectItem(null);
+
+            solution.Items.Add(project);
+
+            System.Diagnostics.Debug.Print("Added project: {0} to solution: {1}", project.Uid, solution.Uid);
+        }
+
+        private void AddDiagram(TreeViewItem project)
+        {
+            var diagram = CreateDiagramItem(null);
+
+            project.Items.Add(diagram);
+
+            System.Diagnostics.Debug.Print("Added diagram: {0} to project: {1}", diagram.Uid, project.Uid);
+        }
+
+        private void DeleteSolution(TreeViewItem solution)
+        {
+            var tree = solution.Parent as TreeView;
+
+            var projects = solution.Items.Cast<TreeViewItem>().ToList();
+
+            foreach (var project in projects)
+            {
+                var diagrams = project.Items.Cast<TreeViewItem>().ToList();
+
+                foreach (var diagram in diagrams)
+                {
+                    project.Items.Remove(diagram);
+                }
+
+                solution.Items.Remove(project);
+            }
+
+            tree.Items.Remove(solution);
+        }
+
+        private void DeleteProject(TreeViewItem project)
+        {
+            var solution = project.Parent as TreeViewItem;
+
+            var diagrams = project.Items.Cast<TreeViewItem>().ToList();
+
+            foreach (var diagram in diagrams)
+            {
+                project.Items.Remove(diagram);
+            }
+
+            solution.Items.Remove(project);
+        }
+
+        private void DeleteDiagram(TreeViewItem diagram)
+        {
+            var project = diagram.Parent as TreeViewItem;
+
+            project.Items.Remove(diagram);
+        }
+
+        #endregion
+
+        #region TreeView Events
+
+        private void TreeViewItem_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            TreeViewItem item = sender as TreeViewItem;
+            if (item != null)
+            {
+                item.IsSelected = true;
+                //item.Focus();
+                item.BringIntoView();
+
+                e.Handled = true;
+            }
+        }
+
+        private void SolutionTree_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            if (editor == null)
+                return;
+
+            var canvas = editor.options.currentCanvas;
+
+            var oldItem = e.OldValue as TreeViewItem;
+            var newItem = e.NewValue as TreeViewItem;
+
+            SwitchItems(canvas, oldItem, newItem);
+        }
+
+        private void SolutionAddProject_Click(object sender, RoutedEventArgs e)
+        {
+            var solution = SolutionTree.SelectedItem as TreeViewItem;
+
+            AddProject(solution);
+        }
+
+        private void ProjectAddDiagram_Click(object sender, RoutedEventArgs e)
+        {
+            var project = SolutionTree.SelectedItem as TreeViewItem;
+
+            AddDiagram(project);
+        }
+
+        private void SolutionDeleteProject_Click(object sender, RoutedEventArgs e)
+        {
+            var project = SolutionTree.SelectedItem as TreeViewItem;
+
+            DeleteProject(project);
+        }
+
+        private void ProjectDeleteDiagram_Click(object sender, RoutedEventArgs e)
+        {
+            var diagram = SolutionTree.SelectedItem as TreeViewItem;
+
+            DeleteDiagram(diagram);
+        }
 
         #endregion
     }

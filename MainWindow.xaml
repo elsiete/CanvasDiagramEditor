@@ -27,6 +27,20 @@
 
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
 
+        <ContextMenu x:Key="SolutionContextMenuKey">
+            <MenuItem x:Name="SolutionAddProject" Header="Add _Project" Click="SolutionAddProject_Click"/>
+        </ContextMenu>
+
+        <ContextMenu x:Key="ProjectContextMenuKey">
+            <MenuItem x:Name="ProjectAddDiagram" Header="Add _Diagram" Click="ProjectAddDiagram_Click"/>
+            <Separator/>
+            <MenuItem x:Name="SolutionDeleteProject" Header="De_lete" Click="SolutionDeleteProject_Click"/>
+        </ContextMenu>
+
+        <ContextMenu x:Key="DiagramContextMenuKey">
+            <MenuItem x:Name="ProjectDeleteDiagram" Header="De_lete" Click="ProjectDeleteDiagram_Click"/>
+        </ContextMenu>
+
     </Window.Resources>
 
     <Grid Background="LightGray">
@@ -39,18 +53,21 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="4"/>
-            <ColumnDefinition Width="230"/>
+            <ColumnDefinition Width="250"/>
         </Grid.ColumnDefinitions>
 
         <Menu Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Background="LightGray" Margin="0">
             <MenuItem Header="_File">
-                <MenuItem x:Name="FileOpen" Header="_Open..." Click="FileOpen_Click" InputGestureText="Ctrl+O"/>
-                <MenuItem x:Name="FileSave" Header="_Save..." Click="FileSave_Click"  InputGestureText="Ctrl+S"/>
+                <MenuItem x:Name="FileOpen" Header="_Open Solution..." Click="FileOpen_Click" InputGestureText="Ctrl+O"/>
+                <MenuItem x:Name="FileSave" Header="_Save Solution..." Click="FileSave_Click"  InputGestureText="Ctrl+S"/>
                 <Separator/>
-                <MenuItem x:Name="FileImport" Header="_Import..." Click="FileImport_Click" InputGestureText="Ctrl+I"/>
+                <MenuItem x:Name="FileOpenDiagram" Header="Open Diagram..." Click="FileOpenDiagram_Click"/>
+                <MenuItem x:Name="FileSaveDiagram" Header="Save Diagram..." Click="FileSaveDiagram_Click"/>
                 <Separator/>
-                <MenuItem x:Name="FileExport" Header="_Export..." Click="FileExport_Click" InputGestureText="Ctrl+E"/>
-                <MenuItem x:Name="FileExportHistory" Header="Export with _History..." Click="FileExportHistory_Click" InputGestureText="Ctrl+H"/>
+                <MenuItem x:Name="FileImport" Header="_Import Model..." Click="FileImport_Click" InputGestureText="Ctrl+I"/>
+                <Separator/>
+                <MenuItem x:Name="FileExport" Header="_Export Diagram..." Click="FileExport_Click" InputGestureText="Ctrl+E"/>
+                <MenuItem x:Name="FileExportHistory" Header="Export Diagram _History..." Click="FileExportHistory_Click" InputGestureText="Ctrl+H"/>
                 <Separator/>
                 <MenuItem x:Name="FilePrint" Header="_Print..." Click="FilePrint_Click" InputGestureText="Ctrl+P"/>
                 <Separator/>
@@ -80,7 +97,8 @@
                       MouseUp="PanScrollViewer_MouseUp"
                       VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" 
                       Grid.Column="0" Grid.Row="1"
-                      Margin="4,4,0,4">
+                      Margin="4,4,0,4"
+                      Visibility="{Binding ElementName=EnablePage, Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}">
 
             <Border Background="Transparent" BorderThickness="0" BorderBrush="Transparent" ClipToBounds="True" PreviewMouseWheel="Border_PreviewMouseWheel">
 
@@ -165,21 +183,34 @@
 
         <GridSplitter Grid.Column="1" Grid.Row="1" Background="Transparent" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
         
-        <ScrollViewer Grid.Column="2" Grid.Row="1"
-                      VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
-            <Grid Background="LightGray">
+        <Grid Background="LightGray" Grid.Column="2" Grid.Row="1">
 
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="5"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
+            <TabControl Margin="0,4,4,4">
+                
+                <TabItem Header="Explorer">
+                    
+                    <TreeView x:Name="SolutionTree" 
+                            ScrollViewer.VerticalScrollBarVisibility="Auto"
+                            ScrollViewer.HorizontalScrollBarVisibility="Auto"  
+                            SelectedItemChanged="SolutionTree_SelectedItemChanged">
 
-                <ScrollViewer Grid.Column="1" Grid.Row="0"
-                              VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                        <TreeViewItem Header="Solution" IsExpanded="True" x:Uid="Solution|0" ContextMenu="{StaticResource SolutionContextMenuKey}" MouseRightButtonDown="TreeViewItem_MouseRightButtonDown">
+                            <TreeViewItem Header="Project" IsExpanded="True" x:Uid="Project|0" ContextMenu="{StaticResource ProjectContextMenuKey}" MouseRightButtonDown="TreeViewItem_MouseRightButtonDown">
+                                <TreeViewItem IsSelected="True" Header="Diagram" x:Uid="Diagram|0" ContextMenu="{StaticResource DiagramContextMenuKey}" MouseRightButtonDown="TreeViewItem_MouseRightButtonDown"/>
+                                <TreeViewItem Header="Diagram" x:Uid="Diagram|1" ContextMenu="{StaticResource DiagramContextMenuKey}" MouseRightButtonDown="TreeViewItem_MouseRightButtonDown"/>
+                            </TreeViewItem>
+                        </TreeViewItem>
 
-                    <StackPanel Background="LightGray" Margin="0,4,4,0">
+                    </TreeView>
+                    
+                </TabItem>
+
+                <TabItem Header="Options">
+                    
+                    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Auto">
+                        
+                        <StackPanel>
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="40"/>
@@ -190,13 +221,12 @@
                                 <RowDefinition/>
                                 <RowDefinition/>
                             </Grid.RowDefinitions>
-                            <TextBlock Text="Zoom:" Grid.Column="0" Grid.Row="0" Margin="2" HorizontalAlignment="Right"/>
+                            <TextBlock Text="Zoom:" Grid.Column="0" Grid.Row="0" Margin="0,0,4,0" VerticalAlignment="Center" HorizontalAlignment="Right"/>
                             <Slider x:Name="ZoomSlider" Grid.Column="1" Grid.Row="0" Minimum="0.1" Maximum="5.0" TickFrequency="0.1" IsSnapToTickEnabled="True" Value="1.0" ValueChanged="ZoomSlider_ValueChanged"/>
-                            <Button x:Name="ResetZoom" Grid.Column="2" Grid.Row="0" Content="Re_set" Margin="2" Click="ResetZoom_Click"/>
+                            <Button x:Name="ResetZoom" Grid.Column="2" Grid.Row="0" Content="Re_set" Margin="4,0,2,0" Click="ResetZoom_Click"/>
                         </Grid>
                         <Separator Margin="2"/>
-
-                        <Expander Header="_Options" IsExpanded="False">
+                        <Expander Header="_Options" IsExpanded="True">
                             <StackPanel>
                                 <CheckBox x:Name="EnableHistory" Content="Enable _History" Margin="2" Click="EnableHistory_Click"/>
                                 <Separator Margin="2"/>
@@ -205,13 +235,13 @@
                                 <Separator Margin="2"/>
                                 <CheckBox x:Name="EnableInsertLast" Content="Insert Last on Left _Click" Margin="2" Click="EnableInsertLast_Click"/>
                                 <Separator Margin="2"/>
-                                <CheckBox x:Name="EnablePageGrid" Content="Enable Page Grid" Margin="2" Click="EnablePageGrid_Click"/>
-                                <CheckBox x:Name="EnablePageTemplate" Content="Enable Page Template" Margin="2" Click="EnablePageTemplate_Click"/>
+                                <CheckBox x:Name="EnablePage" IsChecked="True" Content="Enable Page" Margin="2"/>
+                                <CheckBox x:Name="EnablePageGrid" IsChecked="True" Content="Enable Page Grid" Margin="2" Click="EnablePageGrid_Click"/>
+                                <CheckBox x:Name="EnablePageTemplate" IsChecked="True" Content="Enable Page Template" Margin="2" Click="EnablePageTemplate_Click"/>
                             </StackPanel>
                         </Expander>
-
                         <Separator Margin="2"/>
-                        <Expander Header="Diagram _Properties" IsExpanded="False">
+                        <Expander Header="Diagram _Properties" IsExpanded="True">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="80"/>
@@ -256,41 +286,68 @@
                                 <Button x:Name="UpdateGrid" Content="Upda_te Properties" Grid.Column="1" Grid.Row="11" Margin="2" Click="UpdateGrid_Click"/>
                             </Grid>
                         </Expander>
-                        <Separator Margin="2"/>
-                        <Button x:Name="GenerateModel" Content="_Generate Model" Margin="2" Click="GenerateModel_Click"/>
-                        <Button x:Name="GenerateModelFromSelected" Content="Generate Model (from selected)" Margin="2" Click="GenerateModelFromSelected_Click"/>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="70"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                            </Grid.RowDefinitions>
-                            <TextBlock Text="Offset X:" Grid.Column="0" Grid.Row="0" Margin="2" HorizontalAlignment="Right"/>
-                            <TextBox x:Name="TextOffsetX" Text="0" Grid.Column="1" Grid.Row="0" Margin="2"/>
-                            <TextBlock Text="Offset Y:" Grid.Column="0" Grid.Row="1" Margin="2" HorizontalAlignment="Right"/>
-                            <TextBox x:Name="TextOffsetY" Text="0" Grid.Column="1" Grid.Row="1" Margin="2"/>
-                            <Button x:Name="IsertModel" Content="_Insert Model" Grid.Column="1" Grid.Row="2" Margin="2" Click="InsertModel_Click"/>
-                        </Grid>
                     </StackPanel>
+                        
+                    </ScrollViewer>
+                    
+                </TabItem>
 
-                </ScrollViewer>
+                <TabItem Header="Model">
+                    
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                    
+                        <StackPanel Grid.Column="0" Grid.Row="0">
+                        
+                            <Button x:Name="GenerateModel" Content="_Generate Model" Margin="2" Click="GenerateModel_Click"/>
+                            <Button x:Name="GenerateModelFromSelected" Content="Generate Model (from selected)" Margin="2" Click="GenerateModelFromSelected_Click"/>
+                        
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="70"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="Offset X:" Grid.Column="0" Grid.Row="0" Margin="2" HorizontalAlignment="Right"/>
+                                <TextBox x:Name="TextOffsetX" Text="0" Grid.Column="1" Grid.Row="0" Margin="2"/>
+                                <TextBlock Text="Offset Y:" Grid.Column="0" Grid.Row="1" Margin="2" HorizontalAlignment="Right"/>
+                                <TextBox x:Name="TextOffsetY" Text="0" Grid.Column="1" Grid.Row="1" Margin="2"/>
+                                <Button x:Name="IsertModel" Content="_Insert Model" Grid.Column="1" Grid.Row="2" Margin="2" Click="InsertModel_Click"/>
+                            </Grid>
+                        
+                        </StackPanel>
 
-                <GridSplitter Grid.Column="0" Grid.Row="1" Background="Transparent" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-                
-                <TextBox x:Name="TextModel" Grid.Row="2" 
-                     AcceptsReturn="True" AcceptsTab="True" 
-                     VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                     Margin="0,0,4,4" Padding="2"
-                     VerticalScrollBarVisibility="Auto">
-                </TextBox>
+                        <TextBox x:Name="TextModel" 
+                                 Grid.Column="0" Grid.Row="1"
+                                AcceptsReturn="True" AcceptsTab="True" 
+                                VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                                Padding="2"
+                                FontFamily="Consolas" FontSize="12"
+                                VerticalScrollBarVisibility="Auto"
+                                HorizontalScrollBarVisibility="Auto">
+                        </TextBox>
 
-            </Grid>
+                    </Grid>
 
-        </ScrollViewer>
+                </TabItem>
+
+            </TabControl>
+
+
+
+
+
+
+
+
+        </Grid>
 
     </Grid>
 
