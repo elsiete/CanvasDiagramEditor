@@ -3661,6 +3661,8 @@ namespace CanvasDiagramEditor
             }
             else
             {
+                canvas.Tag = new History(new Stack<string>(), new Stack<string>());
+
                 GenerateGrid(false);
             }
         }
