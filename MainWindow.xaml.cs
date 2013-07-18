@@ -3414,13 +3414,33 @@ namespace CanvasDiagramEditor
         {
             //System.Diagnostics.Debug.Print("PreviewKeyDown sender: {0}, source: {1}", sender.GetType(), e.OriginalSource.GetType());
 
-            if (e.OriginalSource is ScrollViewer && Keyboard.Modifiers != ModifierKeys.Shift)
+            if (!(e.OriginalSource is TextBox) && 
+                Keyboard.Modifiers != ModifierKeys.Shift)
             {
                 var canvas = editor.options.currentCanvas;
                 bool isControl = Keyboard.Modifiers == ModifierKeys.Control;
 
                 switch (e.Key)
                 {
+                    // add diagram to selected project is solution explorer
+                    case Key.M:
+                        {
+                            if (isControl == true)
+                            {
+                                var project = SolutionTree.SelectedItem as TreeViewItem;
+
+                                string uid = project.Uid;
+                                bool isSelectedProject = StringUtil.StartsWith(uid, ModelConstants.TagProjectHeader);
+
+                                if (isSelectedProject == true)
+                                {
+                                    AddDiagram(project);
+                                }
+                            }
+                        }
+                        break;
+
+                    // open solution
                     case Key.O:
                         {
                             if (isControl == true)
@@ -3430,6 +3450,8 @@ namespace CanvasDiagramEditor
                             }
                         }
                         break;
+
+                    // save solution
                     case Key.S:
                         {
                             if (isControl == true)
@@ -3439,6 +3461,8 @@ namespace CanvasDiagramEditor
                             }
                         }
                         break;
+
+                    // import
                     case Key.I:
                         {
                             if (isControl == true)
@@ -3448,6 +3472,8 @@ namespace CanvasDiagramEditor
                             }
                         }
                         break;
+
+                    // export
                     case Key.E:
                         {
                             if (isControl == true)
@@ -3457,6 +3483,8 @@ namespace CanvasDiagramEditor
                             }
                         }
                         break;
+
+                    // export history
                     case Key.H:
                         {
                             if (isControl == true)
@@ -3466,6 +3494,8 @@ namespace CanvasDiagramEditor
                             }
                         }
                         break;
+
+                    //
                     case Key.P:
                         {
                             if (isControl == true)
@@ -3475,6 +3505,8 @@ namespace CanvasDiagramEditor
                             }
                         }
                         break;
+
+                    // undo
                     case Key.Z:
                         {
                             if (isControl == true)
@@ -3484,6 +3516,8 @@ namespace CanvasDiagramEditor
                             }
                         }
                         break;
+
+                    // redo
                     case Key.Y:
                         {
                             if (isControl == true)
@@ -3493,6 +3527,8 @@ namespace CanvasDiagramEditor
                             }
                         }
                         break;
+
+                    // cut
                     case Key.X:
                         {
                             if (isControl == true)
@@ -3502,6 +3538,8 @@ namespace CanvasDiagramEditor
                             }
                         }
                         break;
+
+                    // copy
                     case Key.C:
                         {
                             if (isControl == true)
@@ -3511,6 +3549,8 @@ namespace CanvasDiagramEditor
                             }
                         }
                         break;
+
+                    // paste
                     case Key.V:
                         {
                             if (isControl == true)
@@ -3521,6 +3561,8 @@ namespace CanvasDiagramEditor
                             }
                         }
                         break;
+
+                    // select all
                     case Key.A:
                         {
                             if (isControl == true)
@@ -3530,34 +3572,56 @@ namespace CanvasDiagramEditor
                             }
                         }
                         break;
+
+                    // delete
                     case Key.Delete:
                         {
                             editor.Delete();
                             e.Handled = true;
                         }
                         break;
+
+                    // move up
                     case Key.Up:
                         {
-                            MoveUp(canvas);
-                            e.Handled = true;
+                            if (e.OriginalSource is ScrollViewer)
+                            {
+                                MoveUp(canvas);
+                                e.Handled = true;
+                            }
                         }
                         break;
+
+                    // move down
                     case Key.Down:
                         {
-                            MoveDown(canvas);
-                            e.Handled = true;
+                            if (e.OriginalSource is ScrollViewer)
+                            {
+                                MoveDown(canvas);
+                                e.Handled = true;
+                            }
                         }
                         break;
+
+                    // move left
                     case Key.Left:
                         {
-                            MoveLeft(canvas);
-                            e.Handled = true;
+                            if (e.OriginalSource is ScrollViewer)
+                            {
+                                MoveLeft(canvas);
+                                e.Handled = true;
+                            }
                         }
                         break;
+
+                    // move right
                     case Key.Right:
                         {
-                            MoveRight(canvas);
-                            e.Handled = true;
+                            if (e.OriginalSource is ScrollViewer)
+                            {
+                                MoveRight(canvas);
+                                e.Handled = true;
+                            }
                         }
                         break;
                 }
@@ -3567,6 +3631,71 @@ namespace CanvasDiagramEditor
         #endregion
 
         #region Solution
+
+        private void SwitchItems(Canvas canvas, TreeViewItem oldItem, TreeViewItem newItem)
+        {
+            string oldUid = oldItem.Uid;
+            string newUid = newItem.Uid;
+
+            bool isOldItemDiagram = StringUtil.StartsWith(oldUid, ModelConstants.TagDiagramHeader);
+            bool isNewItemDiagram = StringUtil.StartsWith(newUid, ModelConstants.TagDiagramHeader);
+
+            if (isOldItemDiagram == true)
+            {
+                // save current model
+                StoreModel(canvas, oldItem);
+            }
+
+            if (isNewItemDiagram == true)
+            {
+                // load new model
+                LoadModel(canvas, newItem);
+
+                EnablePage.IsChecked = true;
+            }
+            else
+            {
+                EnablePage.IsChecked = false;
+            }
+
+            System.Diagnostics.Debug.Print("Old Uid: {0}, new Uid: {1}", oldUid, newUid);
+        }
+
+        private void LoadModel(Canvas canvas, TreeViewItem item)
+        {
+            var tag = item.Tag;
+
+            editor.ClearDiagramModel(canvas);
+
+            if (tag != null)
+            {
+                var diagram = tag as Diagram;
+
+                var model = diagram.Item1;
+                var history = diagram.Item2;
+
+                canvas.Tag = history;
+
+                editor.ParseDiagramModel(model, canvas, editor.options.currentPathGrid, 0, 0, false, true, false);
+            }
+            else
+            {
+                canvas.Tag = new History(new Stack<string>(), new Stack<string>());
+
+                GenerateGrid(false);
+            }
+        }
+
+        private void StoreModel(Canvas canvas, TreeViewItem item)
+        {
+            var uid = item.Uid;
+            var model = editor.GenerateDiagramModel(canvas, uid);
+
+            if (item != null)
+            {
+                item.Tag = new Diagram(model, canvas.Tag as History);
+            }
+        }
 
         private TreeViewItem CreateProjectItem(string uid)
         {
@@ -3636,6 +3765,27 @@ namespace CanvasDiagramEditor
             System.Diagnostics.Debug.Print("Added diagram: {0} to project: {1}", diagram.Uid, project.Uid);
         }
 
+        private void DeleteSolution(TreeViewItem solution)
+        {
+            var tree = solution.Parent as TreeView;
+
+            var projects = solution.Items.Cast<TreeViewItem>().ToList();
+
+            foreach (var project in projects)
+            {
+                var diagrams = project.Items.Cast<TreeViewItem>().ToList();
+
+                foreach (var diagram in diagrams)
+                {
+                    project.Items.Remove(diagram);
+                }
+
+                solution.Items.Remove(project);
+            }
+
+            tree.Items.Remove(solution);
+        }
+
         private void DeleteProject(TreeViewItem project)
         {
             var solution = project.Parent as TreeViewItem;
@@ -3685,71 +3835,6 @@ namespace CanvasDiagramEditor
             var newItem = e.NewValue as TreeViewItem;
 
             SwitchItems(canvas, oldItem, newItem);
-        }
-
-        private void SwitchItems(Canvas canvas, TreeViewItem oldItem, TreeViewItem newItem)
-        {
-            string oldUid = oldItem.Uid;
-            string newUid = newItem.Uid;
-
-            bool isOldItemDiagram = StringUtil.StartsWith(oldUid, ModelConstants.TagDiagramHeader);
-            bool isNewItemDiagram = StringUtil.StartsWith(newUid, ModelConstants.TagDiagramHeader);
-
-            if (isOldItemDiagram == true)
-            {
-                // save current model
-                SaveModel(canvas, oldItem);
-            }
-
-            if (isNewItemDiagram == true)
-            {
-                // load new model
-                LoadModel(canvas, newItem);
-
-                EnablePage.IsChecked = true;
-            }
-            else
-            {
-                EnablePage.IsChecked = false;
-            }
-
-            System.Diagnostics.Debug.Print("Old Uid: {0}, new Uid: {1}", oldUid, newUid);
-        }
-
-        private void LoadModel(Canvas canvas, TreeViewItem item)
-        {
-            var tag = item.Tag;
-
-            editor.ClearDiagramModel(canvas);
-
-            if (tag != null)
-            {
-                var diagram = tag as Diagram;
-
-                var model = diagram.Item1;
-                var history = diagram.Item2;
-
-                canvas.Tag = history;
-
-                editor.ParseDiagramModel(model, canvas, editor.options.currentPathGrid, 0, 0, false, true, false);
-            }
-            else
-            {
-                canvas.Tag = new History(new Stack<string>(), new Stack<string>());
-
-                GenerateGrid(false);
-            }
-        }
-
-        private void SaveModel(Canvas canvas, TreeViewItem item)
-        {
-            var uid = item.Uid;
-            var model = editor.GenerateDiagramModel(canvas, uid);
-
-            if (item != null)
-            {
-                item.Tag = new Diagram(model, canvas.Tag as History);
-            }
         }
 
         private void SolutionAddProject_Click(object sender, RoutedEventArgs e)
