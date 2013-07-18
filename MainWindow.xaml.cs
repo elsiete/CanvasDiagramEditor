@@ -2332,8 +2332,6 @@ namespace CanvasDiagramEditor
 
             SetSelectionThumbsSelection(canvas, true);
             SetLinesSelection(canvas, true);
-
-            SelectionThumb.SetIsSelected(canvas, true);
         }
 
         public void DeselectAll()
@@ -2342,8 +2340,6 @@ namespace CanvasDiagramEditor
 
             SetSelectionThumbsSelection(canvas, false);
             SetLinesSelection(canvas, false);
-
-            SelectionThumb.SetIsSelected(canvas, false);
         }
 
         public void Preferences()
