@@ -636,7 +636,6 @@ namespace CanvasDiagramEditor
         public Point zoomPoint;
 
         public double reversePanDirection = -1.0; // reverse: 1.0, normal: -1.0
-        public double panSpeedFactor = 3.0; // pan speed factor, depends on current zoom
         public MouseButton panButton = MouseButton.Middle;
 
         #endregion
@@ -2625,10 +2624,9 @@ namespace CanvasDiagramEditor
             double scrollableHeight = this.PanScrollViewer.ScrollableHeight;
 
             double zoom = ZoomSlider.Value;
-            double panSpeed = zoom / editor.options.panSpeedFactor;
 
-            scrollOffsetX = Math.Round(horizontalOffset + (scrollOffsetX * panSpeed) * editor.options.reversePanDirection, 0);
-            scrollOffsetY = Math.Round(verticalOffset + (scrollOffsetY * panSpeed) * editor.options.reversePanDirection, 0);
+            scrollOffsetX = Math.Round(horizontalOffset + (scrollOffsetX * 1.0) * editor.options.reversePanDirection, 0);
+            scrollOffsetY = Math.Round(verticalOffset + (scrollOffsetY * 1.0) * editor.options.reversePanDirection, 0);
 
             scrollOffsetX = scrollOffsetX > scrollableWidth ? scrollableWidth : scrollOffsetX;
             scrollOffsetY = scrollOffsetY > scrollableHeight ? scrollableHeight : scrollOffsetY;
