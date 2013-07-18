@@ -58,13 +58,16 @@
 
         <Menu Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Background="LightGray" Margin="0">
             <MenuItem Header="_File">
-                <MenuItem x:Name="FileOpen" Header="_Open..." Click="FileOpen_Click" InputGestureText="Ctrl+O"/>
-                <MenuItem x:Name="FileSave" Header="_Save..." Click="FileSave_Click"  InputGestureText="Ctrl+S"/>
+                <MenuItem x:Name="FileOpen" Header="_Open Solution..." Click="FileOpen_Click" InputGestureText="Ctrl+O"/>
+                <MenuItem x:Name="FileSave" Header="_Save Solution..." Click="FileSave_Click"  InputGestureText="Ctrl+S"/>
                 <Separator/>
-                <MenuItem x:Name="FileImport" Header="_Import..." Click="FileImport_Click" InputGestureText="Ctrl+I"/>
+                <MenuItem x:Name="FileOpenDiagram" Header="Open Diagram..." Click="FileOpenDiagram_Click"/>
+                <MenuItem x:Name="FileSaveDiagram" Header="Save Diagram..." Click="FileSaveDiagram_Click"/>
                 <Separator/>
-                <MenuItem x:Name="FileExport" Header="_Export..." Click="FileExport_Click" InputGestureText="Ctrl+E"/>
-                <MenuItem x:Name="FileExportHistory" Header="Export with _History..." Click="FileExportHistory_Click" InputGestureText="Ctrl+H"/>
+                <MenuItem x:Name="FileImport" Header="_Import Model..." Click="FileImport_Click" InputGestureText="Ctrl+I"/>
+                <Separator/>
+                <MenuItem x:Name="FileExport" Header="_Export Diagram..." Click="FileExport_Click" InputGestureText="Ctrl+E"/>
+                <MenuItem x:Name="FileExportHistory" Header="Export Diagram _History..." Click="FileExportHistory_Click" InputGestureText="Ctrl+H"/>
                 <Separator/>
                 <MenuItem x:Name="FilePrint" Header="_Print..." Click="FilePrint_Click" InputGestureText="Ctrl+P"/>
                 <Separator/>
