@@ -233,9 +233,9 @@ namespace CanvasDiagramEditor.Export
                 {
                     name = args[1];
 
-                    if (CompareString(args[0], ModelConstants.PrefixRootElement))
+                    if (StringUtil.Compare(args[0], ModelConstants.PrefixRootElement))
                     {
-                        if (name.StartsWith(ModelConstants.TagElementPin, StringComparison.InvariantCultureIgnoreCase) &&
+                        if (StringUtil.StartsWith(name, ModelConstants.TagElementPin) &&
                             length == 4)
                         {
                             float x = float.Parse(args[2]);
@@ -248,7 +248,7 @@ namespace CanvasDiagramEditor.Export
                                 //wordprocessingCanvas.Append(wordprocessingShape);
                             });
                         }
-                        else if (name.StartsWith(ModelConstants.TagElementInput, StringComparison.InvariantCultureIgnoreCase) &&
+                        else if (StringUtil.StartsWith(name, ModelConstants.TagElementInput) &&
                             length == 4)
                         {
                             float x = float.Parse(args[2]);
@@ -261,7 +261,7 @@ namespace CanvasDiagramEditor.Export
                                 wordprocessingCanvas.Append(wordprocessingShape);
                             });
                         }
-                        else if (name.StartsWith(ModelConstants.TagElementOutput, StringComparison.InvariantCultureIgnoreCase) &&
+                        else if (StringUtil.StartsWith(name, ModelConstants.TagElementOutput) &&
                             length == 4)
                         {
                             float x = float.Parse(args[2]);
@@ -274,7 +274,7 @@ namespace CanvasDiagramEditor.Export
                                 wordprocessingCanvas.Append(wordprocessingShape);
                             });
                         }
-                        else if (name.StartsWith(ModelConstants.TagElementAndGate, StringComparison.InvariantCultureIgnoreCase) &&
+                        else if (StringUtil.StartsWith(name, ModelConstants.TagElementAndGate) &&
                             length == 4)
                         {
                             float x = float.Parse(args[2]);
@@ -287,7 +287,7 @@ namespace CanvasDiagramEditor.Export
                                 wordprocessingCanvas.Append(wordprocessingShape);
                             });
                         }
-                        else if (name.StartsWith(ModelConstants.TagElementOrGate, StringComparison.InvariantCultureIgnoreCase) &&
+                        else if (StringUtil.StartsWith(name, ModelConstants.TagElementOrGate) &&
                             length == 4)
                         {
                             float x = float.Parse(args[2]);
@@ -300,7 +300,7 @@ namespace CanvasDiagramEditor.Export
                                 wordprocessingCanvas.Append(wordprocessingShape);
                             });
                         }
-                        else if (name.StartsWith(ModelConstants.TagElementWire, StringComparison.InvariantCultureIgnoreCase) &&
+                        else if (StringUtil.StartsWith(name, ModelConstants.TagElementWire) &&
                             (length == 6 || length == 8))
                         {
                             float x1 = float.Parse(args[2]);
@@ -1287,11 +1287,6 @@ namespace CanvasDiagramEditor.Export
             formulas1.Append(formula12);
 
             return formulas1;
-        }
-
-        private static bool CompareString(string strA, string strB)
-        {
-            return string.Compare(strA, strB, StringComparison.InvariantCultureIgnoreCase) == 0;
         }
 
         #endregion

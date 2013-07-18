@@ -66,6 +66,23 @@ namespace CanvasDiagramEditor
 
     #endregion
 
+    #region StringUtil
+
+    public static class StringUtil
+    {
+        public static bool Compare(string strA, string strB)
+        {
+            return string.Compare(strA, strB, StringComparison.InvariantCultureIgnoreCase) == 0;
+        }
+
+        public static bool StartsWith(string str, string value)
+        {
+            return str.StartsWith(value, StringComparison.InvariantCultureIgnoreCase);
+        }
+    }
+
+    #endregion
+
     #region LineEx
     
     public class LineEx : Shape
@@ -1309,7 +1326,7 @@ namespace CanvasDiagramEditor
             //    element.GetType(), element.Uid, element.Parent.GetType());
 
             if (element is LineEx && uid != null &&
-                uid.StartsWith(ModelConstants.TagElementWire, StringComparison.InvariantCultureIgnoreCase))
+                StringUtil.StartsWith(uid, ModelConstants.TagElementWire))
             {
                 var line = element as LineEx;
 
@@ -1404,7 +1421,7 @@ namespace CanvasDiagramEditor
                 string uid = _element.Uid;
 
                 if (uid != null &&
-                    uid.StartsWith(ModelConstants.TagElementPin, StringComparison.InvariantCultureIgnoreCase))
+                    StringUtil.StartsWith(uid, ModelConstants.TagElementPin))
                 {
                     if (_element.Tag != null)
                     {
@@ -1443,7 +1460,7 @@ namespace CanvasDiagramEditor
                     {
                         var _line = tuple.Item1;
 
-                        if (CompareString(_line.Uid, line.Uid))
+                        if (StringUtil.Compare(_line.Uid, line.Uid))
                         {
                             remove.Add(tuple);
                         }
@@ -1482,7 +1499,7 @@ namespace CanvasDiagramEditor
             //    element.GetType(), element.Uid, element.Parent.GetType());
 
             if (element is LineEx && uid != null &&
-                uid.StartsWith(ModelConstants.TagElementWire, StringComparison.InvariantCultureIgnoreCase))
+                StringUtil.StartsWith(uid, ModelConstants.TagElementWire))
             {
                 var line = element as LineEx;
 
@@ -1523,11 +1540,6 @@ namespace CanvasDiagramEditor
         #endregion
 
         #region Diagram Model
-
-        private static bool CompareString(string strA, string strB)
-        {
-            return string.Compare(strA, strB, StringComparison.InvariantCultureIgnoreCase) == 0;
-        }
 
         public void ClearDiagramModel(Canvas canvas)
         {
@@ -1607,7 +1619,7 @@ namespace CanvasDiagramEditor
                         ModelConstants.PrefixRootElement,
                         line.IsStartVisible, line.IsEndVisible);
 
-                    diagram.AppendLine(str);
+                    diagram.AppendLine("".PadLeft(4, ' ') + str);
 
                     //System.Diagnostics.Debug.Print(str);
                 }
@@ -1619,7 +1631,7 @@ namespace CanvasDiagramEditor
                         ModelConstants.ArgumentSeparator,
                         ModelConstants.PrefixRootElement);
 
-                    diagram.AppendLine(str);
+                    diagram.AppendLine("".PadLeft(4, ' ') + str);
 
                     //System.Diagnostics.Debug.Print(str);
                 }
@@ -1644,7 +1656,7 @@ namespace CanvasDiagramEditor
                                 ModelConstants.ArgumentSeparator,
                                 ModelConstants.PrefixChildElement);
 
-                            diagram.AppendLine(str);
+                            diagram.AppendLine("".PadLeft(8, ' ') + str);
 
                             //System.Diagnostics.Debug.Print(str);
                         }
@@ -1657,7 +1669,7 @@ namespace CanvasDiagramEditor
                                 ModelConstants.ArgumentSeparator,
                                 ModelConstants.PrefixChildElement);
 
-                            diagram.AppendLine(str);
+                            diagram.AppendLine("".PadLeft(8, ' ') + str);
 
                             //System.Diagnostics.Debug.Print(str);
                         }
@@ -1692,7 +1704,7 @@ namespace CanvasDiagramEditor
             // create root elements
             foreach (var line in lines)
             {
-                var args = line.Split(ModelConstants.ArgumentSeparator);
+                var args = line.Split(new char[] { ModelConstants.ArgumentSeparator, '\t', ' ' }, StringSplitOptions.RemoveEmptyEntries);
                 int length = args.Length;
 
                 //System.Diagnostics.Debug.Print(line);
@@ -1701,9 +1713,9 @@ namespace CanvasDiagramEditor
                 {
                     name = args[1];
 
-                    if (CompareString(args[0], ModelConstants.PrefixRootElement))
+                    if (StringUtil.Compare(args[0], ModelConstants.PrefixRootElement))
                     {
-                        if (name.StartsWith(ModelConstants.TagDiagramHeader, StringComparison.InvariantCultureIgnoreCase) &&
+                        if (StringUtil.StartsWith(name, ModelConstants.TagDiagramHeader) &&
                             length == 13)
                         {
                             var prop = new DiagramProperties();
@@ -1729,7 +1741,7 @@ namespace CanvasDiagramEditor
 
                             options.currentProperties = prop;
                         }
-                        else if (name.StartsWith(ModelConstants.TagElementPin, StringComparison.InvariantCultureIgnoreCase) &&
+                        else if (StringUtil.StartsWith(name, ModelConstants.TagElementPin) &&
                             length == 4)
                         {
                             double x = double.Parse(args[2]);
@@ -1746,7 +1758,7 @@ namespace CanvasDiagramEditor
 
                             dict.Add(args[1], tuple);
                         }
-                        else if (name.StartsWith(ModelConstants.TagElementInput, StringComparison.InvariantCultureIgnoreCase) &&
+                        else if (StringUtil.StartsWith(name, ModelConstants.TagElementInput) &&
                             length == 4)
                         {
                             double x = double.Parse(args[2]);
@@ -1763,7 +1775,7 @@ namespace CanvasDiagramEditor
 
                             dict.Add(args[1], tuple);
                         }
-                        else if (name.StartsWith(ModelConstants.TagElementOutput, StringComparison.InvariantCultureIgnoreCase) &&
+                        else if (StringUtil.StartsWith(name, ModelConstants.TagElementOutput) &&
                             length == 4)
                         {
                             double x = double.Parse(args[2]);
@@ -1780,7 +1792,7 @@ namespace CanvasDiagramEditor
 
                             dict.Add(args[1], tuple);
                         }
-                        else if (name.StartsWith(ModelConstants.TagElementAndGate, StringComparison.InvariantCultureIgnoreCase) &&
+                        else if (StringUtil.StartsWith(name, ModelConstants.TagElementAndGate) &&
                             length == 4)
                         {
                             double x = double.Parse(args[2]);
@@ -1797,7 +1809,7 @@ namespace CanvasDiagramEditor
 
                             dict.Add(args[1], tuple);
                         }
-                        else if (name.StartsWith(ModelConstants.TagElementOrGate, StringComparison.InvariantCultureIgnoreCase) &&
+                        else if (StringUtil.StartsWith(name, ModelConstants.TagElementOrGate) &&
                             length == 4)
                         {
                             double x = double.Parse(args[2]);
@@ -1814,7 +1826,7 @@ namespace CanvasDiagramEditor
 
                             dict.Add(args[1], tuple);
                         }
-                        else if (name.StartsWith(ModelConstants.TagElementWire, StringComparison.InvariantCultureIgnoreCase) &&
+                        else if (StringUtil.StartsWith(name, ModelConstants.TagElementWire) &&
                             (length == 6 || length == 8))
                         {
                             double x1 = double.Parse(args[2]);
@@ -1847,7 +1859,7 @@ namespace CanvasDiagramEditor
                             dict.Add(args[1], tuple);
                         }
                     }
-                    else if (CompareString(args[0], ModelConstants.PrefixChildElement))
+                    else if (StringUtil.Compare(args[0], ModelConstants.PrefixChildElement))
                     {
                         if (tuple != null)
                         {
@@ -1859,7 +1871,6 @@ namespace CanvasDiagramEditor
                 }
             }
 
-            // update wire connections
             UpdateWireConnections(dict);
 
             if (appendIds == true)
@@ -1872,7 +1883,14 @@ namespace CanvasDiagramEditor
                 UpdateIdCounter(options, counter);
             }
 
-            // add elements to canvas
+            AddElementsToCanvas(canvas, elements, select);
+
+            sw.Stop();
+            System.Diagnostics.Debug.Print("ParseDiagramModel() in {0}ms", sw.Elapsed.TotalMilliseconds);
+        }
+
+        private static void AddElementsToCanvas(Canvas canvas, List<FrameworkElement> elements, bool select)
+        {
             foreach (var element in elements)
             {
                 canvas.Children.Add(element);
@@ -1882,9 +1900,6 @@ namespace CanvasDiagramEditor
                     SelectionThumb.SetIsSelected(element, true);
                 }
             }
-
-            sw.Stop();
-            System.Diagnostics.Debug.Print("ParseDiagramModel() in {0}ms", sw.Elapsed.TotalMilliseconds);
         }
 
         private static void UpdateIdCounter(DiagramEditorOptions options, IdCounter counter)
@@ -1920,14 +1935,14 @@ namespace CanvasDiagramEditor
                         string _name = wire.Item1;
                         string _type = wire.Item2;
 
-                        if (CompareString(_type, ModelConstants.WireStartType))
+                        if (StringUtil.Compare(_type, ModelConstants.WireStartType))
                         {
                             var line = dict[_name].Item1 as LineEx;
 
                             var _tuple = new TagMap(line, element, null);
                             tuples.Add(_tuple);
                         }
-                        else if (CompareString(_type, ModelConstants.WireEndType))
+                        else if (StringUtil.Compare(_type, ModelConstants.WireEndType))
                         {
                             var line = dict[_name].Item1 as LineEx;
 
@@ -2382,7 +2397,7 @@ namespace CanvasDiagramEditor
                 element.GetType(), element.Uid, element.Parent.GetType());
 
             if (element is LineEx && uid != null &&
-                uid.StartsWith(ModelConstants.TagElementWire, StringComparison.InvariantCultureIgnoreCase))
+                StringUtil.StartsWith(uid, ModelConstants.TagElementWire))
             {
                 var line = element as LineEx;
 
@@ -2408,7 +2423,7 @@ namespace CanvasDiagramEditor
             }
 
             if (pin != null &&
-                (!CompareString(pin.Name, ResourceConstants.StandalonePinName) || Keyboard.Modifiers == ModifierKeys.Control))
+                (!StringUtil.Compare(pin.Name, ResourceConstants.StandalonePinName) || Keyboard.Modifiers == ModifierKeys.Control))
             {
                 if (options.currentLine == null)
                     AddToHistory(canvas);
