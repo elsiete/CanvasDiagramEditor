@@ -2840,7 +2840,7 @@ namespace CanvasDiagramEditor
             editor.options = new DiagramEditorOptions();
 
             editor.options.counter.ProjectCount = 1;
-            editor.options.counter.DiagramCount = 2;
+            editor.options.counter.DiagramCount = 1;
 
             UpdateDiagramProperties();
 
@@ -4308,13 +4308,10 @@ namespace CanvasDiagramEditor
             var projectItem = CreateProjectItem(null);
             solutionItem.Items.Add(projectItem);
 
-            var diagramItem1 = CreateDiagramItem(null);
-            projectItem.Items.Add(diagramItem1);
+            var diagramItem = CreateDiagramItem(null);
+            projectItem.Items.Add(diagramItem);
 
-            var diagramItem2 = CreateDiagramItem(null);
-            projectItem.Items.Add(diagramItem2);
-
-            diagramItem1.IsSelected = true;
+            diagramItem.IsSelected = true;
         }
 
         #endregion
