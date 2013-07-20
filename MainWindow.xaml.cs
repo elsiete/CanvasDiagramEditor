@@ -2535,7 +2535,16 @@ namespace CanvasDiagramEditor
 
         public void Paste(Point point)
         {
-            Insert(copy, point.X, point.Y);
+            var text = Clipboard.GetText();
+
+            if (text != null || text.Length > 0)
+            {
+                Insert(text, point.X, point.Y);
+            }
+            else
+            {
+                Insert(copy, point.X, point.Y);
+            }
         }
 
         public void Delete()
