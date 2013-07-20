@@ -355,6 +355,20 @@
 
                 </TabItem>
 
+                <TabItem Header="Diagram">
+               
+                        <TextBox x:Name="TextTag" 
+                                AcceptsReturn="True" AcceptsTab="True" 
+                                VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                                Padding="2"
+                                FontFamily="Consolas" FontSize="12"
+                                VerticalScrollBarVisibility="Auto"
+                                HorizontalScrollBarVisibility="Auto"
+                                Text="{Binding ElementName=SolutionTree, Path=SelectedItem.Tag.Item1, FallbackValue={x:Null}, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, IsAsync=True}">
+                        </TextBox>
+                    
+                </TabItem>
+                
             </TabControl>
 
         </Grid>
