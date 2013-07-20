@@ -1048,7 +1048,7 @@ namespace CanvasDiagramEditor
 
             var diagram = new StringBuilder();
 
-            var elements = canvas.Children.Cast<FrameworkElement>();
+            var elements = canvas != null ? canvas.Children.Cast<FrameworkElement>() : Enumerable.Empty<FrameworkElement>();
             var prop = options.currentProperties;
 
             string header = string.Format("{0}{1}{2}{1}{3}{1}{4}{1}{5}{1}{6}{1}{7}{1}{8}{1}{9}{1}{10}{1}{11}{1}{12}{1}{13}",
@@ -3965,7 +3965,7 @@ namespace CanvasDiagramEditor
 
             if (item != null)
             {
-                item.Tag = new Diagram(model, canvas.Tag as History);
+                item.Tag = new Diagram(model, canvas != null ? canvas.Tag as History : null);
             }
         }
 
@@ -4059,6 +4059,8 @@ namespace CanvasDiagramEditor
             var diagram = CreateDiagramItem(null);
 
             project.Items.Add(diagram);
+
+            StoreModel(null, diagram);
 
             System.Diagnostics.Debug.Print("Added diagram: {0} to project: {1}", diagram.Uid, project.Uid);
         }
