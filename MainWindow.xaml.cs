@@ -549,12 +549,14 @@ namespace CanvasDiagramEditor
 
         public void ResetAll()
         {
+            SolutionCount = 0;
             ProjectCount = 0;
             DiagramCount = 0;
 
             ResetDiagram();
         }
 
+        public int SolutionCount { get; set; }
         public int ProjectCount { get; set; }
         public int DiagramCount { get; set; }
         public int PinCount { get; set; }
@@ -3323,176 +3325,6 @@ namespace CanvasDiagramEditor
 
         #endregion
 
-        #region Solution
-
-        private void UpdateSelectedDiagramModel()
-        {
-            var canvas = editor.options.currentCanvas;
-            var item = SolutionTree.SelectedItem as TreeViewItem;
-
-            if (item != null)
-            {
-                string uid = item.Uid;
-                bool isDiagram = StringUtil.StartsWith(uid, ModelConstants.TagHeaderDiagram);
-
-                if (isDiagram == true)
-                {
-                    var model = editor.GenerateDiagramModel(canvas, uid);
-
-                    item.Tag = new Diagram(model, canvas.Tag as History);
-                }
-            }
-        }
-
-        public string GenerateSolution()
-        {
-            var solution = SolutionTree.Items.Cast<TreeViewItem>().First();
-            var projects = solution.Items.Cast<TreeViewItem>();
-            string line = null;
-
-            var sb = new StringBuilder();
-
-            // update current diagram
-            UpdateSelectedDiagramModel();
-
-            // Solution
-            line = string.Format("{0}{1}{2}",
-                ModelConstants.PrefixRoot,
-                ModelConstants.ArgumentSeparator,
-                solution.Uid);
-
-            sb.AppendLine(line);
-
-            //System.Diagnostics.Debug.Print(line);
-
-            foreach (var project in projects)
-            {
-                var diagrams = project.Items.Cast<TreeViewItem>();
-
-                // Project
-                line = string.Format("{0}{1}{2}",
-                    ModelConstants.PrefixRoot,
-                    ModelConstants.ArgumentSeparator,
-                    project.Uid);
-
-                sb.AppendLine(line);
-
-                //System.Diagnostics.Debug.Print(line);
-
-                foreach (var diagram in diagrams)
-                {
-                    // Diagram
-
-                    //line = string.Format("{0}{1}{2}",
-                    //    ModelConstants.PrefixRootElement,
-                    //    ModelConstants.ArgumentSeparator,
-                    //    diagram.Uid);
-                    //sb.AppendLine(line);
-                    //System.Diagnostics.Debug.Print(line);
-
-                    // Diagram Elements
-                    if (diagram.Tag != null)
-                    {
-                        var _diagram = diagram.Tag as Diagram;
-
-                        var model = _diagram.Item1;
-                        var history = _diagram.Item2;
-
-                        sb.Append(model);
-                    }
-                }
-            }
-
-            return sb.ToString();
-        }
-
-        public void OpenSolution()
-        {
-            var solution = editor.OpenSolution();
-
-            if (solution != null)
-            {
-                var tree = SolutionTree;
-                TreeViewItem firstDiagram = null;
-                bool haveFirstDiagram = false;
-
-                // clear solution tree
-                var items = tree.Items.Cast<TreeViewItem>().ToList();
-
-                foreach (var item in items)
-                {
-                    DeleteSolution(item);
-                }
-
-                // create solution
-                string name = null;
-
-                name = solution.Item1;
-                var projects = solution.Item2.Reverse();
-
-                //System.Diagnostics.Debug.Print("Solution: {0}", name);
-
-                var solutionItem = CreateSolutionItem(name);
-                tree.Items.Add(solutionItem);
-
-                // create projects
-                foreach (var project in projects)
-                {
-                    name = project.Item1;
-                    var diagrams = project.Item2.Reverse();
-
-                    //System.Diagnostics.Debug.Print("Project: {0}", name);
-
-                    // create project
-                    var projectItem = CreateProjectItem(name);
-                    solutionItem.Items.Add(projectItem);
-
-                    // create diagrams
-                    foreach (var diagram in diagrams)
-                    {
-                        var lines = diagram.Reverse();
-                        var sb = new StringBuilder();
-                        string model = null;
-
-                        var firstLine = lines.First().Split(new char[] { ModelConstants.ArgumentSeparator, '\t', ' ' },
-                            StringSplitOptions.RemoveEmptyEntries);
-
-                        name = firstLine.Length >= 1 ? firstLine[1] : null;
-
-                        // create diagram
-                        foreach (var line in lines)
-                        {
-                            sb.AppendLine(line);
-                        }
-
-                        model = sb.ToString();
-
-                        //System.Diagnostics.Debug.Print(model);
-
-                        var diagramItem = CreateDiagramItem(name);
-
-                        diagramItem.Tag = new Diagram(model, null);
-
-                        projectItem.Items.Add(diagramItem);
-
-                        if (haveFirstDiagram == false)
-                        {
-                            firstDiagram = diagramItem;
-                            haveFirstDiagram = true;
-                        }
-                    }
-                }
-
-                // select first diagram in tree
-                if (haveFirstDiagram == true)
-                {
-                    firstDiagram.IsSelected = true;
-                }
-            }
-        }
-
-        #endregion
-
         #region Button Events
 
         private void ResetZoom_Click(object sender, RoutedEventArgs e)
@@ -3534,6 +3366,11 @@ namespace CanvasDiagramEditor
         #endregion
 
         #region Main Menu Events
+
+        private void FileNew_Click(object sender, RoutedEventArgs e)
+        {
+            NewSolution();
+        }
 
         private void FileOpen_Click(object sender, RoutedEventArgs e)
         {
@@ -3752,6 +3589,16 @@ namespace CanvasDiagramEditor
                             {
                                 editor.SaveDiagram();
                                 e.Handled = true;
+                            }
+                        }
+                        break;
+
+                    // new solution
+                    case Key.N:
+                        {
+                            if (isControl == true)
+                            {
+                                NewSolution();
                             }
                         }
                         break;
@@ -4008,7 +3855,7 @@ namespace CanvasDiagramEditor
                 int id = 0; // there is only one solution allowed
 
                 solution.Uid = ModelConstants.TagHeaderSolution + ModelConstants.TagNameSeparator + id.ToString();
-                counter.ProjectCount++;
+                counter.SolutionCount = id++;
             }
             else
             {
@@ -4128,6 +3975,216 @@ namespace CanvasDiagramEditor
             var project = diagram.Parent as TreeViewItem;
 
             project.Items.Remove(diagram);
+        }
+
+        private void UpdateSelectedDiagramModel()
+        {
+            var canvas = editor.options.currentCanvas;
+            var item = SolutionTree.SelectedItem as TreeViewItem;
+
+            if (item != null)
+            {
+                string uid = item.Uid;
+                bool isDiagram = StringUtil.StartsWith(uid, ModelConstants.TagHeaderDiagram);
+
+                if (isDiagram == true)
+                {
+                    var model = editor.GenerateDiagramModel(canvas, uid);
+
+                    item.Tag = new Diagram(model, canvas.Tag as History);
+                }
+            }
+        }
+
+        public string GenerateSolution()
+        {
+            var solution = SolutionTree.Items.Cast<TreeViewItem>().First();
+            var projects = solution.Items.Cast<TreeViewItem>();
+            string line = null;
+
+            var sb = new StringBuilder();
+
+            // update current diagram
+            UpdateSelectedDiagramModel();
+
+            // Solution
+            line = string.Format("{0}{1}{2}",
+                ModelConstants.PrefixRoot,
+                ModelConstants.ArgumentSeparator,
+                solution.Uid);
+
+            sb.AppendLine(line);
+
+            //System.Diagnostics.Debug.Print(line);
+
+            foreach (var project in projects)
+            {
+                var diagrams = project.Items.Cast<TreeViewItem>();
+
+                // Project
+                line = string.Format("{0}{1}{2}",
+                    ModelConstants.PrefixRoot,
+                    ModelConstants.ArgumentSeparator,
+                    project.Uid);
+
+                sb.AppendLine(line);
+
+                //System.Diagnostics.Debug.Print(line);
+
+                foreach (var diagram in diagrams)
+                {
+                    // Diagram
+
+                    //line = string.Format("{0}{1}{2}",
+                    //    ModelConstants.PrefixRootElement,
+                    //    ModelConstants.ArgumentSeparator,
+                    //    diagram.Uid);
+                    //sb.AppendLine(line);
+                    //System.Diagnostics.Debug.Print(line);
+
+                    // Diagram Elements
+                    if (diagram.Tag != null)
+                    {
+                        var _diagram = diagram.Tag as Diagram;
+
+                        var model = _diagram.Item1;
+                        var history = _diagram.Item2;
+
+                        sb.Append(model);
+                    }
+                }
+            }
+
+            return sb.ToString();
+        }
+
+        public void OpenSolution()
+        {
+            var solution = editor.OpenSolution();
+
+            if (solution != null)
+            {
+                var tree = SolutionTree;
+                TreeViewItem firstDiagram = null;
+                bool haveFirstDiagram = false;
+
+                ClearSolutionTree(tree);
+
+                var counter = editor.options.counter;
+
+                // create solution
+                string name = null;
+                int id = -1;
+
+                name = solution.Item1;
+                var projects = solution.Item2.Reverse();
+
+                //System.Diagnostics.Debug.Print("Solution: {0}", name);
+
+                var solutionItem = CreateSolutionItem(name);
+                tree.Items.Add(solutionItem);
+
+                // create projects
+                foreach (var project in projects)
+                {
+                    name = project.Item1;
+                    var diagrams = project.Item2.Reverse();
+
+                    //System.Diagnostics.Debug.Print("Project: {0}", name);
+
+                    // create project
+                    var projectItem = CreateProjectItem(name);
+                    solutionItem.Items.Add(projectItem);
+
+                    // update project count
+                    id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
+                    counter.ProjectCount = Math.Max(counter.ProjectCount, id + 1);
+
+                    // create diagrams
+                    foreach (var diagram in diagrams)
+                    {
+                        var lines = diagram.Reverse();
+                        var sb = new StringBuilder();
+                        string model = null;
+
+                        var firstLine = lines.First().Split(new char[] { ModelConstants.ArgumentSeparator, '\t', ' ' },
+                            StringSplitOptions.RemoveEmptyEntries);
+
+                        name = firstLine.Length >= 1 ? firstLine[1] : null;
+
+                        // create diagram
+                        foreach (var line in lines)
+                        {
+                            sb.AppendLine(line);
+                        }
+
+                        model = sb.ToString();
+
+                        //System.Diagnostics.Debug.Print(model);
+
+                        var diagramItem = CreateDiagramItem(name);
+
+                        diagramItem.Tag = new Diagram(model, null);
+
+                        projectItem.Items.Add(diagramItem);
+
+                        // check for first diagram
+                        if (haveFirstDiagram == false)
+                        {
+                            firstDiagram = diagramItem;
+                            haveFirstDiagram = true;
+                        }
+
+                        // update diagram count
+                        id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
+                        counter.DiagramCount = Math.Max(counter.DiagramCount, id + 1);
+                    }
+                }
+
+                // select first diagram in tree
+                if (haveFirstDiagram == true)
+                {
+                    firstDiagram.IsSelected = true;
+                }
+            }
+        }
+
+        private void ClearSolutionTree(TreeView tree)
+        {
+            // clear solution tree
+            var items = tree.Items.Cast<TreeViewItem>().ToList();
+
+            foreach (var item in items)
+            {
+                DeleteSolution(item);
+            }
+
+            // reset counter
+            editor.options.counter.ResetAll();
+        }
+
+        public void NewSolution()
+        {
+            var canvas = DiagramCanvas;
+            var tree = SolutionTree;
+
+            editor.ClearDiagramModel(canvas);
+
+            ClearSolutionTree(tree);
+
+            var solutionItem = CreateSolutionItem(null);
+            tree.Items.Add(solutionItem);
+
+            var projectItem = CreateProjectItem(null);
+            solutionItem.Items.Add(projectItem);
+
+            var diagramItem1 = CreateDiagramItem(null);
+            projectItem.Items.Add(diagramItem1);
+
+            var diagramItem2 = CreateDiagramItem(null);
+            projectItem.Items.Add(diagramItem2);
+
+            diagramItem1.IsSelected = true;
         }
 
         #endregion

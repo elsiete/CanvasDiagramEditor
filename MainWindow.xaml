@@ -59,7 +59,9 @@
         <Menu Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Background="LightGray" Margin="0">
             <MenuItem Header="_File">
                 <MenuItem x:Name="FileOpen" Header="_Open Solution..." Click="FileOpen_Click" InputGestureText="Ctrl+O"/>
-                <MenuItem x:Name="FileSave" Header="_Save Solution..." Click="FileSave_Click"  InputGestureText="Ctrl+S"/>
+                <MenuItem x:Name="FileSave" Header="_Save Solution..." Click="FileSave_Click" InputGestureText="Ctrl+S"/>
+                <Separator/>
+                <MenuItem x:Name="FileNew" Header="_New Solution" Click="FileNew_Click" InputGestureText="Ctrl+N"/>
                 <Separator/>
                 <MenuItem x:Name="FileOpenDiagram" Header="Open Diagram..." Click="FileOpenDiagram_Click"/>
                 <MenuItem x:Name="FileSaveDiagram" Header="Save Diagram..." Click="FileSaveDiagram_Click"/>
@@ -188,21 +190,36 @@
             <TabControl Margin="0,4,4,4">
                 
                 <TabItem Header="Explorer">
-                    
-                    <TreeView x:Name="SolutionTree" 
-                            ScrollViewer.VerticalScrollBarVisibility="Auto"
-                            ScrollViewer.HorizontalScrollBarVisibility="Auto"  
-                            SelectedItemChanged="SolutionTree_SelectedItemChanged">
 
-                        <TreeViewItem Header="Solution" IsExpanded="True" x:Uid="Solution|0" ContextMenu="{StaticResource SolutionContextMenuKey}" MouseRightButtonDown="TreeViewItem_MouseRightButtonDown">
-                            <TreeViewItem Header="Project" IsExpanded="True" x:Uid="Project|0" ContextMenu="{StaticResource ProjectContextMenuKey}" MouseRightButtonDown="TreeViewItem_MouseRightButtonDown">
-                                <TreeViewItem IsSelected="True" Header="Diagram" x:Uid="Diagram|0" ContextMenu="{StaticResource DiagramContextMenuKey}" MouseRightButtonDown="TreeViewItem_MouseRightButtonDown"/>
-                                <TreeViewItem Header="Diagram" x:Uid="Diagram|1" ContextMenu="{StaticResource DiagramContextMenuKey}" MouseRightButtonDown="TreeViewItem_MouseRightButtonDown"/>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        
+                        <TextBox Grid.Column="0" Grid.Row="0" 
+                                 Margin="0,0,0,2"
+                                 Background="Transparent"
+                                 BorderBrush="Transparent" BorderThickness="0"
+                                 Text="{Binding ElementName=SolutionTree, Path=SelectedItem.Uid, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+        
+                        <TreeView x:Name="SolutionTree" 
+                                  Grid.Column="0" Grid.Row="1"
+                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                  ScrollViewer.HorizontalScrollBarVisibility="Auto"  
+                                  SelectedItemChanged="SolutionTree_SelectedItemChanged">
+
+                            <TreeViewItem Header="Solution" IsExpanded="True" x:Uid="Solution|0" ContextMenu="{StaticResource SolutionContextMenuKey}" MouseRightButtonDown="TreeViewItem_MouseRightButtonDown">
+                                <TreeViewItem Header="Project" IsExpanded="True" x:Uid="Project|0" ContextMenu="{StaticResource ProjectContextMenuKey}" MouseRightButtonDown="TreeViewItem_MouseRightButtonDown">
+                                    <TreeViewItem IsSelected="True" Header="Diagram" x:Uid="Diagram|0" ContextMenu="{StaticResource DiagramContextMenuKey}" MouseRightButtonDown="TreeViewItem_MouseRightButtonDown"/>
+                                    <TreeViewItem Header="Diagram" x:Uid="Diagram|1" ContextMenu="{StaticResource DiagramContextMenuKey}" MouseRightButtonDown="TreeViewItem_MouseRightButtonDown"/>
+                                </TreeViewItem>
                             </TreeViewItem>
-                        </TreeViewItem>
 
-                    </TreeView>
-                    
+                        </TreeView>
+
+                    </Grid>
+
                 </TabItem>
 
                 <TabItem Header="Options">
@@ -339,13 +356,6 @@
                 </TabItem>
 
             </TabControl>
-
-
-
-
-
-
-
 
         </Grid>
 
