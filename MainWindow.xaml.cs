@@ -25,11 +25,11 @@ namespace CanvasDiagramEditor
 
     // Maps
     using PinMap = Tuple<string, string>;
-    using TagMap = Tuple<LineEx, FrameworkElement, FrameworkElement>;
-    using WireMap = Tuple<FrameworkElement, List<Tuple<string, string>>>;
+    using TagMap = Tuple<LineEx, object, object>;
+    using WireMap = Tuple<object, List<Tuple<string, string>>>;
 
     // TemplatedParent.Tag: Item1: IsSelected, Item2: TagMap
-    using Selection = Tuple<bool, List<Tuple<LineEx, FrameworkElement, FrameworkElement>>>;
+    using Selection = Tuple<bool, List<Tuple<LineEx, object, object>>>;
 
     // Canvas.Tag => Item1: undoHistory, Item2: redoHistory
     using History = Tuple<Stack<string>, Stack<string>>;
@@ -511,6 +511,18 @@ namespace CanvasDiagramEditor
 
     #region Parser
 
+    public class ParseOptions
+    {
+        public double OffsetX { get; set; }
+        public double OffsetY { get; set; }
+        public bool AppendIds { get; set; }
+        public bool UpdateIds { get; set; }
+        public bool Select { get; set; }
+        public bool CreateElements { get; set; }
+        public DiagramProperties Properties { get; set; }
+        public IdCounter Counter { get; set; }
+    }
+
     public class DiagramProperties
     {
         public DiagramProperties()
@@ -569,29 +581,353 @@ namespace CanvasDiagramEditor
 
     public interface IDiagramCreator
     {
-        object CreatePin(int id, double x, double y);
-        object CreateWire(int id, double x1, double y1, double x2, double y2);
-        object CreateInput(int id, double x, double y, string text);
-        object CreateOutput(int id, double x, double y, string text);
-        object CreateAndGate(int id, double x, double y);
-        object CreateOrGate(int id, double x, double y);
+        object CreatePin(double x, double y, int id, bool snap);
+        object CreateWire(double x1, double y1, double x2, double y2, bool start, bool end, int id);
+        object CreateInput(double x, double y, int id, bool snap);
+        object CreateOutput(double x, double y, int id, bool snap);
+        object CreateAndGate(double x, double y, int id, bool snap);
+        object CreateOrGate(double x, double y, int id, bool snap);
+        object CreateDiagram(DiagramProperties properties);
+
+        void UpdateConnections(Dictionary<string, WireMap> dict);
+        void UpdateCounter(IdCounter original, IdCounter counter);
+        void AppendIds(IEnumerable<object> elements);
+        void InsertElements(IEnumerable<object> elements, bool select);
     }
 
     public interface IDiagramParser
     {
-        IEnumerable<object> Parse(string diagram, IDiagramCreator creator);
+        TreeSolution Parse(string model, IDiagramCreator creator, ParseOptions options);
     }
 
     public class DiagramParser : IDiagramParser
     {
-        public IEnumerable<object> Parse(string diagram, IDiagramCreator creator)
+        #region Parse
+
+        public TreeSolution Parse(string model, IDiagramCreator creator, ParseOptions options)
         {
+            double offsetX = options.OffsetX;
+            double offsetY = options.OffsetX;
+            bool appendIds = options.AppendIds;
+            bool updateIds = options.UpdateIds;
+            bool select = options.Select;
+            bool createElements = options.CreateElements;
+
+            if (model == null)
+                return null;
+
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+
+            string name = null;
+            var counter = new IdCounter();
             var elements = new List<object>();
+            WireMap tuple = null;
+            var dict = new Dictionary<string, WireMap>();
 
-            // ...
+            TreeSolution solution = null;
+            TreeProjects projects = null;
+            TreeProject project = null;
+            TreeDiagrams diagrams = null;
+            TreeDiagram diagram = null;
 
-            return elements;
-        }
+            var lines = model.Split(Environment.NewLine.ToCharArray(),
+                StringSplitOptions.RemoveEmptyEntries);
+
+            //System.Diagnostics.Debug.Print("Parsing model:");
+
+            foreach (var line in lines)
+            {
+                var args = line.Split(new char[] { ModelConstants.ArgumentSeparator, '\t', ' ' },
+                    StringSplitOptions.RemoveEmptyEntries);
+
+                int length = args.Length;
+
+                //System.Diagnostics.Debug.Print(line);
+
+                if (length < 2)
+                    continue;
+
+                name = args[1];
+
+                // root element
+                if (StringUtil.Compare(args[0], ModelConstants.PrefixRoot))
+                {
+                    // Solution
+                    if (StringUtil.StartsWith(name, ModelConstants.TagHeaderSolution) &&
+                        length == 2)
+                    {
+                        projects = new TreeProjects();
+                        solution = new TreeSolution(name, projects);
+                    }
+
+                    // Project
+                    else if (StringUtil.StartsWith(name, ModelConstants.TagHeaderProject) &&
+                        length == 2)
+                    {
+                        if (projects != null)
+                        {
+                            diagrams = new TreeDiagrams();
+                            project = new TreeProject(name, diagrams);
+                            projects.Push(project);
+                        }
+                    }
+
+                    // Diagram
+                    else if (StringUtil.StartsWith(name, ModelConstants.TagHeaderDiagram) &&
+                        length == 13)
+                    {
+                        if (diagrams != null)
+                        {
+                            diagram = new TreeDiagram();
+                            diagrams.Push(diagram);
+                            diagram.Push(line);
+                        }
+
+                        if (createElements == true)
+                        {
+                            var prop = new DiagramProperties();
+
+                            prop.PageWidth = int.Parse(args[2]);
+                            prop.PageHeight = int.Parse(args[3]);
+                            prop.GridOriginX = int.Parse(args[4]);
+                            prop.GridOriginY = int.Parse(args[5]);
+                            prop.GridWidth = int.Parse(args[6]);
+                            prop.GridHeight = int.Parse(args[7]);
+                            prop.GridSize = int.Parse(args[8]);
+                            prop.SnapX = double.Parse(args[9]);
+                            prop.SnapY = double.Parse(args[10]);
+                            prop.SnapOffsetX = double.Parse(args[11]);
+                            prop.SnapOffsetY = double.Parse(args[12]);
+
+                            creator.CreateDiagram(prop);
+
+                            options.Properties = prop;
+                        }
+                    }
+
+                    // Pin
+                    else if (StringUtil.StartsWith(name, ModelConstants.TagElementPin) &&
+                        length == 4)
+                    {
+                        if (diagram != null)
+                        {
+                            diagram.Push(line);
+                        }
+
+                        if (createElements == true)
+                        {
+                            double x = double.Parse(args[2]);
+                            double y = double.Parse(args[3]);
+
+                            int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
+
+                            counter.PinCount = Math.Max(counter.PinCount, id + 1);
+
+                            var element = creator.CreatePin(x + offsetX, y + offsetY, id, false);
+                            elements.Add(element);
+
+                            tuple = new WireMap(element, new List<PinMap>());
+
+                            dict.Add(args[1], tuple);
+                        }
+                    }
+
+                    // Input
+                    else if (StringUtil.StartsWith(name, ModelConstants.TagElementInput) &&
+                        length == 4)
+                    {
+                        if (diagram != null)
+                        {
+                            diagram.Push(line);
+                        }
+
+                        if (createElements == true)
+                        {
+                            double x = double.Parse(args[2]);
+                            double y = double.Parse(args[3]);
+
+                            int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
+
+                            counter.InputCount = Math.Max(counter.InputCount, id + 1);
+
+                            var element = creator.CreateInput(x + offsetX, y + offsetY, id, false);
+                            elements.Add(element);
+
+                            tuple = new WireMap(element, new List<PinMap>());
+
+                            dict.Add(args[1], tuple);
+                        }
+                    }
+
+                    // Output
+                    else if (StringUtil.StartsWith(name, ModelConstants.TagElementOutput) &&
+                        length == 4)
+                    {
+                        if (diagram != null)
+                        {
+                            diagram.Push(line);
+                        }
+
+                        if (createElements == true)
+                        {
+                            double x = double.Parse(args[2]);
+                            double y = double.Parse(args[3]);
+
+                            int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
+
+                            counter.OutputCount = Math.Max(counter.OutputCount, id + 1);
+
+                            var element = creator.CreateOutput(x + offsetX, y + offsetY, id, false);
+                            elements.Add(element);
+
+                            tuple = new WireMap(element, new List<PinMap>());
+
+                            dict.Add(args[1], tuple);
+                        }
+                    }
+
+                    // AndGate
+                    else if (StringUtil.StartsWith(name, ModelConstants.TagElementAndGate) &&
+                        length == 4)
+                    {
+                        if (diagram != null)
+                        {
+                            diagram.Push(line);
+                        }
+
+                        if (createElements == true)
+                        {
+                            double x = double.Parse(args[2]);
+                            double y = double.Parse(args[3]);
+
+                            int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
+
+                            counter.AndGateCount = Math.Max(counter.AndGateCount, id + 1);
+
+                            var element = creator.CreateAndGate(x + offsetX, y + offsetY, id, false);
+                            elements.Add(element);
+
+                            tuple = new WireMap(element, new List<PinMap>());
+
+                            dict.Add(args[1], tuple);
+                        }
+                    }
+
+                    // OrGate
+                    else if (StringUtil.StartsWith(name, ModelConstants.TagElementOrGate) &&
+                        length == 4)
+                    {
+                        if (diagram != null)
+                        {
+                            diagram.Push(line);
+                        }
+
+                        if (createElements == true)
+                        {
+                            double x = double.Parse(args[2]);
+                            double y = double.Parse(args[3]);
+
+                            int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
+
+                            counter.OrGateCount = Math.Max(counter.OrGateCount, id + 1);
+
+                            var element = creator.CreateOrGate(x + offsetX, y + offsetY, id, false);
+                            elements.Add(element);
+
+                            tuple = new WireMap(element, new List<PinMap>());
+
+                            dict.Add(args[1], tuple);
+                        }
+                    }
+
+                    // Wire
+                    else if (StringUtil.StartsWith(name, ModelConstants.TagElementWire) &&
+                        (length == 6 || length == 8))
+                    {
+                        if (diagram != null)
+                        {
+                            diagram.Push(line);
+                        }
+
+                        if (createElements == true)
+                        {
+                            double x1 = double.Parse(args[2]);
+                            double y1 = double.Parse(args[3]);
+                            double x2 = double.Parse(args[4]);
+                            double y2 = double.Parse(args[5]);
+
+                            bool start = false;
+                            bool end = false;
+
+                            if (length == 8)
+                            {
+                                start = bool.Parse(args[6]);
+                                end = bool.Parse(args[7]);
+                            }
+
+                            int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
+
+                            counter.WireCount = Math.Max(counter.WireCount, id + 1);
+
+                            var element = creator.CreateWire(x1 + offsetX, y1 + offsetY,
+                                x2 + offsetX, y2 + offsetY,
+                                start, end,
+                                id);
+
+                            elements.Add(element);
+
+                            tuple = new WireMap(element, new List<PinMap>());
+
+                            dict.Add(args[1], tuple);
+                        }
+                    }
+                }
+
+                // child element
+                else if (StringUtil.Compare(args[0], ModelConstants.PrefixChild))
+                {
+                    if (StringUtil.StartsWith(name, ModelConstants.TagElementWire) &&
+                        length == 3)
+                    {
+                        if (diagram != null)
+                        {
+                            diagram.Push(line);
+                        }
+
+                        if (createElements == true && tuple != null)
+                        {
+                            var wires = tuple.Item2;
+
+                            wires.Add(new PinMap(name, args[2]));
+                        }
+                    }
+                }
+            }
+
+            if (createElements == true)
+            {
+                creator.UpdateConnections(dict);
+
+                if (appendIds == true)
+                {
+                    creator.AppendIds(elements);
+                }
+
+                if (updateIds == true)
+                {
+                    creator.UpdateCounter(options.Counter, counter);
+                }
+
+                creator.InsertElements(elements, select);
+            }
+
+            sw.Stop();
+            System.Diagnostics.Debug.Print("Parse() in {0}ms", sw.Elapsed.TotalMilliseconds);
+
+            return solution;
+        } 
+        
+        #endregion
     }
 
     #endregion
@@ -656,21 +992,54 @@ namespace CanvasDiagramEditor
 
     #region DiagramEditor
 
-    public class DiagramEditor
+    public class DiagramEditor : IDiagramCreator
     {
         #region Fields
 
         public DiagramEditorOptions options = null;
+        private Canvas parserCanvas = null;
+        private Path parserPath = null;
 
         #endregion
 
         #region Model
 
-        public void ClearDiagramModel(Canvas canvas)
+        public TreeSolution ParseDiagramModel(string model,
+            Canvas canvas,
+            Path path,
+            double offsetX,
+            double offsetY,
+            bool appendIds,
+            bool updateIds,
+            bool select,
+            bool createElements)
         {
-            canvas.Children.Clear();
+            var parser = new DiagramParser();
 
-            options.counter.ResetDiagram();
+            var parseOptions = new ParseOptions()
+            {
+                OffsetX = offsetX,
+                OffsetY = offsetY,
+                AppendIds = appendIds,
+                UpdateIds = updateIds,
+                Select = select,
+                CreateElements = createElements,
+                Counter = options.counter,
+                Properties = options.currentProperties
+            };
+
+            parserCanvas = canvas;
+            parserPath = path;
+
+            var result = parser.Parse(model, this, parseOptions);
+
+            options.counter = parseOptions.Counter;
+            options.currentProperties = parseOptions.Properties;
+
+            parserCanvas = null;
+            parserPath = null;
+
+            return result;
         }
 
         public string GenerateDiagramModel(Canvas canvas, string uid)
@@ -706,7 +1075,14 @@ namespace CanvasDiagramEditor
             return result;
         }
 
-        private string GenerateDiagramModelFromSelected(Canvas canvas)
+        public void ClearDiagramModel(Canvas canvas)
+        {
+            canvas.Children.Clear();
+
+            options.counter.ResetDiagram();
+        }
+
+        public string GenerateDiagramModelFromSelected(Canvas canvas)
         {
             var sw = System.Diagnostics.Stopwatch.StartNew();
 
@@ -803,336 +1179,7 @@ namespace CanvasDiagramEditor
             }
         }
 
-        public TreeSolution ParseDiagramModel(string model,
-            Canvas canvas,
-            Path path,
-            double offsetX,
-            double offsetY,
-            bool appendIds,
-            bool updateIds,
-            bool select,
-            bool createElements)
-        {
-            if (model == null)
-                return null;
-
-            var sw = System.Diagnostics.Stopwatch.StartNew();
-
-            string name = null;
-            var counter = new IdCounter();
-            var elements = new List<FrameworkElement>();
-            WireMap tuple = null;
-            var dict = new Dictionary<string, WireMap>();
-
-            TreeSolution solution = null;
-            TreeProjects projects = null;
-            TreeProject project = null;
-            TreeDiagrams diagrams = null;
-            TreeDiagram diagram = null;
-
-            var lines = model.Split(Environment.NewLine.ToCharArray(),
-                StringSplitOptions.RemoveEmptyEntries);
-
-            //System.Diagnostics.Debug.Print("Parsing model:");
-
-            foreach (var line in lines)
-            {
-                var args = line.Split(new char[] { ModelConstants.ArgumentSeparator, '\t', ' ' },
-                    StringSplitOptions.RemoveEmptyEntries);
-
-                int length = args.Length;
-
-                //System.Diagnostics.Debug.Print(line);
-
-                if (length < 2)
-                    continue;
-
-                name = args[1];
-
-                // root element
-                if (StringUtil.Compare(args[0], ModelConstants.PrefixRoot))
-                {
-                    // Solution
-                    if (StringUtil.StartsWith(name, ModelConstants.TagHeaderSolution) &&
-                        length == 2)
-                    {
-                        projects = new TreeProjects();
-                        solution = new TreeSolution(name, projects);
-                    }
-
-                    // Project
-                    else if (StringUtil.StartsWith(name, ModelConstants.TagHeaderProject) &&
-                        length == 2)
-                    {
-                        if (projects != null)
-                        {
-                            diagrams = new TreeDiagrams();
-                            project = new TreeProject(name, diagrams);
-                            projects.Push(project);
-                        }
-                    }
-
-                    // Diagram
-                    else if (StringUtil.StartsWith(name, ModelConstants.TagHeaderDiagram) &&
-                        length == 13)
-                    {
-                        if (diagrams != null)
-                        {
-                            diagram = new TreeDiagram();
-                            diagrams.Push(diagram);
-                            diagram.Push(line);
-                        }
-
-                        if (createElements == true)
-                        {
-                            var prop = new DiagramProperties();
-
-                            prop.PageWidth = int.Parse(args[2]);
-                            prop.PageHeight = int.Parse(args[3]);
-                            prop.GridOriginX = int.Parse(args[4]);
-                            prop.GridOriginY = int.Parse(args[5]);
-                            prop.GridWidth = int.Parse(args[6]);
-                            prop.GridHeight = int.Parse(args[7]);
-                            prop.GridSize = int.Parse(args[8]);
-                            prop.SnapX = double.Parse(args[9]);
-                            prop.SnapY = double.Parse(args[10]);
-                            prop.SnapOffsetX = double.Parse(args[11]);
-                            prop.SnapOffsetY = double.Parse(args[12]);
-
-                            GenerateGrid(path,
-                                prop.GridOriginX, prop.GridOriginY,
-                                prop.GridWidth, prop.GridHeight,
-                                prop.GridSize);
-
-                            SetDiagramSize(canvas, prop.PageWidth, prop.PageHeight);
-
-                            options.currentProperties = prop;
-                        }
-                    }
-
-                    // Pin
-                    else if (StringUtil.StartsWith(name, ModelConstants.TagElementPin) &&
-                        length == 4)
-                    {
-                        if (diagram != null)
-                        {
-                            diagram.Push(line);
-                        }
-
-                        if (createElements == true)
-                        {
-                            double x = double.Parse(args[2]);
-                            double y = double.Parse(args[3]);
-
-                            int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
-
-                            counter.PinCount = Math.Max(counter.PinCount, id + 1);
-
-                            var element = CreatePin(x + offsetX, y + offsetY, id, false);
-                            elements.Add(element);
-
-                            tuple = new WireMap(element, new List<PinMap>());
-
-                            dict.Add(args[1], tuple);
-                        }
-                    }
-
-                    // Input
-                    else if (StringUtil.StartsWith(name, ModelConstants.TagElementInput) &&
-                        length == 4)
-                    {
-                        if (diagram != null)
-                        {
-                            diagram.Push(line);
-                        }
-
-                        if (createElements == true)
-                        {
-                            double x = double.Parse(args[2]);
-                            double y = double.Parse(args[3]);
-
-                            int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
-
-                            counter.InputCount = Math.Max(counter.InputCount, id + 1);
-
-                            var element = CreateInput(x + offsetX, y + offsetY, id, false);
-                            elements.Add(element);
-
-                            tuple = new WireMap(element, new List<PinMap>());
-
-                            dict.Add(args[1], tuple);
-                        }
-                    }
-
-                    // Output
-                    else if (StringUtil.StartsWith(name, ModelConstants.TagElementOutput) &&
-                        length == 4)
-                    {
-                        if (diagram != null)
-                        {
-                            diagram.Push(line);
-                        }
-
-                        if (createElements == true)
-                        {
-                            double x = double.Parse(args[2]);
-                            double y = double.Parse(args[3]);
-
-                            int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
-
-                            counter.OutputCount = Math.Max(counter.OutputCount, id + 1);
-
-                            var element = CreateOutput(x + offsetX, y + offsetY, id, false);
-                            elements.Add(element);
-
-                            tuple = new WireMap(element, new List<PinMap>());
-
-                            dict.Add(args[1], tuple);
-                        }
-                    }
-
-                    // AndGate
-                    else if (StringUtil.StartsWith(name, ModelConstants.TagElementAndGate) &&
-                        length == 4)
-                    {
-                        if (diagram != null)
-                        {
-                            diagram.Push(line);
-                        }
-
-                        if (createElements == true)
-                        {
-                            double x = double.Parse(args[2]);
-                            double y = double.Parse(args[3]);
-
-                            int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
-
-                            counter.AndGateCount = Math.Max(counter.AndGateCount, id + 1);
-
-                            var element = CreateAndGate(x + offsetX, y + offsetY, id, false);
-                            elements.Add(element);
-
-                            tuple = new WireMap(element, new List<PinMap>());
-
-                            dict.Add(args[1], tuple);
-                        }
-                    }
-
-                    // OrGate
-                    else if (StringUtil.StartsWith(name, ModelConstants.TagElementOrGate) &&
-                        length == 4)
-                    {
-                        if (diagram != null)
-                        {
-                            diagram.Push(line);
-                        }
-
-                        if (createElements == true)
-                        {
-                            double x = double.Parse(args[2]);
-                            double y = double.Parse(args[3]);
-
-                            int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
-
-                            counter.OrGateCount = Math.Max(counter.OrGateCount, id + 1);
-
-                            var element = CreateOrGate(x + offsetX, y + offsetY, id, false);
-                            elements.Add(element);
-
-                            tuple = new WireMap(element, new List<PinMap>());
-
-                            dict.Add(args[1], tuple);
-                        }
-                    }
-
-                    // Wire
-                    else if (StringUtil.StartsWith(name, ModelConstants.TagElementWire) &&
-                        (length == 6 || length == 8))
-                    {
-                        if (diagram != null)
-                        {
-                            diagram.Push(line);
-                        }
-
-                        if (createElements == true)
-                        {
-                            double x1 = double.Parse(args[2]);
-                            double y1 = double.Parse(args[3]);
-                            double x2 = double.Parse(args[4]);
-                            double y2 = double.Parse(args[5]);
-
-                            bool start = false;
-                            bool end = false;
-
-                            if (length == 8)
-                            {
-                                start = bool.Parse(args[6]);
-                                end = bool.Parse(args[7]);
-                            }
-
-                            int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
-
-                            counter.WireCount = Math.Max(counter.WireCount, id + 1);
-
-                            var element = CreateWire(x1 + offsetX, y1 + offsetY,
-                                x2 + offsetX, y2 + offsetY,
-                                start, end,
-                                id);
-
-                            elements.Add(element);
-
-                            tuple = new WireMap(element, new List<PinMap>());
-
-                            dict.Add(args[1], tuple);
-                        }
-                    }
-                }
-
-                // child element
-                else if (StringUtil.Compare(args[0], ModelConstants.PrefixChild))
-                {
-                    if (StringUtil.StartsWith(name, ModelConstants.TagElementWire) &&
-                        length == 3)
-                    {
-                        if (diagram != null)
-                        {
-                            diagram.Push(line);
-                        }
-
-                        if (createElements == true && tuple != null)
-                        {
-                            var wires = tuple.Item2;
-
-                            wires.Add(new PinMap(name, args[2]));
-                        }
-                    }
-                }
-            }
-
-            if (createElements == true)
-            {
-                UpdateWireConnections(dict);
-
-                if (appendIds == true)
-                {
-                    AppendElementIds(options, elements);
-                }
-
-                if (updateIds == true)
-                {
-                    UpdateIdCounter(options, counter);
-                }
-
-                AddElementsToCanvas(canvas, elements, select);
-            }
-
-            sw.Stop();
-            System.Diagnostics.Debug.Print("ParseDiagramModel() in {0}ms", sw.Elapsed.TotalMilliseconds);
-
-            return solution;
-        }
-
-        private static void AddElementsToCanvas(Canvas canvas, List<FrameworkElement> elements, bool select)
+        private static void AddElementsToCanvas(Canvas canvas, IEnumerable<FrameworkElement> elements, bool select)
         {
             foreach (var element in elements)
             {
@@ -1145,22 +1192,29 @@ namespace CanvasDiagramEditor
             }
         }
 
-        private static void UpdateIdCounter(DiagramEditorOptions options, IdCounter counter)
+        public void InsertElements(IEnumerable<object> elements, bool select)
         {
-            options.counter.PinCount = Math.Max(options.counter.PinCount, counter.PinCount);
-            options.counter.WireCount = Math.Max(options.counter.WireCount, counter.WireCount);
-            options.counter.InputCount = Math.Max(options.counter.InputCount, counter.InputCount);
-            options.counter.OutputCount = Math.Max(options.counter.OutputCount, counter.OutputCount);
-            options.counter.AndGateCount = Math.Max(options.counter.AndGateCount, counter.AndGateCount);
-            options.counter.OrGateCount = Math.Max(options.counter.OrGateCount, counter.OrGateCount);
+            var canvas = parserCanvas;
+
+            AddElementsToCanvas(canvas, elements.Cast<FrameworkElement>(), select);
         }
 
-        private static void UpdateWireConnections(Dictionary<string, WireMap> dict)
+        public void UpdateCounter(IdCounter original, IdCounter counter)
+        {
+            original.PinCount = Math.Max(original.PinCount, counter.PinCount);
+            original.WireCount = Math.Max(original.WireCount, counter.WireCount);
+            original.InputCount = Math.Max(original.InputCount, counter.InputCount);
+            original.OutputCount = Math.Max(original.OutputCount, counter.OutputCount);
+            original.AndGateCount = Math.Max(original.AndGateCount, counter.AndGateCount);
+            original.OrGateCount = Math.Max(original.OrGateCount, counter.OrGateCount);
+        }
+
+        public void UpdateConnections(Dictionary<string, WireMap> dict)
         {
             // update wire to element connections
             foreach (var item in dict)
             {
-                var element = item.Value.Item1;
+                var element = item.Value.Item1 as FrameworkElement;
                 var wires = item.Value.Item2;
 
                 if (element.Tag == null)
@@ -1197,12 +1251,12 @@ namespace CanvasDiagramEditor
             }
         }
 
-        private static void AppendElementIds(DiagramEditorOptions options, List<FrameworkElement> elements)
+        public void AppendIds(IEnumerable<object> elements)
         {
             // append ids to the existing elements in canvas
             //System.Diagnostics.Debug.Print("Appending Ids:");
 
-            foreach (var element in elements)
+            foreach (var element in elements.Cast<FrameworkElement>())
             {
                 string[] uid = element.Uid.Split(ModelConstants.TagNameSeparator);
 
@@ -1678,7 +1732,7 @@ namespace CanvasDiagramEditor
             thumb.DragCompleted += this.RootElement_DragCompleted;
         }
 
-        private SelectionThumb CreatePin(double x, double y, int id, bool snap)
+        public object CreatePin(double x, double y, int id, bool snap)
         {
             var thumb = new SelectionThumb()
             {
@@ -1693,7 +1747,7 @@ namespace CanvasDiagramEditor
             return thumb;
         }
 
-        private LineEx CreateWire(double x1, double y1, double x2, double y2, bool start, bool end, int id)
+        public object CreateWire(double x1, double y1, double x2, double y2, bool start, bool end, int id)
         {
             var line = new LineEx()
             {
@@ -1711,7 +1765,7 @@ namespace CanvasDiagramEditor
             return line;
         }
 
-        private SelectionThumb CreateInput(double x, double y, int id, bool snap)
+        public object CreateInput(double x, double y, int id, bool snap)
         {
             var thumb = new SelectionThumb()
             {
@@ -1726,7 +1780,7 @@ namespace CanvasDiagramEditor
             return thumb;
         }
 
-        private SelectionThumb CreateOutput(double x, double y, int id, bool snap)
+        public object CreateOutput(double x, double y, int id, bool snap)
         {
             var thumb = new SelectionThumb()
             {
@@ -1741,7 +1795,7 @@ namespace CanvasDiagramEditor
             return thumb;
         }
 
-        private SelectionThumb CreateAndGate(double x, double y, int id, bool snap)
+        public object CreateAndGate(double x, double y, int id, bool snap)
         {
             var thumb = new SelectionThumb()
             {
@@ -1756,7 +1810,7 @@ namespace CanvasDiagramEditor
             return thumb;
         }
 
-        private SelectionThumb CreateOrGate(double x, double y, int id, bool snap)
+        public object CreateOrGate(double x, double y, int id, bool snap)
         {
             var thumb = new SelectionThumb()
             {
@@ -1769,6 +1823,23 @@ namespace CanvasDiagramEditor
             SetElementPosition(thumb, x, y, snap);
 
             return thumb;
+        }
+
+        public object CreateDiagram(DiagramProperties properties)
+        {
+            var canvas = parserCanvas;
+            var path = parserPath;
+
+            GenerateGrid(path,
+                properties.GridOriginX,
+                properties.GridOriginY,
+                properties.GridWidth, 
+                properties.GridHeight,
+                properties.GridSize);
+
+            SetDiagramSize(canvas, properties.PageWidth, properties.PageHeight);
+
+            return null;
         }
 
         private void CreatePinConnection(Canvas canvas, FrameworkElement pin)
@@ -1811,7 +1882,7 @@ namespace CanvasDiagramEditor
 
             if (options.currentLine == null)
             {
-                var line = CreateWire(x, y, x, y, false, false, options.counter.WireCount);
+                var line = CreateWire(x, y, x, y, false, false, options.counter.WireCount) as LineEx;
                 options.counter.WireCount += 1;
 
                 options.currentLine = line;
@@ -1850,7 +1921,7 @@ namespace CanvasDiagramEditor
 
         public FrameworkElement InsertPin(Canvas canvas, Point point)
         {
-            var thumb = CreatePin(point.X, point.Y, options.counter.PinCount, options.enableSnap);
+            var thumb = CreatePin(point.X, point.Y, options.counter.PinCount, options.enableSnap) as SelectionThumb;
             options.counter.PinCount += 1;
 
             canvas.Children.Add(thumb);
@@ -1860,7 +1931,7 @@ namespace CanvasDiagramEditor
 
         public FrameworkElement InsertInput(Canvas canvas, Point point)
         {
-            var thumb = CreateInput(point.X, point.Y, options.counter.InputCount, options.enableSnap);
+            var thumb = CreateInput(point.X, point.Y, options.counter.InputCount, options.enableSnap) as SelectionThumb;
             options.counter.InputCount += 1;
 
             canvas.Children.Add(thumb);
@@ -1870,7 +1941,7 @@ namespace CanvasDiagramEditor
 
         public FrameworkElement InsertOutput(Canvas canvas, Point point)
         {
-            var thumb = CreateOutput(point.X, point.Y, options.counter.OutputCount, options.enableSnap);
+            var thumb = CreateOutput(point.X, point.Y, options.counter.OutputCount, options.enableSnap) as SelectionThumb;
             options.counter.OutputCount += 1;
 
             canvas.Children.Add(thumb);
@@ -1880,7 +1951,7 @@ namespace CanvasDiagramEditor
 
         public FrameworkElement InsertAndGate(Canvas canvas, Point point)
         {
-            var thumb = CreateAndGate(point.X, point.Y, options.counter.AndGateCount, options.enableSnap);
+            var thumb = CreateAndGate(point.X, point.Y, options.counter.AndGateCount, options.enableSnap) as SelectionThumb;
             options.counter.AndGateCount += 1;
 
             canvas.Children.Add(thumb);
@@ -1890,7 +1961,7 @@ namespace CanvasDiagramEditor
 
         public FrameworkElement InsertOrGate(Canvas canvas, Point point)
         {
-            var thumb = CreateOrGate(point.X, point.Y, options.counter.OrGateCount, options.enableSnap);
+            var thumb = CreateOrGate(point.X, point.Y, options.counter.OrGateCount, options.enableSnap) as SelectionThumb;
             options.counter.OrGateCount += 1;
 
             canvas.Children.Add(thumb);
@@ -2432,7 +2503,18 @@ namespace CanvasDiagramEditor
 
             copy = GenerateDiagramModelFromSelected(canvas);
 
-            Delete();
+            if (copy.Length == 0)
+            {
+                copy = GenerateDiagramModel(canvas, null);
+
+                var elements = GetAllElements(canvas);
+
+                Delete(canvas, elements);
+            }
+            else
+            {
+                Delete();
+            }
 
             Clipboard.SetText(copy);
         }
@@ -2442,6 +2524,11 @@ namespace CanvasDiagramEditor
             var canvas = options.currentCanvas;
 
             copy = GenerateDiagramModelFromSelected(canvas);
+
+            if (copy.Length == 0)
+            {
+                copy = GenerateDiagramModel(canvas, null);
+            }
 
             Clipboard.SetText(copy);
         }
@@ -2456,9 +2543,14 @@ namespace CanvasDiagramEditor
             var canvas = options.currentCanvas;
             var elements = GetSelectedElements(canvas);
 
+            Delete(canvas, elements);
+        }
+
+        public void Delete(Canvas canvas, IEnumerable<FrameworkElement> elements)
+        {
             AddToHistory(canvas);
 
-            // delete selected thumbs & lines
+            // delete thumbs & lines
 
             foreach (var element in elements)
             {
@@ -2466,7 +2558,7 @@ namespace CanvasDiagramEditor
             }
         }
 
-        private static IEnumerable<FrameworkElement> GetSelectedElements(Canvas canvas)
+        public static IEnumerable<FrameworkElement> GetSelectedElements(Canvas canvas)
         {
             var elements = new List<FrameworkElement>();
 
@@ -2490,6 +2582,30 @@ namespace CanvasDiagramEditor
                 {
                     elements.Add(line);
                 }
+            }
+
+            return elements;
+        }
+
+        public static IEnumerable<FrameworkElement> GetAllElements(Canvas canvas)
+        {
+            var elements = new List<FrameworkElement>();
+
+            // get all thumbs
+            var thumbs = canvas.Children.OfType<SelectionThumb>();
+
+            foreach (var thumb in thumbs)
+            {
+
+                    elements.Add(thumb);
+            }
+
+            // get all lines
+            var lines = canvas.Children.OfType<LineEx>();
+
+            foreach (var line in lines)
+            {
+                    elements.Add(line);
             }
 
             return elements;
