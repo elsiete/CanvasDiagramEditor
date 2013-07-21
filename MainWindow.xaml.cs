@@ -2737,7 +2737,9 @@ namespace CanvasDiagramEditor
 
         public bool HandlePreviewLeftDown(Canvas canvas, Point point, FrameworkElement pin)
         {
-            if (options.currentRoot == null && options.currentLine == null)
+            if (options.currentRoot == null && 
+                options.currentLine == null &&
+                Keyboard.Modifiers != ModifierKeys.Control)
             {
                 var element = HitTest(canvas, ref point);
                 if (element != null)
@@ -3235,7 +3237,10 @@ namespace CanvasDiagramEditor
             {
                 selectionOrigin = point;
 
-                editor.DeselectAll();
+                if (Keyboard.Modifiers != ModifierKeys.Control)
+                {
+                    editor.DeselectAll();
+                }
 
                 canvas.CaptureMouse();
             }
@@ -3262,7 +3267,14 @@ namespace CanvasDiagramEditor
                     {
                         foreach (var element in elements)
                         {
-                            SelectionThumb.SetIsSelected(element, true);
+                            if (SelectionThumb.GetIsSelected(element) == false)
+                            {
+                                SelectionThumb.SetIsSelected(element, true);
+                            }
+                            else
+                            {
+                                SelectionThumb.SetIsSelected(element, false);
+                            }
                         }
                     }
 
