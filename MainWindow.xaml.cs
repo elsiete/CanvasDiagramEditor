@@ -24,12 +24,12 @@ namespace CanvasDiagramEditor
     #region Aliases
 
     // Maps
-    using PinMap = Tuple<string, string>;
-    using TagMap = Tuple<LineEx, object, object>;
-    using WireMap = Tuple<object, List<Tuple<string, string>>>;
+    using MapPin = Tuple<string, string>;
+    using MapWire = Tuple<object, object, object>; // Item1: LineEx, Item2: start Parent, Item3: end Parent
+    using MapWires = Tuple<object, List<Tuple<string, string>>>;
 
     // TemplatedParent.Tag: Item1: IsSelected, Item2: TagMap
-    using Selection = Tuple<bool, List<Tuple<LineEx, object, object>>>;
+    using Selection = Tuple<bool, List<Tuple<object, object, object>>>;
 
     // Canvas.Tag => Item1: undoHistory, Item2: redoHistory
     using History = Tuple<Stack<string>, Stack<string>>;
@@ -43,7 +43,7 @@ namespace CanvasDiagramEditor
     using TreeProject = Tuple<string, Stack<Stack<string>>>; // Tuple<string, TreeDiagrams>, where string is Project Name
     using TreeProjects = Stack<Tuple<string, Stack<Stack<string>>>>; // Stack<Tuple<string, TreeProject>>, 
     using TreeSolution = Tuple<string, Stack<Tuple<string, Stack<Stack<string>>>>>; // Tuple<string, TreeProjects>, where string is Solution Name 
-    
+
     #endregion
 
     #region Tuple .NET 3.5
@@ -589,7 +589,7 @@ namespace CanvasDiagramEditor
         object CreateOrGate(double x, double y, int id, bool snap);
         object CreateDiagram(DiagramProperties properties);
 
-        void UpdateConnections(Dictionary<string, WireMap> dict);
+        void UpdateConnections(IDictionary<string, MapWires> dict);
         void UpdateCounter(IdCounter original, IdCounter counter);
         void AppendIds(IEnumerable<object> elements);
         void InsertElements(IEnumerable<object> elements, bool select);
@@ -621,8 +621,8 @@ namespace CanvasDiagramEditor
             string name = null;
             var counter = new IdCounter();
             var elements = new List<object>();
-            WireMap tuple = null;
-            var dict = new Dictionary<string, WireMap>();
+            MapWires tuple = null;
+            var dict = new Dictionary<string, MapWires>();
 
             TreeSolution solution = null;
             TreeProjects projects = null;
@@ -726,7 +726,7 @@ namespace CanvasDiagramEditor
                             var element = creator.CreatePin(x + offsetX, y + offsetY, id, false);
                             elements.Add(element);
 
-                            tuple = new WireMap(element, new List<PinMap>());
+                            tuple = new MapWires(element, new List<MapPin>());
 
                             dict.Add(args[1], tuple);
                         }
@@ -753,7 +753,7 @@ namespace CanvasDiagramEditor
                             var element = creator.CreateInput(x + offsetX, y + offsetY, id, false);
                             elements.Add(element);
 
-                            tuple = new WireMap(element, new List<PinMap>());
+                            tuple = new MapWires(element, new List<MapPin>());
 
                             dict.Add(args[1], tuple);
                         }
@@ -780,7 +780,7 @@ namespace CanvasDiagramEditor
                             var element = creator.CreateOutput(x + offsetX, y + offsetY, id, false);
                             elements.Add(element);
 
-                            tuple = new WireMap(element, new List<PinMap>());
+                            tuple = new MapWires(element, new List<MapPin>());
 
                             dict.Add(args[1], tuple);
                         }
@@ -807,7 +807,7 @@ namespace CanvasDiagramEditor
                             var element = creator.CreateAndGate(x + offsetX, y + offsetY, id, false);
                             elements.Add(element);
 
-                            tuple = new WireMap(element, new List<PinMap>());
+                            tuple = new MapWires(element, new List<MapPin>());
 
                             dict.Add(args[1], tuple);
                         }
@@ -834,7 +834,7 @@ namespace CanvasDiagramEditor
                             var element = creator.CreateOrGate(x + offsetX, y + offsetY, id, false);
                             elements.Add(element);
 
-                            tuple = new WireMap(element, new List<PinMap>());
+                            tuple = new MapWires(element, new List<MapPin>());
 
                             dict.Add(args[1], tuple);
                         }
@@ -876,7 +876,7 @@ namespace CanvasDiagramEditor
 
                             elements.Add(element);
 
-                            tuple = new WireMap(element, new List<PinMap>());
+                            tuple = new MapWires(element, new List<MapPin>());
 
                             dict.Add(args[1], tuple);
                         }
@@ -898,7 +898,7 @@ namespace CanvasDiagramEditor
                         {
                             var wires = tuple.Item2;
 
-                            wires.Add(new PinMap(name, args[2]));
+                            wires.Add(new MapPin(name, args[2]));
                         }
                     }
                 }
@@ -1144,7 +1144,7 @@ namespace CanvasDiagramEditor
 
                     foreach (var tuple in tuples)
                     {
-                        var line = tuple.Item1;
+                        var line = tuple.Item1 as LineEx;
                         var start = tuple.Item2;
                         var end = tuple.Item3;
 
@@ -1209,7 +1209,7 @@ namespace CanvasDiagramEditor
             original.OrGateCount = Math.Max(original.OrGateCount, counter.OrGateCount);
         }
 
-        public void UpdateConnections(Dictionary<string, WireMap> dict)
+        public void UpdateConnections(IDictionary<string, MapWires> dict)
         {
             // update wire to element connections
             foreach (var item in dict)
@@ -1219,7 +1219,7 @@ namespace CanvasDiagramEditor
 
                 if (element.Tag == null)
                 {
-                    element.Tag = new Selection(false, new List<TagMap>());
+                    element.Tag = new Selection(false, new List<MapWire>());
                 }
 
                 if (wires.Count > 0)
@@ -1234,17 +1234,41 @@ namespace CanvasDiagramEditor
 
                         if (StringUtil.Compare(_type, ModelConstants.WireStartType))
                         {
-                            var line = dict[_name].Item1 as LineEx;
+                            MapWires mapWires = null;
+                            if (dict.TryGetValue(_name, out mapWires) == true)
+                            {
+                                var line = mapWires.Item1 as LineEx;
+                                var mapWire = new MapWire(line, element, null);
 
-                            var _tuple = new TagMap(line, element, null);
-                            tuples.Add(_tuple);
+                                tuples.Add(mapWire);
+                            }
+                            else
+                            {
+                                System.Diagnostics.Debug.Print("Failed to map wire Start: {0}", _name);
+                            }
+
+                            //var line = dict[_name].Item1 as LineEx;
+                            //var _tuple = new MapTag(line, element, null);
+                            //tuples.Add(_tuple);
                         }
                         else if (StringUtil.Compare(_type, ModelConstants.WireEndType))
                         {
-                            var line = dict[_name].Item1 as LineEx;
+                            MapWires mapWires = null;
+                            if (dict.TryGetValue(_name, out mapWires) == true)
+                            {
+                                var line = mapWires.Item1 as LineEx;
+                                var mapWire = new MapWire(line, null, element);
 
-                            var _tuple = new TagMap(line, null, element);
-                            tuples.Add(_tuple);
+                                tuples.Add(mapWire);
+                            }
+                            else
+                            {
+                                System.Diagnostics.Debug.Print("Failed to map wire End: {0}", _name);
+                            }
+
+                            //var line = dict[_name].Item1 as LineEx;
+                            //var _tuple = new MapWire(line, null, element);
+                            //tuples.Add(_tuple);
                         }
                     }
                 }
@@ -1570,7 +1594,7 @@ namespace CanvasDiagramEditor
 
                 foreach (var tuple in tuples)
                 {
-                    var line = tuple.Item1;
+                    var line = tuple.Item1 as LineEx;
                     var start = tuple.Item2;
                     var end = tuple.Item3;
 
@@ -1874,7 +1898,7 @@ namespace CanvasDiagramEditor
 
             if (options.currentRoot.Tag == null)
             {
-                options.currentRoot.Tag = new Selection(false, new List<TagMap>());
+                options.currentRoot.Tag = new Selection(false, new List<MapWire>());
             }
 
             var selection = options.currentRoot.Tag as Selection;
@@ -1888,7 +1912,7 @@ namespace CanvasDiagramEditor
                 options.currentLine = line;
 
                 // update connections
-                var tuple = new TagMap(options.currentLine, options.currentRoot, null);
+                var tuple = new MapWire(options.currentLine, options.currentRoot, null);
                 tuples.Add(tuple);
 
                 canvas.Children.Add(options.currentLine);
@@ -1903,7 +1927,7 @@ namespace CanvasDiagramEditor
                 options.currentLine.Y2 = y - margin.Top;
 
                 // update connections
-                var tuple = new TagMap(options.currentLine, null, options.currentRoot);
+                var tuple = new MapWire(options.currentLine, null, options.currentRoot);
                 tuples.Add(tuple);
 
                 result = options.currentLine;
@@ -2137,11 +2161,11 @@ namespace CanvasDiagramEditor
                     var selection = _element.Tag as Selection;
                     var tuples = selection.Item2;
 
-                    var remove = new List<TagMap>();
+                    var remove = new List<MapWire>();
 
                     foreach (var tuple in tuples)
                     {
-                        var _line = tuple.Item1;
+                        var _line = tuple.Item1 as LineEx;
 
                         if (StringUtil.Compare(_line.Uid, line.Uid))
                         {
@@ -2495,17 +2519,15 @@ namespace CanvasDiagramEditor
 
         #region Edit
 
-        private string copy = null;
-
         public void Cut()
         {
             var canvas = options.currentCanvas;
 
-            copy = GenerateDiagramModelFromSelected(canvas);
+            string model = GenerateDiagramModelFromSelected(canvas);
 
-            if (copy.Length == 0)
+            if (model.Length == 0)
             {
-                copy = GenerateDiagramModel(canvas, null);
+                model = GenerateDiagramModel(canvas, null);
 
                 var elements = GetAllElements(canvas);
 
@@ -2516,34 +2538,30 @@ namespace CanvasDiagramEditor
                 Delete();
             }
 
-            Clipboard.SetText(copy);
+            Clipboard.SetText(model);
         }
 
         public void Copy()
         {
             var canvas = options.currentCanvas;
 
-            copy = GenerateDiagramModelFromSelected(canvas);
+            string model = GenerateDiagramModelFromSelected(canvas);
 
-            if (copy.Length == 0)
+            if (model.Length == 0)
             {
-                copy = GenerateDiagramModel(canvas, null);
+                model = GenerateDiagramModel(canvas, null);
             }
 
-            Clipboard.SetText(copy);
+            Clipboard.SetText(model);
         }
 
         public void Paste(Point point)
         {
-            var text = Clipboard.GetText();
+            var model = Clipboard.GetText();
 
-            if (text != null || text.Length > 0)
+            if (model != null || model.Length > 0)
             {
-                Insert(text, point.X, point.Y);
-            }
-            else
-            {
-                Insert(copy, point.X, point.Y);
+                Insert(model, point.X, point.Y);
             }
         }
 
