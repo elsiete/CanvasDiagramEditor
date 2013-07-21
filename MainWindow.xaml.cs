@@ -513,6 +513,10 @@ namespace CanvasDiagramEditor
 
     public class ParseOptions
     {
+        public ParseOptions()
+        {
+        }
+
         public double OffsetX { get; set; }
         public double OffsetY { get; set; }
         public bool AppendIds { get; set; }
@@ -1237,7 +1241,7 @@ namespace CanvasDiagramEditor
                             MapWires mapWires = null;
                             if (dict.TryGetValue(_name, out mapWires) == true)
                             {
-                                var line = mapWires.Item1 as LineEx;
+                                var line = mapWires.Item1;
                                 var mapWire = new MapWire(line, element, null);
 
                                 tuples.Add(mapWire);
@@ -1256,7 +1260,7 @@ namespace CanvasDiagramEditor
                             MapWires mapWires = null;
                             if (dict.TryGetValue(_name, out mapWires) == true)
                             {
-                                var line = mapWires.Item1 as LineEx;
+                                var line = mapWires.Item1;
                                 var mapWire = new MapWire(line, null, element);
 
                                 tuples.Add(mapWire);
@@ -2676,11 +2680,6 @@ namespace CanvasDiagramEditor
             SetLinesSelection(canvas, false);
         }
 
-        public void Preferences()
-        {
-            throw new NotImplementedException();
-        }
-
         #endregion
 
         #region Handlers
@@ -2831,6 +2830,9 @@ namespace CanvasDiagramEditor
 
         private Point selectionOrigin;
         private SelectionAdorner adorner = null;
+
+        private double zoomLogBase = 1.8;
+        private double zoomExpFactor = 1.3;
 
         #endregion
 
@@ -3003,9 +3005,6 @@ namespace CanvasDiagramEditor
         #endregion
 
         #region Zoom
-
-        private double zoomLogBase = 1.8;
-        private double zoomExpFactor = 1.3;
 
         public double CalculateZoom(double x)
         {
@@ -3424,7 +3423,6 @@ namespace CanvasDiagramEditor
             var canvas = editor.options.currentCanvas;
             var point = new Point(editor.options.rightClick.X, editor.options.rightClick.Y);
 
-
             editor.ToggleEnd(canvas, point);
         }
 
@@ -3617,9 +3615,9 @@ namespace CanvasDiagramEditor
             editor.Clear();
         }
 
-        private void EditPreferences_Click(object sender, RoutedEventArgs e)
+        private void EditOptions_Click(object sender, RoutedEventArgs e)
         {
-            editor.Preferences();
+            TabOptions.IsSelected = true;
         }
 
         #endregion
@@ -3698,20 +3696,33 @@ namespace CanvasDiagramEditor
 
                 switch (e.Key)
                 {
-                    // add diagram to selected project is solution explorer
+                    // add new project to selected solution
+                    // add new diagram to selected project
+                    // add new diagram after selected diagram and select new diagram
                     case Key.M:
                         {
                             if (isControl == true)
                             {
-                                var project = SolutionTree.SelectedItem as TreeViewItem;
+                                var selected = SolutionTree.SelectedItem as TreeViewItem;
 
-                                string uid = project.Uid;
+                                string uid = selected.Uid;
+                                bool isSelectedSolution = StringUtil.StartsWith(uid, ModelConstants.TagHeaderSolution);
                                 bool isSelectedProject = StringUtil.StartsWith(uid, ModelConstants.TagHeaderProject);
                                 bool isSelectedDiagram = StringUtil.StartsWith(uid, ModelConstants.TagHeaderDiagram);
 
-                                if (isSelectedProject == true)
+                                if (isSelectedDiagram == true)
                                 {
-                                    AddDiagram(project);
+                                    var project = selected.Parent as TreeViewItem;
+
+                                    AddDiagram(project, true);
+                                }
+                                else if (isSelectedProject == true)
+                                {
+                                    AddDiagram(selected, false);
+                                }
+                                else if (isSelectedSolution == true)
+                                {
+                                    AddProject(selected);
                                 }
                             }
                         }
@@ -4072,13 +4083,18 @@ namespace CanvasDiagramEditor
             System.Diagnostics.Debug.Print("Added project: {0} to solution: {1}", project.Uid, solution.Uid);
         }
 
-        private void AddDiagram(TreeViewItem project)
+        private void AddDiagram(TreeViewItem project, bool select)
         {
             var diagram = CreateDiagramItem(null);
 
             project.Items.Add(diagram);
 
             StoreModel(null, diagram);
+
+            if (select == true)
+            {
+                diagram.IsSelected = true;
+            }
 
             System.Diagnostics.Debug.Print("Added diagram: {0} to project: {1}", diagram.Uid, project.Uid);
         }
@@ -4373,7 +4389,7 @@ namespace CanvasDiagramEditor
         {
             var project = SolutionTree.SelectedItem as TreeViewItem;
 
-            AddDiagram(project);
+            AddDiagram(project, true);
         }
 
         private void SolutionDeleteProject_Click(object sender, RoutedEventArgs e)

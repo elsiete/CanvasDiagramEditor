@@ -89,7 +89,7 @@
                 <Separator/>
                 <MenuItem x:Name="EditClear" Header="C_lear" Click="EditClear_Click"/>
                 <Separator/>
-                <MenuItem x:Name="EditPreferences" Header="Prefere_nces" Click="EditPreferences_Click"/>
+                <MenuItem x:Name="EditOptions" Header="_Options" Click="EditOptions_Click"/>
             </MenuItem>
         </Menu>
 
@@ -189,7 +189,7 @@
 
             <TabControl Margin="0,4,4,4">
                 
-                <TabItem Header="Explorer">
+                <TabItem Header="Explorer" x:Name="TabExplorer">
 
                     <Grid>
                         <Grid.RowDefinitions>
@@ -221,7 +221,7 @@
 
                 </TabItem>
 
-                <TabItem Header="Options">
+                <TabItem Header="Options" x:Name="TabOptions">
                     
                     <ScrollViewer VerticalScrollBarVisibility="Auto"
                                   HorizontalScrollBarVisibility="Auto">
@@ -308,7 +308,7 @@
                     
                 </TabItem>
 
-                <TabItem Header="Model">
+                <TabItem Header="Model" x:Name="TabModel">
                     
                     <Grid>
                         <Grid.RowDefinitions>
@@ -354,7 +354,7 @@
 
                 </TabItem>
 
-                <TabItem Header="Diagram">
+                <TabItem Header="Diagram" x:Name="TabDiagram">
                
                         <TextBox x:Name="TextTag" 
                                 AcceptsReturn="True" AcceptsTab="True" 
