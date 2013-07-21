@@ -732,7 +732,14 @@ namespace CanvasDiagramEditor
 
                             tuple = new MapWires(element, new List<MapPin>());
 
-                            dict.Add(args[1], tuple);
+                            if (dict.ContainsKey(name) == false)
+                            {
+                                dict.Add(name, tuple);
+                            }
+                            else
+                            {
+                                System.Diagnostics.Debug.Print("Dictionary already contains name key: {0}", name);
+                            }
                         }
                     }
 
@@ -759,7 +766,14 @@ namespace CanvasDiagramEditor
 
                             tuple = new MapWires(element, new List<MapPin>());
 
-                            dict.Add(args[1], tuple);
+                            if (dict.ContainsKey(name) == false)
+                            {
+                                dict.Add(name, tuple);
+                            }
+                            else
+                            {
+                                System.Diagnostics.Debug.Print("Dictionary already contains name key: {0}", name);
+                            }
                         }
                     }
 
@@ -786,7 +800,14 @@ namespace CanvasDiagramEditor
 
                             tuple = new MapWires(element, new List<MapPin>());
 
-                            dict.Add(args[1], tuple);
+                            if (dict.ContainsKey(name) == false)
+                            {
+                                dict.Add(name, tuple);
+                            }
+                            else
+                            {
+                                System.Diagnostics.Debug.Print("Dictionary already contains name key: {0}", name);
+                            }
                         }
                     }
 
@@ -813,7 +834,14 @@ namespace CanvasDiagramEditor
 
                             tuple = new MapWires(element, new List<MapPin>());
 
-                            dict.Add(args[1], tuple);
+                            if (dict.ContainsKey(name) == false)
+                            {
+                                dict.Add(name, tuple);
+                            }
+                            else
+                            {
+                                System.Diagnostics.Debug.Print("Dictionary already contains name key: {0}", name);
+                            }
                         }
                     }
 
@@ -840,7 +868,14 @@ namespace CanvasDiagramEditor
 
                             tuple = new MapWires(element, new List<MapPin>());
 
-                            dict.Add(args[1], tuple);
+                            if (dict.ContainsKey(name) == false)
+                            {
+                                dict.Add(name, tuple);
+                            }
+                            else
+                            {
+                                System.Diagnostics.Debug.Print("Dictionary already contains name key: {0}", name);
+                            }
                         }
                     }
 
@@ -882,7 +917,14 @@ namespace CanvasDiagramEditor
 
                             tuple = new MapWires(element, new List<MapPin>());
 
-                            dict.Add(args[1], tuple);
+                            if (dict.ContainsKey(name) == false)
+                            {
+                                dict.Add(name, tuple);
+                            }
+                            else
+                            {
+                                System.Diagnostics.Debug.Print("Dictionary already contains name key: {0}", name);
+                            }
                         }
                     }
                 }

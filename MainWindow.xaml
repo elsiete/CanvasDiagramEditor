@@ -97,6 +97,7 @@
                       MouseMove="PanScrollViewer_MouseMove" 
                       MouseDown="PanScrollViewer_MouseDown" 
                       MouseUp="PanScrollViewer_MouseUp"
+                      FocusVisualStyle="{x:Null}"
                       VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" 
                       Grid.Column="0" Grid.Row="1"
                       Margin="4,4,0,4"
