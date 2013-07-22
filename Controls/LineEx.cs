@@ -206,9 +206,67 @@ namespace CanvasDiagramEditor.Controls
             new FrameworkPropertyMetadata(false,
                 FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender));
 
+        public bool IsStartIO
+        {
+            get { return (bool)GetValue(IsStartIOProperty); }
+            set { SetValue(IsStartIOProperty, value); }
+        }
+
+        public static readonly DependencyProperty IsStartIOProperty =
+            DependencyProperty.Register("IsStartIO", typeof(bool), typeof(LineEx),
+            new FrameworkPropertyMetadata(false,
+                FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender));
+
+        public bool IsEndIO
+        {
+            get { return (bool)GetValue(IsEndIOProperty); }
+            set { SetValue(IsEndIOProperty, value); }
+        }
+
+        public static readonly DependencyProperty IsEndIOProperty =
+            DependencyProperty.Register("IsEndIO", typeof(bool), typeof(LineEx),
+            new FrameworkPropertyMetadata(false,
+                FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender));
+
+        #endregion
+
+        #region Attached Properties
+
+        public static bool GetShortenStart(DependencyObject obj)
+        {
+            return (bool)obj.GetValue(ShortenStartProperty);
+        }
+
+        public static void SetShortenStart(DependencyObject obj, bool value)
+        {
+            obj.SetValue(ShortenStartProperty, value);
+        }
+
+        public static readonly DependencyProperty ShortenStartProperty =
+            DependencyProperty.RegisterAttached("ShortenStart", typeof(bool), typeof(LineEx),
+            new FrameworkPropertyMetadata(false,
+                FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender));
+
+        public static bool GetShortenEnd(DependencyObject obj)
+        {
+            return (bool)obj.GetValue(ShortenEndProperty);
+        }
+
+        public static void SetShortenEnd(DependencyObject obj, bool value)
+        {
+            obj.SetValue(ShortenEndProperty, value);
+        }
+
+        public static readonly DependencyProperty ShortenEndProperty =
+            DependencyProperty.RegisterAttached("ShortenEnd", typeof(bool), typeof(LineEx),
+            new FrameworkPropertyMetadata(false,
+                FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender));
+
         #endregion
 
         #region Get DefiningGeometry
+
+        private const double ShortenLineSize = 15.0;
 
         public double GetThickness()
         {
@@ -232,8 +290,34 @@ namespace CanvasDiagramEditor.Controls
             double sizeX = LineExCalc.CalculateSizeX(radius, thickness, zet);
             double sizeY = LineExCalc.CalculateSizeY(radius, thickness, zet);
 
+            bool shortenStart = GetShortenStart(this);
+            bool shortenEnd = GetShortenEnd(this);
+            bool isStartIO = IsStartIO;
+            bool isEndIO = IsEndIO;
+
+            // shorten start
+            if (isStartIO == true && isEndIO == false && shortenStart == true)
+            {
+                if (Math.Round(startY, 1) == Math.Round(endY, 1))
+                {
+                    startX = endX - ShortenLineSize;
+                }
+            }
+
+            // shorten end
+            if (isStartIO == false && isEndIO == true && shortenEnd == true)
+            {
+                if (Math.Round(startY, 1) == Math.Round(endY, 1))
+                {
+                    endX = startX + ShortenLineSize;
+                }
+            }
+
+            // get start and end ellipse position
             Point ellipseStartCenter = LineExCalc.GetEllipseStartCenter(startX, startY, sizeX, sizeY, isStartVisible);
             Point ellipseEndCenter = LineExCalc.GetEllipseEndCenter(endX, endY, sizeX, sizeY, isEndVisible);
+
+            // get line position
             Point lineStart = LineExCalc.GetLineStart(startX, startY, sizeX, sizeY, isStartVisible);
             Point lineEnd = LineExCalc.GetLineEnd(endX, endY, sizeX, sizeY, isEndVisible);
 
