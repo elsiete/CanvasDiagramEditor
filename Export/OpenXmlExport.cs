@@ -1,29 +1,31 @@
-﻿
+﻿#region References
+
+using CanvasDiagramEditor;
+using CanvasDiagramEditor.Controls;
+using CanvasDiagramEditor.Parser;
+using CanvasDiagramEditor.Util;
+using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Wordprocessing;
+using System;
+using System.Collections.Generic;
+using System.Windows;
+using A = DocumentFormat.OpenXml.Drawing;
+using Ap = DocumentFormat.OpenXml.ExtendedProperties;
+using Ds = DocumentFormat.OpenXml.CustomXmlDataProperties;
+using M = DocumentFormat.OpenXml.Math;
+using Ovml = DocumentFormat.OpenXml.Vml.Office;
+using V = DocumentFormat.OpenXml.Vml;
+using Vt = DocumentFormat.OpenXml.VariantTypes;
+using Wp = DocumentFormat.OpenXml.Drawing.Wordprocessing;
+using Wpc = DocumentFormat.OpenXml.Office2010.Word.DrawingCanvas;
+using Wps = DocumentFormat.OpenXml.Office2010.Word.DrawingShape;
+using Wvml = DocumentFormat.OpenXml.Vml.Wordprocessing;
+
+#endregion
+
 namespace CanvasDiagramEditor.Export
 {
-    #region References
-
-    using CanvasDiagramEditor;
-    using DocumentFormat.OpenXml;
-    using DocumentFormat.OpenXml.Packaging;
-    using DocumentFormat.OpenXml.Wordprocessing;
-    using System;
-    using System.Collections.Generic;
-    using System.Windows;
-    using A = DocumentFormat.OpenXml.Drawing;
-    using Ap = DocumentFormat.OpenXml.ExtendedProperties;
-    using Ds = DocumentFormat.OpenXml.CustomXmlDataProperties;
-    using M = DocumentFormat.OpenXml.Math;
-    using Ovml = DocumentFormat.OpenXml.Vml.Office;
-    using V = DocumentFormat.OpenXml.Vml;
-    using Vt = DocumentFormat.OpenXml.VariantTypes;
-    using Wp = DocumentFormat.OpenXml.Drawing.Wordprocessing;
-    using Wpc = DocumentFormat.OpenXml.Office2010.Word.DrawingCanvas;
-    using Wps = DocumentFormat.OpenXml.Office2010.Word.DrawingShape;
-    using Wvml = DocumentFormat.OpenXml.Vml.Wordprocessing;
-
-    #endregion
-
     #region OpenXmlExport
 
     public class OpenXmlExport : IDiagramExport
@@ -326,14 +328,14 @@ namespace CanvasDiagramEditor.Export
                             double endX = x2;
                             double endY = y2;
 
-                            double zet = LineEx.CalculateZet(startX, startY, endX, endY);
-                            double sizeX = LineEx.CalculateSizeX(radius, thickness, zet);
-                            double sizeY = LineEx.CalculateSizeY(radius, thickness, zet);
+                            double zet = LineExCalc.CalculateZet(startX, startY, endX, endY);
+                            double sizeX = LineExCalc.CalculateSizeX(radius, thickness, zet);
+                            double sizeY = LineExCalc.CalculateSizeY(radius, thickness, zet);
 
-                            Point ellipseStartCenter = LineEx.GetEllipseStartCenter(startX, startY, sizeX, sizeY, isStartVisible);
-                            Point ellipseEndCenter = LineEx.GetEllipseEndCenter(endX, endY, sizeX, sizeY, isEndVisible);
-                            Point lineStart = LineEx.GetLineStart(startX, startY, sizeX, sizeY, isStartVisible);
-                            Point lineEnd = LineEx.GetLineEnd(endX, endY, sizeX, sizeY, isEndVisible);
+                            Point ellipseStartCenter = LineExCalc.GetEllipseStartCenter(startX, startY, sizeX, sizeY, isStartVisible);
+                            Point ellipseEndCenter = LineExCalc.GetEllipseEndCenter(endX, endY, sizeX, sizeY, isEndVisible);
+                            Point lineStart = LineExCalc.GetLineStart(startX, startY, sizeX, sizeY, isStartVisible);
+                            Point lineEnd = LineExCalc.GetLineEnd(endX, endY, sizeX, sizeY, isEndVisible);
 
                             wires.Add(() =>
                             {

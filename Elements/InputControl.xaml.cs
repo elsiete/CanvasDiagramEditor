@@ -1,5 +1,5 @@
 ﻿
-namespace CanvasDiagramEditor.Controls
+namespace CanvasDiagramEditor.Elements
 {
     #region References
 

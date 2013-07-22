@@ -1,5 +1,5 @@
 ﻿
-namespace CanvasDiagramEditor.Controls
+namespace CanvasDiagramEditor.Elements
 {
     #region References
 
@@ -19,11 +19,11 @@ namespace CanvasDiagramEditor.Controls
 
     #endregion
 
-    #region OutputControl
+    #region OrGateControl
 
-    public partial class OutputControl : UserControl
+    public partial class OrGateControl : UserControl
     {
-        public OutputControl()
+        public OrGateControl()
         {
             InitializeComponent();
         }
