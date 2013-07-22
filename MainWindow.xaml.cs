@@ -562,7 +562,8 @@ namespace CanvasDiagramEditor
 
             if (editor.options.EnableSnap == true)
             {
-                editor.MoveSelectedElements(canvas, -editor.options.DefaultGridSize, 0.0, false);
+                double delta = editor.options.CurrentProperties.GridSize;
+                editor.MoveSelectedElements(canvas, -delta, 0.0, false);
             }
             else
             {
@@ -576,7 +577,8 @@ namespace CanvasDiagramEditor
 
             if (editor.options.EnableSnap == true)
             {
-                editor.MoveSelectedElements(canvas, editor.options.DefaultGridSize, 0.0, false);
+                double delta = editor.options.CurrentProperties.GridSize;
+                editor.MoveSelectedElements(canvas, delta, 0.0, false);
             }
             else
             {
@@ -590,7 +592,8 @@ namespace CanvasDiagramEditor
 
             if (editor.options.EnableSnap == true)
             {
-                editor.MoveSelectedElements(canvas, 0.0, -editor.options.DefaultGridSize, false);
+                double delta = editor.options.CurrentProperties.GridSize;
+                editor.MoveSelectedElements(canvas, 0.0, -delta, false);
             }
             else
             {
@@ -604,7 +607,8 @@ namespace CanvasDiagramEditor
 
             if (editor.options.EnableSnap == true)
             {
-                editor.MoveSelectedElements(canvas, 0.0, editor.options.DefaultGridSize, false);
+                double delta = editor.options.CurrentProperties.GridSize;
+                editor.MoveSelectedElements(canvas, 0.0, delta, false);
             }
             else
             {
