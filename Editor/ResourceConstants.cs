@@ -7,7 +7,7 @@ using System.Text;
 
 #endregion
 
-namespace CanvasDiagramEditor
+namespace CanvasDiagramEditor.Editor
 {
     #region ResourceConstants
 

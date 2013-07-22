@@ -13,7 +13,7 @@ using System.Windows.Shapes;
 
 #endregion
 
-namespace CanvasDiagramEditor
+namespace CanvasDiagramEditor.Editor
 {
     #region DiagramEditorOptions
 

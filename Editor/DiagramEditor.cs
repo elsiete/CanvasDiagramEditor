@@ -17,7 +17,7 @@ using System.Windows.Input;
 
 #endregion
 
-namespace CanvasDiagramEditor
+namespace CanvasDiagramEditor.Editor
 {
     #region Aliases
 

@@ -1,6 +1,7 @@
 ﻿#region References
 
 using CanvasDiagramEditor.Controls;
+using CanvasDiagramEditor.Editor;
 using CanvasDiagramEditor.Export;
 using CanvasDiagramEditor.Parser;
 using CanvasDiagramEditor.Util;
