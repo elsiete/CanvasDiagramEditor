@@ -23,6 +23,9 @@ namespace CanvasDiagramEditor.Editor
 
         public DiagramProperties CurrentProperties = new DiagramProperties();
 
+        public ResourceDictionary CurrentResources = null;
+
+        public TreeView CurrentTree = null;
         public Canvas CurrentCanvas = null;
         public Path CurrentPathGrid = null;
 
