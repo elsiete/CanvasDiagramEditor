@@ -2,6 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:CanvasDiagramEditor" 
+        xmlns:controls="clr-namespace:CanvasDiagramEditor.Controls"
         x:Class="CanvasDiagramEditor.MainWindow"
         Title="Canvas Diagram Editor" Height="710" Width="1035"
         WindowStartupLocation="CenterScreen" WindowState="Maximized"
@@ -166,6 +167,8 @@
                     </Canvas>
 
                     <Canvas x:Name="DiagramCanvas"
+                            controls:LineEx.ShortenStart="{Binding ElementName=ShortenStart, Path=IsChecked}"
+                            controls:LineEx.ShortenEnd="{Binding ElementName=ShortenEnd, Path=IsChecked}"
                             Width="1260" Height="891" 
                             Grid.Column="0" Grid.Row="0"
                             Background="{DynamicResource LogicTransparentColorKey}" 
@@ -249,6 +252,9 @@
                                 <Separator Margin="2"/>
                                 <CheckBox x:Name="EnableSnap" Content="Enable S_nap to Grid" Margin="2" Click="EnableSnap_Click"/>
                                 <CheckBox x:Name="SnapOnRelease" Content="Snap to Gri_d on Release" Margin="2" Click="SnapOnRelease_Click"/>
+                                <Separator Margin="2"/>
+                                <CheckBox x:Name="ShortenStart" IsChecked="True" Content="Shorten Wire Start" Margin="2"/>
+                                <CheckBox x:Name="ShortenEnd" IsChecked="False" Content="Shorten Wire End" Margin="2"/>
                                 <Separator Margin="2"/>
                                 <CheckBox x:Name="EnableInsertLast" Content="Insert Last on Left _Click" Margin="2" Click="EnableInsertLast_Click"/>
                                 <Separator Margin="2"/>
