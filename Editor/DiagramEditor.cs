@@ -157,13 +157,14 @@ namespace CanvasDiagramEditor.Editor
                     var line = element as LineEx;
                     var margin = line.Margin;
 
-                    string str = string.Format("{6}{5}{0}{5}{1}{5}{2}{5}{3}{5}{4}{5}{7}{5}{8}",
+                    string str = string.Format("{6}{5}{0}{5}{1}{5}{2}{5}{3}{5}{4}{5}{7}{5}{8}{5}{9}{5}{10}",
                         element.Uid,
                         margin.Left, margin.Top, //line.X1, line.Y1,
                         line.X2 + margin.Left, line.Y2 + margin.Top,
                         ModelConstants.ArgumentSeparator,
                         ModelConstants.PrefixRoot,
-                        line.IsStartVisible, line.IsEndVisible);
+                        line.IsStartVisible, line.IsEndVisible,
+                        line.IsStartIO, line.IsEndIO);
 
                     diagram.AppendLine("".PadLeft(4, ' ') + str);
 
@@ -816,7 +817,10 @@ namespace CanvasDiagramEditor.Editor
             return thumb;
         }
 
-        public object CreateWire(double x1, double y1, double x2, double y2, bool start, bool end, int id)
+        public object CreateWire(double x1, double y1, double x2, double y2, 
+            bool startVisible, bool endVisible, 
+            bool startIsIO, bool endIsIO,
+            int id)
         {
             var line = new LineEx()
             {
@@ -826,8 +830,10 @@ namespace CanvasDiagramEditor.Editor
                 Margin = new Thickness(x1, y1, 0, 0),
                 X2 = x2 - x1, // X2 = x2,
                 Y2 = y2 - y1, // Y2 = y2,
-                IsStartVisible = start,
-                IsEndVisible = end,
+                IsStartVisible = startVisible,
+                IsEndVisible = endVisible,
+                IsStartIO = startIsIO,
+                IsEndIO = endIsIO,
                 Uid = ModelConstants.TagElementWire + ModelConstants.TagNameSeparator + id.ToString()
             };
 
@@ -951,7 +957,15 @@ namespace CanvasDiagramEditor.Editor
 
             if (options.CurrentLine == null)
             {
-                var line = CreateWire(x, y, x, y, false, false, options.Counter.WireCount) as LineEx;
+                // update IsStartIO
+                string rootUid = options.CurrentRoot.Uid;
+                bool startIsIO = StringUtil.StartsWith(rootUid, ModelConstants.TagElementInput) || StringUtil.StartsWith(rootUid, ModelConstants.TagElementOutput);
+
+                var line = CreateWire(x, y, x, y, 
+                    false, false,
+                    startIsIO, false,
+                    options.Counter.WireCount) as LineEx;
+
                 options.Counter.WireCount += 1;
 
                 options.CurrentLine = line;
@@ -970,6 +984,12 @@ namespace CanvasDiagramEditor.Editor
 
                 options.CurrentLine.X2 = x - margin.Left;
                 options.CurrentLine.Y2 = y - margin.Top;
+
+                // update IsEndIO flag
+                string rootUid = options.CurrentRoot.Uid;
+                bool endIsIO = StringUtil.StartsWith(rootUid, ModelConstants.TagElementInput) || StringUtil.StartsWith(rootUid, ModelConstants.TagElementOutput);
+
+                options.CurrentLine.IsEndIO = endIsIO;
 
                 // update connections
                 var tuple = new MapWire(options.CurrentLine, null, options.CurrentRoot);
@@ -1762,8 +1782,8 @@ namespace CanvasDiagramEditor.Editor
         {
             string uid = element.Uid;
 
-            System.Diagnostics.Debug.Print("ToggleLineSelection: {0}, uid: {1}, parent: {2}",
-                element.GetType(), element.Uid, element.Parent.GetType());
+            //System.Diagnostics.Debug.Print("ToggleLineSelection: {0}, uid: {1}, parent: {2}",
+            //    element.GetType(), element.Uid, element.Parent.GetType());
 
             if (element is LineEx && uid != null &&
                 StringUtil.StartsWith(uid, ModelConstants.TagElementWire))

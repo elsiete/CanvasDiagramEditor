@@ -305,7 +305,7 @@ namespace CanvasDiagramEditor.Parser
 
                     // Wire
                     else if (StringUtil.StartsWith(name, ModelConstants.TagElementWire) &&
-                        (length == 6 || length == 8))
+                        (length == 6 || length == 8 || length == 10))
                     {
                         if (diagram != null)
                         {
@@ -319,13 +319,22 @@ namespace CanvasDiagramEditor.Parser
                             double x2 = double.Parse(args[4]);
                             double y2 = double.Parse(args[5]);
 
-                            bool start = false;
-                            bool end = false;
+                            bool startVisible = false;
+                            bool endVisible = false;
 
-                            if (length == 8)
+                            bool startIsIO = false;
+                            bool endIsIO = false;
+
+                            if (length == 8 || length == 10)
                             {
-                                start = bool.Parse(args[6]);
-                                end = bool.Parse(args[7]);
+                                startVisible = bool.Parse(args[6]);
+                                endVisible = bool.Parse(args[7]);
+                            }
+
+                            if (length == 10)
+                            {
+                                startIsIO = bool.Parse(args[8]);
+                                endIsIO = bool.Parse(args[9]);
                             }
 
                             int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
@@ -334,7 +343,8 @@ namespace CanvasDiagramEditor.Parser
 
                             var element = creator.CreateWire(x1 + offsetX, y1 + offsetY,
                                 x2 + offsetX, y2 + offsetY,
-                                start, end,
+                                startVisible, endVisible,
+                                startIsIO, endIsIO,
                                 id);
 
                             elements.Add(element);
