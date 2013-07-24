@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:CanvasDiagramEditor"
              xmlns:controls="clr-namespace:CanvasDiagramEditor.Controls"
+             xmlns:elements="clr-namespace:CanvasDiagramEditor.Elements"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              StartupUri="MainWindow.xaml">
     
@@ -64,7 +65,7 @@
                     <Setter Property="Stroke" Value="{DynamicResource LogicColorKey}"/>
                     <Setter Property="Cursor" Value="Cross"/>
                 </Trigger>
-                <Trigger Property="local:SelectionThumb.IsSelected" Value="True">
+                <Trigger Property="controls:SelectionThumb.IsSelected" Value="True">
                     <Setter Property="Fill" Value="{DynamicResource LogicTransparentColorKey}"/>
                     <Setter Property="Stroke" Value="{DynamicResource LogicTransparentColorKey}"/>
                     <Setter Property="Cursor" Value="Arrow"/>
@@ -90,7 +91,7 @@
                     <Setter Property="Stroke" Value="{DynamicResource LogicColorKey}"/>
                     <!--<Setter Property="Cursor" Value="Cross"/>-->
                 </Trigger>
-                <Trigger Property="local:SelectionThumb.IsSelected" Value="True">
+                <Trigger Property="controls:SelectionThumb.IsSelected" Value="True">
                     <Setter Property="Fill" Value="{DynamicResource LogicSelectedColorKey}"/>
                     <Setter Property="Stroke" Value="{DynamicResource LogicSelectedColorKey}"/>
                 </Trigger>
@@ -112,7 +113,7 @@
             <Setter Property="Margin" Value="-4,-4,0,0"/>
         </Style>
 
-        <Style x:Key="LineStyleKey" TargetType="local:LineEx">
+        <Style x:Key="LineStyleKey" TargetType="controls:LineEx">
             <Setter Property="Panel.ZIndex" Value="1"/>
             <Setter Property="Stroke" Value="{DynamicResource LogicColorKey}"/>
             <Setter Property="StrokeThickness" Value="{DynamicResource LogicStrokeThicknessKey}"/>
@@ -130,7 +131,7 @@
                     <!--<Setter Property="Stroke" Value="{DynamicResource LogicSelectedColorKey}"/>-->
                     <!--<Setter Property="Cursor" Value="SizeAll"/>-->
                 </Trigger>
-                <Trigger Property="local:SelectionThumb.IsSelected" Value="True">
+                <Trigger Property="controls:SelectionThumb.IsSelected" Value="True">
                     <Setter Property="Stroke" Value="{DynamicResource LogicSelectedColorKey}"/>
                 </Trigger>
             </Style.Triggers>
@@ -165,7 +166,7 @@
             <Setter Property="StrokeLineJoin" Value="Miter"/>
             <Setter Property="RenderOptions.EdgeMode" Value="Aliased"/>
             <Style.Triggers>
-                <Trigger Property="local:SelectionThumb.IsSelected" Value="True">
+                <Trigger Property="controls:SelectionThumb.IsSelected" Value="True">
                     <Setter Property="Stroke" Value="{DynamicResource LogicSelectedColorKey}"/>
                 </Trigger>
             </Style.Triggers>
@@ -178,7 +179,7 @@
             <Setter Property="FontWeight" Value="Normal"/>
             <Setter Property="RenderOptions.EdgeMode" Value="Aliased"/>
             <Style.Triggers>
-                <Trigger Property="local:SelectionThumb.IsSelected" Value="True">
+                <Trigger Property="controls:SelectionThumb.IsSelected" Value="True">
                     <Setter Property="Foreground" Value="{DynamicResource LogicSelectedColorKey}"/>
                 </Trigger>
             </Style.Triggers>
@@ -195,23 +196,23 @@
         </ControlTemplate>
 
         <ControlTemplate x:Key="PinControlTemplateKey">
-            <controls:PinControl/>
+            <elements:PinControl/>
         </ControlTemplate>
 
         <ControlTemplate x:Key="InputControlTemplateKey">
-            <controls:InputControl/>
+            <elements:InputControl/>
         </ControlTemplate>
 
         <ControlTemplate x:Key="OutputControlTemplateKey">
-            <controls:OutputControl/>
+            <elements:OutputControl/>
         </ControlTemplate>
 
         <ControlTemplate x:Key="AndGateControlTemplateKey">
-            <controls:AndGateControl/>
+            <elements:AndGateControl/>
         </ControlTemplate>
 
         <ControlTemplate x:Key="OrGateControlTemplateKey">
-            <controls:OrGateControl/>
+            <elements:OrGateControl/>
         </ControlTemplate>
 
     </Application.Resources>

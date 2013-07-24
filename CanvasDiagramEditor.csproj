@@ -61,23 +61,27 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Page Include="Controls\AndGateControl.xaml">
+    <Compile Include="Editor\DiagramEditor.cs" />
+    <Compile Include="Editor\DiagramEditorOptions.cs" />
+    <Compile Include="Util\StringUtil.cs" />
+    <Compile Include="Util\Tuple.cs" />
+    <Page Include="Elements\AndGateControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Controls\InputControl.xaml">
+    <Page Include="Elements\InputControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Controls\OrGateControl.xaml">
+    <Page Include="Elements\OrGateControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Controls\OutputControl.xaml">
+    <Page Include="Elements\OutputControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Controls\PinControl.xaml">
+    <Page Include="Elements\PinControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -89,21 +93,25 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Controls\AndGateControl.xaml.cs">
+    <Compile Include="Elements\AndGateControl.xaml.cs">
       <DependentUpon>AndGateControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\InputControl.xaml.cs">
+    <Compile Include="Elements\InputControl.xaml.cs">
       <DependentUpon>InputControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\OrGateControl.xaml.cs">
+    <Compile Include="Controls\LineEx.cs" />
+    <Compile Include="Elements\OrGateControl.xaml.cs">
       <DependentUpon>OrGateControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\OutputControl.xaml.cs">
+    <Compile Include="Elements\OutputControl.xaml.cs">
       <DependentUpon>OutputControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\PinControl.xaml.cs">
+    <Compile Include="Elements\PinControl.xaml.cs">
       <DependentUpon>PinControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Editor\ResourceConstants.cs" />
+    <Compile Include="Controls\SelectionAdorner.cs" />
+    <Compile Include="Controls\SelectionThumb.cs" />
     <Compile Include="Export\IDiagramExport.cs" />
     <Compile Include="Export\MsoWordExport.cs" />
     <Compile Include="Export\OpenXmlExport.cs" />
@@ -113,6 +121,13 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Parser\DiagramParser.cs" />
+    <Compile Include="Parser\DiagramProperties.cs" />
+    <Compile Include="Parser\IdCounter.cs" />
+    <Compile Include="Parser\IDiagramCreator.cs" />
+    <Compile Include="Parser\IDiagramParser.cs" />
+    <Compile Include="Parser\ModelConstants.cs" />
+    <Compile Include="Parser\ParseOptions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

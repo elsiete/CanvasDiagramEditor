@@ -1,16 +1,17 @@
-﻿
+﻿#region References
+
+using CanvasDiagramEditor;
+using CanvasDiagramEditor.Parser;
+using CanvasDiagramEditor.Util;
+using System;
+using System.Collections.Generic;
+using Office = Microsoft.Office.Core;
+using Word = Microsoft.Office.Interop.Word;
+
+#endregion
+
 namespace CanvasDiagramEditor.Export
 {
-    #region References
-
-    using CanvasDiagramEditor;
-    using System;
-    using System.Collections.Generic;
-    using Office = Microsoft.Office.Core;
-    using Word = Microsoft.Office.Interop.Word;
-
-    #endregion
-
     #region MsoWordExport
 
     public class MsoWordExport : IDiagramExport
