@@ -2514,7 +2514,7 @@ namespace CanvasDiagramEditor.Editor
 
                 foreach (var line in lines)
                 {
-                    var args = line.Split(new char[] { ModelConstants.ArgumentSeparator },
+                    var args = line.Split(new char[] { ModelConstants.ArgumentSeparator, '\t' },
                         StringSplitOptions.RemoveEmptyEntries);
 
                     int length = args.Length;
