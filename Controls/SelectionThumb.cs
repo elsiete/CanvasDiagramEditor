@@ -33,6 +33,25 @@ namespace CanvasDiagramEditor.Controls
                 FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender));
 
         #endregion
+
+        #region Data Attached Property
+
+        public static object GetData(DependencyObject obj)
+        {
+            return (object)obj.GetValue(DataProperty);
+        }
+
+        public static void SetData(DependencyObject obj, object value)
+        {
+            obj.SetValue(DataProperty, value);
+        }
+
+        public static readonly DependencyProperty DataProperty =
+            DependencyProperty.RegisterAttached("Data", typeof(object), typeof(SelectionThumb),
+            new FrameworkPropertyMetadata(null,
+                FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender));
+
+        #endregion
     }
 
     #endregion
