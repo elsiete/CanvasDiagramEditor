@@ -459,13 +459,13 @@ namespace CanvasDiagramEditor
                     {
                         foreach (var element in elements)
                         {
-                            if (SelectionThumb.GetIsSelected(element) == false)
+                            if (ElementThumb.GetIsSelected(element) == false)
                             {
-                                SelectionThumb.SetIsSelected(element, true);
+                                ElementThumb.SetIsSelected(element, true);
                             }
                             else
                             {
-                                SelectionThumb.SetIsSelected(element, false);
+                                ElementThumb.SetIsSelected(element, false);
                             }
                         }
                     }
@@ -685,7 +685,7 @@ namespace CanvasDiagramEditor
             //var diagram = editor.Generate();
             //this.TextModel.Text = diagram;
 
-            var solution = editor.GenerateSolution();
+            var solution = editor.GenerateSolution(System.IO.Directory.GetCurrentDirectory());
 
             this.TextModel.Text = solution;
         }
@@ -804,6 +804,11 @@ namespace CanvasDiagramEditor
         private void FileSaveDiagram_Click(object sender, RoutedEventArgs e)
         {
             editor.SaveDiagram();
+        }
+
+        private void FileOpenTags_Click(object sender, RoutedEventArgs e)
+        {
+            editor.OpenTags();
         }
 
         private void FileImport_Click(object sender, RoutedEventArgs e)
@@ -970,6 +975,16 @@ namespace CanvasDiagramEditor
                         if (isControl == true)
                         {
                             editor.NewSolution();
+                        }
+                    }
+                    break;
+
+                // open tags
+                case Key.T:
+                    {
+                        if (isControl == true)
+                        {
+                            editor.OpenTags();
                         }
                     }
                     break;

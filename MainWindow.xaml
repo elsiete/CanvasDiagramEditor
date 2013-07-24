@@ -67,6 +67,8 @@
                 <MenuItem x:Name="FileOpenDiagram" Header="Open Diagram..." Click="FileOpenDiagram_Click"/>
                 <MenuItem x:Name="FileSaveDiagram" Header="Save Diagram..." Click="FileSaveDiagram_Click"/>
                 <Separator/>
+                <MenuItem x:Name="FileOpenTags" Header="Open _Tags..." Click="FileOpenTags_Click"/>
+                <Separator/>
                 <MenuItem x:Name="FileImport" Header="_Import Model..." Click="FileImport_Click" InputGestureText="Ctrl+I"/>
                 <Separator/>
                 <MenuItem x:Name="FileExport" Header="_Export Diagram..." Click="FileExport_Click" InputGestureText="Ctrl+E"/>
@@ -362,17 +364,17 @@
                 </TabItem>
 
                 <TabItem Header="Diagram" x:Name="TabDiagram">
-               
-                        <TextBox x:Name="TextTag" 
-                                AcceptsReturn="True" AcceptsTab="True" 
-                                VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                                Padding="2"
-                                FontFamily="Consolas" FontSize="12"
-                                VerticalScrollBarVisibility="Auto"
-                                HorizontalScrollBarVisibility="Auto"
-                                Text="{Binding ElementName=SolutionTree, Path=SelectedItem.Tag.Item1, FallbackValue={x:Null}, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, IsAsync=True}">
-                        </TextBox>
-                    
+
+                    <TextBox x:Name="TextTag" 
+                            AcceptsReturn="True" AcceptsTab="True" 
+                            VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                            Padding="2"
+                            FontFamily="Consolas" FontSize="12"
+                            VerticalScrollBarVisibility="Auto"
+                            HorizontalScrollBarVisibility="Auto"
+                            Text="{Binding ElementName=SolutionTree, Path=SelectedItem.Tag.Item1, FallbackValue={x:Null}, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, IsAsync=True}">
+                    </TextBox>
+
                 </TabItem>
                 
             </TabControl>

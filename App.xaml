@@ -65,7 +65,7 @@
                     <Setter Property="Stroke" Value="{DynamicResource LogicColorKey}"/>
                     <Setter Property="Cursor" Value="Cross"/>
                 </Trigger>
-                <Trigger Property="controls:SelectionThumb.IsSelected" Value="True">
+                <Trigger Property="controls:ElementThumb.IsSelected" Value="True">
                     <Setter Property="Fill" Value="{DynamicResource LogicTransparentColorKey}"/>
                     <Setter Property="Stroke" Value="{DynamicResource LogicTransparentColorKey}"/>
                     <Setter Property="Cursor" Value="Arrow"/>
@@ -91,7 +91,7 @@
                     <Setter Property="Stroke" Value="{DynamicResource LogicColorKey}"/>
                     <!--<Setter Property="Cursor" Value="Cross"/>-->
                 </Trigger>
-                <Trigger Property="controls:SelectionThumb.IsSelected" Value="True">
+                <Trigger Property="controls:ElementThumb.IsSelected" Value="True">
                     <Setter Property="Fill" Value="{DynamicResource LogicSelectedColorKey}"/>
                     <Setter Property="Stroke" Value="{DynamicResource LogicSelectedColorKey}"/>
                 </Trigger>
@@ -131,7 +131,7 @@
                     <!--<Setter Property="Stroke" Value="{DynamicResource LogicSelectedColorKey}"/>-->
                     <!--<Setter Property="Cursor" Value="SizeAll"/>-->
                 </Trigger>
-                <Trigger Property="controls:SelectionThumb.IsSelected" Value="True">
+                <Trigger Property="controls:ElementThumb.IsSelected" Value="True">
                     <Setter Property="Stroke" Value="{DynamicResource LogicSelectedColorKey}"/>
                 </Trigger>
             </Style.Triggers>
@@ -166,7 +166,7 @@
             <Setter Property="StrokeLineJoin" Value="Miter"/>
             <Setter Property="RenderOptions.EdgeMode" Value="Aliased"/>
             <Style.Triggers>
-                <Trigger Property="controls:SelectionThumb.IsSelected" Value="True">
+                <Trigger Property="controls:ElementThumb.IsSelected" Value="True">
                     <Setter Property="Stroke" Value="{DynamicResource LogicSelectedColorKey}"/>
                 </Trigger>
             </Style.Triggers>
@@ -179,7 +179,7 @@
             <Setter Property="FontWeight" Value="Normal"/>
             <Setter Property="RenderOptions.EdgeMode" Value="Aliased"/>
             <Style.Triggers>
-                <Trigger Property="controls:SelectionThumb.IsSelected" Value="True">
+                <Trigger Property="controls:ElementThumb.IsSelected" Value="True">
                     <Setter Property="Foreground" Value="{DynamicResource LogicSelectedColorKey}"/>
                 </Trigger>
             </Style.Triggers>
@@ -192,7 +192,7 @@
             <Setter Property="FontWeight" Value="Normal"/>
             <Setter Property="RenderOptions.EdgeMode" Value="Aliased"/>
             <Style.Triggers>
-                <Trigger Property="controls:SelectionThumb.IsSelected" Value="True">
+                <Trigger Property="controls:ElementThumb.IsSelected" Value="True">
                     <Setter Property="Foreground" Value="{DynamicResource LogicSelectedColorKey}"/>
                 </Trigger>
             </Style.Triggers>

@@ -184,7 +184,7 @@ namespace CanvasDiagramEditor.Editor
                 else if (StringUtil.StartsWith(uid, ModelConstants.TagElementInput) ||
                     StringUtil.StartsWith(uid, ModelConstants.TagElementOutput))
                 {
-                    var data = SelectionThumb.GetData(element);
+                    var data = ElementThumb.GetData(element);
                     Tag tag = null;
 
                     if (data != null && data is Tag)
@@ -267,7 +267,7 @@ namespace CanvasDiagramEditor.Editor
 
                 if (select == true)
                 {
-                    SelectionThumb.SetIsSelected(element, true);
+                    ElementThumb.SetIsSelected(element, true);
                 }
             }
         }
@@ -745,7 +745,7 @@ namespace CanvasDiagramEditor.Editor
         public void MoveSelectedElements(Canvas canvas, double dX, double dY, bool snap)
         {
             // move all selected elements
-            var thumbs = canvas.Children.OfType<SelectionThumb>().Where(x => SelectionThumb.GetIsSelected(x));
+            var thumbs = canvas.Children.OfType<ElementThumb>().Where(x => ElementThumb.GetIsSelected(x));
 
             foreach (var thumb in thumbs)
             {
@@ -817,7 +817,7 @@ namespace CanvasDiagramEditor.Editor
 
         #region Drag
 
-        public void Drag(Canvas canvas, SelectionThumb element, double dX, double dY)
+        public void Drag(Canvas canvas, ElementThumb element, double dX, double dY)
         {
             bool snap = (CurrentOptions.SnapOnRelease == true && CurrentOptions.EnableSnap == true) ? false : CurrentOptions.EnableSnap;
 
@@ -832,11 +832,11 @@ namespace CanvasDiagramEditor.Editor
             }
         }
 
-        public void DragStart(Canvas canvas, SelectionThumb element)
+        public void DragStart(Canvas canvas, ElementThumb element)
         {
             AddToHistory(canvas);
 
-            if (SelectionThumb.GetIsSelected(element) == true)
+            if (ElementThumb.GetIsSelected(element) == true)
             {
                 CurrentOptions.MoveAllSelected = true;
             }
@@ -845,11 +845,11 @@ namespace CanvasDiagramEditor.Editor
                 CurrentOptions.MoveAllSelected = false;
 
                 // select
-                SelectionThumb.SetIsSelected(element, true);
+                ElementThumb.SetIsSelected(element, true);
             }
         }
 
-        public void DragEnd(Canvas canvas, SelectionThumb element)
+        public void DragEnd(Canvas canvas, ElementThumb element)
         {
             if (CurrentOptions.SnapOnRelease == true && CurrentOptions.EnableSnap == true)
             {
@@ -862,7 +862,7 @@ namespace CanvasDiagramEditor.Editor
                     // move only selected element
 
                     // deselect
-                    SelectionThumb.SetIsSelected(element, false);
+                    ElementThumb.SetIsSelected(element, false);
 
                     MoveRoot(element, 0.0, 0.0, CurrentOptions.EnableSnap);
                 }
@@ -872,7 +872,7 @@ namespace CanvasDiagramEditor.Editor
                 if (CurrentOptions.MoveAllSelected != true)
                 {
                     // de-select
-                    SelectionThumb.SetIsSelected(element, false);
+                    ElementThumb.SetIsSelected(element, false);
                 }
             }
 
@@ -886,7 +886,7 @@ namespace CanvasDiagramEditor.Editor
         private void RootElement_DragDelta(object sender, DragDeltaEventArgs e)
         {
             var canvas = CurrentOptions.CurrentCanvas;
-            var element = sender as SelectionThumb;
+            var element = sender as ElementThumb;
 
             double dX = e.HorizontalChange;
             double dY = e.VerticalChange;
@@ -897,7 +897,7 @@ namespace CanvasDiagramEditor.Editor
         private void RootElement_DragStarted(object sender, DragStartedEventArgs e)
         {
             var canvas = CurrentOptions.CurrentCanvas;
-            var element = sender as SelectionThumb;
+            var element = sender as ElementThumb;
 
             DragStart(canvas, element);
         }
@@ -905,7 +905,7 @@ namespace CanvasDiagramEditor.Editor
         private void RootElement_DragCompleted(object sender, DragCompletedEventArgs e)
         {
             var canvas = CurrentOptions.CurrentCanvas;
-            var element = sender as SelectionThumb;
+            var element = sender as ElementThumb;
 
             DragEnd(canvas, element);
         }
@@ -914,7 +914,7 @@ namespace CanvasDiagramEditor.Editor
 
         #region Create
 
-        private void SetThumbEvents(SelectionThumb thumb)
+        private void SetThumbEvents(ElementThumb thumb)
         {
             thumb.DragDelta += this.RootElement_DragDelta;
             thumb.DragStarted += this.RootElement_DragStarted;
@@ -923,7 +923,7 @@ namespace CanvasDiagramEditor.Editor
 
         public object CreatePin(double x, double y, int id, bool snap)
         {
-            var thumb = new SelectionThumb()
+            var thumb = new ElementThumb()
             {
                 Template = Application.Current.Resources[ResourceConstants.KeyTemplatePin] as ControlTemplate,
                 Style = Application.Current.Resources[ResourceConstants.KeySyleRootThumb] as Style,
@@ -961,7 +961,7 @@ namespace CanvasDiagramEditor.Editor
 
         public object CreateInput(double x, double y, int id, int tagId, bool snap)
         {
-            var thumb = new SelectionThumb()
+            var thumb = new ElementThumb()
             {
                 Template = Application.Current.Resources[ResourceConstants.KeyTemplateInput] as ControlTemplate,
                 Style = Application.Current.Resources[ResourceConstants.KeySyleRootThumb] as Style,
@@ -975,11 +975,11 @@ namespace CanvasDiagramEditor.Editor
             var tags = CurrentOptions.Tags;
             if (tags != null)
             {
-                var tag = tags.Where(t => t.Id == tagId).FirstOrDefault();
+                var tag = tags.Cast<Tag>().Where(t => t.Id == tagId).FirstOrDefault();
 
                 if (tag != null)
                 {
-                    SelectionThumb.SetData(thumb, tag);
+                    ElementThumb.SetData(thumb, tag);
                 }
             }
 
@@ -988,7 +988,7 @@ namespace CanvasDiagramEditor.Editor
 
         public object CreateOutput(double x, double y, int id, int tagId, bool snap)
         {
-            var thumb = new SelectionThumb()
+            var thumb = new ElementThumb()
             {
                 Template = Application.Current.Resources[ResourceConstants.KeyTemplateOutput] as ControlTemplate,
                 Style = Application.Current.Resources[ResourceConstants.KeySyleRootThumb] as Style,
@@ -1002,11 +1002,11 @@ namespace CanvasDiagramEditor.Editor
             var tags = CurrentOptions.Tags;
             if (tags != null)
             {
-                var tag = tags.Where(t => t.Id == tagId).FirstOrDefault();
+                var tag = tags.Cast<Tag>().Where(t => t.Id == tagId).FirstOrDefault();
 
                 if (tag != null)
                 {
-                    SelectionThumb.SetData(thumb, tag);
+                    ElementThumb.SetData(thumb, tag);
                 }
             }
 
@@ -1015,7 +1015,7 @@ namespace CanvasDiagramEditor.Editor
 
         public object CreateAndGate(double x, double y, int id, bool snap)
         {
-            var thumb = new SelectionThumb()
+            var thumb = new ElementThumb()
             {
                 Template = Application.Current.Resources[ResourceConstants.KeyTemplateAndGate] as ControlTemplate,
                 Style = Application.Current.Resources[ResourceConstants.KeySyleRootThumb] as Style,
@@ -1030,7 +1030,7 @@ namespace CanvasDiagramEditor.Editor
 
         public object CreateOrGate(double x, double y, int id, bool snap)
         {
-            var thumb = new SelectionThumb()
+            var thumb = new ElementThumb()
             {
                 Template = Application.Current.Resources[ResourceConstants.KeyTemplateOrGate] as ControlTemplate,
                 Style = Application.Current.Resources[ResourceConstants.KeySyleRootThumb] as Style,
@@ -1153,7 +1153,7 @@ namespace CanvasDiagramEditor.Editor
 
         public FrameworkElement InsertPin(Canvas canvas, Point point)
         {
-            var thumb = CreatePin(point.X, point.Y, CurrentOptions.Counter.PinCount, CurrentOptions.EnableSnap) as SelectionThumb;
+            var thumb = CreatePin(point.X, point.Y, CurrentOptions.Counter.PinCount, CurrentOptions.EnableSnap) as ElementThumb;
             CurrentOptions.Counter.PinCount += 1;
 
             canvas.Children.Add(thumb);
@@ -1163,7 +1163,7 @@ namespace CanvasDiagramEditor.Editor
 
         public FrameworkElement InsertInput(Canvas canvas, Point point)
         {
-            var thumb = CreateInput(point.X, point.Y, CurrentOptions.Counter.InputCount, -1, CurrentOptions.EnableSnap) as SelectionThumb;
+            var thumb = CreateInput(point.X, point.Y, CurrentOptions.Counter.InputCount, -1, CurrentOptions.EnableSnap) as ElementThumb;
             CurrentOptions.Counter.InputCount += 1;
 
             canvas.Children.Add(thumb);
@@ -1173,7 +1173,7 @@ namespace CanvasDiagramEditor.Editor
 
         public FrameworkElement InsertOutput(Canvas canvas, Point point)
         {
-            var thumb = CreateOutput(point.X, point.Y, CurrentOptions.Counter.OutputCount, -1, CurrentOptions.EnableSnap) as SelectionThumb;
+            var thumb = CreateOutput(point.X, point.Y, CurrentOptions.Counter.OutputCount, -1, CurrentOptions.EnableSnap) as ElementThumb;
             CurrentOptions.Counter.OutputCount += 1;
 
             canvas.Children.Add(thumb);
@@ -1183,7 +1183,7 @@ namespace CanvasDiagramEditor.Editor
 
         public FrameworkElement InsertAndGate(Canvas canvas, Point point)
         {
-            var thumb = CreateAndGate(point.X, point.Y, CurrentOptions.Counter.AndGateCount, CurrentOptions.EnableSnap) as SelectionThumb;
+            var thumb = CreateAndGate(point.X, point.Y, CurrentOptions.Counter.AndGateCount, CurrentOptions.EnableSnap) as ElementThumb;
             CurrentOptions.Counter.AndGateCount += 1;
 
             canvas.Children.Add(thumb);
@@ -1193,7 +1193,7 @@ namespace CanvasDiagramEditor.Editor
 
         public FrameworkElement InsertOrGate(Canvas canvas, Point point)
         {
-            var thumb = CreateOrGate(point.X, point.Y, CurrentOptions.Counter.OrGateCount, CurrentOptions.EnableSnap) as SelectionThumb;
+            var thumb = CreateOrGate(point.X, point.Y, CurrentOptions.Counter.OrGateCount, CurrentOptions.EnableSnap) as ElementThumb;
             CurrentOptions.Counter.OrGateCount += 1;
 
             canvas.Children.Add(thumb);
@@ -1567,7 +1567,7 @@ namespace CanvasDiagramEditor.Editor
             }
         }
 
-        public void SaveSolution(string model)
+        public void SaveSolution()
         {
             var dlg = new Microsoft.Win32.SaveFileDialog()
             {
@@ -1579,8 +1579,18 @@ namespace CanvasDiagramEditor.Editor
             var res = dlg.ShowDialog();
             if (res == true)
             {
-                this.SaveModel(dlg.FileName, model);
+                var fileName = dlg.FileName;
+
+                var tree = CurrentOptions.CurrentTree;
+
+                SaveSolution(fileName);
             }
+        }
+
+        private void SaveSolution(string fileName)
+        {
+            var model = GenerateSolution(fileName);
+            this.SaveModel(fileName, model);
         }
 
         public void ExportDiagram()
@@ -1798,11 +1808,11 @@ namespace CanvasDiagramEditor.Editor
             var elements = new List<FrameworkElement>();
 
             // get selected thumbs
-            var thumbs = canvas.Children.OfType<SelectionThumb>();
+            var thumbs = canvas.Children.OfType<ElementThumb>();
 
             foreach (var thumb in thumbs)
             {
-                if (SelectionThumb.GetIsSelected(thumb) == true)
+                if (ElementThumb.GetIsSelected(thumb) == true)
                 {
                     elements.Add(thumb);
                 }
@@ -1813,7 +1823,7 @@ namespace CanvasDiagramEditor.Editor
 
             foreach (var line in lines)
             {
-                if (SelectionThumb.GetIsSelected(line) == true)
+                if (ElementThumb.GetIsSelected(line) == true)
                 {
                     elements.Add(line);
                 }
@@ -1827,7 +1837,7 @@ namespace CanvasDiagramEditor.Editor
             var elements = new List<FrameworkElement>();
 
             // get all thumbs
-            var thumbs = canvas.Children.OfType<SelectionThumb>();
+            var thumbs = canvas.Children.OfType<ElementThumb>();
 
             foreach (var thumb in thumbs)
             {
@@ -1846,14 +1856,14 @@ namespace CanvasDiagramEditor.Editor
             return elements;
         }
 
-        public static void SetSelectionThumbsSelection(Canvas canvas, bool isSelected)
+        public static void SetElementThumbsSelection(Canvas canvas, bool isSelected)
         {
-            var thumbs = canvas.Children.OfType<SelectionThumb>();
+            var thumbs = canvas.Children.OfType<ElementThumb>();
 
             foreach (var thumb in thumbs)
             {
                 // select
-                SelectionThumb.SetIsSelected(thumb, isSelected);
+                ElementThumb.SetIsSelected(thumb, isSelected);
             }
         }
 
@@ -1864,7 +1874,7 @@ namespace CanvasDiagramEditor.Editor
             // deselect all lines
             foreach (var line in lines)
             {
-                SelectionThumb.SetIsSelected(line, isSelected);
+                ElementThumb.SetIsSelected(line, isSelected);
             }
         }
 
@@ -1872,7 +1882,7 @@ namespace CanvasDiagramEditor.Editor
         {
             var canvas = CurrentOptions.CurrentCanvas;
 
-            SetSelectionThumbsSelection(canvas, true);
+            SetElementThumbsSelection(canvas, true);
             SetLinesSelection(canvas, true);
         }
 
@@ -1880,7 +1890,7 @@ namespace CanvasDiagramEditor.Editor
         {
             var canvas = CurrentOptions.CurrentCanvas;
 
-            SetSelectionThumbsSelection(canvas, false);
+            SetElementThumbsSelection(canvas, false);
             SetLinesSelection(canvas, false);
         }
 
@@ -1934,8 +1944,8 @@ namespace CanvasDiagramEditor.Editor
                 var line = element as LineEx;
 
                 // select/deselect line
-                bool isSelected = SelectionThumb.GetIsSelected(line);
-                SelectionThumb.SetIsSelected(line, isSelected ? false : true);
+                bool isSelected = ElementThumb.GetIsSelected(line);
+                ElementThumb.SetIsSelected(line, isSelected ? false : true);
             }
         }
 
@@ -2269,7 +2279,25 @@ namespace CanvasDiagramEditor.Editor
             }
         }
 
-        public string GenerateSolution()
+        public static string MakeRelativePath(string fromPath, string toPath)
+        {
+            Uri fromUri = new Uri(fromPath, UriKind.RelativeOrAbsolute);
+            Uri toUri = new Uri(toPath, UriKind.RelativeOrAbsolute);
+
+            if (fromUri.IsAbsoluteUri == true)
+            {
+                Uri relativeUri = fromUri.MakeRelativeUri(toUri);
+                string relativePath = Uri.UnescapeDataString(relativeUri.ToString());
+
+                return relativePath.Replace('/', System.IO.Path.DirectorySeparatorChar);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public string GenerateSolution(string fileName)
         {
             var tree = CurrentOptions.CurrentTree;
             var solution = tree.Items.Cast<TreeViewItem>().First();
@@ -2281,12 +2309,26 @@ namespace CanvasDiagramEditor.Editor
             // update current diagram
             UpdateSelectedDiagramModel();
 
+            // tags file path is relative to solution file path
+            var tagFileName = CurrentOptions.TagFileName;
+
+            if (tagFileName != null && fileName != null)
+            {
+                string relativePath = MakeRelativePath(tagFileName, fileName);
+                string onlyFileName =  System.IO.Path.GetFileName(tagFileName);
+
+                if (relativePath != null)
+                {
+                    tagFileName = System.IO.Path.Combine(relativePath, onlyFileName);
+                }
+            }
+
             // Solution
             line = string.Format("{0}{1}{2}{1}{3}",
                 ModelConstants.PrefixRoot,
                 ModelConstants.ArgumentSeparator,
                 solution.Uid,
-                CurrentOptions.TagFileName);
+                tagFileName);
 
             sb.AppendLine(line);
 
@@ -2366,6 +2408,8 @@ namespace CanvasDiagramEditor.Editor
                         var tags = OpenTags(tagFileName);
 
                         CurrentOptions.Tags = tags;
+
+                        ElementThumb.SetItems(CurrentOptions.CurrentCanvas, tags);
                     }
                     catch (Exception ex)
                     {
@@ -2443,14 +2487,6 @@ namespace CanvasDiagramEditor.Editor
             }
         }
 
-        public void SaveSolution()
-        {
-            var tree = CurrentOptions.CurrentTree;
-            var model = GenerateSolution();
-
-            SaveSolution(model);
-        }
-
         private void ClearSolution()
         {
             var tree = CurrentOptions.CurrentTree;
@@ -2474,6 +2510,8 @@ namespace CanvasDiagramEditor.Editor
             }
 
             CurrentOptions.TagFileName = null;
+
+            ElementThumb.SetItems(CurrentOptions.CurrentCanvas, null);
         }
 
         public void NewSolution()
@@ -2501,9 +2539,29 @@ namespace CanvasDiagramEditor.Editor
 
         #region Tags
 
-        public List<Tag> OpenTags(string fileName)
+        public void OpenTags()
         {
-            var tags = new List<Tag>();
+            var dlg = new Microsoft.Win32.OpenFileDialog()
+            {
+                Filter = "Tags (*.txt)|*.txt|All Files (*.*)|*.*",
+                Title = "Open Tags"
+            };
+
+            var res = dlg.ShowDialog();
+            if (res == true)
+            {
+                var tagFileName = dlg.FileName;
+
+                var tags = OpenTags(tagFileName);
+
+                CurrentOptions.TagFileName = tagFileName;
+                CurrentOptions.Tags = tags;
+            }
+        }
+
+        public List<object> OpenTags(string fileName)
+        {
+            var tags = new List<object>();
 
             using (var reader = new System.IO.StreamReader(fileName))
             {

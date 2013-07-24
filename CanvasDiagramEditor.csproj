@@ -112,7 +112,7 @@
     </Compile>
     <Compile Include="Editor\ResourceConstants.cs" />
     <Compile Include="Controls\SelectionAdorner.cs" />
-    <Compile Include="Controls\SelectionThumb.cs" />
+    <Compile Include="Controls\ElementThumb.cs" />
     <Compile Include="Export\IDiagramExport.cs" />
     <Compile Include="Export\MsoWordExport.cs" />
     <Compile Include="Export\OpenXmlExport.cs" />

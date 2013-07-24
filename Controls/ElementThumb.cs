@@ -11,9 +11,9 @@ using System.Windows.Controls.Primitives;
 
 namespace CanvasDiagramEditor.Controls
 {
-    #region SelectionThumb
+    #region ElementThumb
 
-    public class SelectionThumb : Thumb
+    public class ElementThumb : Thumb
     {
         #region IsSelected Attached Property
 
@@ -28,7 +28,7 @@ namespace CanvasDiagramEditor.Controls
         }
 
         public static readonly DependencyProperty IsSelectedProperty =
-            DependencyProperty.RegisterAttached("IsSelected", typeof(bool), typeof(SelectionThumb),
+            DependencyProperty.RegisterAttached("IsSelected", typeof(bool), typeof(ElementThumb),
             new FrameworkPropertyMetadata(false,
                 FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender));
 
@@ -47,7 +47,26 @@ namespace CanvasDiagramEditor.Controls
         }
 
         public static readonly DependencyProperty DataProperty =
-            DependencyProperty.RegisterAttached("Data", typeof(object), typeof(SelectionThumb),
+            DependencyProperty.RegisterAttached("Data", typeof(object), typeof(ElementThumb),
+            new FrameworkPropertyMetadata(null,
+                FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender));
+
+        #endregion
+
+        #region Items Attached Property
+
+        public static List<object> GetItems(DependencyObject obj)
+        {
+            return (List<object>)obj.GetValue(ItemsProperty);
+        }
+
+        public static void SetItems(DependencyObject obj, List<object> value)
+        {
+            obj.SetValue(ItemsProperty, value);
+        }
+
+        public static readonly DependencyProperty ItemsProperty =
+            DependencyProperty.RegisterAttached("Items", typeof(List<object>), typeof(ElementThumb),
             new FrameworkPropertyMetadata(null,
                 FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender));
 

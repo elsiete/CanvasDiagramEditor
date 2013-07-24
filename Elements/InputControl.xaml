@@ -20,7 +20,7 @@
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Column="0" Grid.Row="0" 
                            VerticalAlignment="Center" HorizontalAlignment="Center" 
-                           Text="{Binding Path=(controls:SelectionThumb.Data).Designation, RelativeSource={RelativeSource Self}, FallbackValue=Input}" 
+                           Text="{Binding Path=(controls:ElementThumb.Data).Designation, RelativeSource={RelativeSource Self}, FallbackValue=Input}" 
                            Style="{StaticResource LogicTextStyleKey}"/>
             </Grid>
             -->
@@ -34,22 +34,22 @@
                     <RowDefinition Height="15"/>
                     <RowDefinition Height="15"/>
                 </Grid.RowDefinitions>
-                <TextBlock Text="{Binding Path=(controls:SelectionThumb.Data).Designation, RelativeSource={RelativeSource Self}, FallbackValue=&lt;tag&gt;}" 
+                <TextBlock Text="{Binding Path=(controls:ElementThumb.Data).Designation, RelativeSource={RelativeSource Self}, FallbackValue=&lt;tag&gt;}" 
                            VerticalAlignment="Center" 
                            Margin="3,1,3,0" 
                            Grid.Column="0" Grid.Row="0" 
                            Style="{StaticResource LogicSmallTextStyleKey}"/>
-                <TextBlock Text="{Binding Path=(controls:SelectionThumb.Data).Description, RelativeSource={RelativeSource Self}, FallbackValue=&lt;tag&gt;}" 
+                <TextBlock Text="{Binding Path=(controls:ElementThumb.Data).Description, RelativeSource={RelativeSource Self}, FallbackValue=&lt;tag&gt;}" 
                            VerticalAlignment="Center" 
                            Margin="3,-1,3,0" 
                            Grid.Column="0" Grid.Row="1" 
                            Style="{StaticResource LogicSmallTextStyleKey}"/>
-                <TextBlock Text="{Binding Path=(controls:SelectionThumb.Data).Signal, RelativeSource={RelativeSource Self}, FallbackValue=&lt;tag&gt;}"
+                <TextBlock Text="{Binding Path=(controls:ElementThumb.Data).Signal, RelativeSource={RelativeSource Self}, FallbackValue=&lt;tag&gt;}"
                            VerticalAlignment="Center"
                            Margin="3,1,3,0" 
                            Grid.Column="1" Grid.Row="0" 
                            Style="{StaticResource LogicSmallTextStyleKey}"/>
-                <TextBlock Text="{Binding Path=(controls:SelectionThumb.Data).Condition, RelativeSource={RelativeSource Self}, FallbackValue=&lt;tag&gt;}" 
+                <TextBlock Text="{Binding Path=(controls:ElementThumb.Data).Condition, RelativeSource={RelativeSource Self}, FallbackValue=&lt;tag&gt;}" 
                            VerticalAlignment="Center" 
                            Margin="3,-1,3,0" 
                            Grid.Column="1" Grid.Row="1" 
