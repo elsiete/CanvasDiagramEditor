@@ -63,6 +63,7 @@
     </ApplicationDefinition>
     <Compile Include="Editor\DiagramEditor.cs" />
     <Compile Include="Editor\DiagramEditorOptions.cs" />
+    <Compile Include="Parser\Tag.cs" />
     <Compile Include="Util\StringUtil.cs" />
     <Compile Include="Util\Tuple.cs" />
     <Page Include="Elements\AndGateControl.xaml">
