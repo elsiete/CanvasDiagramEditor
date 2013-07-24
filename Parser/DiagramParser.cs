@@ -22,7 +22,7 @@ namespace CanvasDiagramEditor.Parser
     using TreeDiagrams = Stack<Stack<string>>;
     using TreeProject = Tuple<string, Stack<Stack<string>>>;
     using TreeProjects = Stack<Tuple<string, Stack<Stack<string>>>>;
-    using TreeSolution = Tuple<string, Stack<Tuple<string, Stack<Stack<string>>>>>; 
+    using TreeSolution = Tuple<string, string, Stack<Tuple<string, Stack<Stack<string>>>>>; 
 
     #endregion
 
@@ -82,10 +82,16 @@ namespace CanvasDiagramEditor.Parser
                 {
                     // Solution
                     if (StringUtil.StartsWith(name, ModelConstants.TagHeaderSolution) &&
-                        length == 2)
+                        (length == 2 || length == 3))
                     {
+                        string tagFileName = null;
+                        if (length == 3)
+                        {
+                            tagFileName = args[2];
+                        }
+
                         projects = new TreeProjects();
-                        solution = new TreeSolution(name, projects);
+                        solution = new TreeSolution(name, tagFileName, projects);
                     }
 
                     // Project
@@ -169,7 +175,7 @@ namespace CanvasDiagramEditor.Parser
 
                     // Input
                     else if (StringUtil.StartsWith(name, ModelConstants.TagElementInput) &&
-                        length == 4)
+                        (length == 4 || length == 5))
                     {
                         if (diagram != null)
                         {
@@ -183,9 +189,16 @@ namespace CanvasDiagramEditor.Parser
 
                             int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
 
+                            int tagId = -1;
+
+                            if (length == 5)
+                            {
+                                tagId = int.Parse(args[4]);
+                            }
+
                             counter.InputCount = Math.Max(counter.InputCount, id + 1);
 
-                            var element = creator.CreateInput(x + offsetX, y + offsetY, id, false);
+                            var element = creator.CreateInput(x + offsetX, y + offsetY, id, tagId, false);
                             elements.Add(element);
 
                             tuple = new MapWires(element, new List<MapPin>());
@@ -203,7 +216,7 @@ namespace CanvasDiagramEditor.Parser
 
                     // Output
                     else if (StringUtil.StartsWith(name, ModelConstants.TagElementOutput) &&
-                        length == 4)
+                        (length == 4 || length == 5))
                     {
                         if (diagram != null)
                         {
@@ -217,9 +230,16 @@ namespace CanvasDiagramEditor.Parser
 
                             int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
 
+                            int tagId = -1;
+
+                            if (length == 5)
+                            {
+                                tagId = int.Parse(args[4]);
+                            }
+
                             counter.OutputCount = Math.Max(counter.OutputCount, id + 1);
 
-                            var element = creator.CreateOutput(x + offsetX, y + offsetY, id, false);
+                            var element = creator.CreateOutput(x + offsetX, y + offsetY, id, tagId, false);
                             elements.Add(element);
 
                             tuple = new MapWires(element, new List<MapPin>());

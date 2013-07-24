@@ -22,7 +22,7 @@ namespace CanvasDiagramEditor.Parser
     using TreeDiagrams = Stack<Stack<string>>;
     using TreeProject = Tuple<string, Stack<Stack<string>>>;
     using TreeProjects = Stack<Tuple<string, Stack<Stack<string>>>>;
-    using TreeSolution = Tuple<string, Stack<Tuple<string, Stack<Stack<string>>>>>;
+    using TreeSolution = Tuple<string, string, Stack<Tuple<string, Stack<Stack<string>>>>>;
 
     #endregion
 
@@ -37,8 +37,8 @@ namespace CanvasDiagramEditor.Parser
             bool startIsIO, bool endIsIO,
             int id);
 
-        object CreateInput(double x, double y, int id, bool snap);
-        object CreateOutput(double x, double y, int id, bool snap);
+        object CreateInput(double x, double y, int id, int tagId, bool snap);
+        object CreateOutput(double x, double y, int id, int tagId, bool snap);
 
         object CreateAndGate(double x, double y, int id, bool snap);
         object CreateOrGate(double x, double y, int id, bool snap);

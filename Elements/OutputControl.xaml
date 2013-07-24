@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:controls="clr-namespace:CanvasDiagramEditor.Controls"
              mc:Ignorable="d" 
              d:DesignHeight="30" d:DesignWidth="285">
 
@@ -10,13 +11,51 @@
 
         <Canvas x:Name="RootElement" Width="285" Height="30" Style="{StaticResource RootCanvasStyleKey}">
             <Path Data="M 0,0 L 285,0 M 285,30 L 0,30 M 0,30  L 0,0 M 210,0 L 210,30 M 285,30 L 285,0" Style="{StaticResource LogicPathStyleKey}"/>
+
+            <!--
             <Grid Width="285" Height="30">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="210"/>
                     <ColumnDefinition Width="75"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Center" Text="Output" Style="{StaticResource LogicTextStyleKey}"/>
+                <TextBlock Grid.Column="0" Grid.Row="0" 
+                           VerticalAlignment="Center" HorizontalAlignment="Center" 
+                           Text="{Binding Path=(controls:SelectionThumb.Data).Designation, RelativeSource={RelativeSource Self}, FallbackValue=Output}" 
+                           Style="{StaticResource LogicTextStyleKey}"/>
             </Grid>
+            -->
+
+            <Grid Width="285" Height="30">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="210"/>
+                    <ColumnDefinition Width="75"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="15"/>
+                    <RowDefinition Height="15"/>
+                </Grid.RowDefinitions>
+                <TextBlock Text="{Binding Path=(controls:SelectionThumb.Data).Designation, RelativeSource={RelativeSource Self}, FallbackValue=&lt;tag&gt;}" 
+                           VerticalAlignment="Center" 
+                           Margin="3,1,3,0" 
+                           Grid.Column="0" Grid.Row="0" 
+                           Style="{StaticResource LogicSmallTextStyleKey}"/>
+                <TextBlock Text="{Binding Path=(controls:SelectionThumb.Data).Description, RelativeSource={RelativeSource Self}, FallbackValue=&lt;tag&gt;}" 
+                           VerticalAlignment="Center" 
+                           Margin="3,-1,3,0" 
+                           Grid.Column="0" Grid.Row="1" 
+                           Style="{StaticResource LogicSmallTextStyleKey}"/>
+                <TextBlock Text="{Binding Path=(controls:SelectionThumb.Data).Signal, RelativeSource={RelativeSource Self}, FallbackValue=&lt;tag&gt;}"
+                           VerticalAlignment="Center"
+                           Margin="3,1,3,0" 
+                           Grid.Column="1" Grid.Row="0" 
+                           Style="{StaticResource LogicSmallTextStyleKey}"/>
+                <TextBlock Text="{Binding Path=(controls:SelectionThumb.Data).Condition, RelativeSource={RelativeSource Self}, FallbackValue=&lt;tag&gt;}" 
+                           VerticalAlignment="Center" 
+                           Margin="3,-1,3,0" 
+                           Grid.Column="1" Grid.Row="1" 
+                           Style="{StaticResource LogicSmallTextStyleKey}"/>
+            </Grid>
+
         </Canvas>
 
         <Thumb x:Name="LeftPin" Canvas.Left="0" Canvas.Top="15" 

@@ -22,7 +22,7 @@ namespace CanvasDiagramEditor.Parser
     using TreeDiagrams = Stack<Stack<string>>;
     using TreeProject = Tuple<string, Stack<Stack<string>>>;
     using TreeProjects = Stack<Tuple<string, Stack<Stack<string>>>>;
-    using TreeSolution = Tuple<string, Stack<Tuple<string, Stack<Stack<string>>>>>;
+    using TreeSolution = Tuple<string, string, Stack<Tuple<string, Stack<Stack<string>>>>>;
 
     #endregion
 

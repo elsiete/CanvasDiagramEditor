@@ -31,7 +31,7 @@ namespace CanvasDiagramEditor.Editor
     using TreeDiagrams = Stack<Stack<string>>;
     using TreeProject = Tuple<string, Stack<Stack<string>>>;
     using TreeProjects = Stack<Tuple<string, Stack<Stack<string>>>>;
-    using TreeSolution = Tuple<string, Stack<Tuple<string, Stack<Stack<string>>>>>;
+    using TreeSolution = Tuple<string, string, Stack<Tuple<string, Stack<Stack<string>>>>>;
 
     #endregion
 
@@ -161,14 +161,15 @@ namespace CanvasDiagramEditor.Editor
             {
                 double x = Canvas.GetLeft(element);
                 double y = Canvas.GetTop(element);
+                string uid = element.Uid;
 
-                if (element.Uid.StartsWith(ModelConstants.TagElementWire))
+                if (StringUtil.StartsWith(uid, ModelConstants.TagElementWire))
                 {
                     var line = element as LineEx;
                     var margin = line.Margin;
 
                     string str = string.Format("{6}{5}{0}{5}{1}{5}{2}{5}{3}{5}{4}{5}{7}{5}{8}{5}{9}{5}{10}",
-                        element.Uid,
+                        uid,
                         margin.Left, margin.Top, //line.X1, line.Y1,
                         line.X2 + margin.Left, line.Y2 + margin.Top,
                         ModelConstants.ArgumentSeparator,
@@ -180,10 +181,33 @@ namespace CanvasDiagramEditor.Editor
 
                     //System.Diagnostics.Debug.Print(str);
                 }
+                else if (StringUtil.StartsWith(uid, ModelConstants.TagElementInput) ||
+                    StringUtil.StartsWith(uid, ModelConstants.TagElementOutput))
+                {
+                    var data = SelectionThumb.GetData(element);
+                    Tag tag = null;
+
+                    if (data != null && data is Tag)
+                    {
+                        tag = data as Tag;
+                    }
+
+                    string str = string.Format("{4}{3}{0}{3}{1}{3}{2}{3}{5}",
+                        uid,
+                        x, 
+                        y,
+                        ModelConstants.ArgumentSeparator,
+                        ModelConstants.PrefixRoot,
+                        tag != null ? tag.Id : -1);
+
+                    diagram.AppendLine("".PadLeft(4, ' ') + str);
+
+                    //System.Diagnostics.Debug.Print(str);
+                }
                 else
                 {
                     string str = string.Format("{4}{3}{0}{3}{1}{3}{2}",
-                        element.Uid,
+                        uid,
                         x, y,
                         ModelConstants.ArgumentSeparator,
                         ModelConstants.PrefixRoot);
@@ -935,7 +959,7 @@ namespace CanvasDiagramEditor.Editor
             return line;
         }
 
-        public object CreateInput(double x, double y, int id, bool snap)
+        public object CreateInput(double x, double y, int id, int tagId, bool snap)
         {
             var thumb = new SelectionThumb()
             {
@@ -947,10 +971,22 @@ namespace CanvasDiagramEditor.Editor
             SetThumbEvents(thumb);
             SetElementPosition(thumb, x, y, snap);
 
+            // set element Tag
+            var tags = CurrentOptions.Tags;
+            if (tags != null)
+            {
+                var tag = tags.Where(t => t.Id == tagId).FirstOrDefault();
+
+                if (tag != null)
+                {
+                    SelectionThumb.SetData(thumb, tag);
+                }
+            }
+
             return thumb;
         }
 
-        public object CreateOutput(double x, double y, int id, bool snap)
+        public object CreateOutput(double x, double y, int id, int tagId, bool snap)
         {
             var thumb = new SelectionThumb()
             {
@@ -961,6 +997,18 @@ namespace CanvasDiagramEditor.Editor
 
             SetThumbEvents(thumb);
             SetElementPosition(thumb, x, y, snap);
+
+            // set element Tag
+            var tags = CurrentOptions.Tags;
+            if (tags != null)
+            {
+                var tag = tags.Where(t => t.Id == tagId).FirstOrDefault();
+
+                if (tag != null)
+                {
+                    SelectionThumb.SetData(thumb, tag);
+                }
+            }
 
             return thumb;
         }
@@ -1115,7 +1163,7 @@ namespace CanvasDiagramEditor.Editor
 
         public FrameworkElement InsertInput(Canvas canvas, Point point)
         {
-            var thumb = CreateInput(point.X, point.Y, CurrentOptions.Counter.InputCount, CurrentOptions.EnableSnap) as SelectionThumb;
+            var thumb = CreateInput(point.X, point.Y, CurrentOptions.Counter.InputCount, -1, CurrentOptions.EnableSnap) as SelectionThumb;
             CurrentOptions.Counter.InputCount += 1;
 
             canvas.Children.Add(thumb);
@@ -1125,7 +1173,7 @@ namespace CanvasDiagramEditor.Editor
 
         public FrameworkElement InsertOutput(Canvas canvas, Point point)
         {
-            var thumb = CreateOutput(point.X, point.Y, CurrentOptions.Counter.OutputCount, CurrentOptions.EnableSnap) as SelectionThumb;
+            var thumb = CreateOutput(point.X, point.Y, CurrentOptions.Counter.OutputCount, -1, CurrentOptions.EnableSnap) as SelectionThumb;
             CurrentOptions.Counter.OutputCount += 1;
 
             canvas.Children.Add(thumb);
@@ -2234,10 +2282,11 @@ namespace CanvasDiagramEditor.Editor
             UpdateSelectedDiagramModel();
 
             // Solution
-            line = string.Format("{0}{1}{2}",
+            line = string.Format("{0}{1}{2}{1}{3}",
                 ModelConstants.PrefixRoot,
                 ModelConstants.ArgumentSeparator,
-                solution.Uid);
+                solution.Uid,
+                CurrentOptions.TagFileName);
 
             sb.AppendLine(line);
 
@@ -2300,11 +2349,30 @@ namespace CanvasDiagramEditor.Editor
 
                 // create solution
                 string name = null;
+                string tagFileName = null;
                 int id = -1;
 
                 name = solution.Item1;
-                var projects = solution.Item2.Reverse();
+                tagFileName = solution.Item2;
+                var projects = solution.Item3.Reverse();
 
+                // load tags
+                if (tagFileName != null)
+                {
+                    CurrentOptions.TagFileName = tagFileName;
+
+                    try
+                    {
+                        var tags = OpenTags(tagFileName);
+
+                        CurrentOptions.Tags = tags;
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.Print("Failed to load tags from file: {0}, error: {1}", tagFileName, ex.Message);
+                    }
+                }
+                
                 //System.Diagnostics.Debug.Print("Solution: {0}", name);
 
                 var solutionItem = CreateSolutionItem(name);
@@ -2397,6 +2465,15 @@ namespace CanvasDiagramEditor.Editor
 
             // reset counter
             CurrentOptions.Counter.ResetAll();
+
+            // reset tags
+            if (CurrentOptions.Tags != null)
+            {
+                CurrentOptions.Tags.Clear();
+                CurrentOptions.Tags = null;
+            }
+
+            CurrentOptions.TagFileName = null;
         }
 
         public void NewSolution()
@@ -2418,6 +2495,47 @@ namespace CanvasDiagramEditor.Editor
             projectItem.Items.Add(diagramItem);
 
             diagramItem.IsSelected = true;
+        }
+
+        #endregion
+
+        #region Tags
+
+        public List<Tag> OpenTags(string fileName)
+        {
+            var tags = new List<Tag>();
+
+            using (var reader = new System.IO.StreamReader(fileName))
+            {
+                string data = reader.ReadToEnd();
+
+                var lines = data.Split(Environment.NewLine.ToCharArray(),
+                    StringSplitOptions.RemoveEmptyEntries);
+
+                foreach (var line in lines)
+                {
+                    var args = line.Split(new char[] { ModelConstants.ArgumentSeparator },
+                        StringSplitOptions.RemoveEmptyEntries);
+
+                    int length = args.Length;
+
+                    if (length == 5)
+                    {
+                        var tag = new Tag()
+                        {
+                            Id = int.Parse(args[0]),
+                            Designation = args[1],
+                            Signal = args[2],
+                            Condition = args[3],
+                            Description = args[4]
+                        };
+
+                        tags.Add(tag);
+                    }
+                }
+            }
+
+            return tags;
         }
 
         #endregion

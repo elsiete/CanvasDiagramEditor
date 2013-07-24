@@ -25,6 +25,9 @@ namespace CanvasDiagramEditor.Editor
 
         public ResourceDictionary CurrentResources = null;
 
+        public string TagFileName = null;
+        public List<Tag> Tags = null;
+
         public TreeView CurrentTree = null;
         public Canvas CurrentCanvas = null;
         public Path CurrentPathGrid = null;
