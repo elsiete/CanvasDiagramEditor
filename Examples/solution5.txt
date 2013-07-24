@@ -1,0 +1,28 @@
++;Solution|0;tags5.txt
++;Project|0
++;Diagram|0;1260;891;330;35;600;750;30;15;15;0;5
+    +;Input|0;45;215;0
+        -;Wire|0;Start
+    +;Input|1;45;275;1
+        -;Wire|2;Start
+    +;Input|2;45;335;2
+        -;Wire|4;Start
+    +;AndGate|0;450;275
+        -;Wire|1;End
+        -;Wire|2;End
+        -;Wire|3;Start
+        -;Wire|5;End
+    +;Wire|0;330;230;465;230;False;False;True;False
+    +;Pin|0;465;230
+        -;Wire|0;End
+        -;Wire|1;Start
+    +;Wire|1;465;230;465;275;False;False;False;False
+    +;Wire|2;330;290;450;290;False;False;True;False
+    +;Output|0;930;275;3
+        -;Wire|3;End
+    +;Wire|3;480;290;930;290;False;False;False;True
+    +;Wire|4;330;350;465;350;False;False;True;False
+    +;Pin|1;465;350
+        -;Wire|4;End
+        -;Wire|5;Start
+    +;Wire|5;465;350;465;305;False;False;False;False
