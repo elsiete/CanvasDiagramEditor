@@ -2573,9 +2573,90 @@ namespace CanvasDiagramEditor.Editor
             }
         }
 
-        public List<object> OpenTags(string fileName)
+        public void SaveTags()
+        {
+            var dlg = new Microsoft.Win32.SaveFileDialog()
+            {
+                Filter = "Tags (*.txt)|*.txt|All Files (*.*)|*.*",
+                Title = "Save Tags",
+                FileName = CurrentOptions.TagFileName == null ? "tags" : System.IO.Path.GetFileName(CurrentOptions.TagFileName)
+            };
+
+            var res = dlg.ShowDialog();
+            if (res == true)
+            {
+                var tagFileName = dlg.FileName;
+
+                ExportTags(tagFileName, CurrentOptions.Tags);
+
+                CurrentOptions.TagFileName = tagFileName;
+            }
+        }
+
+        public void ImportTags()
+        {
+            var dlg = new Microsoft.Win32.OpenFileDialog()
+            {
+                Filter = "Tags (*.txt)|*.txt|All Files (*.*)|*.*",
+                Title = "Import Tags"
+            };
+
+            if (CurrentOptions.Tags == null)
+            {
+                CurrentOptions.Tags = new List<object>();
+            }
+
+            var res = dlg.ShowDialog();
+            if (res == true)
+            {
+                var tagFileName = dlg.FileName;
+
+                ImportTags(tagFileName, CurrentOptions.Tags, true);
+            }
+        }
+
+        public void ExportTags()
+        {
+            var dlg = new Microsoft.Win32.SaveFileDialog()
+            {
+                Filter = "Tags (*.txt)|*.txt|All Files (*.*)|*.*",
+                Title = "Export Tags",
+                FileName = "tags"
+            };
+
+            var res = dlg.ShowDialog();
+            if (res == true)
+            {
+                var tagFileName = dlg.FileName;
+
+                ExportTags(tagFileName, CurrentOptions.Tags);
+            }
+        }
+
+        public static List<object> OpenTags(string fileName)
         {
             var tags = new List<object>();
+
+            ImportTags(fileName, tags, false);
+
+            return tags;
+        }
+
+        public static void SaveTags(string fileName, string model)
+        {
+            using (var writer = new System.IO.StreamWriter(fileName))
+            {
+                writer.Write(model);
+            }
+        }
+
+        public static void ImportTags(string fileName, List<object> tags, bool appedIds)
+        {
+            int count = 0;
+            if (appedIds == true)
+            {
+                count = tags.Count > 0 ? tags.Cast<Tag>().Max(x => x.Id) + 1 : 0;
+            }
 
             using (var reader = new System.IO.StreamReader(fileName))
             {
@@ -2593,9 +2674,21 @@ namespace CanvasDiagramEditor.Editor
 
                     if (length == 5)
                     {
+                        int id = -1;
+
+                        if (appedIds == true)
+                        {
+                            id = count;
+                            count = count + 1;
+                        }
+                        else
+                        {
+                            id = int.Parse(args[0]);
+                        }
+
                         var tag = new Tag()
                         {
-                            Id = int.Parse(args[0]),
+                            Id = id,
                             Designation = args[1],
                             Signal = args[2],
                             Condition = args[3],
@@ -2606,8 +2699,34 @@ namespace CanvasDiagramEditor.Editor
                     }
                 }
             }
+        }
+            
+        public static void ExportTags(string fileName, List<object> tags)
+        {
+            var model = GenerateTags(tags);
+            SaveTags(fileName, model);
+        }
 
-            return tags;
+        public static string GenerateTags(List<object> tags)
+        {
+            string line = null;
+
+            var sb = new StringBuilder();
+
+            foreach (var tag in tags.Cast<Tag>())
+            {
+                line = string.Format("{1}{0}{2}{0}{3}{0}{4}{0}{5}",
+                    ModelConstants.ArgumentSeparator,
+                    tag.Id,
+                    tag.Designation,
+                    tag.Signal,
+                    tag.Condition,
+                    tag.Description);
+
+                sb.AppendLine(line);
+            }
+
+            return sb.ToString();
         }
 
         #endregion

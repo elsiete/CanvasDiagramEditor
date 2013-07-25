@@ -811,6 +811,21 @@ namespace CanvasDiagramEditor
             editor.OpenTags();
         }
 
+        private void FileSaveTags_Click(object sender, RoutedEventArgs e)
+        {
+            editor.SaveTags();
+        }
+
+        private void FileImportTags_Click(object sender, RoutedEventArgs e)
+        {
+            editor.ImportTags();
+        }
+
+        private void FileExportTags_Click(object sender, RoutedEventArgs e)
+        {
+            editor.ExportTags();
+        }
+
         private void FileImport_Click(object sender, RoutedEventArgs e)
         {
             var diagram = editor.Import();

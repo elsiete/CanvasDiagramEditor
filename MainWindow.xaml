@@ -68,6 +68,10 @@
                 <MenuItem x:Name="FileSaveDiagram" Header="Save Diagram..." Click="FileSaveDiagram_Click"/>
                 <Separator/>
                 <MenuItem x:Name="FileOpenTags" Header="Open _Tags..." Click="FileOpenTags_Click" InputGestureText="Ctrl+T"/>
+                <MenuItem x:Name="FileSaveTags" Header="Save Ta_gs..." Click="FileSaveTags_Click"/>
+                <Separator/>
+                <MenuItem x:Name="FileImportTags" Header="Import Tags..." Click="FileImportTags_Click"/>
+                <MenuItem x:Name="FileExportTags" Header="Export Tags..." Click="FileExportTags_Click"/>
                 <Separator/>
                 <MenuItem x:Name="FileImport" Header="_Import Model..." Click="FileImport_Click" InputGestureText="Ctrl+I"/>
                 <Separator/>
