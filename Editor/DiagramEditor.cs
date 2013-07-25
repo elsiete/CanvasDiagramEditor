@@ -1832,6 +1832,13 @@ namespace CanvasDiagramEditor.Editor
             return elements;
         }
 
+        public IEnumerable<FrameworkElement> GetSelectedElements()
+        {
+            var canvas = CurrentOptions.CurrentCanvas;
+
+            return GetSelectedElements(canvas);
+        }
+
         public static IEnumerable<FrameworkElement> GetAllElements(Canvas canvas)
         {
             var elements = new List<FrameworkElement>();
@@ -1854,6 +1861,13 @@ namespace CanvasDiagramEditor.Editor
             }
 
             return elements;
+        }
+
+        public IEnumerable<FrameworkElement> GetAllElements()
+        {
+            var canvas = CurrentOptions.CurrentCanvas;
+
+            return GetAllElements(canvas);
         }
 
         public static void SetElementThumbsSelection(Canvas canvas, bool isSelected)
