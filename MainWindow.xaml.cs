@@ -1173,6 +1173,7 @@ namespace CanvasDiagramEditor
         private void ShowTagEditor()
         {
             var window = new TagEditorWindow();
+            var control = window.TagEditorControl;
 
             if (editor.CurrentOptions.Tags == null)
             {
@@ -1185,14 +1186,14 @@ namespace CanvasDiagramEditor
             {
                 var all = GetAllInputOutputElements();
 
-                window.Selected = all;
+                control.Selected = all;
             }
             else
             {
-                window.Selected = selected;
+                control.Selected = selected;
             }
 
-            window.Tags = editor.CurrentOptions.Tags;
+            control.Tags = editor.CurrentOptions.Tags;
 
             window.ShowDialog();
         }
