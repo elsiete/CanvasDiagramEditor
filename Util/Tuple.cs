@@ -11,6 +11,16 @@ namespace CanvasDiagramEditor.Util
 {
     #region Tuple .NET 3.5
 
+    public class Tuple<T1>
+    {
+        public T1 Item1 { get; private set; }
+
+        internal Tuple(T1 item1)
+        {
+            Item1 = item1;
+        }
+    }
+
     public class Tuple<T1, T2>
     {
         public T1 Item1 { get; private set; }
