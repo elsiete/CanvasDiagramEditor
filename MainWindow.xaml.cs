@@ -893,6 +893,11 @@ namespace CanvasDiagramEditor
             TabOptions.IsSelected = true;
         }
 
+        private void ToolsTagEditor_Click(object sender, RoutedEventArgs e)
+        {
+            ShowTagEditor();
+        }
+
         #endregion
 
         #region Window Key Events
@@ -1151,7 +1156,69 @@ namespace CanvasDiagramEditor
                         }
                     }
                     break;
+
+                // tag editor
+                case Key.F5:
+                    {
+                        ShowTagEditor();
+                    }
+                    break;
             }
+        }
+
+        #endregion
+
+        #region Tag Editor
+
+        private void ShowTagEditor()
+        {
+            var window = new TagEditorWindow();
+
+            if (editor.CurrentOptions.Tags == null)
+            {
+                editor.CurrentOptions.Tags = new List<object>();
+            }
+
+            var selected = GetSelectedInputOutputElements();
+
+            if (selected.Count == 0)
+            {
+                var all = GetAllInputOutputElements();
+
+                window.Selected = all;
+            }
+            else
+            {
+                window.Selected = selected;
+            }
+
+            window.Tags = editor.CurrentOptions.Tags;
+
+            window.ShowDialog();
+        }
+
+        private List<FrameworkElement> GetAllInputOutputElements()
+        {
+            var all = editor.GetAllElements().Where(x =>
+            {
+                string uid = x.Uid;
+                return StringUtil.StartsWith(uid, ModelConstants.TagElementInput) ||
+                    StringUtil.StartsWith(uid, ModelConstants.TagElementOutput);
+            }).ToList();
+
+            return all;
+        }
+
+        private List<FrameworkElement> GetSelectedInputOutputElements()
+        {
+            var selected = editor.GetSelectedElements().Where(x =>
+            {
+                string uid = x.Uid;
+                return StringUtil.StartsWith(uid, ModelConstants.TagElementInput) ||
+                    StringUtil.StartsWith(uid, ModelConstants.TagElementOutput);
+            }).ToList();
+
+            return selected;
         }
 
         #endregion

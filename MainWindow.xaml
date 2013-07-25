@@ -67,7 +67,7 @@
                 <MenuItem x:Name="FileOpenDiagram" Header="Open Diagram..." Click="FileOpenDiagram_Click"/>
                 <MenuItem x:Name="FileSaveDiagram" Header="Save Diagram..." Click="FileSaveDiagram_Click"/>
                 <Separator/>
-                <MenuItem x:Name="FileOpenTags" Header="Open _Tags..." Click="FileOpenTags_Click"/>
+                <MenuItem x:Name="FileOpenTags" Header="Open _Tags..." Click="FileOpenTags_Click" InputGestureText="Ctrl+T"/>
                 <Separator/>
                 <MenuItem x:Name="FileImport" Header="_Import Model..." Click="FileImport_Click" InputGestureText="Ctrl+I"/>
                 <Separator/>
@@ -93,6 +93,9 @@
                 <MenuItem x:Name="EditClear" Header="C_lear" Click="EditClear_Click"/>
                 <Separator/>
                 <MenuItem x:Name="EditOptions" Header="_Options" Click="EditOptions_Click"/>
+            </MenuItem>
+            <MenuItem Header="_Tools">
+                <MenuItem x:Name="ToolsTagEditor" Header="_Tag Editor" Click="ToolsTagEditor_Click" InputGestureText="F5"/>
             </MenuItem>
         </Menu>
 
@@ -308,7 +311,7 @@
                                 <TextBox x:Name="TextSnapOffsetX" Text="0" Grid.Column="1" Grid.Row="9" Margin="2"/>
                                 <TextBlock Text="SnapOffsetY:" Grid.Column="0" Grid.Row="10" Margin="2" HorizontalAlignment="Right"/>
                                 <TextBox x:Name="TextSnapOffsetY" Text="5" Grid.Column="1" Grid.Row="10" Margin="2"/>
-                                <Button x:Name="UpdateGrid" Content="Upda_te Properties" Grid.Column="1" Grid.Row="11" Margin="2" Click="UpdateGrid_Click"/>
+                                <Button x:Name="UpdateGrid" Content="_Update Properties" Grid.Column="1" Grid.Row="11" Margin="2" Click="UpdateGrid_Click"/>
                             </Grid>
                         </Expander>
                     </StackPanel>

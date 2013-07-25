@@ -64,6 +64,9 @@
     <Compile Include="Editor\DiagramEditor.cs" />
     <Compile Include="Editor\DiagramEditorOptions.cs" />
     <Compile Include="Parser\Tag.cs" />
+    <Compile Include="TagEditorWindow.xaml.cs">
+      <DependentUpon>TagEditorWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Util\StringUtil.cs" />
     <Compile Include="Util\Tuple.cs" />
     <Page Include="Elements\AndGateControl.xaml">
@@ -120,6 +123,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="TagEditorWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Parser\DiagramParser.cs" />
