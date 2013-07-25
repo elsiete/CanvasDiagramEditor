@@ -518,10 +518,13 @@ namespace CanvasDiagramEditor.Editor
 
             var prop = CurrentOptions.CurrentProperties;
 
-            GenerateGrid(path,
-                prop.GridOriginX, prop.GridOriginY,
-                prop.GridWidth, prop.GridHeight,
-                prop.GridSize);
+            if (path != null)
+            {
+                GenerateGrid(path,
+                    prop.GridOriginX, prop.GridOriginY,
+                    prop.GridWidth, prop.GridHeight,
+                    prop.GridSize);
+            }
 
             SetDiagramSize(canvas, prop.PageWidth, prop.PageHeight);
         }
@@ -1048,12 +1051,15 @@ namespace CanvasDiagramEditor.Editor
             var canvas = parserCanvas;
             var path = parserPath;
 
-            GenerateGrid(path,
-                properties.GridOriginX,
-                properties.GridOriginY,
-                properties.GridWidth,
-                properties.GridHeight,
-                properties.GridSize);
+            if (path != null)
+            {
+                GenerateGrid(path,
+                    properties.GridOriginX,
+                    properties.GridOriginY,
+                    properties.GridWidth,
+                    properties.GridHeight,
+                    properties.GridSize);
+            }
 
             SetDiagramSize(canvas, properties.PageWidth, properties.PageHeight);
 
@@ -1589,7 +1595,7 @@ namespace CanvasDiagramEditor.Editor
 
         private void SaveSolution(string fileName)
         {
-            var model = GenerateSolution(fileName);
+            var model = GenerateSolution(fileName).Item1;
             this.SaveModel(fileName, model);
         }
 
@@ -1653,27 +1659,6 @@ namespace CanvasDiagramEditor.Editor
                 throw new NullReferenceException();
 
             export.CreateDocument(fileName, diagrams);
-        }
-
-        public void Print()
-        {
-            var model = GenerateDiagramModel(CurrentOptions.CurrentCanvas, null);
-
-            var canvas = new Canvas()
-            {
-                Background = Brushes.Black,
-                Width = CurrentOptions.CurrentCanvas.Width,
-                Height = CurrentOptions.CurrentCanvas.Height
-            };
-
-            Path path = new Path();
-
-            ParseDiagramModel(model, canvas, path, 0, 0, false, false, false, true);
-
-            Visual visual = canvas;
-
-            PrintDialog dlg = new PrintDialog();
-            dlg.PrintVisual(visual, "diagram");
         }
 
         public string Import()
@@ -2311,8 +2296,10 @@ namespace CanvasDiagramEditor.Editor
             }
         }
 
-        public string GenerateSolution(string fileName)
+        public Tuple<string, IEnumerable<string>> GenerateSolution(string fileName)
         {
+            var models = new List<string>();
+
             var tree = CurrentOptions.CurrentTree;
             var solution = tree.Items.Cast<TreeViewItem>().First();
             var projects = solution.Items.Cast<TreeViewItem>();
@@ -2333,7 +2320,7 @@ namespace CanvasDiagramEditor.Editor
 
                 if (relativePath != null)
                 {
-                    tagFileName = System.IO.Path.Combine(relativePath, onlyFileName);
+                    tagFileName = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(relativePath), onlyFileName);
                 }
             }
 
@@ -2381,12 +2368,16 @@ namespace CanvasDiagramEditor.Editor
                         var model = _diagram.Item1;
                         var history = _diagram.Item2;
 
+                        models.Add(model);
+
                         sb.Append(model);
                     }
                 }
             }
 
-            return sb.ToString();
+            var tuple = new Tuple<string, IEnumerable<string>>(sb.ToString(), models);
+
+            return tuple;
         }
 
         public void OpenSolution()
@@ -2713,17 +2704,20 @@ namespace CanvasDiagramEditor.Editor
 
             var sb = new StringBuilder();
 
-            foreach (var tag in tags.Cast<Tag>())
+            if (tags != null)
             {
-                line = string.Format("{1}{0}{2}{0}{3}{0}{4}{0}{5}",
-                    ModelConstants.ArgumentSeparator,
-                    tag.Id,
-                    tag.Designation,
-                    tag.Signal,
-                    tag.Condition,
-                    tag.Description);
+                foreach (var tag in tags.Cast<Tag>())
+                {
+                    line = string.Format("{1}{0}{2}{0}{3}{0}{4}{0}{5}",
+                        ModelConstants.ArgumentSeparator,
+                        tag.Id,
+                        tag.Designation,
+                        tag.Signal,
+                        tag.Condition,
+                        tag.Description);
 
-                sb.AppendLine(line);
+                    sb.AppendLine(line);
+                }
             }
 
             return sb.ToString();

@@ -154,27 +154,8 @@
                         <Path x:Name="PathGrid" Style="{StaticResource GridPathStyleKey}"/>
                     </Canvas>
 
-                    <Canvas x:Name="TemplateCanvas"
-                            Width="{Binding ElementName=DiagramCanvas, Path=Width}"
-                            Height="{Binding ElementName=DiagramCanvas, Path=Height}" 
-                            Grid.Column="0" Grid.Row="0"
-                            ClipToBounds="False"
-                            Background="{DynamicResource LogicTransparentColorKey}"
-                            Visibility="{Binding ElementName=EnablePageTemplate, Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}">
-                        <!-- inputs -->
-                        <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="15" Canvas.Top="35" Data="M 30,0 L 30,750 M 240,750 L 240,0"/>
-                        <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="15" Canvas.Top="35" Data="M 315,0 L 0,0 M 0,750 L 315,750"/>
-                        <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="15" Canvas.Top="35" Data="M 0,30 L 315,30 M 315,60 L 0,60 M 0,90 L 315,90 M 315,120 L 0,120 M 0,150 L 315,150 M 315,180 L 0,180 M 0,210 L 315,210 M 315,240 L 0,240 M 0,270 L 315,270 M 315,300 L 0,300 M 0,330 L 315,330 M 315,360 L 0,360 M 0,390 L 315,390 M 315,420 L 0,420 M 0,450 L 315,450 M 315,480 L 0,480 M 0,510 L 315,510 M 315,540 L 0,540 M 0,570 L 315,570 M 315,600 L 0,600 M 0,630 L 315,630 M 315,660 L 0,660 M 0,690 L 315,690 M 315,720 L 0,720"/>
-                        <!-- outputs -->
-                        <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="930" Canvas.Top="35" Data="M 210,0 L 210,750 M 285,750 L 285,0"/>
-                        <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="930" Canvas.Top="35" Data="M 315,0 L 0,0 M 0,750 L 315,750"/>
-                        <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="930" Canvas.Top="35" Data="M 0,30 L 315,30 M 315,60 L 0,60 M 0,90 L 315,90 M 315,120 L 0,120 M 0,150 L 315,150 M 315,180 L 0,180 M 0,210 L 315,210 M 315,240 L 0,240 M 0,270 L 315,270 M 315,300 L 0,300 M 0,330 L 315,330 M 315,360 L 0,360 M 0,390 L 315,390 M 315,420 L 0,420 M 0,450 L 315,450 M 315,480 L 0,480 M 0,510 L 315,510 M 315,540 L 0,540 M 0,570 L 315,570 M 315,600 L 0,600 M 0,630 L 315,630 M 315,660 L 0,660 M 0,690 L 315,690 M 315,720 L 0,720"/>
-                        <!-- frame -->
-                        <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="330" Canvas.Top="15" Data="M 0,20 L 600,20 M 600,770 L 0,770 M 0,770 L 0,0 M 600,0 L 600,770"/>
-                        <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="0" Canvas.Top="0" Data="M 15,15 L 1245,15 M 1245,816 L 15,816 M 15,876 L 1245,876 M 1245,876 L 1245,15 M 15,15 L 15,876"/>
-                        <!--<Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="0" Canvas.Top="0" Data="M 1,1 L 1259,1 M 1259,890 L 1,890 M 1,890 L 1,1 M 1259,1 L 1259,890"/>-->
-                    </Canvas>
-
+                    <Control Template="{StaticResource LandscapePageTemplateKey}" Visibility="{Binding ElementName=EnablePageTemplate, Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                    
                     <Canvas x:Name="DiagramCanvas"
                             controls:LineEx.ShortenStart="{Binding ElementName=ShortenStart, Path=IsChecked}"
                             controls:LineEx.ShortenEnd="{Binding ElementName=ShortenEnd, Path=IsChecked}"
