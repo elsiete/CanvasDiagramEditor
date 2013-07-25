@@ -90,7 +90,7 @@ namespace CanvasDiagramEditor
             CreateNewTag();
         }
 
-        private bool IgnorSelectionChange = false;
+        private bool IgnoreSelectionChange = false;
 
         private void CreateNewTag()
         {
@@ -108,7 +108,7 @@ namespace CanvasDiagramEditor
 
             Tags.Add(tag);
 
-            IgnorSelectionChange = true;
+            IgnoreSelectionChange = true;
 
             int index = TagList.Items.Add(tag);
 
@@ -141,9 +141,9 @@ namespace CanvasDiagramEditor
 
         private void TagList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (IgnorSelectionChange == true)
+            if (IgnoreSelectionChange == true)
             {
-                IgnorSelectionChange = false;
+                IgnoreSelectionChange = false;
                 return;
             }
 
@@ -198,15 +198,15 @@ namespace CanvasDiagramEditor
                 filterByCondition == false &&
                 filterByDescription == false)
             {
-                IgnorSelectionChange = true;
+                IgnoreSelectionChange = true;
                 TagList.Items.Filter = null;
             }
             else
             {
-                IgnorSelectionChange = true;
+                IgnoreSelectionChange = true;
                 TagList.Items.Filter = null;
-                IgnorSelectionChange = true;
 
+                IgnoreSelectionChange = true;
                 TagList.Items.Filter = new Predicate<object>(
                     (item) =>
                     {
