@@ -1588,9 +1588,9 @@ namespace CanvasDiagramEditor.Editor
 
                 var tree = CurrentOptions.CurrentTree;
 
-                SaveSolution(fileName);
-
                 UpdateTags();
+
+                SaveSolution(fileName);
             }
         }
 
@@ -1602,6 +1602,10 @@ namespace CanvasDiagramEditor.Editor
             if (tagFileName != null && tags != null)
             {
                 ExportTags(tagFileName, tags);
+            }
+            else if (tagFileName == null && tags != null)
+            {
+                SaveTags();
             }
         }
 
