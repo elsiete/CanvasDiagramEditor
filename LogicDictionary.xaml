@@ -324,7 +324,7 @@
             <!-- frame -->
             <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="330" Canvas.Top="15" Data="M 0,20 L 600,20 M 600,770 L 0,770 M 0,770 L 0,0 M 600,0 L 600,770"/>
             <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="0" Canvas.Top="0" Data="M 15,15 L 1245,15 M 1245,816 L 15,816 M 15,876 L 1245,876 M 1245,876 L 1245,15 M 15,15 L 15,876"/>
-            <!--<Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="0" Canvas.Top="0" Data="M 1,1 L 1259,1 M 1259,890 L 1,890 M 1,890 L 1,1 M 1259,1 L 1259,890"/>-->
+            <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="0" Canvas.Top="0" Data="M 1,1 L 1259,1 M 1259,890 L 1,890 M 1,890 L 1,1 M 1259,1 L 1259,890"/>
             <!-- page headers -->
             <Grid Canvas.Left="15" Canvas.Top="15" Width="1230" Height="20">
                 <Grid.ColumnDefinitions>
