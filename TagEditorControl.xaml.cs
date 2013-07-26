@@ -56,6 +56,8 @@ namespace CanvasDiagramEditor
             {
                 InsertSelected();
             }
+
+            FilterTagList();
         } 
 
         private void InsertSelected()

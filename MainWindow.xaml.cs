@@ -2,7 +2,6 @@
 
 using CanvasDiagramEditor.Controls;
 using CanvasDiagramEditor.Editor;
-using CanvasDiagramEditor.Export;
 using CanvasDiagramEditor.Parser;
 using CanvasDiagramEditor.Util;
 using System;
@@ -266,7 +265,8 @@ namespace CanvasDiagramEditor
             st.ScaleX = zoom_fx;
             st.ScaleY = zoom_fx;
 
-            Application.Current.Resources[ResourceConstants.KeyStrokeThickness] = editor.CurrentOptions.DefaultStrokeThickness / zoom_fx;
+            Application.Current.Resources[ResourceConstants.KeyLogicStrokeThickness] = editor.CurrentOptions.DefaultLogicStrokeThickness / zoom_fx;
+            Application.Current.Resources[ResourceConstants.KeyPageStrokeThickness] = editor.CurrentOptions.DefaultPageStrokeThickness / zoom_fx;
 
             // zoom to point
             ZoomToPoint(zoom_fx, oldZoom);
@@ -838,16 +838,6 @@ namespace CanvasDiagramEditor
             }
         }
 
-        private void FileExport_Click(object sender, RoutedEventArgs e)
-        {
-            editor.ExportDiagram();
-        }
-
-        private void FileExportHistory_Click(object sender, RoutedEventArgs e)
-        {
-            editor.ExportDiagramHistory();
-        }
-
         private void FilePrint_Click(object sender, RoutedEventArgs e)
         {
             Print();
@@ -945,12 +935,48 @@ namespace CanvasDiagramEditor
             helperColor.Color = Colors.Transparent;
         }
 
+        public static double MmToDip(double mm)
+        {
+            return CmToDip(mm / 10.0);
+        }
+
+        public static double CmToDip(double cm)
+        {
+            return (cm * 96.0 / 2.54);
+        }
+
+        public static double InchToDip(double inch)
+        {
+            return (inch * 96.0);
+        }
+
+        public static double PtToDip(double pt)
+        {
+            return (pt * 96.0 / 72.0);
+        }
+
+        public static double DipToCm(double dip)
+        {
+            return (dip * 2.54 / 96.0);
+        }
+
+        public static double DipToMm(double dip)
+        {
+            return DipToCm(dip) * 10.0;
+        }
+
+        private double LogicStrokeThicknessMm = 0.35;
+        private double PageStrokeThicknessMm = 0.13;
+
         public FrameworkElement CreateContextElement(string diagram, Size areaExtent, Point origin, Rect area)
         {
             var grid = new Grid() { ClipToBounds = true };
 
             // set print dictionary
             grid.Resources.Source = new Uri(LogicDictionaryUri, UriKind.Relative);
+
+            grid.Resources[ResourceConstants.KeyLogicStrokeThickness] = MmToDip(LogicStrokeThicknessMm);
+            grid.Resources[ResourceConstants.KeyPageStrokeThickness] = MmToDip(PageStrokeThicknessMm);
 
             // set print colors
             SetPrintColors(grid);
@@ -1242,23 +1268,12 @@ namespace CanvasDiagramEditor
                     }
                     break;
 
-                // export
+                // export tags
                 case Key.E:
                     {
                         if (isControl == true)
                         {
-                            editor.ExportDiagram();
-                            e.Handled = true;
-                        }
-                    }
-                    break;
-
-                // export history
-                case Key.H:
-                    {
-                        if (isControl == true)
-                        {
-                            editor.ExportDiagramHistory();
+                            editor.ExportTags();
                             e.Handled = true;
                         }
                     }
@@ -1407,6 +1422,11 @@ namespace CanvasDiagramEditor
 
         #region Tag Editor
 
+        private string DesignationFilter = "";
+        private string SignalFilter = "";
+        private string ConditionFilter = "";
+        private string DescriptionFilter = "";
+
         private void ShowTagEditor()
         {
             var window = new TagEditorWindow();
@@ -1432,6 +1452,22 @@ namespace CanvasDiagramEditor
 
             control.Tags = editor.CurrentOptions.Tags;
 
+            window.Closing += (sender, e) =>
+            {
+                // save filters
+                DesignationFilter = control.FilterByDesignation.Text;
+                SignalFilter = control.FilterBySignal.Text;
+                ConditionFilter = control.FilterByCondition.Text;
+                DescriptionFilter = control.FilterByDescription.Text;
+            };
+
+            // load filters
+            control.FilterByDesignation.Text = DesignationFilter;
+            control.FilterBySignal.Text = SignalFilter;
+            control.FilterByCondition.Text = ConditionFilter;
+            control.FilterByDescription.Text = DescriptionFilter;
+
+            // display tag editor window
             window.ShowDialog();
         }
 

@@ -15,7 +15,8 @@ namespace CanvasDiagramEditor.Editor
     {
         #region Resource String Constants
 
-        public const string KeyStrokeThickness = "LogicStrokeThicknessKey";
+        public const string KeyLogicStrokeThickness = "LogicStrokeThicknessKey";
+        public const string KeyPageStrokeThickness = "PageStrokeThicknessKey";
 
         public const string KeyTemplatePin = "PinControlTemplateKey";
         public const string KeyTemplateInput = "InputControlTemplateKey";

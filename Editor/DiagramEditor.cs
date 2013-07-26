@@ -11,7 +11,6 @@ using System.Windows.Controls;
 using System.Windows.Shapes; 
 using System.Windows.Media;
 using CanvasDiagramEditor.Controls;
-using CanvasDiagramEditor.Export;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 
@@ -1599,66 +1598,21 @@ namespace CanvasDiagramEditor.Editor
             this.SaveModel(fileName, model);
         }
 
-        public void ExportDiagram()
-        {
-            //Export(new MsoWordExport(), false);
-            Export(new OpenXmlExport(), false);
-        }
-
-        public void ExportDiagramHistory()
-        {
-            //Export(new MsoWordExport(), true);
-            Export(new OpenXmlExport(), true);
-        }
-
-        private void Export(IDiagramExport export, bool exportHistory)
-        {
-            var dlg = new Microsoft.Win32.SaveFileDialog()
-            {
-                Filter = "Word Document (*.docx)|*.docx|All Files (*.*)|*.*",
-                Title = "Export to Word Document",
-                FileName = "diagram"
-            };
-
-            var res = dlg.ShowDialog();
-            if (res == true)
-            {
-                var canvas = CurrentOptions.CurrentCanvas;
-                var fileName = dlg.FileName;
-
-                Export(export, exportHistory, canvas, fileName);
-
-                MessageBox.Show("Exported document: " +
-                    System.IO.Path.GetFileName(dlg.FileName),
-                    "Export", MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-        }
-
-        private void Export(IDiagramExport export, bool exportHistory, Canvas canvas, string fileName)
+        private List<string> GetDiagramHistory(Canvas canvas)
         {
             List<string> diagrams = null;
 
             var currentDiagram = GenerateDiagramModel(canvas, null);
 
-            if (exportHistory == false)
-            {
-                diagrams = new List<string>();
-            }
-            else
-            {
-                var history = GetHistory(canvas);
-                var undoHistory = history.Item1;
-                var redoHistory = history.Item2;
+            var history = GetHistory(canvas);
+            var undoHistory = history.Item1;
+            var redoHistory = history.Item2;
 
-                diagrams = new List<string>(undoHistory.Reverse());
-            }
+            diagrams = new List<string>(undoHistory.Reverse());
 
             diagrams.Add(currentDiagram);
 
-            if (diagrams == null)
-                throw new NullReferenceException();
-
-            export.CreateDocument(fileName, diagrams);
+            return diagrams;
         }
 
         public string Import()

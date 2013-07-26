@@ -66,8 +66,8 @@ namespace CanvasDiagramEditor.Controls
         public SelectionAdorner(UIElement adornedElement)
             : base(adornedElement)
         {
-            brush = new SolidColorBrush(Color.FromArgb(0x90, 0x50, 0x50, 0x50));
-            pen = new Pen(new SolidColorBrush(Color.FromArgb(0xF0, 0x90, 0x90, 0x90)), defaultThickness);
+            brush = new SolidColorBrush(Color.FromArgb(0x90, 0xB0, 0xB0, 0xB0));
+            pen = new Pen(new SolidColorBrush(Color.FromArgb(0x90, 0x70, 0x70, 0x70)), defaultThickness);
         }
 
         #endregion

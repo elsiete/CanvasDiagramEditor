@@ -44,7 +44,7 @@
 
     </Window.Resources>
 
-    <Grid Background="LightGray">
+    <Grid Background="{DynamicResource LogicBackgroundColorKey}">
         
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -54,10 +54,10 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="4"/>
-            <ColumnDefinition Width="250"/>
+            <ColumnDefinition Width="270"/>
         </Grid.ColumnDefinitions>
 
-        <Menu Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Background="LightGray" Margin="0">
+        <Menu Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Background="{DynamicResource LogicBackgroundColorKey}" Margin="0">
             <MenuItem Header="_File">
                 <MenuItem x:Name="FileOpen" Header="_Open Solution..." Click="FileOpen_Click" InputGestureText="Ctrl+O"/>
                 <MenuItem x:Name="FileSave" Header="_Save Solution..." Click="FileSave_Click" InputGestureText="Ctrl+S"/>
@@ -71,12 +71,9 @@
                 <MenuItem x:Name="FileSaveTags" Header="Save Ta_gs..." Click="FileSaveTags_Click"/>
                 <Separator/>
                 <MenuItem x:Name="FileImportTags" Header="Import Tags..." Click="FileImportTags_Click"/>
-                <MenuItem x:Name="FileExportTags" Header="Export Tags..." Click="FileExportTags_Click"/>
+                <MenuItem x:Name="FileExportTags" Header="Export Tags..." Click="FileExportTags_Click" InputGestureText="Ctrl+E"/>
                 <Separator/>
                 <MenuItem x:Name="FileImport" Header="_Import Model..." Click="FileImport_Click" InputGestureText="Ctrl+I"/>
-                <Separator/>
-                <MenuItem x:Name="FileExport" Header="_Export Diagram..." Click="FileExport_Click" InputGestureText="Ctrl+E"/>
-                <MenuItem x:Name="FileExportHistory" Header="Export Diagram _History..." Click="FileExportHistory_Click" InputGestureText="Ctrl+H"/>
                 <Separator/>
                 <MenuItem x:Name="FilePrint" Header="_Print..." Click="FilePrint_Click" InputGestureText="Ctrl+P"/>
                 <Separator/>
@@ -115,7 +112,7 @@
 
             <Border Background="Transparent" BorderThickness="0" BorderBrush="Transparent" ClipToBounds="True" PreviewMouseWheel="Border_PreviewMouseWheel">
 
-                <Grid x:Name="RootGrid" RenderTransformOrigin="0.5,0.5" Background="LightGray" ClipToBounds="True">
+                <Grid x:Name="RootGrid" RenderTransformOrigin="0.5,0.5" Background="{DynamicResource LogicBackgroundColorKey}" ClipToBounds="True">
                     
                     <Grid.LayoutTransform>
                         <TransformGroup>
@@ -179,7 +176,7 @@
 
         <GridSplitter Grid.Column="1" Grid.Row="1" Background="Transparent" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
         
-        <Grid Background="LightGray" Grid.Column="2" Grid.Row="1">
+        <Grid Background="{DynamicResource LogicBackgroundColorKey}" Grid.Column="2" Grid.Row="1">
 
             <TabControl Margin="0,4,4,4">
                 

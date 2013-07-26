@@ -7,14 +7,14 @@
              mc:Ignorable="d" 
              d:DesignHeight="430" d:DesignWidth="895">
 
-    <Grid Background="LightGray">
+    <Grid Background="{DynamicResource LogicBackgroundColorKey}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="330"/>
             <ColumnDefinition Width="4"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <Grid Grid.Column="0" Margin="4,4,0,4" Background="LightGray">
+        <Grid Grid.Column="0" Margin="4,4,0,4" Background="{DynamicResource LogicBackgroundColorKey}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="80"/>
                 <ColumnDefinition Width="*"/>
@@ -70,7 +70,7 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <Grid Grid.Column="0" Margin="4,4,0,4" Background="LightGray">
+            <Grid Grid.Column="0" Margin="4,4,0,4" Background="{DynamicResource LogicBackgroundColorKey}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="80"/>

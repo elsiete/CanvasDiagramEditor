@@ -5,16 +5,17 @@
                     xmlns:elements="clr-namespace:CanvasDiagramEditor.Elements"
                     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
-    <sys:Double x:Key="LogicStrokeThicknessKey">1.0</sys:Double>
+    <sys:Double x:Key="LogicStrokeThicknessKey">2.0</sys:Double>
+    <sys:Double x:Key="PageStrokeThicknessKey">1.0</sys:Double>
 
     <!-- colors -->
 
-    <SolidColorBrush x:Key="LogicBackgroundColorKey" Color="Black"/>
-    <SolidColorBrush x:Key="LogicGridColorKey" Color="#FF212121"/>
-    <SolidColorBrush x:Key="LogicTemplateColorKey" Color="#FF555555"/>
-    <SolidColorBrush x:Key="LogicColorKey" Color="Yellow"/>
-    <SolidColorBrush x:Key="LogicTransparentColorKey" Color="Transparent"/>
+    <SolidColorBrush x:Key="LogicBackgroundColorKey" Color="#FFDDDDDD"/>
+    <SolidColorBrush x:Key="LogicGridColorKey" Color="#FFB4B4B4"/>
+    <SolidColorBrush x:Key="LogicTemplateColorKey" Color="#FF747474"/>
+    <SolidColorBrush x:Key="LogicColorKey" Color="#FF000000"/>
     <SolidColorBrush x:Key="LogicSelectedColorKey" Color="DeepPink"/>
+    <SolidColorBrush x:Key="LogicTransparentColorKey" Color="Transparent"/>
 
     <!-- styles -->
 
@@ -136,7 +137,7 @@
     <Style x:Key="GridPathStyleKey" TargetType="Path">
         <Setter Property="Stroke" Value="{DynamicResource LogicGridColorKey}"/>
         <Setter Property="Fill" Value="Transparent"/>
-        <Setter Property="StrokeThickness" Value="{DynamicResource LogicStrokeThicknessKey}"/>
+        <Setter Property="StrokeThickness" Value="{DynamicResource PageStrokeThicknessKey}"/>
         <Setter Property="StrokeStartLineCap" Value="Flat"/>
         <Setter Property="StrokeEndLineCap" Value="Flat"/>
         <Setter Property="StrokeLineJoin" Value="Miter"/>
@@ -146,7 +147,7 @@
     <Style x:Key="TemplatePathStyleKey" TargetType="Path">
         <Setter Property="Stroke" Value="{DynamicResource LogicTemplateColorKey}"/>
         <Setter Property="Fill" Value="Transparent"/>
-        <Setter Property="StrokeThickness" Value="{DynamicResource LogicStrokeThicknessKey}"/>
+        <Setter Property="StrokeThickness" Value="{DynamicResource PageStrokeThicknessKey}"/>
         <Setter Property="StrokeStartLineCap" Value="Square"/>
         <Setter Property="StrokeEndLineCap" Value="Square"/>
         <Setter Property="StrokeLineJoin" Value="Miter"/>
