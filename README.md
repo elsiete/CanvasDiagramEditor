@@ -1,4 +1,4 @@
 CanvasDiagramEditor
 ===================
 
-Simple diagram editor.
+Logic diagram editor written in WPF using Canvas panel.
