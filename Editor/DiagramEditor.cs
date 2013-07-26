@@ -1589,6 +1589,19 @@ namespace CanvasDiagramEditor.Editor
                 var tree = CurrentOptions.CurrentTree;
 
                 SaveSolution(fileName);
+
+                UpdateTags();
+            }
+        }
+
+        private void UpdateTags()
+        {
+            string tagFileName = CurrentOptions.TagFileName;
+            var tags = CurrentOptions.Tags;
+
+            if (tagFileName != null && tags != null)
+            {
+                ExportTags(tagFileName, tags);
             }
         }
 
