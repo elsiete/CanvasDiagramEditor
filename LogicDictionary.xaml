@@ -5,7 +5,11 @@
                     xmlns:elements="clr-namespace:CanvasDiagramEditor.Elements"
                     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
-    <sys:Double x:Key="LogicStrokeThicknessKey">2.0</sys:Double>
+    <sys:Double x:Key="LogicStrokeThicknessKey">1.0</sys:Double>
+    <sys:Double x:Key="WireStrokeThicknessKey">2.0</sys:Double>
+    <sys:Double x:Key="ElementStrokeThicknessKey">2.0</sys:Double>
+    <sys:Double x:Key="IOStrokeThicknessKey">2.0</sys:Double>
+
     <sys:Double x:Key="PageStrokeThicknessKey">1.0</sys:Double>
 
     <!-- colors -->
@@ -113,7 +117,7 @@
     <Style x:Key="LineStyleKey" TargetType="controls:LineEx">
         <Setter Property="Panel.ZIndex" Value="1"/>
         <Setter Property="Stroke" Value="{DynamicResource LogicColorKey}"/>
-        <Setter Property="StrokeThickness" Value="{DynamicResource LogicStrokeThicknessKey}"/>
+        <Setter Property="StrokeThickness" Value="{DynamicResource WireStrokeThicknessKey}"/>
         <Setter Property="StrokeStartLineCap" Value="Square"/>
         <Setter Property="StrokeEndLineCap" Value="Square"/>
         <Setter Property="StrokeLineJoin" Value="Miter"/>
@@ -169,10 +173,40 @@
         </Style.Triggers>
     </Style>
 
+    <Style x:Key="IOPathStyleKey" TargetType="Path">
+        <Setter Property="Stroke" Value="{DynamicResource LogicColorKey}"/>
+        <Setter Property="Fill" Value="Transparent"/>
+        <Setter Property="StrokeThickness" Value="{DynamicResource IOStrokeThicknessKey}"/>
+        <Setter Property="StrokeStartLineCap" Value="Square"/>
+        <Setter Property="StrokeEndLineCap" Value="Square"/>
+        <Setter Property="StrokeLineJoin" Value="Miter"/>
+        <Setter Property="RenderOptions.EdgeMode" Value="Aliased"/>
+        <Style.Triggers>
+            <Trigger Property="controls:ElementThumb.IsSelected" Value="True">
+                <Setter Property="Stroke" Value="{DynamicResource LogicSelectedColorKey}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="ElementPathStyleKey" TargetType="Path">
+        <Setter Property="Stroke" Value="{DynamicResource LogicColorKey}"/>
+        <Setter Property="Fill" Value="Transparent"/>
+        <Setter Property="StrokeThickness" Value="{DynamicResource ElementStrokeThicknessKey}"/>
+        <Setter Property="StrokeStartLineCap" Value="Square"/>
+        <Setter Property="StrokeEndLineCap" Value="Square"/>
+        <Setter Property="StrokeLineJoin" Value="Miter"/>
+        <Setter Property="RenderOptions.EdgeMode" Value="Aliased"/>
+        <Style.Triggers>
+            <Trigger Property="controls:ElementThumb.IsSelected" Value="True">
+                <Setter Property="Stroke" Value="{DynamicResource LogicSelectedColorKey}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
     <Style x:Key="LogicTextStyleKey" TargetType="TextBlock">
         <Setter Property="Foreground" Value="{DynamicResource LogicColorKey}"/>
         <Setter Property="FontFamily" Value="Arial"/>
-        <Setter Property="FontSize" Value="15"/>
+        <Setter Property="FontSize" Value="14"/>
         <Setter Property="FontWeight" Value="Normal"/>
         <Setter Property="RenderOptions.EdgeMode" Value="Aliased"/>
         <Style.Triggers>
@@ -219,6 +253,27 @@
         <Setter Property="FontWeight" Value="Thin"/>
         <Setter Property="Foreground" Value="{DynamicResource LogicTemplateColorKey}"/>
         <Setter Property="RenderOptions.EdgeMode" Value="Aliased"/>
+    </Style>
+
+    <Style x:Key="TableHeaderTextBlockStyleKey" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="Arial"/>
+        <Setter Property="FontSize" Value="9"/>
+        <Setter Property="FontWeight" Value="Thin"/>
+        <Setter Property="Foreground" Value="{DynamicResource LogicTemplateColorKey}"/>
+        <Setter Property="RenderOptions.EdgeMode" Value="Aliased"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="HorizontalAlignment" Value="Left"/>
+        <Setter Property="Margin" Value="4,0,0,0"/>
+    </Style>
+
+    <Style x:Key="TableTextBlockStyleKey" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="Arial"/>
+        <Setter Property="FontSize" Value="9"/>
+        <Setter Property="FontWeight" Value="Normal"/>
+        <Setter Property="Foreground" Value="{DynamicResource LogicTemplateColorKey}"/>
+        <Setter Property="RenderOptions.EdgeMode" Value="Aliased"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
     </Style>
 
     <!-- templates -->
@@ -436,6 +491,96 @@
                 <TextBlock Grid.Row="24" Grid.Column="0" Text="24" Style="{DynamicResource NumberTextBlockStyleKey}"/>
             </Grid>
             <!-- page table -->
+            <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="15" Canvas.Top="816" Data="M 0,15 L 175,15 M 405,15 L 1230,15 M 1230,30 L 965,30 M 695,30 L 405,30 M 175,30, 0,30 M 0,45 L 175,45 M 405,45 L 695,45 M 965,45 L 1230,45"/>
+            <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="15" Canvas.Top="816" Data="M 30,0 L 30,60 M 75,0 L 75,60 M 175,60 L 175,0 M 290,0 L 290,60 M 405,60 L 405,0 M 465,0 L 465,60 M 605,60 L 605,0 M 650,0 L 650,60 M 695,60 L 695,0 M 965,0 L 965,60 M 1005,60 L 1005,0 M 1045,0 L 1045,60 M 1100,60 L 1100,0"/>
+            <!-- page table text -->
+            <Grid Canvas.Left="15" Canvas.Top="816">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="30"/>
+                    <ColumnDefinition Width="45"/>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="115"/>
+                    <ColumnDefinition Width="115"/>
+                    <ColumnDefinition Width="60"/>
+                    <ColumnDefinition Width="140"/>
+                    <ColumnDefinition Width="45"/>
+                    <ColumnDefinition Width="45"/>
+                    <ColumnDefinition Width="270"/>
+                    <ColumnDefinition Width="40"/>
+                    <ColumnDefinition Width="40"/>
+                    <ColumnDefinition Width="55"/>
+                    <ColumnDefinition Width="130"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="15"/>
+                    <RowDefinition Height="15"/>
+                    <RowDefinition Height="15"/>
+                    <RowDefinition Height="15"/>
+                </Grid.RowDefinitions>
+                <!-- Rev. -->
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Rev." Style="{DynamicResource TableHeaderTextBlockStyleKey}"/>
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="" Style="{DynamicResource TableTextBlockStyleKey}"/>
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="" Style="{DynamicResource TableTextBlockStyleKey}"/>
+                <TextBlock Grid.Row="3" Grid.Column="0" Text="" Style="{DynamicResource TableTextBlockStyleKey}"/>
+                <!-- Rev.: Date -->
+                <TextBlock Grid.Row="0" Grid.Column="1" Text="Date" Style="{DynamicResource TableHeaderTextBlockStyleKey}"/>
+                <TextBlock Grid.Row="1" Grid.Column="1" Text="" Style="{DynamicResource TableTextBlockStyleKey}"/>
+                <TextBlock Grid.Row="2" Grid.Column="1" Text="" Style="{DynamicResource TableTextBlockStyleKey}"/>
+                <TextBlock Grid.Row="3" Grid.Column="1" Text="" Style="{DynamicResource TableTextBlockStyleKey}"/>
+                <!-- Rev.: Remarks -->
+                <TextBlock Grid.Row="0" Grid.Column="2" Text="Remarks" Style="{DynamicResource TableHeaderTextBlockStyleKey}"/>
+                <TextBlock Grid.Row="1" Grid.Column="2" Text="" Style="{DynamicResource TableTextBlockStyleKey}"/>
+                <TextBlock Grid.Row="2" Grid.Column="2" Text="" Style="{DynamicResource TableTextBlockStyleKey}"/>
+                <TextBlock Grid.Row="3" Grid.Column="2" Text="" Style="{DynamicResource TableTextBlockStyleKey}"/>
+                <!-- Logo No. 1 -->
+                <Image Grid.Row="0" Grid.RowSpan="4" Grid.Column="3" Width="115" Height="60"/>
+                <!-- Logo No. 2 -->
+                <Image Grid.Row="0" Grid.RowSpan="4" Grid.Column="4" Width="115" Height="60"/>
+                <!-- Drawn, Checked, etc. -->
+                <TextBlock Grid.Row="0" Grid.Column="5" Text="Drawn" Style="{DynamicResource TableHeaderTextBlockStyleKey}"/>
+                <TextBlock Grid.Row="1" Grid.Column="5" Text="Checked" Style="{DynamicResource TableHeaderTextBlockStyleKey}"/>
+                <TextBlock Grid.Row="2" Grid.Column="5" Text="Approved" Style="{DynamicResource TableHeaderTextBlockStyleKey}"/>
+                <TextBlock Grid.Row="3" Grid.Column="5" Text="" Style="{DynamicResource TableHeaderTextBlockStyleKey}"/>
+                <!-- Drawn, Checked, etc.: Name -->
+                <TextBlock Grid.Row="0" Grid.Column="6" Text="" Style="{DynamicResource TableTextBlockStyleKey}"/>
+                <TextBlock Grid.Row="1" Grid.Column="6" Text="" Style="{DynamicResource TableTextBlockStyleKey}"/>
+                <TextBlock Grid.Row="2" Grid.Column="6" Text="" Style="{DynamicResource TableTextBlockStyleKey}"/>
+                <TextBlock Grid.Row="3" Grid.Column="6" Text="" Style="{DynamicResource TableTextBlockStyleKey}"/>
+                <!-- Drawn, Checked, etc.: Date -->
+                <TextBlock Grid.Row="0" Grid.Column="8" Text="" Style="{DynamicResource TableTextBlockStyleKey}"/>
+                <TextBlock Grid.Row="1" Grid.Column="8" Text="" Style="{DynamicResource TableTextBlockStyleKey}"/>
+                <TextBlock Grid.Row="2" Grid.Column="8" Text="" Style="{DynamicResource TableTextBlockStyleKey}"/>
+                <TextBlock Grid.Row="3" Grid.Column="8" Text="" Style="{DynamicResource TableTextBlockStyleKey}"/>
+                <!-- Titles, Sub-Titles -->
+                <TextBlock Grid.Row="0" Grid.Column="9" Text="" Style="{DynamicResource TableTextBlockStyleKey}"/>
+                <TextBlock Grid.Row="1" Grid.Column="9" Text="" Style="{DynamicResource TableTextBlockStyleKey}" HorizontalAlignment="Left" Margin="4,0,0,0"/>
+                <TextBlock Grid.Row="2" Grid.Column="9" Text="" Style="{DynamicResource TableTextBlockStyleKey}" HorizontalAlignment="Left" Margin="4,0,0,0"/>
+                <TextBlock Grid.Row="3" Grid.Column="9" Text="" Style="{DynamicResource TableTextBlockStyleKey}" HorizontalAlignment="Left" Margin="4,0,0,0"/>
+                <!-- Rev. -->
+                <TextBlock Grid.Row="0" Grid.Column="10" Text="Rev." Style="{DynamicResource TableHeaderTextBlockStyleKey}" HorizontalAlignment="Center" Margin="0,0,0,0"/>
+                <TextBlock Grid.Row="1" Grid.Column="10" Text="" Style="{DynamicResource TableTextBlockStyleKey}"/>
+                <!-- Status -->
+                <TextBlock Grid.Row="0" Grid.Column="11" Text="Status" Style="{DynamicResource TableHeaderTextBlockStyleKey}" HorizontalAlignment="Center" Margin="0,0,0,0"/>
+                <TextBlock Grid.Row="1" Grid.Column="11" Text="" Style="{DynamicResource TableTextBlockStyleKey}"/>
+                <!-- Page -->
+                <TextBlock Grid.Row="2" Grid.Column="10" Text="Page" Style="{DynamicResource TableHeaderTextBlockStyleKey}" HorizontalAlignment="Center" Margin="0,0,0,0"/>
+                <TextBlock Grid.Row="3" Grid.Column="10" Text="" Style="{DynamicResource TableTextBlockStyleKey}"/>
+                <!-- Pages. -->
+                <TextBlock Grid.Row="2" Grid.Column="11" Text="Pages" Style="{DynamicResource TableHeaderTextBlockStyleKey}" HorizontalAlignment="Center" Margin="0,0,0,0"/>
+                <TextBlock Grid.Row="3" Grid.Column="11" Text="" Style="{DynamicResource TableTextBlockStyleKey}"/>
+                <!-- Project -->
+                <TextBlock Grid.Row="0" Grid.Column="12" Text="Project" Style="{DynamicResource TableHeaderTextBlockStyleKey}"/>
+                <TextBlock Grid.Row="0" Grid.Column="13" Text="" Style="{DynamicResource TableTextBlockStyleKey}" HorizontalAlignment="Left" Margin="4,0,0,0"/>
+                <!-- Order No -->
+                <TextBlock Grid.Row="1" Grid.Column="12" Text="Order No" Style="{DynamicResource TableHeaderTextBlockStyleKey}"/>
+                <TextBlock Grid.Row="1" Grid.Column="13" Text="" Style="{DynamicResource TableTextBlockStyleKey}" HorizontalAlignment="Left" Margin="4,0,0,0"/>
+                <!-- Document No -->
+                <TextBlock Grid.Row="2" Grid.Column="12" Text="Doc. No" Style="{DynamicResource TableHeaderTextBlockStyleKey}"/>
+                <TextBlock Grid.Row="2" Grid.Column="13" Text="" Style="{DynamicResource TableTextBlockStyleKey}" HorizontalAlignment="Left" Margin="4,0,0,0"/>
+                <!-- Archive No -->
+                <TextBlock Grid.Row="3" Grid.Column="12" Text="Arch. No" Style="{DynamicResource TableHeaderTextBlockStyleKey}"/>
+                <TextBlock Grid.Row="3" Grid.Column="13" Text="" Style="{DynamicResource TableTextBlockStyleKey}" HorizontalAlignment="Left" Margin="4,0,0,0"/>
+            </Grid>
         </Canvas>
     </ControlTemplate>
 

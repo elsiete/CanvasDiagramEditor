@@ -64,9 +64,6 @@ namespace CanvasDiagramEditor.Editor
         public double PreviousScrollOffsetX = -1.0;
         public double PreviousScrollOffsetY = -1.0;
 
-        public double DefaultLogicStrokeThickness = 2.0;
-        public double DefaultPageStrokeThickness = 1.0;
-
         public double ZoomInFactor = 0.1;
         public double ZoomOutFactor = 0.1;
 

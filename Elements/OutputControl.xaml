@@ -10,7 +10,7 @@
     <Canvas Width="285" Height="30" Style="{StaticResource ControlCanvasStyleKey}">
 
         <Canvas x:Name="RootElement" Width="285" Height="30" Style="{StaticResource RootCanvasStyleKey}">
-            <Path Data="M 0,0 L 285,0 M 285,30 L 0,30 M 0,30  L 0,0 M 210,0 L 210,30 M 285,30 L 285,0" Style="{StaticResource LogicPathStyleKey}"/>
+            <Path Data="M 0,0 L 285,0 M 285,30 L 0,30 M 0,30  L 0,0 M 210,0 L 210,30 M 285,30 L 285,0" Style="{StaticResource IOPathStyleKey}"/>
 
             <!--
             <Grid Width="285" Height="30">

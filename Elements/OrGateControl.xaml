@@ -9,7 +9,7 @@
     <Canvas Width="30" Height="30" Style="{StaticResource ControlCanvasStyleKey}">
 
         <Canvas x:Name="RootElement" Width="30" Height="30" Style="{StaticResource RootCanvasStyleKey}">
-            <Path Data="M 0,0 L 30,0 M 0,30 L 30,30 M 0,0 L 0,30 M 30,0 L 30,30" Style="{StaticResource LogicPathStyleKey}"/>
+            <Path Data="M 0,0 L 30,0 M 0,30 L 30,30 M 0,0 L 0,30 M 30,0 L 30,30" Style="{StaticResource ElementPathStyleKey}"/>
             <Grid Width="30" Height="30">
                 <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Text="≥1" Style="{StaticResource LogicTextStyleKey}"/>
             </Grid>

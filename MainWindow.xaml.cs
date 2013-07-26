@@ -241,6 +241,21 @@ namespace CanvasDiagramEditor
 
         #region Zoom
 
+        public double DefaultLogicStrokeThickness = 1.0;
+        public double DefaultWireStrokeThickness = 2.0;
+        public double DefaultElementStrokeThickness = 2.0;
+        public double DefaultIOStrokeThickness = 2.0;
+        public double DefaultPageStrokeThickness = 1.0;
+
+        private void UpdateStrokeThickness(double zoom)
+        {
+            Application.Current.Resources[ResourceConstants.KeyLogicStrokeThickness] = DefaultLogicStrokeThickness / zoom;
+            Application.Current.Resources[ResourceConstants.KeyWireStrokeThickness] = DefaultWireStrokeThickness / zoom;
+            Application.Current.Resources[ResourceConstants.KeyElementStrokeThickness] = DefaultElementStrokeThickness / zoom;
+            Application.Current.Resources[ResourceConstants.KeyIOStrokeThickness] = DefaultIOStrokeThickness / zoom;
+            Application.Current.Resources[ResourceConstants.KeyPageStrokeThickness] = DefaultPageStrokeThickness / zoom;
+        }
+
         public double CalculateZoom(double x)
         {
             double l = Math.Log(x, editor.CurrentOptions.ZoomLogBase);
@@ -265,8 +280,7 @@ namespace CanvasDiagramEditor
             st.ScaleX = zoom_fx;
             st.ScaleY = zoom_fx;
 
-            Application.Current.Resources[ResourceConstants.KeyLogicStrokeThickness] = editor.CurrentOptions.DefaultLogicStrokeThickness / zoom_fx;
-            Application.Current.Resources[ResourceConstants.KeyPageStrokeThickness] = editor.CurrentOptions.DefaultPageStrokeThickness / zoom_fx;
+            UpdateStrokeThickness(zoom_fx);
 
             // zoom to point
             ZoomToPoint(zoom_fx, oldZoom);
@@ -907,33 +921,7 @@ namespace CanvasDiagramEditor
 
         #endregion
 
-        #region Print
-
-        public string LogicDictionaryUri = "LogicDictionary.xaml";
-
-        private void SetPrintColors(FrameworkElement element)
-        {
-            if (element == null)
-                throw new ArgumentNullException();
-
-            var backgroundColor = element.Resources["LogicBackgroundColorKey"] as SolidColorBrush;
-            backgroundColor.Color = Colors.White;
-
-            var gridColor = element.Resources["LogicGridColorKey"] as SolidColorBrush;
-            gridColor.Color = Colors.Transparent;
-
-            var pageColor = element.Resources["LogicTemplateColorKey"] as SolidColorBrush;
-            pageColor.Color = Colors.Black;
-
-            var logicColor = element.Resources["LogicColorKey"] as SolidColorBrush;
-            logicColor.Color = Colors.Black;
-
-            var logicSelectedColor = element.Resources["LogicSelectedColorKey"] as SolidColorBrush;
-            logicSelectedColor.Color = Colors.Black;
-
-            var helperColor = element.Resources["LogicTransparentColorKey"] as SolidColorBrush;
-            helperColor.Color = Colors.Transparent;
-        }
+        #region DIP Calc
 
         public static double MmToDip(double mm)
         {
@@ -965,24 +953,74 @@ namespace CanvasDiagramEditor
             return DipToCm(dip) * 10.0;
         }
 
-        private double LogicStrokeThicknessMm = 0.35;
+        #endregion
+
+        #region Print
+        
+        public string LogicDictionaryUri = "LogicDictionary.xaml";
+
+        private double LogicStrokeThicknessMm = 0.18;
+        private double WireStrokeThicknessMm = 0.18;
+        private double ElementStrokeThicknessMm = 0.35;
+        private double IOStrokeThicknessMm = 0.25;
         private double PageStrokeThicknessMm = 0.13;
+
+        private void SetPrintStrokeSthickness(FrameworkElement element)
+        {
+            if (element != null)
+            {
+                element.Resources[ResourceConstants.KeyLogicStrokeThickness] = MmToDip(LogicStrokeThicknessMm);
+                element.Resources[ResourceConstants.KeyWireStrokeThickness] = MmToDip(WireStrokeThicknessMm);
+                element.Resources[ResourceConstants.KeyElementStrokeThickness] = MmToDip(ElementStrokeThicknessMm);
+                element.Resources[ResourceConstants.KeyIOStrokeThickness] = MmToDip(IOStrokeThicknessMm);
+                element.Resources[ResourceConstants.KeyPageStrokeThickness] = MmToDip(PageStrokeThicknessMm);
+            }
+        }
+
+        private void SetPrintColors(FrameworkElement element)
+        {
+            if (element == null)
+                throw new ArgumentNullException();
+
+            var backgroundColor = element.Resources["LogicBackgroundColorKey"] as SolidColorBrush;
+            backgroundColor.Color = Colors.White;
+
+            var gridColor = element.Resources["LogicGridColorKey"] as SolidColorBrush;
+            gridColor.Color = Colors.Transparent;
+
+            var pageColor = element.Resources["LogicTemplateColorKey"] as SolidColorBrush;
+            pageColor.Color = Colors.Black;
+
+            var logicColor = element.Resources["LogicColorKey"] as SolidColorBrush;
+            logicColor.Color = Colors.Black;
+
+            var logicSelectedColor = element.Resources["LogicSelectedColorKey"] as SolidColorBrush;
+            logicSelectedColor.Color = Colors.Black;
+
+            var helperColor = element.Resources["LogicTransparentColorKey"] as SolidColorBrush;
+            helperColor.Color = Colors.Transparent;
+        }
 
         public FrameworkElement CreateContextElement(string diagram, Size areaExtent, Point origin, Rect area)
         {
-            var grid = new Grid() { ClipToBounds = true };
+            var grid = new Grid() 
+            { 
+                ClipToBounds = true 
+            };
 
             // set print dictionary
             grid.Resources.Source = new Uri(LogicDictionaryUri, UriKind.Relative);
 
-            grid.Resources[ResourceConstants.KeyLogicStrokeThickness] = MmToDip(LogicStrokeThicknessMm);
-            grid.Resources[ResourceConstants.KeyPageStrokeThickness] = MmToDip(PageStrokeThicknessMm);
+            SetPrintStrokeSthickness(grid);
 
             // set print colors
             SetPrintColors(grid);
 
             // set element template and content
-            var template = new Control() { Template = grid.Resources["LandscapePageTemplateKey"] as ControlTemplate };
+            var template = new Control() 
+            { 
+                Template = grid.Resources["LandscapePageTemplateKey"] as ControlTemplate 
+            };
 
             var canvas = new Canvas()
             {
