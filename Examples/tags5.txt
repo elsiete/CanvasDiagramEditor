@@ -1,4 +1,0 @@
-0;Designation0;Signal0;Condition0;Description0
-1;Designation1;Signal1;Condition1;Description1
-2;Designation2;Signal2;Condition2;Description2
-3;Designation3;Signal3;Condition3;Description3
