@@ -1,4 +1,7 @@
-﻿#region References
+﻿// Copyright (C) Wiesław Šoltés 2013. 
+// All Rights Reserved
+
+#region References
 
 using System;
 using System.Collections.Generic;

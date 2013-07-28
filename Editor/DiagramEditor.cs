@@ -1,4 +1,7 @@
-﻿#region References
+﻿// Copyright (C) Wiesław Šoltés 2013. 
+// All Rights Reserved
+
+#region References
 
 using CanvasDiagramEditor.Parser;
 using CanvasDiagramEditor.Util;
@@ -1070,12 +1073,12 @@ namespace CanvasDiagramEditor.Editor
             if (pin == null)
                 return;
 
-            var root =
+            var parentRoot =
                 (
                     (pin.Parent as FrameworkElement).Parent as FrameworkElement
                 ).TemplatedParent as FrameworkElement;
 
-            CurrentOptions.CurrentRoot = root;
+            CurrentOptions.CurrentRoot = parentRoot;
 
             //System.Diagnostics.Debug.Print("ConnectPins, pin: {0}, {1}", pin.GetType(), pin.Name);
 
@@ -1231,7 +1234,7 @@ namespace CanvasDiagramEditor.Editor
 
         private void DeleteElement(Canvas canvas, Point point)
         {
-            var element = HitTest(canvas, ref point);
+            var element = HitTest(canvas, ref point).FirstOrDefault() as FrameworkElement;
             if (element == null)
                 return;
 
@@ -1258,7 +1261,7 @@ namespace CanvasDiagramEditor.Editor
             }
         }
 
-        public FrameworkElement HitTest(Canvas canvas, ref Point point)
+        public IEnumerable<FrameworkElement> HitTest(Canvas canvas, ref Point point)
         {
             var selectedElements = new List<DependencyObject>();
 
@@ -1285,7 +1288,7 @@ namespace CanvasDiagramEditor.Editor
 
             VisualTreeHelper.HitTest(canvas, filterCallback, resultCallback, hitTestParams);
 
-            return selectedElements.FirstOrDefault() as FrameworkElement;
+            return selectedElements.Cast<FrameworkElement>();
         }
 
         public IEnumerable<FrameworkElement> HitTest(Canvas canvas, ref Rect rect)
@@ -1409,7 +1412,7 @@ namespace CanvasDiagramEditor.Editor
 
         public LineEx FindLineEx(Canvas canvas, Point point)
         {
-            var element = HitTest(canvas, ref point);
+            var element = HitTest(canvas, ref point).FirstOrDefault() as FrameworkElement;
             if (element == null)
                 return null;
 
@@ -1691,6 +1694,57 @@ namespace CanvasDiagramEditor.Editor
 
         #endregion
 
+        #region Export
+
+        public string GenerateDxf(string model, bool shortenStart, bool shortenEnd)
+        {
+            var dxf = new Dxf()
+            {
+                ShortenStart = shortenStart,
+                ShortenEnd = shortenEnd,
+                DiagramProperties  = CurrentOptions.CurrentProperties
+            };
+
+            return dxf.GenerateDxfFromModel(model);
+        }
+
+        private void SaveDxf(string fileName, string model)
+        {
+            using (var writer = new System.IO.StreamWriter(fileName))
+            {
+                writer.Write(model);
+            }
+        }
+
+        private void ExportDiagramToDxf(string fileName, Canvas canvas, bool shortenStart, bool shortenEnd)
+        {
+            string model = GenerateDiagramModel(canvas, null);
+
+            string dxf = GenerateDxf(model, shortenStart, shortenEnd);
+
+            SaveDxf(fileName, dxf);
+        }
+
+        public void ExportToDxf(bool shortenStart, bool shortenEnd)
+        {
+            var dlg = new Microsoft.Win32.SaveFileDialog()
+            {
+                Filter = "Dxf (*.dxf)|*.dxf|All Files (*.*)|*.*",
+                Title = "Export Diagram to Dxf",
+                FileName = "diagram"
+            };
+
+            var res = dlg.ShowDialog();
+            if (res == true)
+            {
+                var canvas = CurrentOptions.CurrentCanvas;
+
+                this.ExportDiagramToDxf(dlg.FileName, canvas, shortenStart, shortenEnd);
+            }
+        }
+
+        #endregion
+
         #region Edit
 
         public void Cut()
@@ -1921,11 +1975,70 @@ namespace CanvasDiagramEditor.Editor
 
         public bool HandlePreviewLeftDown(Canvas canvas, Point point, FrameworkElement pin)
         {
-            if (CurrentOptions.CurrentRoot == null &&
+            if (pin != null &&
+                (!StringUtil.Compare(pin.Name, ResourceConstants.StandalonePinName) 
+                || Keyboard.Modifiers == ModifierKeys.Control))
+            {
+                if (CurrentOptions.CurrentLine == null)
+                    AddToHistory(canvas);
+
+                CreatePinConnection(canvas, pin);
+
+                return true;
+            }
+            else
+            {
+                if (CurrentOptions.CurrentLine == null)
+                {
+                    return false;
+                }
+
+                var element = HitTest(canvas, ref point)
+                    .Where(x => StringUtil.Compare(CurrentOptions.CurrentLine.Uid, x.Uid) == false)
+                    .FirstOrDefault() as FrameworkElement;
+
+                System.Diagnostics.Debug.Print("Split wire: {0}", element == null ? "<null>" : element.Uid);
+
+                if (element != null && 
+                    CurrentOptions.CurrentLine != null &&
+                    CurrentOptions.CurrentRoot != null &&
+                    StringUtil.Compare(CurrentOptions.CurrentLine.Uid, element.Uid) == false &&
+                    StringUtil.StartsWith(element.Uid, ModelConstants.TagElementWire) == true)
+                {
+                    if (CurrentOptions.CurrentLine == null)
+                        AddToHistory(canvas);
+
+                    
+
+                    var originalLine = element as LineEx;
+
+                    // create split pin
+                    var splitPin = InsertPin(canvas, point);
+
+
+                    CurrentOptions.CurrentRoot = splitPin;
+
+                    // connect current line to split pin
+                    double x = Canvas.GetLeft(CurrentOptions.CurrentRoot);
+                    double y = Canvas.GetTop(CurrentOptions.CurrentRoot);
+                    CreatePinConnection(canvas, x , y);
+
+
+                    // TODO: split hit tested line
+
+
+
+
+
+                    return true;
+                }
+            }
+
+            if (CurrentOptions.CurrentRoot == null && 
                 CurrentOptions.CurrentLine == null &&
                 Keyboard.Modifiers != ModifierKeys.Control)
             {
-                var element = HitTest(canvas, ref point);
+                var element = HitTest(canvas, ref point).FirstOrDefault() as FrameworkElement;
                 if (element != null)
                 {
                     ToggleLineSelection(element);
@@ -1934,17 +2047,6 @@ namespace CanvasDiagramEditor.Editor
                 {
                     SetLinesSelection(canvas, false);
                 }
-            }
-
-            if (pin != null &&
-                (!StringUtil.Compare(pin.Name, ResourceConstants.StandalonePinName) || Keyboard.Modifiers == ModifierKeys.Control))
-            {
-                if (CurrentOptions.CurrentLine == null)
-                    AddToHistory(canvas);
-
-                CreatePinConnection(canvas, pin);
-
-                return true;
             }
 
             return false;

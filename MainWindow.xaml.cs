@@ -1,4 +1,7 @@
-﻿#region References
+﻿// Copyright (C) Wiesław Šoltés 2013. 
+// All Rights Reserved
+
+#region References
 
 using CanvasDiagramEditor.Controls;
 using CanvasDiagramEditor.Editor;
@@ -842,6 +845,11 @@ namespace CanvasDiagramEditor
             editor.ExportTags();
         }
 
+        private void FleExportToDxf_Click(object sender, RoutedEventArgs e)
+        {
+            editor.ExportToDxf(ShortenStart.IsChecked.Value, ShortenEnd.IsChecked.Value);
+        }
+
         private void FileImport_Click(object sender, RoutedEventArgs e)
         {
             var diagram = editor.Import();
@@ -1306,12 +1314,12 @@ namespace CanvasDiagramEditor
                     }
                     break;
 
-                // export tags
+                // export to dxf
                 case Key.E:
                     {
                         if (isControl == true)
                         {
-                            editor.ExportTags();
+                            editor.ExportToDxf(ShortenStart.IsChecked.Value, ShortenEnd.IsChecked.Value);
                             e.Handled = true;
                         }
                     }
