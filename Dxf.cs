@@ -145,6 +145,8 @@ namespace CanvasDiagramEditor
 
             DxfTableTextStyles(sb);
 
+            DxfTableViews(sb);
+
             // end tables section
             sb.AppendLine("0");
             sb.AppendLine("ENDSEC");
@@ -288,7 +290,9 @@ namespace CanvasDiagramEditor
             sb.AppendLine("70");
             sb.AppendLine("0");
             sb.AppendLine("3");
-            sb.AppendLine("ARIAL");
+            sb.AppendLine("arial.ttf");
+            sb.AppendLine("4");
+            sb.AppendLine("");
             sb.AppendLine("40");
             sb.AppendLine("0");
             sb.AppendLine("41");
@@ -308,7 +312,9 @@ namespace CanvasDiagramEditor
             sb.AppendLine("70");
             sb.AppendLine("0");
             sb.AppendLine("3");
-            sb.AppendLine("ARIAL");
+            sb.AppendLine("arial.ttf");
+            sb.AppendLine("4");
+            sb.AppendLine("");
             sb.AppendLine("40");
             sb.AppendLine("0");
             sb.AppendLine("41");
@@ -321,6 +327,55 @@ namespace CanvasDiagramEditor
             sb.AppendLine("0");
 
             // end table: text styles
+            sb.AppendLine("0");
+            sb.AppendLine("ENDTAB");
+        }
+
+        private void DxfTableViews(StringBuilder sb)
+        {
+            // begin table: views
+            sb.AppendLine("0");
+            sb.AppendLine("TABLE");
+            sb.AppendLine("2");
+            sb.AppendLine("VIEW");
+            sb.AppendLine("70");
+            sb.AppendLine("1");
+
+            // view: DIAGRAM
+            sb.AppendLine("0");
+            sb.AppendLine("VIEW");
+            sb.AppendLine("2");
+            sb.AppendLine("DIAGRAM");
+            sb.AppendLine("70");
+            sb.AppendLine("0");
+            sb.AppendLine("40");
+            sb.AppendLine("891.0");
+            sb.AppendLine("10");
+            sb.AppendLine("630.0");
+            sb.AppendLine("20");
+            sb.AppendLine("445.5");
+            sb.AppendLine("41");
+            sb.AppendLine("1260.0");
+            sb.AppendLine("11");
+            sb.AppendLine("0");
+            sb.AppendLine("21");
+            sb.AppendLine("0");
+            sb.AppendLine("31");
+            sb.AppendLine("0");
+            sb.AppendLine("12");
+            sb.AppendLine("0");
+            sb.AppendLine("22");
+            sb.AppendLine("0");
+            sb.AppendLine("32");
+            sb.AppendLine("0");
+            sb.AppendLine("43");
+            sb.AppendLine("0");
+            sb.AppendLine("44");
+            sb.AppendLine("0");
+            sb.AppendLine("50");
+            sb.AppendLine("0");
+
+            // end table: views
             sb.AppendLine("0");
             sb.AppendLine("ENDTAB");
         }
@@ -568,7 +623,7 @@ namespace CanvasDiagramEditor
 
             // default value
             sb.AppendLine("1");
-            sb.AppendLine(value);
+            sb.AppendLine(tag);
 
             // tag string
             sb.AppendLine("2");
@@ -576,7 +631,7 @@ namespace CanvasDiagramEditor
 
             // prompt string
             sb.AppendLine("3");
-            sb.AppendLine(value);
+            sb.AppendLine(tag);
 
             // text style
             sb.AppendLine("7");
@@ -1010,9 +1065,12 @@ namespace CanvasDiagramEditor
             sb.AppendLine("2");
             sb.AppendLine("INPUT");
 
+            sb.AppendLine("3");
+            sb.AppendLine("INPUT");
+
             // block type
             sb.AppendLine("70");
-            sb.AppendLine("0");
+            sb.AppendLine("2");
 
             // base point: X
             sb.AppendLine("10");
@@ -1096,9 +1154,12 @@ namespace CanvasDiagramEditor
             sb.AppendLine("2");
             sb.AppendLine("OUTPUT");
 
+            sb.AppendLine("3");
+            sb.AppendLine("OUTPUT");
+
             // block type
             sb.AppendLine("70");
-            sb.AppendLine("0");
+            sb.AppendLine("2");
 
             // base point: X
             sb.AppendLine("10");
@@ -1182,6 +1243,9 @@ namespace CanvasDiagramEditor
             sb.AppendLine("2");
             sb.AppendLine("ANDGATE");
 
+            sb.AppendLine("3");
+            sb.AppendLine("ANDGATE");
+
             // block type
             sb.AppendLine("70");
             sb.AppendLine("0");
@@ -1236,6 +1300,9 @@ namespace CanvasDiagramEditor
 
             // name: ORGATE
             sb.AppendLine("2");
+            sb.AppendLine("ORGATE");
+
+            sb.AppendLine("3");
             sb.AppendLine("ORGATE");
 
             // block type
@@ -1602,7 +1669,7 @@ namespace CanvasDiagramEditor
                 str = GetAttributeString("TAGID", tag.Id.ToString(), LayerIO, x + 288.0, (PageHeight - y), false);
                 sb.AppendLine(str);
 
-                str = GetAttributeString("DESIGNTION", tag.Designation, LayerIO, x + 3.0, (PageHeight - y - 7.5), true);
+                str = GetAttributeString("DESIGNATION", tag.Designation, LayerIO, x + 3.0, (PageHeight - y - 7.5), true);
                 sb.AppendLine(str);
 
                 str = GetAttributeString("DESCRIPTION", tag.Description, LayerIO, x + 3.0, (PageHeight - y - 21.5), true);
@@ -1665,7 +1732,7 @@ namespace CanvasDiagramEditor
                 str = GetAttributeString("TAGID", tag.Id.ToString(), LayerIO, x + 288.0, (PageHeight - y), false);
                 sb.AppendLine(str);
 
-                str = GetAttributeString("DESIGNTION", tag.Designation, LayerIO, x + 3.0, (PageHeight - y - 7.5), true);
+                str = GetAttributeString("DESIGNATION", tag.Designation, LayerIO, x + 3.0, (PageHeight - y - 7.5), true);
                 sb.AppendLine(str);
 
                 str = GetAttributeString("DESCRIPTION", tag.Description, LayerIO, x + 3.0, (PageHeight - y - 21.5), true);
