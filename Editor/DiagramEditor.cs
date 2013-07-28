@@ -1864,7 +1864,7 @@ namespace CanvasDiagramEditor.Editor
 
         public string GenerateDxf(string model, bool shortenStart, bool shortenEnd)
         {
-            var dxf = new Dxf()
+            var dxf = new DxfDiagramCreator()
             {
                 ShortenStart = shortenStart,
                 ShortenEnd = shortenEnd,

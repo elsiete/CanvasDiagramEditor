@@ -8,7 +8,8 @@ using CanvasDiagramEditor.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text; 
+using System.Text;
+using System.Windows;
 
 #endregion
 
@@ -27,11 +28,195 @@ namespace CanvasDiagramEditor
     using TreeProject = Tuple<string, Stack<Stack<string>>>;
     using TreeProjects = Stack<Tuple<string, Stack<Stack<string>>>>;
     using TreeSolution = Tuple<string, string, Stack<Tuple<string, Stack<Stack<string>>>>>;
-    using System.Windows;
 
     #endregion
 
-    public class Dxf : IDiagramCreator
+    #region DxfPoint3
+
+    public class DxfPoint3
+    {
+        public double X { get; private set; }
+        public double Y { get; private set; }
+        public double Z { get; private set; }
+
+        internal DxfPoint3(double x, double y, double z)
+        {
+            X = x;
+            Y = y;
+            Z = z;
+        }
+    } 
+
+    #endregion
+
+    #region DxfEntities
+
+    public static class DxfEntities
+    {
+        #region Circle
+
+        public static string Circle(double Thickness,
+            DxfPoint3 centerPoint,
+            double Radius,
+            DxfPoint3 extrusionDirection,
+            string layer,
+            string color)
+        {
+            var sb = new StringBuilder();
+
+            // line
+            sb.AppendLine("0");
+            sb.AppendLine("CIRCLE");
+
+            // layer
+            if (layer != null)
+            {
+                sb.AppendLine("8");
+                sb.AppendLine(layer);
+            }
+
+            // color
+            if (color != null)
+            {
+                sb.AppendLine("62");
+                sb.AppendLine(color);
+            }
+
+            // thickness 
+            if (Thickness != 0.0)
+            {
+                sb.AppendLine("39");
+                sb.AppendLine(Thickness.ToString());
+            }
+
+            // radius 
+            sb.AppendLine("40");
+            sb.AppendLine(Radius.ToString());
+
+            // center point: X
+            sb.AppendLine("10");
+            sb.AppendLine(centerPoint.X.ToString());
+
+            // center point: Y
+            sb.AppendLine("20");
+            sb.AppendLine(centerPoint.Y.ToString());
+
+            // center point: Z
+            sb.AppendLine("30");
+            if (extrusionDirection != null)
+                sb.Append(centerPoint.Y.ToString());
+            else
+                sb.AppendLine(centerPoint.Y.ToString());
+
+            if (extrusionDirection != null)
+            {
+                // extrusion direction: X
+                sb.AppendLine("210");
+                sb.AppendLine(extrusionDirection.X.ToString());
+
+                // extrusion direction: Y
+                sb.AppendLine("220");
+                sb.AppendLine(extrusionDirection.Y.ToString());
+
+                // extrusion direction: Z
+                sb.AppendLine("230");
+                sb.Append(extrusionDirection.Z.ToString());
+            }
+
+            return sb.ToString();
+        } 
+
+        #endregion
+
+        #region Line
+
+        public static string Line(double Thickness,
+            DxfPoint3 startPoint,
+            DxfPoint3 endPoint,
+            DxfPoint3 extrusionDirection,
+            string layer,
+            string color)
+        {
+            var sb = new StringBuilder();
+
+            // line
+            sb.AppendLine("0");
+            sb.AppendLine("LINE");
+
+            // layer
+            if (layer != null)
+            {
+                sb.AppendLine("8");
+                sb.AppendLine(layer);
+            }
+
+            // color
+            if (color != null)
+            {
+                sb.AppendLine("62");
+                sb.AppendLine(color);
+            }
+
+            // thickness 
+            if (Thickness != 0.0)
+            {
+                sb.AppendLine("39");
+                sb.AppendLine(Thickness.ToString());
+            }
+
+            // start point: X
+            sb.AppendLine("10");
+            sb.AppendLine(startPoint.X.ToString());
+
+            // start point: Y
+            sb.AppendLine("20");
+            sb.AppendLine(startPoint.Y.ToString());
+
+            // start point: Z
+            sb.AppendLine("30");
+            sb.AppendLine(startPoint.Y.ToString());
+
+            // end point: X
+            sb.AppendLine("11");
+            sb.AppendLine(endPoint.X.ToString());
+
+            // end point: Y
+            sb.AppendLine("21");
+            sb.AppendLine(endPoint.Y.ToString());
+
+            // end point: Z
+            sb.AppendLine("31");
+            if (extrusionDirection != null)
+                sb.Append(endPoint.Y.ToString());
+            else
+                sb.AppendLine(endPoint.Y.ToString());
+
+            if (extrusionDirection != null)
+            {
+                // extrusion direction: X
+                sb.AppendLine("210");
+                sb.AppendLine(extrusionDirection.X.ToString());
+
+                // extrusion direction: Y
+                sb.AppendLine("220");
+                sb.AppendLine(extrusionDirection.Y.ToString());
+
+                // extrusion direction: Z
+                sb.AppendLine("230");
+                sb.Append(extrusionDirection.Z.ToString());
+            }
+
+            return sb.ToString();
+        } 
+
+        #endregion
+    }
+
+    #endregion
+
+    #region DxfDiagramCreator
+
+    public class DxfDiagramCreator : IDiagramCreator
     {
         #region Properties
 
@@ -57,10 +242,9 @@ namespace CanvasDiagramEditor
         private string LayerWires = "WIRES";
         private string LayerElements = "ELEMENTS";
 
-        private const double ShortenLineSize = 15.0;
-
-        private double RadiusInvertedEllipse = 4.0;
-        private double ThicknessWire = 1.0;
+        private double ShortenLineSize = 15.0;
+        private double InvertedCircleRadius = 4.0;
+        private double InvertedCircleThickness = 0.0;
 
         #endregion
 
@@ -445,50 +629,34 @@ namespace CanvasDiagramEditor
             string layer, int color, 
             double pageOffsetX, double pageOffsetY)
         {
-            var sb = new StringBuilder();
-
             double _x1 = pageOffsetX > 0.0 ? pageOffsetX - x1 + offsetX : x1 + offsetX;
             double _y1 = pageOffsetY > 0.0 ? pageOffsetY - y1 + offsetY : y1 + offsetY;
             double _x2 = pageOffsetX > 0.0 ? pageOffsetX - x2 + offsetX : x2 + offsetX;
             double _y2 = pageOffsetY > 0.0 ? pageOffsetY - y2 + offsetY : y2 + offsetY;
 
-            // line
-            sb.AppendLine("0");
-            sb.AppendLine("LINE");
+            return DxfEntities.Line(0.0,
+                new DxfPoint3(_x1, _y1, 0.0),
+                new DxfPoint3(_x2, _y2, 0.0),
+                null,
+                layer,
+                color.ToString());
+        }
 
-            // layer
-            sb.AppendLine("8");
-            sb.AppendLine(layer.ToString());
+        public string DxfCircle(double x, double y, 
+            double radius,
+            double offsetX, double offsetY,
+            string layer, int color,
+            double pageOffsetX, double pageOffsetY)
+        {
+            double _x = pageOffsetX > 0.0 ? pageOffsetX - x + offsetX : x + offsetX;
+            double _y = pageOffsetY > 0.0 ? pageOffsetY - y + offsetY : y + offsetY;
 
-            // color
-            sb.AppendLine("62");
-            sb.AppendLine(color.ToString());
-
-            // start point: X
-            sb.AppendLine("10");
-            sb.AppendLine(_x1.ToString());
-
-            // start point: Y
-            sb.AppendLine("20");
-            sb.AppendLine(_y1.ToString());
-
-            // start point: Z (not used)
-            sb.AppendLine("30");
-            sb.AppendLine("0");
-
-            // end point: X
-            sb.AppendLine("11");
-            sb.AppendLine(_x2.ToString());
-
-            // end point: Y
-            sb.AppendLine("21");
-            sb.AppendLine(_y2.ToString());
-
-            // end point: Z (not used)
-            sb.AppendLine("31");
-            sb.Append("0");
-
-            return sb.ToString();
+            return DxfEntities.Circle(0.0,
+                new DxfPoint3(_x, _y, 0.0),
+                radius,
+                null,
+                layer,
+                color.ToString());
         }
 
         private string DxfTextGate(string text)
@@ -716,73 +884,73 @@ namespace CanvasDiagramEditor
 
             // M 0,20 L 600,20 
             str = DxfLine(0.0, 20.0, 600.0, 20.0, 330.0, -15.0, LayerFrame, 0, pageOffsetX, pageOffsetY);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 600,770 L 0,770 
             str = DxfLine(600.0, 770.0, 0.0, 770.0, 330.0, -15.0, LayerFrame, 0, pageOffsetX, pageOffsetY);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 0,770 L 0,0 
             str = DxfLine(0.0, 770.0, 0.0, 0.0, 330.0, -15.0, LayerFrame, 0, pageOffsetX, pageOffsetY);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 600,0 L 600,770
             str = DxfLine(600.0, 0.0, 600.0, 770.0, 330.0, -15.0, LayerFrame, 0, pageOffsetX, pageOffsetY);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 15,15 L 1245,15 
             str = DxfLine(15.0, 15.0, 1245.0, 15.0, 0.0, 0.0, LayerFrame, 0, pageOffsetX, pageOffsetY);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 1245,816 L 15,816
             str = DxfLine(1245.0, 816.0, 15.0, 816.0, 0.0, 0.0, LayerFrame, 0, pageOffsetX, pageOffsetY);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 15,876 L 1245,876
             str = DxfLine(15.0, 876.0, 1245.0, 876.0, 0.0, 0.0, LayerFrame, 0, pageOffsetX, pageOffsetY);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 1245,876 L 1245,15
             str = DxfLine(1245.0, 876.0, 1245.0, 15.0, 0.0, 0.0, LayerFrame, 0, pageOffsetX, pageOffsetY);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 15,15 L 15,876
             str = DxfLine(15.0, 15.0, 15.0, 876.0, 0.0, 0.0, LayerFrame, 0, pageOffsetX, pageOffsetY);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 1,1 L 1259,1 
             str = DxfLine(1.0, 1.0, 1259.0, 1.0, 0.0, 0.0, LayerFrame, 0, pageOffsetX, pageOffsetY);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 1259,890 L 1,890 
             str = DxfLine(1259.0, 890.0, 1.0, 890.0, 0.0, 0.0, LayerFrame, 0, pageOffsetX, pageOffsetY);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 1,890 L 1,1 
             str = DxfLine(1.0, 890.0, 1.0, 1.0, 0.0, 0.0, LayerFrame, 0, pageOffsetX, pageOffsetY);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 1259,1 L 1259,890
             str = DxfLine(1259.0, 1.0, 1259.0, 890.0, 0.0, 0.0, LayerFrame, 0, pageOffsetX, pageOffsetY);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // inputs
 
             // M 30,0 L 30,750 
             str = DxfLine(30.0, 0.0, 30.0, 750.0, 15.0, -35.0, LayerFrame, 0, pageOffsetX, pageOffsetY);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 240,750 L 240,0
             str = DxfLine(240.0, 750.0, 240.0, 0.0, 15.0, -35.0, LayerFrame, 0, pageOffsetX, pageOffsetY);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 315,0 L 0,0
             str = DxfLine(315.0, 0.0, 0.0, 0.0, 15.0, -35.0, LayerFrame, 0, pageOffsetX, pageOffsetY);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 0,750 L 315,750
             str = DxfLine(0.0, 750.0, 315.0, 750.0, 15.0, -35.0, LayerFrame, 0, pageOffsetX, pageOffsetY);
-            sb.AppendLine(str);
+            sb.Append(str);
          
             // M 0,30 L 315,30 
             // M 315,60 L 0,60 
@@ -811,26 +979,26 @@ namespace CanvasDiagramEditor
             for (double y = 30.0; y <= 720.0; y += 30.0)
             {
                 str = DxfLine(0.0, y, 315.0, y, 15.0, -35.0, LayerFrame, 0, pageOffsetX, pageOffsetY);
-                sb.AppendLine(str);
+                sb.Append(str);
             }
 
             // outputs
 
             // M 210,0 L 210,750
             str = DxfLine(210.0, 0.0, 210.0, 750.0, 930.0, -35.0, LayerFrame, 0, pageOffsetX, pageOffsetY);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 285,750 L 285,0
             str = DxfLine(285.0, 750.0, 285.0, 0.0, 930.0, -35.0, LayerFrame, 0, pageOffsetX, pageOffsetY);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 315,0 L 0,0 
             str = DxfLine(315.0, 0.0, 0.0, 0.0, 930.0, -35.0, LayerFrame, 0, pageOffsetX, pageOffsetY);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 0,750 L 315,750
             str = DxfLine(0.0, 750.0, 315.0, 750.0, 930.0, -35.0, LayerFrame, 0, pageOffsetX, pageOffsetY);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 0,30 L 315,30 
             // M 315,60 L 0,60 
@@ -859,7 +1027,7 @@ namespace CanvasDiagramEditor
             for (double y = 30.0; y <= 720.0; y += 30.0)
             {
                 str = DxfLine(0.0, y, 315.0, y, 930.0, -35.0, LayerFrame, 0, pageOffsetX, pageOffsetY);
-                sb.AppendLine(str);
+                sb.Append(str);
             }
 
 
@@ -914,87 +1082,87 @@ namespace CanvasDiagramEditor
 
             // M 0,15 L 175,15 
             str = DxfLine(0.0, 15.0, 175.0, 15.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 405,15 L 1230,15 
             str = DxfLine(405.0, 15.0, 1230.0, 15.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 1230,30 L 965,30 
             str = DxfLine(1230.0, 30.0, 965.0, 30.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 695,30 L 405,30 
             str = DxfLine(695.0, 30.0, 405.0, 30.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 175,30, 0,30 
             str = DxfLine(175.0, 30.0, 0.0, 30.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 0,45 L 175,45 
             str = DxfLine(0.0, 45.0, 175.0, 45.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 405,45 L 695,45
             str = DxfLine(405.0, 45.0, 695.0, 45.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 965,45 L 1230,45
             str = DxfLine(965.0, 45.0, 1230.0, 45.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 30,0 L 30,60 
             str = DxfLine(30.0, 0.0, 30.0, 60.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 75,0 L 75,60 
             str = DxfLine(75.0, 0.0, 75.0, 60.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 175,60 L 175,0 
             str = DxfLine(175.0, 60.0, 175.0, 0.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 290,0 L 290,60 
             str = DxfLine(290.0, 0.0, 290.0, 60.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 405,60 L 405,0 
             str = DxfLine(405.0, 60.0, 405.0, 0.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 465,0 L 465,60 
             str = DxfLine(465.0, 0.0, 465.0, 60.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 605,60 L 605,0 
             str = DxfLine(605.0, 60.0, 605.0, 0.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 650,0 L 650,60 
             str = DxfLine(650.0, 0.0, 650.0, 60.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 695,60 L 695,0 
             str = DxfLine(695.0, 60.0, 695.0, 0.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 965,0 L 965,60 
             str = DxfLine(965.0, 0.0, 965.0, 60.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 1005,60 L 1005,0 
             str = DxfLine(1005.0, 60.0, 1005.0, 0.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 1045,0 L 1045,60 
             str = DxfLine(1045.0, 0.0, 1045.0, 60.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 1100,60 L 1100,0
             str = DxfLine(1100.0, 60.0, 1100.0, 0.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY);
-            sb.AppendLine(str);
+            sb.Append(str);
 
 
             // TODO: text
@@ -1086,23 +1254,23 @@ namespace CanvasDiagramEditor
 
             // M 0,0 L 285,0 
             str = DxfLine(0.0, 0.0, 285.0, 0.0, 0.0, 0.0, LayerIO, 0, 0.0, 30.0);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 285,30 L 0,30
             str = DxfLine(285.0, 30.0, 0.0, 30.0, 0.0, 0.0, LayerIO, 0, 0.0, 30.0);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 0,30  L 0,0 
             str = DxfLine(0.0, 30.0, 0.0, 0.0, 0.0, 0.0, LayerIO, 0, 0.0, 30.0);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 210,0 L 210,30 
             str = DxfLine(210.0, 0.0, 210.0, 30.0, 0.0, 0.0, LayerIO, 0, 0.0, 30.0);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 285,30 L 285,0
             str = DxfLine(285.0, 30.0, 285.0, 0.0, 0.0, 0.0, LayerIO, 0, 0.0, 30.0);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // tag text
             /*
@@ -1175,23 +1343,23 @@ namespace CanvasDiagramEditor
 
             // M 0,0 L 285,0 
             str = DxfLine(0.0, 0.0, 285.0, 0.0, 0.0, 0.0, LayerIO, 0, 0.0, 30.0);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 285,30 L 0,30
             str = DxfLine(285.0, 30.0, 0.0, 30.0, 0.0, 0.0, LayerIO, 0, 0.0, 30.0);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 0,30  L 0,0 
             str = DxfLine(0.0, 30.0, 0.0, 0.0, 0.0, 0.0, LayerIO, 0, 0.0, 30.0);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 210,0 L 210,30 
             str = DxfLine(210.0, 0.0, 210.0, 30.0, 0.0, 0.0, LayerIO, 0, 0.0, 30.0);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 285,30 L 285,0
             str = DxfLine(285.0, 30.0, 285.0, 0.0, 0.0, 0.0, LayerIO, 0, 0.0, 30.0);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // tag text
             /*
@@ -1264,19 +1432,19 @@ namespace CanvasDiagramEditor
 
             // M 0,0 L 30,0
             str = DxfLine(0.0, 0.0, 30.0, 0.0, 0.0, 0.0, LayerElements, 0, 0.0, 30.0);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 0,30 L 30,30
             str = DxfLine(0.0, 30.0, 30.0, 30.0, 0.0, 0.0, LayerElements, 0, 0.0, 30.0);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 0,0 L 0,30
             str = DxfLine(0.0, 0.0, 0.0, 30.0, 0.0, 0.0, LayerElements, 0, 0.0, 30.0);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 30,0 L 30,30
             str = DxfLine(30.0, 0.0, 30.0, 30.0, 0.0, 0.0, LayerElements, 0, 0.0, 30.0);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // gate text
             str = DxfTextGate("&");
@@ -1323,19 +1491,19 @@ namespace CanvasDiagramEditor
 
             // M 0,0 L 30,0
             str = DxfLine(0.0, 0.0, 30.0, 0.0, 0.0, 0.0, LayerElements, 0, 0.0, 30.0);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 0,30 L 30,30
             str = DxfLine(0.0, 30.0, 30.0, 30.0, 0.0, 0.0, LayerElements, 0, 0.0, 30.0);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 0,0 L 0,30
             str = DxfLine(0.0, 0.0, 0.0, 30.0, 0.0, 0.0, LayerElements, 0, 0.0, 30.0);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // M 30,0 L 30,30
             str = DxfLine(30.0, 0.0, 30.0, 30.0, 0.0, 0.0, LayerElements, 0, 0.0, 30.0);
-            sb.AppendLine(str);
+            sb.Append(str);
 
             // gate text
             str = DxfTextGate("\\U+22651");
@@ -1569,8 +1737,8 @@ namespace CanvasDiagramEditor
             double endY = y2;
 
             double zet = LineCalc.CalculateZet(startX, startY, endX, endY);
-            double sizeX = LineCalc.CalculateSizeX(RadiusInvertedEllipse, ThicknessWire, zet);
-            double sizeY = LineCalc.CalculateSizeY(RadiusInvertedEllipse, ThicknessWire, zet);
+            double sizeX = LineCalc.CalculateSizeX(InvertedCircleRadius, InvertedCircleThickness, zet);
+            double sizeY = LineCalc.CalculateSizeY(InvertedCircleRadius, InvertedCircleThickness, zet);
 
             bool shortenStart = ShortenStart;
             bool shortenEnd = ShortenEnd;
@@ -1605,14 +1773,26 @@ namespace CanvasDiagramEditor
 
             if (startVisible == true)
             {
-                // TODO:
-                // ELLIPSE: ellipseStartCenter, radius, radius
+                str = DxfCircle(ellipseStartCenter.X, ellipseStartCenter.Y, 
+                    InvertedCircleRadius,
+                    0.0, 0.0, 
+                    LayerWires, 
+                    0, 
+                    0.0, 891.0);
+
+                DxfString.Append(str);
             }
 
             if (endVisible == true)
             {
-                // TODO:
-                // ELLIPSE: ellipseEndCenter, radius, radius
+                str = DxfCircle(ellipseEndCenter.X, ellipseEndCenter.Y,
+                    InvertedCircleRadius,
+                    0.0, 0.0,
+                    LayerWires,
+                    0,
+                    0.0, 891.0);
+
+                DxfString.Append(str);
             }
 
             str = DxfLine(lineStart.X, lineStart.Y,
@@ -1622,7 +1802,7 @@ namespace CanvasDiagramEditor
                 0,
                 0.0, 891.0);
 
-            DxfString.AppendLine(str);
+            DxfString.Append(str);
 
             return null;
         }
@@ -1954,4 +2134,6 @@ namespace CanvasDiagramEditor
 
         #endregion
     }
+
+    #endregion
 }

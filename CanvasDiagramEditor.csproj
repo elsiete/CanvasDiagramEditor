@@ -55,7 +55,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Dxf.cs" />
+    <Compile Include="DxfDiagramCreator.cs" />
     <Compile Include="Editor\DiagramEditor.cs" />
     <Compile Include="Editor\DiagramEditorOptions.cs" />
     <Compile Include="Parser\LineCalc.cs" />
