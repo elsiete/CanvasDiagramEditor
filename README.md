@@ -9,7 +9,7 @@
 
 ## Example
 
-  For example below you can find produced by editor sample solution - all done using GUI:
+  For example below you can find produced by editor sample solution model - all done using GUI:
 
     +;Solution|0;
     +;Project|0
@@ -31,6 +31,8 @@
         +;Wire|1;495;290;495;395;False;False;False;False
         +;Wire|2;330;410;480;410;False;False;True;False
         +;Wire|3;510;410;930;410;False;False;False;True
+
+  in result program produces the following diagram: <a href="http://tinypic.com?ref=11vsdud" target="_blank"><img src="http://i40.tinypic.com/11vsdud.jpg" border="0" alt="Image and video hosting by TinyPic"></a>
 
 ## Main functions
 
