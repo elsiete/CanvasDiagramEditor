@@ -8,11 +8,11 @@ using System.Windows;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("CanvasDiagramEditor")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Logic diagram editor written in WPF using Canvas panel.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("CanvasDiagramEditor")]
-[assembly: AssemblyCopyright("Copyright © Wieslaw Soltes 2013")]
+[assembly: AssemblyProduct("Canvas Diagram Editor")]
+[assembly: AssemblyCopyright("Copyright © Wiesław Šoltés 2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
