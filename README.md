@@ -9,7 +9,7 @@
 
 ## Example
 
-  For example below you can find produced by editor sample solution (all done in GUI):
+  For example below you can find produced by editor sample solution - all done using GUI:
 
     +;Solution|0;
     +;Project|0
@@ -38,42 +38,48 @@
   
   Basic functionality includes:
 
-        Create new solution
-        Create new and Delete project
-        Create new and Delete diagrams
-        Load and Save solutions
-        Load and Save diagrams
-        Load/Save tags
-        Import/Export tags
-        Export diagram to .DXF format (compatible with many CAD applications)
-        Print solution
-        Import model
-        Undo and Redo any changes individually for each diagram
-        Cut/Copy/Paste and Delete elements
-        Select All and None elements
-        Edit and Create New tags using built-in Tag Editor
-        Keyboard shortcuts
-        Zoom In and Out using mouse wheel
+    Create new solutions
+    Create new and delete projects
+    Create new and delete diagrams
+    Load and save solutions
+    Load and save diagrams
+    Load and save tags
+    Import and export tags
+    Export diagrams to .DXF file format (compatible with CAD applications)
+    Print solutions
+    Import models
+    Undo and redo any change made (individually for each diagram)
+    Cut, copy, paste and delete any elements
+    Select all and none elements
+    Edit and create new tags using built-in Tag Editor
+    Use program with Keyboard shortcuts
+    Zoom in and out using mouse wheel
+    Pan using mouse middle button
+    Create new elements using mouse right click (Context Menu)
+    Select any element(s) using selection rectable (mouse left click)
+    Mode element single element or all selected elements using mouse or arrow keys
 
   Currently supported logic elements:
 
-        Wire
-        AND Gate
-        OR Gate
-        Input Signal
-        Output Signal
+    Wire
+    AND Gate
+    OR Gate
+    Input Signal
+    Output Signal
 
-  All Input and Output signals can be associated with external Tags.
-  Tag contains simple text metadata.
+  Input and output signals can be associated with external Tags.
   
-  Data model is based on simple text syntax. You can cut & paste form clipboard parts of diagrams
-  or you entire diagrams. You can select part of diagram and generate model from selection.
+  Tag contains simple text metadata. You can create tag files in spreadsheet program and 
+  import them to editor or using built-in Tag Editor.
+  
+  Data model is based on very simple text syntax. You can cut & paste form clipboard any parts 
+  of diagrams or even entire diagrams. You can select part of diagram and generate model from selection.
 
 ## Build
 
- CanvasDiagramEditor is built in Microsoft Visual Studio Express 2012 for Windows Desktop. 
+  CanvasDiagramEditor is built with Microsoft Visual Studio Express 2012 for Windows Desktop. 
  
- To run CanvasDiagramEditor you need to have installed Microsoft .NET version 3.5.
+  To run CanvasDiagramEditor you need to have installed Microsoft .NET version 3.5.
 
 ## License 
 
