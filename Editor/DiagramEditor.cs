@@ -1702,7 +1702,8 @@ namespace CanvasDiagramEditor.Editor
             {
                 ShortenStart = shortenStart,
                 ShortenEnd = shortenEnd,
-                DiagramProperties  = CurrentOptions.CurrentProperties
+                DiagramProperties  = CurrentOptions.CurrentProperties,
+                Tags = CurrentOptions.Tags
             };
 
             return dxf.GenerateDxfFromModel(model);
