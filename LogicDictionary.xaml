@@ -1,4 +1,7 @@
-﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+﻿<!-- Copyright (C) Wiesław Šoltés 2013. -->
+<!-- All Rights Reserved -->
+    
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:local="clr-namespace:CanvasDiagramEditor"
                     xmlns:controls="clr-namespace:CanvasDiagramEditor.Controls"

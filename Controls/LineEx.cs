@@ -1,5 +1,9 @@
-﻿#region References
+﻿// Copyright (C) Wiesław Šoltés 2013. 
+// All Rights Reserved
 
+#region References
+
+using CanvasDiagramEditor.Parser;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,117 +16,6 @@ using System.Windows.Shapes;
 
 namespace CanvasDiagramEditor.Controls
 {
-    #region LineExCalc
-
-    public static class LineExCalc
-    {
-        #region Calculate Size
-
-        public static double CalculateZet(double startX, double startY, double endX, double endY)
-        {
-            double alpha = Math.Atan2(startY - endY, endX - startX);
-            double theta = Math.PI - alpha;
-            double zet = theta - Math.PI / 2;
-            return zet;
-        }
-
-        public static double CalculateSizeX(double radius, double thickness, double zet)
-        {
-            double sizeX = Math.Sin(zet) * (radius + thickness);
-            return sizeX;
-        }
-
-        public static double CalculateSizeY(double radius, double thickness, double zet)
-        {
-            double sizeY = Math.Cos(zet) * (radius + thickness);
-            return sizeY;
-        }
-
-        #endregion
-
-        #region Get Points
-
-        public static Point GetLineStart(double startX, double startY, double sizeX, double sizeY, bool isStartVisible)
-        {
-            Point lineStart;
-
-            if (isStartVisible)
-            {
-                double lx = startX + (2 * sizeX);
-                double ly = startY - (2 * sizeY);
-
-                lineStart = new Point(lx, ly);
-            }
-            else
-            {
-                lineStart = new Point(startX, startY);
-            }
-
-            return lineStart;
-        }
-
-        public static Point GetLineEnd(double endX, double endY, double sizeX, double sizeY, bool isEndVisible)
-        {
-            Point lineEnd;
-
-            if (isEndVisible)
-            {
-                double lx = endX - (2 * sizeX);
-                double ly = endY + (2 * sizeY);
-
-                lineEnd = new Point(lx, ly);
-            }
-            else
-            {
-                lineEnd = new Point(endX, endY);
-            }
-
-            return lineEnd;
-        }
-
-        public static Point GetEllipseStartCenter(double startX, double startY, double sizeX, double sizeY, bool isStartVisible)
-        {
-            Point ellipseStartCenter;
-
-            if (isStartVisible)
-            {
-                double ex = startX + sizeX;
-                double ey = startY - sizeY;
-
-                ellipseStartCenter = new Point(ex, ey);
-            }
-            else
-            {
-                ellipseStartCenter = new Point(startX, startY);
-            }
-
-            return ellipseStartCenter;
-        }
-
-        public static Point GetEllipseEndCenter(double endX, double endY, double sizeX, double sizeY, bool isEndVisible)
-        {
-            Point ellipseEndCenter;
-
-            if (isEndVisible)
-            {
-                double ex = endX - sizeX;
-                double ey = endY + sizeY;
-
-                ellipseEndCenter = new Point(ex, ey);
-            }
-            else
-            {
-                ellipseEndCenter = new Point(endX, endY);
-            }
-
-            return ellipseEndCenter;
-        }
-
-        #endregion
-    } 
-
-    #endregion
-
     #region LineEx
 
     public class LineEx : Shape
@@ -286,9 +179,9 @@ namespace CanvasDiagramEditor.Controls
             double endX = X2;
             double endY = Y2;
 
-            double zet = LineExCalc.CalculateZet(startX, startY, endX, endY);
-            double sizeX = LineExCalc.CalculateSizeX(radius, thickness, zet);
-            double sizeY = LineExCalc.CalculateSizeY(radius, thickness, zet);
+            double zet = LineCalc.CalculateZet(startX, startY, endX, endY);
+            double sizeX = LineCalc.CalculateSizeX(radius, thickness, zet);
+            double sizeY = LineCalc.CalculateSizeY(radius, thickness, zet);
 
             bool shortenStart = GetShortenStart(this);
             bool shortenEnd = GetShortenEnd(this);
@@ -314,12 +207,12 @@ namespace CanvasDiagramEditor.Controls
             }
 
             // get start and end ellipse position
-            Point ellipseStartCenter = LineExCalc.GetEllipseStartCenter(startX, startY, sizeX, sizeY, isStartVisible);
-            Point ellipseEndCenter = LineExCalc.GetEllipseEndCenter(endX, endY, sizeX, sizeY, isEndVisible);
+            Point ellipseStartCenter = LineCalc.GetEllipseStartCenter(startX, startY, sizeX, sizeY, isStartVisible);
+            Point ellipseEndCenter = LineCalc.GetEllipseEndCenter(endX, endY, sizeX, sizeY, isEndVisible);
 
             // get line position
-            Point lineStart = LineExCalc.GetLineStart(startX, startY, sizeX, sizeY, isStartVisible);
-            Point lineEnd = LineExCalc.GetLineEnd(endX, endY, sizeX, sizeY, isEndVisible);
+            Point lineStart = LineCalc.GetLineStart(startX, startY, sizeX, sizeY, isStartVisible);
+            Point lineEnd = LineCalc.GetLineEnd(endX, endY, sizeX, sizeY, isEndVisible);
 
             var g = new GeometryGroup() { FillRule = FillRule.Nonzero };
 

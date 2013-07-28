@@ -1,4 +1,7 @@
-﻿#region References
+﻿// Copyright (C) Wiesław Šoltés 2013. 
+// All Rights Reserved
+
+#region References
 
 using CanvasDiagramEditor.Parser;
 using CanvasDiagramEditor.Util;
@@ -32,6 +35,9 @@ namespace CanvasDiagramEditor.Editor
     using TreeProjects = Stack<Tuple<string, Stack<Stack<string>>>>;
     using TreeSolution = Tuple<string, string, Stack<Tuple<string, Stack<Stack<string>>>>>;
 
+    using Connection = Tuple<FrameworkElement, List<Tuple<object, object, object>>>;
+    using Connections = List<Tuple<FrameworkElement, List<Tuple<object, object, object>>>>;
+    
     #endregion
 
     #region DiagramEditor
@@ -701,47 +707,102 @@ namespace CanvasDiagramEditor.Editor
 
                 foreach (var tuple in tuples)
                 {
-                    var line = tuple.Item1 as LineEx;
-                    var start = tuple.Item2;
-                    var end = tuple.Item3;
-
-                    if (start != null)
-                    {
-                        var margin = line.Margin;
-                        double left = margin.Left;
-                        double top = margin.Top;
-                        double x = 0.0;
-                        double y = 0.0;
-
-                        //line.X1 = SnapOffsetX(line.X1 + dX, snap);
-                        //line.Y1 = SnapOffsetY(line.Y1 + dY, snap);
-
-                        x = SnapOffsetX(left + dX, snap);
-                        y = SnapOffsetY(top + dY, snap);
-
-                        if (left != x || top != y)
-                        {
-                            line.X2 += left - x;
-                            line.Y2 += top - y;
-                            line.Margin = new Thickness(x, y, 0, 0);
-                        }
-                    }
-
-                    if (end != null)
-                    {
-                        double left = line.X2;
-                        double top = line.Y2;
-                        double x = 0.0;
-                        double y = 0.0;
-
-                        x = SnapX(left + dX, snap);
-                        y = SnapY(top + dY, snap);
-
-                        line.X2 = x;
-                        line.Y2 = y;
-                    }
+                    MoveLine(dX, dY, snap, tuple);
                 }
             }
+        }
+
+        private void MoveLine(double dX, double dY, bool snap, MapWire tuple)
+        {
+            var line = tuple.Item1 as LineEx;
+            var start = tuple.Item2;
+            var end = tuple.Item3;
+
+            if (start != null)
+            {
+                var margin = line.Margin;
+                double left = margin.Left;
+                double top = margin.Top;
+                double x = 0.0;
+                double y = 0.0;
+
+                //line.X1 = SnapOffsetX(line.X1 + dX, snap);
+                //line.Y1 = SnapOffsetY(line.Y1 + dY, snap);
+
+                x = SnapOffsetX(left + dX, snap);
+                y = SnapOffsetY(top + dY, snap);
+
+                if (left != x || top != y)
+                {
+                    line.X2 += left - x;
+                    line.Y2 += top - y;
+                    line.Margin = new Thickness(x, y, 0, 0);
+                }
+            }
+
+            if (end != null)
+            {
+                double left = line.X2;
+                double top = line.Y2;
+                double x = 0.0;
+                double y = 0.0;
+
+                x = SnapX(left + dX, snap);
+                y = SnapY(top + dY, snap);
+
+                line.X2 = x;
+                line.Y2 = y;
+            }
+        }
+
+        private Tuple<Point?, Point?> GetLineExStartAndEnd(MapWire map1, MapWire map2)
+        {
+            var line1 = map1.Item1 as LineEx;
+            var start1 = map1.Item2;
+            var end1 = map1.Item3;
+
+            var line2 = map2.Item1 as LineEx;
+            var start2 = map2.Item2;
+            var end2 = map2.Item3;
+
+            Point? startPoint = null;
+            Point? endPoint = null;
+
+            if (start1 != null)
+            {
+                var margin = line1.Margin;
+                double left = margin.Left;
+                double top = margin.Top;
+
+                startPoint = new Point(left, top);
+            }
+
+            if (end1 != null)
+            {
+                double left = line1.X2;
+                double top = line1.Y2;
+
+                endPoint = new Point(left, top);
+            }
+
+            if (start2 != null)
+            {
+                var margin = line2.Margin;
+                double left = margin.Left;
+                double top = margin.Top;
+
+                startPoint = new Point(left, top);
+            }
+
+            if (end2 != null)
+            {
+                double left = line2.X2;
+                double top = line2.Y2;
+
+                endPoint = new Point(left, top);
+            }
+
+            return new Tuple<Point?, Point?>(startPoint, endPoint);
         }
 
         public void MoveSelectedElements(Canvas canvas, double dX, double dY, bool snap)
@@ -1070,12 +1131,12 @@ namespace CanvasDiagramEditor.Editor
             if (pin == null)
                 return;
 
-            var root =
+            var parentRoot =
                 (
                     (pin.Parent as FrameworkElement).Parent as FrameworkElement
                 ).TemplatedParent as FrameworkElement;
 
-            CurrentOptions.CurrentRoot = root;
+            CurrentOptions.CurrentRoot = parentRoot;
 
             //System.Diagnostics.Debug.Print("ConnectPins, pin: {0}, {1}", pin.GetType(), pin.Name);
 
@@ -1150,6 +1211,102 @@ namespace CanvasDiagramEditor.Editor
             }
 
             return result;
+        }
+
+        private bool SplitWire(Canvas canvas, LineEx line, ref Point point)
+        {
+            if (CurrentOptions.CurrentLine == null)
+                AddToHistory(canvas);
+
+            // create split pin
+            var splitPin = InsertPin(canvas, point);
+            CurrentOptions.CurrentRoot = splitPin;
+
+            // connect current line to split pin
+            double x = Canvas.GetLeft(CurrentOptions.CurrentRoot);
+            double y = Canvas.GetTop(CurrentOptions.CurrentRoot);
+            CreatePinConnection(canvas, x, y);
+
+            // remove original hit tested line
+            canvas.Children.Remove(line);
+
+            // remove wire connections
+            var connections = RemoveWireConnections(canvas, line);
+
+            // connected original root element to split pin
+            if (connections != null && connections.Count == 2)
+            {
+                var c1 = connections[0];
+                var c2 = connections[1];
+
+                System.Diagnostics.Debug.Print("c1: {0}", c1.Item1.Uid);
+                System.Diagnostics.Debug.Print("c2: {0}", c2.Item1.Uid);
+
+                var map1 = c1.Item2.FirstOrDefault();
+                var map2 = c2.Item2.FirstOrDefault();
+
+                var startRoot = (map1.Item2 != null ? map1.Item2 : map2.Item2) as FrameworkElement;
+                var endRoot = (map1.Item3 != null ? map1.Item3 : map2.Item3) as FrameworkElement;
+
+                System.Diagnostics.Debug.Print("startRoot: {0}", startRoot.Uid);
+                System.Diagnostics.Debug.Print("endRoot: {0}", endRoot.Uid);
+
+                var location = GetLineExStartAndEnd(map1, map2);
+
+                if (location.Item1.HasValue && location.Item2.HasValue)
+                {
+                    Point start = location.Item1.Value;
+                    Point end = location.Item2.Value;
+
+                    System.Diagnostics.Debug.Print("start: {0}", start);
+                    System.Diagnostics.Debug.Print("end: {0}", end);
+
+                    double x1 = start.X;
+                    double y1 = start.Y;
+                    double x2 = x1 + end.X;
+                    double y2 = y1 + end.Y;
+
+                    System.Diagnostics.Debug.Print("x1,y1: {0},{1}", x1, y1);
+                    System.Diagnostics.Debug.Print("x2,y2: {0},{1}", x2, y2);
+
+                    bool isStartVisible = line.IsStartVisible;
+                    bool isEndVisible = line.IsEndVisible;
+                    bool isStartIO = line.IsStartIO;
+                    bool isEndIO = line.IsEndIO;
+
+                    CurrentOptions.CurrentRoot = startRoot;
+                    var startLine = CreatePinConnection(canvas, x1, y1);
+
+                    CurrentOptions.CurrentRoot = splitPin;
+                    CreatePinConnection(canvas, x, y);
+
+                    CurrentOptions.CurrentRoot = splitPin;
+                    var endLine = CreatePinConnection(canvas, x, y);
+
+                    CurrentOptions.CurrentRoot = endRoot;
+                    CreatePinConnection(canvas, x2, y2);
+
+                    // restore orignal line flags
+                    System.Diagnostics.Debug.Print("startLine: {0}", startLine.Uid);
+                    System.Diagnostics.Debug.Print("endLine: {0}", endLine.Uid);
+
+                    startLine.IsStartVisible = isStartVisible;
+                    startLine.IsStartIO = isStartIO;
+
+                    endLine.IsEndVisible = isEndVisible;
+                    endLine.IsEndIO = isEndIO;
+                }
+                else
+                {
+                    throw new InvalidOperationException("LineEx should have corrent location info for Start and End.");
+                }
+            }
+            else
+            {
+                throw new InvalidOperationException("LineEx should have only two connections: Start and End.");
+            }
+
+            return true;
         }
 
         #endregion
@@ -1231,7 +1388,7 @@ namespace CanvasDiagramEditor.Editor
 
         private void DeleteElement(Canvas canvas, Point point)
         {
-            var element = HitTest(canvas, ref point);
+            var element = HitTest(canvas, ref point).FirstOrDefault() as FrameworkElement;
             if (element == null)
                 return;
 
@@ -1258,7 +1415,7 @@ namespace CanvasDiagramEditor.Editor
             }
         }
 
-        public FrameworkElement HitTest(Canvas canvas, ref Point point)
+        public IEnumerable<FrameworkElement> HitTest(Canvas canvas, ref Point point)
         {
             var selectedElements = new List<DependencyObject>();
 
@@ -1285,7 +1442,7 @@ namespace CanvasDiagramEditor.Editor
 
             VisualTreeHelper.HitTest(canvas, filterCallback, resultCallback, hitTestParams);
 
-            return selectedElements.FirstOrDefault() as FrameworkElement;
+            return selectedElements.Cast<FrameworkElement>();
         }
 
         public IEnumerable<FrameworkElement> HitTest(Canvas canvas, ref Rect rect)
@@ -1317,10 +1474,13 @@ namespace CanvasDiagramEditor.Editor
         {
             canvas.Children.Remove(line);
 
-            // remove wire connections
             RemoveWireConnections(canvas, line);
 
-            // find empty pins
+            DeleteEmptyPins(canvas);
+        }
+
+        private static void DeleteEmptyPins(Canvas canvas)
+        {
             var pins = FindEmptyPins(canvas);
 
             // remove empty pins
@@ -1363,18 +1523,20 @@ namespace CanvasDiagramEditor.Editor
             return pins;
         }
 
-        private static void RemoveWireConnections(Canvas canvas, LineEx line)
+        private static Connections RemoveWireConnections(Canvas canvas, LineEx line)
         {
+            var connections = new Connections();
+
             foreach (var child in canvas.Children)
             {
-                var _element = child as FrameworkElement;
+                var element = child as FrameworkElement;
 
-                if (_element.Tag != null)
+                if (element.Tag != null)
                 {
-                    var selection = _element.Tag as Selection;
+                    var selection = element.Tag as Selection;
                     var tuples = selection.Item2;
 
-                    var remove = new List<MapWire>();
+                    var map = new List<MapWire>();
 
                     foreach (var tuple in tuples)
                     {
@@ -1382,16 +1544,23 @@ namespace CanvasDiagramEditor.Editor
 
                         if (StringUtil.Compare(_line.Uid, line.Uid))
                         {
-                            remove.Add(tuple);
+                            map.Add(tuple);
                         }
                     }
 
-                    foreach (var tuple in remove)
+                    if (map.Count > 0)
+                    {
+                        connections.Add(new Connection(element, map));
+                    }
+
+                    foreach (var tuple in map)
                     {
                         tuples.Remove(tuple);
                     }
                 }
             }
+
+            return connections;
         }
 
         public void Delete(Canvas canvas, Point point)
@@ -1409,7 +1578,7 @@ namespace CanvasDiagramEditor.Editor
 
         public LineEx FindLineEx(Canvas canvas, Point point)
         {
-            var element = HitTest(canvas, ref point);
+            var element = HitTest(canvas, ref point).FirstOrDefault() as FrameworkElement;
             if (element == null)
                 return null;
 
@@ -1691,6 +1860,58 @@ namespace CanvasDiagramEditor.Editor
 
         #endregion
 
+        #region Export
+
+        public string GenerateDxf(string model, bool shortenStart, bool shortenEnd)
+        {
+            var dxf = new DxfDiagramCreator()
+            {
+                ShortenStart = shortenStart,
+                ShortenEnd = shortenEnd,
+                DiagramProperties  = CurrentOptions.CurrentProperties,
+                Tags = CurrentOptions.Tags
+            };
+
+            return dxf.GenerateDxfFromModel(model);
+        }
+
+        private void SaveDxf(string fileName, string model)
+        {
+            using (var writer = new System.IO.StreamWriter(fileName))
+            {
+                writer.Write(model);
+            }
+        }
+
+        private void ExportDiagramToDxf(string fileName, Canvas canvas, bool shortenStart, bool shortenEnd)
+        {
+            string model = GenerateDiagramModel(canvas, null);
+
+            string dxf = GenerateDxf(model, shortenStart, shortenEnd);
+
+            SaveDxf(fileName, dxf);
+        }
+
+        public void ExportToDxf(bool shortenStart, bool shortenEnd)
+        {
+            var dlg = new Microsoft.Win32.SaveFileDialog()
+            {
+                Filter = "Dxf (*.dxf)|*.dxf|All Files (*.*)|*.*",
+                Title = "Export Diagram to Dxf",
+                FileName = "diagram"
+            };
+
+            var res = dlg.ShowDialog();
+            if (res == true)
+            {
+                var canvas = CurrentOptions.CurrentCanvas;
+
+                this.ExportDiagramToDxf(dlg.FileName, canvas, shortenStart, shortenEnd);
+            }
+        }
+
+        #endregion
+
         #region Edit
 
         public void Cut()
@@ -1921,11 +2142,45 @@ namespace CanvasDiagramEditor.Editor
 
         public bool HandlePreviewLeftDown(Canvas canvas, Point point, FrameworkElement pin)
         {
-            if (CurrentOptions.CurrentRoot == null &&
+            if (pin != null &&
+                (!StringUtil.Compare(pin.Name, ResourceConstants.StandalonePinName) 
+                || Keyboard.Modifiers == ModifierKeys.Control))
+            {
+                if (CurrentOptions.CurrentLine == null)
+                    AddToHistory(canvas);
+
+                CreatePinConnection(canvas, pin);
+
+                return true;
+            }
+            else
+            {
+                if (CurrentOptions.CurrentLine == null)
+                {
+                    return false;
+                }
+
+                var element = HitTest(canvas, ref point)
+                    .Where(x => StringUtil.Compare(CurrentOptions.CurrentLine.Uid, x.Uid) == false)
+                    .FirstOrDefault() as FrameworkElement;
+
+                System.Diagnostics.Debug.Print("Split wire: {0}", element == null ? "<null>" : element.Uid);
+
+                if (element != null && 
+                    CurrentOptions.CurrentLine != null &&
+                    CurrentOptions.CurrentRoot != null &&
+                    StringUtil.Compare(CurrentOptions.CurrentLine.Uid, element.Uid) == false &&
+                    StringUtil.StartsWith(element.Uid, ModelConstants.TagElementWire) == true)
+                {
+                    return SplitWire(canvas, element as LineEx,  ref point);
+                }
+            }
+
+            if (CurrentOptions.CurrentRoot == null && 
                 CurrentOptions.CurrentLine == null &&
                 Keyboard.Modifiers != ModifierKeys.Control)
             {
-                var element = HitTest(canvas, ref point);
+                var element = HitTest(canvas, ref point).FirstOrDefault() as FrameworkElement;
                 if (element != null)
                 {
                     ToggleLineSelection(element);
@@ -1934,17 +2189,6 @@ namespace CanvasDiagramEditor.Editor
                 {
                     SetLinesSelection(canvas, false);
                 }
-            }
-
-            if (pin != null &&
-                (!StringUtil.Compare(pin.Name, ResourceConstants.StandalonePinName) || Keyboard.Modifiers == ModifierKeys.Control))
-            {
-                if (CurrentOptions.CurrentLine == null)
-                    AddToHistory(canvas);
-
-                CreatePinConnection(canvas, pin);
-
-                return true;
             }
 
             return false;

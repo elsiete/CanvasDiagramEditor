@@ -1,5 +1,7 @@
-﻿<Window
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+﻿<!-- Copyright (C) Wiesław Šoltés 2013. -->
+<!-- All Rights Reserved -->
+
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:CanvasDiagramEditor" 
         xmlns:controls="clr-namespace:CanvasDiagramEditor.Controls"
@@ -71,7 +73,9 @@
                 <MenuItem x:Name="FileSaveTags" Header="Save Ta_gs..." Click="FileSaveTags_Click"/>
                 <Separator/>
                 <MenuItem x:Name="FileImportTags" Header="Import Tags..." Click="FileImportTags_Click"/>
-                <MenuItem x:Name="FileExportTags" Header="Export Tags..." Click="FileExportTags_Click" InputGestureText="Ctrl+E"/>
+                <MenuItem x:Name="FileExportTags" Header="Export Tags..." Click="FileExportTags_Click"/>
+                <Separator/>
+                <MenuItem x:Name="FleExportToDxf" Header="Export to _Dxf" Click="FleExportToDxf_Click" InputGestureText="Ctrl+E"/>
                 <Separator/>
                 <MenuItem x:Name="FileImport" Header="_Import Model..." Click="FileImport_Click" InputGestureText="Ctrl+I"/>
                 <Separator/>
