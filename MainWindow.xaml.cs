@@ -53,6 +53,8 @@ namespace CanvasDiagramEditor
         private DiagramEditor editor = null;
         private SelectionAdorner adorner = null;
 
+        private string LogicDictionaryUri = "LogicDictionary.xaml";
+
         #endregion
 
         #region Constructor
@@ -929,59 +931,17 @@ namespace CanvasDiagramEditor
 
         #endregion
 
-        #region DIP Calc
-
-        public static double MmToDip(double mm)
-        {
-            return CmToDip(mm / 10.0);
-        }
-
-        public static double CmToDip(double cm)
-        {
-            return (cm * 96.0 / 2.54);
-        }
-
-        public static double InchToDip(double inch)
-        {
-            return (inch * 96.0);
-        }
-
-        public static double PtToDip(double pt)
-        {
-            return (pt * 96.0 / 72.0);
-        }
-
-        public static double DipToCm(double dip)
-        {
-            return (dip * 2.54 / 96.0);
-        }
-
-        public static double DipToMm(double dip)
-        {
-            return DipToCm(dip) * 10.0;
-        }
-
-        #endregion
-
         #region Print
-        
-        public string LogicDictionaryUri = "LogicDictionary.xaml";
-
-        private double LogicStrokeThicknessMm = 0.18;
-        private double WireStrokeThicknessMm = 0.18;
-        private double ElementStrokeThicknessMm = 0.35;
-        private double IOStrokeThicknessMm = 0.25;
-        private double PageStrokeThicknessMm = 0.13;
 
         private void SetPrintStrokeSthickness(FrameworkElement element)
         {
             if (element != null)
             {
-                element.Resources[ResourceConstants.KeyLogicStrokeThickness] = MmToDip(LogicStrokeThicknessMm);
-                element.Resources[ResourceConstants.KeyWireStrokeThickness] = MmToDip(WireStrokeThicknessMm);
-                element.Resources[ResourceConstants.KeyElementStrokeThickness] = MmToDip(ElementStrokeThicknessMm);
-                element.Resources[ResourceConstants.KeyIOStrokeThickness] = MmToDip(IOStrokeThicknessMm);
-                element.Resources[ResourceConstants.KeyPageStrokeThickness] = MmToDip(PageStrokeThicknessMm);
+                element.Resources[ResourceConstants.KeyLogicStrokeThickness] = DipUtil.MmToDip(DxfDiagramCreator.LogicThicknessMm);
+                element.Resources[ResourceConstants.KeyWireStrokeThickness] = DipUtil.MmToDip(DxfDiagramCreator.WireThicknessMm);
+                element.Resources[ResourceConstants.KeyElementStrokeThickness] = DipUtil.MmToDip(DxfDiagramCreator.ElementThicknessMm);
+                element.Resources[ResourceConstants.KeyIOStrokeThickness] = DipUtil.MmToDip(DxfDiagramCreator.IOThicknessMm);
+                element.Resources[ResourceConstants.KeyPageStrokeThickness] = DipUtil.MmToDip(DxfDiagramCreator.PageThicknessMm);
             }
         }
 

@@ -56,6 +56,18 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="DxfDiagramCreator.cs" />
+    <Compile Include="Dxf\DxfBlocks.cs" />
+    <Compile Include="Dxf\DxfTables.cs" />
+    <Compile Include="Dxf\Enums\DxfAttributeFlags.cs" />
+    <Compile Include="Dxf\DxfEntities.cs" />
+    <Compile Include="Dxf\Enums\DxfHorizontalTextJustification.cs" />
+    <Compile Include="Dxf\DxfPoint3.cs" />
+    <Compile Include="Dxf\Enums\DxfLayerFlags.cs" />
+    <Compile Include="Dxf\Enums\DxfLtypeFlags.cs" />
+    <Compile Include="Dxf\Enums\DxfStyleFlags.cs" />
+    <Compile Include="Dxf\Enums\DxfTextGenerationFlags.cs" />
+    <Compile Include="Dxf\Enums\DxfVerticalTextJustification.cs" />
+    <Compile Include="Dxf\Util\DxfDoubleExtensions.cs" />
     <Compile Include="Editor\DiagramEditor.cs" />
     <Compile Include="Editor\DiagramEditorOptions.cs" />
     <Compile Include="Parser\LineCalc.cs" />
@@ -66,6 +78,7 @@
     <Compile Include="TagEditorWindow.xaml.cs">
       <DependentUpon>TagEditorWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Util\DipUtil.cs" />
     <Compile Include="Util\StringUtil.cs" />
     <Compile Include="Util\Tuple.cs" />
     <Page Include="Elements\AndGateControl.xaml">
