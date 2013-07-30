@@ -12,11 +12,11 @@
     <UserControl.Resources>
 
         <ContextMenu x:Key="DiagramCanvasContextMenuKey">
-            <MenuItem x:Name="InsertInput" Header="Insert _Input" Click="InsertInput_Click"/>
-            <MenuItem x:Name="InsertOutput" Header="Insert _Output" Click="InsertOutput_Click"/>
+            <MenuItem x:Name="InsertInput" Header="Insert _Input" Click="InsertInput_Click" InputGestureText="I"/>
+            <MenuItem x:Name="InsertOutput" Header="Insert _Output" Click="InsertOutput_Click" InputGestureText="O"/>
             <Separator/>
-            <MenuItem x:Name="InsertAndGate" Header="Insert _AndGate" Click="InsertAndGate_Click"/>
-            <MenuItem x:Name="InsertOrGate" Header="Insert O_rGate" Click="InsertOrGate_Click"/>
+            <MenuItem x:Name="InsertAndGate" Header="Insert _AndGate" Click="InsertAndGate_Click" InputGestureText="E+A"/>
+            <MenuItem x:Name="InsertOrGate" Header="Insert O_rGate" Click="InsertOrGate_Click" InputGestureText="E+O"/>
             <Separator/>
             <MenuItem x:Name="InsertPin" Header="Insert _Pin" Click="InsertPin_Click"/>
             <Separator/>

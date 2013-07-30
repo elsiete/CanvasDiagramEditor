@@ -241,11 +241,11 @@ namespace CanvasDiagramEditor
             bool isDiagram = Editor.SwitchItems(canvas, oldItem, newItem);
             if (isDiagram == true)
             {
-                EnablePage.IsChecked = true;
+                this.DiagramControl.PanScrollViewer.Visibility = Visibility.Visible;
             }
             else
             {
-                EnablePage.IsChecked = false;
+                this.DiagramControl.PanScrollViewer.Visibility = Visibility.Collapsed;
             }
         }
 
@@ -258,9 +258,12 @@ namespace CanvasDiagramEditor
 
         private void ProjectAddDiagram_Click(object sender, RoutedEventArgs e)
         {
-            var project = SolutionTree.SelectedItem as TreeViewItem;
+            AddNewItem();
+        }
 
-            Editor.AddDiagram(project, true);
+        private void DiagramAddDiagram_Click(object sender, RoutedEventArgs e)
+        {
+            AddNewItem();
         }
 
         private void SolutionDeleteProject_Click(object sender, RoutedEventArgs e)
@@ -270,11 +273,16 @@ namespace CanvasDiagramEditor
             Editor.DeleteProject(project);
         }
 
-        private void ProjectDeleteDiagram_Click(object sender, RoutedEventArgs e)
+        private void DiagramDeleteDiagram_Click(object sender, RoutedEventArgs e)
         {
             var diagram = SolutionTree.SelectedItem as TreeViewItem;
 
             Editor.DeleteDiagram(diagram);
+        }
+
+        private void DiagramAddDiagramAndPaste_Click(object sender, RoutedEventArgs e)
+        {
+            AddNewItemAndPaste();
         }
 
         #endregion
@@ -661,41 +669,38 @@ namespace CanvasDiagramEditor
             }
         }
 
+        private bool HaveKeyE = false;
+
         private void HandleKey(KeyEventArgs e)
         {
             var canvas = Editor.CurrentOptions.CurrentCanvas;
-            bool isControl = Keyboard.Modifiers == ModifierKeys.Control;
+            bool isControl = HaveKeyE == true ? false : Keyboard.Modifiers == ModifierKeys.Control;
+            //bool isControlShift = (Keyboard.Modifiers & ModifierKeys.Shift) > 0 && (Keyboard.Modifiers & ModifierKeys.Control) > 0;
 
             switch (e.Key)
             {
                 // add new project to selected solution
                 // add new diagram to selected project
                 // add new diagram after selected diagram and select new diagram
-                case Key.M:
+                case Key.J:
                     {
+                        // insert new item and paste from clipboard
                         if (isControl == true)
                         {
-                            var selected = SolutionTree.SelectedItem as TreeViewItem;
-
-                            string uid = selected.Uid;
-                            bool isSelectedSolution = StringUtil.StartsWith(uid, ModelConstants.TagHeaderSolution);
-                            bool isSelectedProject = StringUtil.StartsWith(uid, ModelConstants.TagHeaderProject);
-                            bool isSelectedDiagram = StringUtil.StartsWith(uid, ModelConstants.TagHeaderDiagram);
-
-                            if (isSelectedDiagram == true)
-                            {
-                                var project = selected.Parent as TreeViewItem;
-
-                                Editor.AddDiagram(project, true);
-                            }
-                            else if (isSelectedProject == true)
-                            {
-                                Editor.AddDiagram(selected, false);
-                            }
-                            else if (isSelectedSolution == true)
-                            {
-                                Editor.AddProject(selected);
-                            }
+                            AddNewItemAndPaste();
+                            e.Handled = true;
+                            break;
+                        }
+                    }
+                    break;
+                case Key.M:
+                    {
+                        // insert new item
+                        if (isControl == true)
+                        {
+                            AddNewItem();
+                            e.Handled = true;
+                            break;
                         }
                     }
                     break;
@@ -707,9 +712,28 @@ namespace CanvasDiagramEditor
                         {
                             Editor.OpenSolution();
                             e.Handled = true;
+                            break;
+                        }
+                        else
+                        {
+                            // E + O -> insert OrGate
+                            if (HaveKeyE == true)
+                            {
+                                HaveKeyE = false;
+                                InsertOrGate(canvas);
+                                e.Handled = true;
+                                break;
+                            }
+
+                            // O -> insert Input
+                            else
+                            {
+                                InsertOutput(canvas);
+                                e.Handled = true;
+                                break;
+                            }
                         }
                     }
-                    break;
 
                 // save solution
                 case Key.S:
@@ -718,6 +742,7 @@ namespace CanvasDiagramEditor
                         {
                             Editor.SaveSolution();
                             e.Handled = true;
+                            break;
                         }
                     }
                     break;
@@ -728,6 +753,8 @@ namespace CanvasDiagramEditor
                         if (isControl == true)
                         {
                             Editor.NewSolution();
+                            e.Handled = true;
+                            break;
                         }
                     }
                     break;
@@ -738,6 +765,8 @@ namespace CanvasDiagramEditor
                         if (isControl == true)
                         {
                             Editor.OpenTags();
+                            e.Handled = true;
+                            break;
                         }
                     }
                     break;
@@ -749,6 +778,13 @@ namespace CanvasDiagramEditor
                         {
                             Editor.Import();
                             e.Handled = true;
+                            break;
+                        }
+                        else if (HaveKeyE == false)
+                        {
+                            InsertInput(canvas);
+                            e.Handled = true;
+                            break;
                         }
                     }
                     break;
@@ -760,9 +796,16 @@ namespace CanvasDiagramEditor
                         {
                             Editor.ExportToDxf(ShortenStart.IsChecked.Value, ShortenEnd.IsChecked.Value);
                             e.Handled = true;
+                            break;
+                        }
+                        else
+                        {
+                            // enable element insert shortcuts -> E + some Key
+                            HaveKeyE = true;
+                            e.Handled = true;
+                            break;
                         }
                     }
-                    break;
 
                 // print
                 case Key.P:
@@ -771,6 +814,7 @@ namespace CanvasDiagramEditor
                         {
                             Print();
                             e.Handled = true;
+                            break;
                         }
                     }
                     break;
@@ -782,6 +826,7 @@ namespace CanvasDiagramEditor
                         {
                             Editor.Undo();
                             e.Handled = true;
+                            break;
                         }
                     }
                     break;
@@ -793,6 +838,7 @@ namespace CanvasDiagramEditor
                         {
                             Editor.Redo();
                             e.Handled = true;
+                            break;
                         }
                     }
                     break;
@@ -804,6 +850,7 @@ namespace CanvasDiagramEditor
                         {
                             Editor.Cut();
                             e.Handled = true;
+                            break;
                         }
                     }
                     break;
@@ -815,6 +862,7 @@ namespace CanvasDiagramEditor
                         {
                             Editor.Copy();
                             e.Handled = true;
+                            break;
                         }
                     }
                     break;
@@ -822,11 +870,13 @@ namespace CanvasDiagramEditor
                 // paste
                 case Key.V:
                     {
+                        // paste from clipboard
                         if (isControl == true)
                         {
                             var point = new Point(0.0, 0.0);
                             Editor.Paste(point);
                             e.Handled = true;
+                            break;
                         }
                     }
                     break;
@@ -838,6 +888,16 @@ namespace CanvasDiagramEditor
                         {
                             Editor.SelectAll();
                             e.Handled = true;
+                            break;
+                        }
+
+                        // E + A -> insert AndGate
+                        if (HaveKeyE == true)
+                        {
+                            HaveKeyE = false;
+                            InsertAndGate(canvas);
+                            e.Handled = true;
+                            break;
                         }
                     }
                     break;
@@ -857,6 +917,7 @@ namespace CanvasDiagramEditor
                         {
                             Editor.MoveUp(canvas);
                             e.Handled = true;
+                            break;
                         }
                     }
                     break;
@@ -868,6 +929,7 @@ namespace CanvasDiagramEditor
                         {
                             Editor.MoveDown(canvas);
                             e.Handled = true;
+                            break;
                         }
                     }
                     break;
@@ -879,6 +941,7 @@ namespace CanvasDiagramEditor
                         {
                             Editor.MoveLeft(canvas);
                             e.Handled = true;
+                            break;
                         }
                     }
                     break;
@@ -890,6 +953,7 @@ namespace CanvasDiagramEditor
                         {
                             Editor.MoveRight(canvas);
                             e.Handled = true;
+                            break;
                         }
                     }
                     break;
@@ -898,9 +962,111 @@ namespace CanvasDiagramEditor
                 case Key.F5:
                     {
                         ShowTagEditor();
+                        e.Handled = true;
+                    }
+                    break;
+
+                // reset have E key flah
+                case Key.Escape:
+                    {
+                        HaveKeyE = false;
                     }
                     break;
             }
+        }
+
+        #endregion
+
+        #region New Item
+
+        public enum NewItemType
+        {
+            None,
+            Solution,
+            Project,
+            Diagram,
+            Element
+        }
+
+        private NewItemType AddNewItem()
+        {
+            var selected = SolutionTree.SelectedItem as TreeViewItem;
+
+            string uid = selected.Uid;
+            bool isSelectedSolution = StringUtil.StartsWith(uid, ModelConstants.TagHeaderSolution);
+            bool isSelectedProject = StringUtil.StartsWith(uid, ModelConstants.TagHeaderProject);
+            bool isSelectedDiagram = StringUtil.StartsWith(uid, ModelConstants.TagHeaderDiagram);
+
+            if (isSelectedDiagram == true)
+            {
+                var project = selected.Parent as TreeViewItem;
+
+                Editor.AddDiagram(project, true);
+                return NewItemType.Diagram;
+            }
+            else if (isSelectedProject == true)
+            {
+                Editor.AddDiagram(selected, false);
+                return NewItemType.Diagram;
+            }
+            else if (isSelectedSolution == true)
+            {
+                Editor.AddProject(selected);
+                return NewItemType.Project;
+            }
+
+            return NewItemType.None;
+        }
+
+        private void AddNewItemAndPaste()
+        {
+            var newItemType = AddNewItem();
+            if (newItemType == NewItemType.Diagram)
+            {
+                var point = new Point(0.0, 0.0);
+                Editor.Paste(point);
+            }
+        }
+
+        #endregion
+
+        #region Insert
+
+        private Point InsertPointInput = new Point(45.0, 30.0);
+        private Point InsertPointOutput = new Point(930.0, 30.0);
+        private Point InsertPointGate = new Point(325.0, 30.0);
+
+        private void SelectInsertedElement(FrameworkElement element)
+        {
+            if (element != null)
+            {
+                Editor.DeselectAll();
+                ElementThumb.SetIsSelected(element, true);
+            }
+        }
+
+        private void InsertInput(Canvas canvas)
+        {
+            var element = Editor.InsertInput(canvas, InsertPointInput);
+            SelectInsertedElement(element);
+        }
+
+        private void InsertOutput(Canvas canvas)
+        {
+            var element = Editor.InsertOutput(canvas, InsertPointOutput);
+            SelectInsertedElement(element);
+        }
+
+        private void InsertOrGate(Canvas canvas)
+        {
+            var element = Editor.InsertOrGate(canvas, InsertPointGate);
+            SelectInsertedElement(element);
+        }
+
+        private void InsertAndGate(Canvas canvas)
+        {
+            var element = Editor.InsertAndGate(canvas, InsertPointGate);
+            SelectInsertedElement(element);
         }
 
         #endregion

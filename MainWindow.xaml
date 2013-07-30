@@ -18,13 +18,15 @@
         </ContextMenu>
 
         <ContextMenu x:Key="ProjectContextMenuKey">
-            <MenuItem x:Name="ProjectAddDiagram" Header="Add _Diagram" Click="ProjectAddDiagram_Click"/>
+            <MenuItem x:Name="ProjectAddDiagram" Header="Add _Diagram" InputGestureText="Ctrl+M" Click="ProjectAddDiagram_Click"/>
             <Separator/>
             <MenuItem x:Name="SolutionDeleteProject" Header="De_lete" Click="SolutionDeleteProject_Click"/>
         </ContextMenu>
 
         <ContextMenu x:Key="DiagramContextMenuKey">
-            <MenuItem x:Name="ProjectDeleteDiagram" Header="De_lete" Click="ProjectDeleteDiagram_Click"/>
+            <MenuItem x:Name="DiagramAddDiagram" Header="Add _Diagram" InputGestureText="Ctrl+M" Click="DiagramAddDiagram_Click"/>
+            <MenuItem x:Name="DiagramAddDiagramAndPaste" Header="Add Diagram&amp;_Paste" InputGestureText="Ctrl+J" Click="DiagramAddDiagramAndPaste_Click"/>
+            <MenuItem x:Name="DiagramDeleteDiagram" Header="De_lete" Click="DiagramDeleteDiagram_Click"/>
         </ContextMenu>
 
     </Window.Resources>
