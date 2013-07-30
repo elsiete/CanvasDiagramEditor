@@ -55,6 +55,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="DiagramControl.xaml.cs">
+      <DependentUpon>DiagramControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="DxfDiagramCreator.cs" />
     <Compile Include="Dxf\Blocks\DxfBlock.cs" />
     <Compile Include="Dxf\DxfBlocks.cs" />
@@ -115,6 +118,10 @@
     <Compile Include="Util\DipUtil.cs" />
     <Compile Include="Util\StringUtil.cs" />
     <Compile Include="Util\Tuple.cs" />
+    <Page Include="DiagramControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Elements\AndGateControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

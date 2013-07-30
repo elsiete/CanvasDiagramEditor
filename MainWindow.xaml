@@ -13,23 +13,6 @@
 
     <Window.Resources>
 
-        <ContextMenu x:Key="DiagramCanvasContextMenuKey">
-            <MenuItem x:Name="InsertInput" Header="Insert _Input" Click="InsertInput_Click"/>
-            <MenuItem x:Name="InsertOutput" Header="Insert _Output" Click="InsertOutput_Click"/>
-            <Separator/>
-            <MenuItem x:Name="InsertAndGate" Header="Insert _AndGate" Click="InsertAndGate_Click"/>
-            <MenuItem x:Name="InsertOrGate" Header="Insert O_rGate" Click="InsertOrGate_Click"/>
-            <Separator/>
-            <MenuItem x:Name="InsertPin" Header="Insert _Pin" Click="InsertPin_Click"/>
-            <Separator/>
-            <MenuItem x:Name="InvertStart" Header="Invert _Start" Click="InvertStart_Click"/>
-            <MenuItem x:Name="InvertEnd" Header="Invert _End" Click="InvertEnd_Click"/>
-            <Separator/>
-            <MenuItem x:Name="DeleteElement" Header="_Delete" Click="DeleteElement_Click"/>
-        </ContextMenu>
-
-        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-
         <ContextMenu x:Key="SolutionContextMenuKey">
             <MenuItem x:Name="SolutionAddProject" Header="Add _Project" Click="SolutionAddProject_Click"/>
         </ContextMenu>
@@ -104,79 +87,11 @@
             </MenuItem>
         </Menu>
 
-        <ScrollViewer x:Name="PanScrollViewer" 
-                      MouseMove="PanScrollViewer_MouseMove" 
-                      MouseDown="PanScrollViewer_MouseDown" 
-                      MouseUp="PanScrollViewer_MouseUp"
-                      FocusVisualStyle="{x:Null}"
-                      VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" 
-                      Grid.Column="0" Grid.Row="1"
-                      Margin="4,4,0,4"
-                      Visibility="{Binding ElementName=EnablePage, Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}">
-
-            <Border Background="Transparent" BorderThickness="0" BorderBrush="Transparent" ClipToBounds="True" PreviewMouseWheel="Border_PreviewMouseWheel">
-
-                <Grid x:Name="RootGrid" RenderTransformOrigin="0.5,0.5" Background="{DynamicResource LogicBackgroundColorKey}" ClipToBounds="True">
-                    
-                    <Grid.LayoutTransform>
-                        <TransformGroup>
-                            <ScaleTransform ScaleX="1" ScaleY="1"/>
-                            <SkewTransform/>
-                            <RotateTransform/>
-                            <TranslateTransform X="0" Y="0"/>
-                        </TransformGroup>
-                    </Grid.LayoutTransform>
-                    
-                    <Grid.RenderTransform>
-                        <TransformGroup>
-                            <ScaleTransform ScaleX="1" ScaleY="1"/>
-                            <SkewTransform/>
-                            <RotateTransform/>
-                            <TranslateTransform X="0" Y="0"/>
-                        </TransformGroup>
-                    </Grid.RenderTransform>
-
-                    <Canvas x:Name="BackgroudCanvas"
-                            Width="{Binding ElementName=DiagramCanvas, Path=Width}"
-                            Height="{Binding ElementName=DiagramCanvas, Path=Height}" 
-                            Grid.Column="0" Grid.Row="0"
-                            ClipToBounds="False"
-                            Background="{DynamicResource LogicBackgroundColorKey}"
-                            Visibility="Visible">
-                    </Canvas>
-
-                    <Canvas x:Name="GridCanvas"
-                            Width="{Binding ElementName=DiagramCanvas, Path=Width}"
-                            Height="{Binding ElementName=DiagramCanvas, Path=Height}" 
-                            Grid.Column="0" Grid.Row="0"
-                            ClipToBounds="False"
-                            Background="{DynamicResource LogicTransparentColorKey}"
-                            Visibility="{Binding ElementName=EnablePageGrid, Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}">
-                        <Path x:Name="PathGrid" Style="{StaticResource GridPathStyleKey}"/>
-                    </Canvas>
-
-                    <Control Template="{StaticResource LandscapePageTemplateKey}" Visibility="{Binding ElementName=EnablePageTemplate, Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                    
-                    <Canvas x:Name="DiagramCanvas"
-                            controls:LineEx.ShortenStart="{Binding ElementName=ShortenStart, Path=IsChecked}"
-                            controls:LineEx.ShortenEnd="{Binding ElementName=ShortenEnd, Path=IsChecked}"
-                            Width="1260" Height="891" 
-                            Grid.Column="0" Grid.Row="0"
-                            Background="{DynamicResource LogicTransparentColorKey}" 
-                            MouseLeftButtonDown="Canvas_MouseLeftButtonDown"
-                            MouseLeftButtonUp="Canvas_MouseLeftButtonUp"
-                            PreviewMouseLeftButtonDown="Canvas_PreviewMouseLeftButtonDown"
-                            MouseMove="Canvas_MouseMove"
-                            PreviewMouseRightButtonDown="Canvas_PreviewMouseRightButtonDown"
-                            ContextMenu="{StaticResource DiagramCanvasContextMenuKey}"
-                            ContextMenuOpening="Canvas_ContextMenuOpening">
-                    </Canvas>
-
-                </Grid>
-
-            </Border>
-
-        </ScrollViewer>
+        <local:DiagramControl x:Name="DiagramControl"
+                              Grid.Column="0" Grid.Row="1"
+                              Margin="4,4,0,4"                           
+                              controls:LineEx.ShortenStart="{Binding ElementName=ShortenStart, Path=IsChecked}"
+                              controls:LineEx.ShortenEnd="{Binding ElementName=ShortenEnd, Path=IsChecked}"/>
 
         <GridSplitter Grid.Column="1" Grid.Row="1" Background="Transparent" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
         
@@ -249,7 +164,7 @@
                                 <Separator Margin="2"/>
                                 <CheckBox x:Name="EnableInsertLast" Content="Insert Last on Left _Click" Margin="2" Click="EnableInsertLast_Click"/>
                                 <Separator Margin="2"/>
-                                <CheckBox x:Name="EnablePage" IsChecked="True" Content="Enable Page" Margin="2"/>
+                                <CheckBox x:Name="EnablePage" IsChecked="True" Content="Enable Page" Margin="2" Click="EnablePage_Click"/>
                                 <CheckBox x:Name="EnablePageGrid" IsChecked="True" Content="Enable Page Grid" Margin="2" Click="EnablePageGrid_Click"/>
                                 <CheckBox x:Name="EnablePageTemplate" IsChecked="True" Content="Enable Page Template" Margin="2" Click="EnablePageTemplate_Click"/>
                             </StackPanel>

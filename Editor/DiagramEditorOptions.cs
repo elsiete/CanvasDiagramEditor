@@ -47,9 +47,6 @@ namespace CanvasDiagramEditor.Editor
         public bool EnableInsertLast = false;
         public string LastInsert = ModelConstants.TagElementInput;
 
-        public bool EnablePageGrid = true;
-        public bool EnablePageTemplate = true;
-
         public double DefaultGridSize = 30;
 
         public bool EnableSnap = true;

@@ -50,9 +50,7 @@ namespace CanvasDiagramEditor
     {
         #region Fields
 
-        private DiagramEditor editor = null;
-        private SelectionAdorner adorner = null;
-
+        private DiagramEditor Editor { get; set; }
         private string LogicDictionaryUri = "LogicDictionary.xaml";
 
         #endregion
@@ -65,23 +63,26 @@ namespace CanvasDiagramEditor
 
             InitializeEditor();
 
+            this.DiagramControl.Editor = this.Editor;
+            this.DiagramControl.ZoomSlider = this.ZoomSlider;
+
             this.Loaded += MainWindow_Loaded;
         }
 
         void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            PanScrollViewer.Focus();
+            this.DiagramControl.PanScrollViewer.Focus();
         }
 
         private void InitializeEditor()
         {
             var options = new DiagramEditorOptions();
 
-            editor = new DiagramEditor();
-            editor.CurrentOptions = options;
+            Editor = new DiagramEditor();
+            Editor.CurrentOptions = options;
 
-            editor.CurrentOptions.Counter.ProjectCount = 1;
-            editor.CurrentOptions.Counter.DiagramCount = 1;
+            Editor.CurrentOptions.Counter.ProjectCount = 1;
+            Editor.CurrentOptions.Counter.DiagramCount = 1;
 
             Action action = () =>
             {
@@ -102,553 +103,20 @@ namespace CanvasDiagramEditor
                 prop.SnapOffsetY = double.Parse(TextSnapOffsetY.Text);
             };
 
-            editor.UpdateDiagramProperties = action;
+            Editor.UpdateDiagramProperties = action;
 
-            editor.CurrentOptions.CurrentResources = this.Resources;
+            Editor.CurrentOptions.CurrentResources = this.Resources;
 
-            editor.CurrentOptions.CurrentTree = this.SolutionTree;
-            editor.CurrentOptions.CurrentCanvas = this.DiagramCanvas;
-            editor.CurrentOptions.CurrentPathGrid = this.PathGrid;
+            Editor.CurrentOptions.CurrentTree = this.SolutionTree;
+            Editor.CurrentOptions.CurrentCanvas = this.DiagramControl.DiagramCanvas;
+            Editor.CurrentOptions.CurrentPathGrid = this.DiagramControl.PathGrid;
 
             EnableHistory.IsChecked = options.EnableHistory;
             EnableInsertLast.IsChecked = options.EnableInsertLast;
-            EnablePageGrid.IsChecked = options.EnablePageGrid;
-            EnablePageTemplate.IsChecked = options.EnablePageTemplate;
             EnableSnap.IsChecked = options.EnableSnap;
             SnapOnRelease.IsChecked = options.SnapOnRelease;
 
-            editor.GenerateGrid(false);
-        }
-
-        #endregion
-
-        #region SelectionAdorner
-
-        private void CreateAdorner(Canvas canvas, Point origin, Point point)
-        {
-            var layer = AdornerLayer.GetAdornerLayer(canvas);
-
-            adorner = new SelectionAdorner(canvas);
-            adorner.Zoom = GetZoomScaleTransform().ScaleX;
-            adorner.SelectionOrigin = new Point(origin.X, origin.Y);
-
-            adorner.SelectionRect = new Rect(origin, point);
-
-            adorner.SnapsToDevicePixels = false;
-            RenderOptions.SetEdgeMode(adorner, EdgeMode.Aliased);
-
-            layer.Add(adorner);
-            adorner.InvalidateVisual();
-        }
-
-        private void RemoveAdorner(Canvas canvas)
-        {
-            var layer = AdornerLayer.GetAdornerLayer(canvas);
-
-            layer.Remove(adorner);
-
-            adorner = null;
-        }
-
-        private void UpdateAdorner(Point point)
-        {
-            var origin = adorner.SelectionOrigin;
-            double width = Math.Abs(point.X - origin.X);
-            double height = Math.Abs(point.Y - origin.Y);
-
-            adorner.SelectionRect = new Rect(point, origin);
-            adorner.InvalidateVisual();
-        }
-
-        #endregion
-
-        #region Pan
-
-        private void BeginPan(Point point)
-        {
-            editor.CurrentOptions.PanStart = point;
-
-            editor.CurrentOptions.PreviousScrollOffsetX = -1.0;
-            editor.CurrentOptions.PreviousScrollOffsetY = -1.0;
-
-            this.Cursor = Cursors.ScrollAll;
-            this.PanScrollViewer.CaptureMouse();
-        }
-
-        private void EndPan()
-        {
-            if (PanScrollViewer.IsMouseCaptured == true)
-            {
-                this.Cursor = Cursors.Arrow;
-                this.PanScrollViewer.ReleaseMouseCapture();
-            }
-        }
-
-        private void PanToPoint(Point point)
-        {
-            double scrollOffsetX = point.X - editor.CurrentOptions.PanStart.X;
-            double scrollOffsetY = point.Y - editor.CurrentOptions.PanStart.Y;
-
-            double horizontalOffset = this.PanScrollViewer.HorizontalOffset;
-            double verticalOffset = this.PanScrollViewer.VerticalOffset;
-
-            double scrollableWidth = this.PanScrollViewer.ScrollableWidth;
-            double scrollableHeight = this.PanScrollViewer.ScrollableHeight;
-
-            double zoom = ZoomSlider.Value;
-
-            scrollOffsetX = Math.Round(horizontalOffset + (scrollOffsetX * 1.0) * editor.CurrentOptions.ReversePanDirection, 0);
-            scrollOffsetY = Math.Round(verticalOffset + (scrollOffsetY * 1.0) * editor.CurrentOptions.ReversePanDirection, 0);
-
-            scrollOffsetX = scrollOffsetX > scrollableWidth ? scrollableWidth : scrollOffsetX;
-            scrollOffsetY = scrollOffsetY > scrollableHeight ? scrollableHeight : scrollOffsetY;
-
-            scrollOffsetX = scrollOffsetX < 0 ? 0.0 : scrollOffsetX;
-            scrollOffsetY = scrollOffsetY < 0 ? 0.0 : scrollOffsetY;
-
-            if (scrollOffsetX != editor.CurrentOptions.PreviousScrollOffsetX)
-            {
-                this.PanScrollViewer.ScrollToHorizontalOffset(scrollOffsetX);
-                editor.CurrentOptions.PreviousScrollOffsetX = scrollOffsetX;
-            }
-
-            if (scrollOffsetY != editor.CurrentOptions.PreviousScrollOffsetY)
-            {
-                this.PanScrollViewer.ScrollToVerticalOffset(scrollOffsetY);
-                editor.CurrentOptions.PreviousScrollOffsetY = scrollOffsetY;
-            }
-
-            editor.CurrentOptions.PanStart = point;
-        }
-
-        private void PanToOffset(double offsetX, double offsetY)
-        {
-            double horizontalOffset = this.PanScrollViewer.HorizontalOffset;
-            double verticalOffset = this.PanScrollViewer.VerticalOffset;
-
-            double scrollableWidth = this.PanScrollViewer.ScrollableWidth;
-            double scrollableHeight = this.PanScrollViewer.ScrollableHeight;
-
-            double scrollOffsetX = Math.Round(horizontalOffset + offsetX, 0);
-            double scrollOffsetY = Math.Round(verticalOffset + offsetY, 0);
-
-            scrollOffsetX = scrollOffsetX > scrollableWidth ? scrollableWidth : scrollOffsetX;
-            scrollOffsetY = scrollOffsetY > scrollableHeight ? scrollableHeight : scrollOffsetY;
-
-            scrollOffsetX = scrollOffsetX < 0 ? 0.0 : scrollOffsetX;
-            scrollOffsetY = scrollOffsetY < 0 ? 0.0 : scrollOffsetY;
-
-            this.PanScrollViewer.ScrollToHorizontalOffset(scrollOffsetX);
-            this.PanScrollViewer.ScrollToVerticalOffset(scrollOffsetY);
-        }
-
-        #endregion
-
-        #region Zoom
-
-        public double DefaultLogicStrokeThickness = 1.0;
-        public double DefaultWireStrokeThickness = 2.0;
-        public double DefaultElementStrokeThickness = 2.0;
-        public double DefaultIOStrokeThickness = 2.0;
-        public double DefaultPageStrokeThickness = 1.0;
-
-        private void UpdateStrokeThickness(double zoom)
-        {
-            Application.Current.Resources[ResourceConstants.KeyLogicStrokeThickness] = DefaultLogicStrokeThickness / zoom;
-            Application.Current.Resources[ResourceConstants.KeyWireStrokeThickness] = DefaultWireStrokeThickness / zoom;
-            Application.Current.Resources[ResourceConstants.KeyElementStrokeThickness] = DefaultElementStrokeThickness / zoom;
-            Application.Current.Resources[ResourceConstants.KeyIOStrokeThickness] = DefaultIOStrokeThickness / zoom;
-            Application.Current.Resources[ResourceConstants.KeyPageStrokeThickness] = DefaultPageStrokeThickness / zoom;
-        }
-
-        public double CalculateZoom(double x)
-        {
-            double l = Math.Log(x, editor.CurrentOptions.ZoomLogBase);
-            double e = Math.Exp(l / editor.CurrentOptions.ZoomExpFactor);
-            double y = x + x * l * e;
-            return y;
-        }
-
-        private void Zoom(double zoom)
-        {
-            if (editor == null || editor.CurrentOptions == null)
-                return;
-
-            double zoom_fx = CalculateZoom(zoom);
-
-            //System.Diagnostics.Debug.Print("Zoom: {0}, zoom_fx: {1}", zoom, zoom_fx);
-
-            var st = GetZoomScaleTransform();
-
-            double oldZoom = st.ScaleX; // ScaleX == ScaleY
-
-            st.ScaleX = zoom_fx;
-            st.ScaleY = zoom_fx;
-
-            UpdateStrokeThickness(zoom_fx);
-
-            // zoom to point
-            ZoomToPoint(zoom_fx, oldZoom);
-        }
-
-        private ScaleTransform GetZoomScaleTransform()
-        {
-            //var tg = RootGrid.RenderTransform as TransformGroup;
-            var tg = RootGrid.LayoutTransform as TransformGroup;
-            var st = tg.Children.First(t => t is ScaleTransform) as ScaleTransform;
-
-            return st;
-        }
-
-        private void ZoomToPoint(double zoom, double oldZoom)
-        {
-            double offsetX = 0;
-            double offsetY = 0;
-
-            double scrollableWidth = this.PanScrollViewer.ScrollableWidth;
-            double scrollableHeight = this.PanScrollViewer.ScrollableHeight;
-
-            double scrollOffsetX = this.PanScrollViewer.HorizontalOffset;
-            double scrollOffsetY = this.PanScrollViewer.VerticalOffset;
-
-            double oldX = editor.CurrentOptions.ZoomPoint.X * oldZoom;
-            double oldY = editor.CurrentOptions.ZoomPoint.Y * oldZoom;
-
-            double newX = editor.CurrentOptions.ZoomPoint.X * zoom;
-            double newY = editor.CurrentOptions.ZoomPoint.Y * zoom;
-
-            offsetX = newX - oldX;
-            offsetY = newY - oldY;
-
-            //System.Diagnostics.Debug.Print("");
-            //System.Diagnostics.Debug.Print("zoomPoint: {0},{1}", Math.Round(zoomPoint.X, 0), Math.Round(zoomPoint.Y, 0));
-            //System.Diagnostics.Debug.Print("scrollableWidth/Height: {0},{1}", scrollableWidth, scrollableHeight);
-            //System.Diagnostics.Debug.Print("scrollOffsetX/Y: {0},{1}", scrollOffsetX, scrollOffsetY);
-            //System.Diagnostics.Debug.Print("oldX/Y: {0},{1}", oldX, oldY);
-            //System.Diagnostics.Debug.Print("newX/Y: {0},{1}", newX, newY);
-            //System.Diagnostics.Debug.Print("offsetX/Y: {0},{1}", offsetX, offsetY);
-
-            if (scrollableWidth <= 0)
-                offsetX = 0.0;
-
-            if (scrollableHeight <= 0)
-                offsetY = 0.0;
-
-            PanToOffset(offsetX, offsetY);
-
-            if (adorner != null)
-            {
-                adorner.Zoom = zoom;
-            }
-        }
-
-        private void ZoomIn()
-        {
-            double zoom = ZoomSlider.Value;
-
-            zoom += editor.CurrentOptions.ZoomInFactor;
-
-            if (zoom >= ZoomSlider.Minimum && zoom <= ZoomSlider.Maximum)
-            {
-                ZoomSlider.Value = zoom;
-            }
-        }
-
-        private void ZoomOut()
-        {
-            double zoom = ZoomSlider.Value;
-
-            zoom -= editor.CurrentOptions.ZoomOutFactor;
-
-            if (zoom >= ZoomSlider.Minimum && zoom <= ZoomSlider.Maximum)
-            {
-                ZoomSlider.Value = zoom;
-            }
-        }
-
-        #endregion
-
-        #region Zoom Events
-
-        private void ZoomSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            double zoom = ZoomSlider.Value;
-
-            zoom = Math.Round(zoom, 1);
-
-            if (e.OldValue != e.NewValue)
-            {
-                Zoom(zoom);
-            }
-        }
-
-        private void Border_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
-        {
-            if (Keyboard.Modifiers == ModifierKeys.Shift)
-                return;
-
-            var canvas = editor.CurrentOptions.CurrentCanvas;
-
-            editor.CurrentOptions.ZoomPoint = e.GetPosition(canvas);
-
-            if (e.Delta > 0)
-            {
-                ZoomIn();
-
-                e.Handled = true;
-            }
-            else if (e.Delta < 0)
-            {
-                ZoomOut();
-
-                e.Handled = true;
-            }
-        }
-
-        #endregion
-
-        #region PanScrollViewer Events
-
-        private void PanScrollViewer_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.ChangedButton == editor.CurrentOptions.PanButton)
-            {
-                var point = e.GetPosition(this.PanScrollViewer);
-
-                BeginPan(point);
-            }
-        }
-
-        private void PanScrollViewer_MouseUp(object sender, MouseButtonEventArgs e)
-        {
-            if (e.ChangedButton == editor.CurrentOptions.PanButton)
-            {
-                EndPan();
-            }
-        }
-
-        private void PanScrollViewer_MouseMove(object sender, MouseEventArgs e)
-        {
-            if (this.PanScrollViewer.IsMouseCaptured == true)
-            {
-                var point = e.GetPosition(this.PanScrollViewer);
-
-                PanToPoint(point);
-            }
-        }
-
-        #endregion
-
-        #region Canvas Events
-
-        private void Canvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            var canvas = editor.CurrentOptions.CurrentCanvas;
-            var point = e.GetPosition(canvas);
-
-            if (editor.CurrentOptions.CurrentRoot == null && editor.CurrentOptions.CurrentLine == null && editor.CurrentOptions.EnableInsertLast == false)
-            {
-                editor.CurrentOptions.SelectionOrigin = point;
-
-                if (Keyboard.Modifiers != ModifierKeys.Control)
-                {
-                    editor.DeselectAll();
-                }
-
-                canvas.CaptureMouse();
-            }
-            else
-            {
-                editor.HandleLeftDown(canvas, point);
-            }
-        }
-
-        private void Canvas_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            var canvas = editor.CurrentOptions.CurrentCanvas;
-
-            if (canvas.IsMouseCaptured)
-            {
-                canvas.ReleaseMouseCapture();
-
-                if (adorner != null)
-                {
-                    var rect = adorner.SelectionRect;
-                    var elements = editor.HitTest(canvas, ref rect);
-
-                    if (elements != null)
-                    {
-                        foreach (var element in elements)
-                        {
-                            if (ElementThumb.GetIsSelected(element) == false)
-                            {
-                                ElementThumb.SetIsSelected(element, true);
-                            }
-                            else
-                            {
-                                ElementThumb.SetIsSelected(element, false);
-                            }
-                        }
-                    }
-
-                    RemoveAdorner(canvas);
-                }
-            }
-        }
-
-        private void Canvas_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            if (editor.CurrentOptions.SkipLeftClick == true)
-            {
-                editor.CurrentOptions.SkipLeftClick = false;
-                e.Handled = true;
-                return;
-            }
-
-            var canvas = editor.CurrentOptions.CurrentCanvas;
-            var point = e.GetPosition(canvas);
-            var pin = (e.OriginalSource as FrameworkElement).TemplatedParent as FrameworkElement;
-
-            var result = editor.HandlePreviewLeftDown(canvas, point, pin);
-            if (result == true)
-                e.Handled = true;
-        }
-
-        private void Canvas_MouseMove(object sender, MouseEventArgs e)
-        {
-            var canvas = editor.CurrentOptions.CurrentCanvas;
-
-            var point = e.GetPosition(canvas);
-
-            if (canvas.IsMouseCaptured)
-            {
-                if (adorner == null)
-                {
-                    CreateAdorner(canvas, editor.CurrentOptions.SelectionOrigin, point);
-                }
-
-                UpdateAdorner(point);
-            }
-            else
-            {
-                editor.HandleMove(canvas, point);
-            }
-        }
-
-        private void Canvas_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            var canvas = editor.CurrentOptions.CurrentCanvas;
-            var path = editor.CurrentOptions.CurrentPathGrid;
-
-            editor.CurrentOptions.RightClick = e.GetPosition(canvas);
-
-            var result = editor.HandleRightDown(canvas, path);
-            if (result == true)
-            {
-                editor.CurrentOptions.SkipContextMenu = true;
-                e.Handled = true;
-            }
-        }
-
-        #endregion
-
-        #region ContextMenu Events
-
-        private void Canvas_ContextMenuOpening(object sender, ContextMenuEventArgs e)
-        {
-            if (editor.CurrentOptions.SkipContextMenu == true)
-            {
-                editor.CurrentOptions.SkipContextMenu = false;
-                e.Handled = true;
-            }
-            else
-            {
-                editor.CurrentOptions.SkipLeftClick = true;
-            }
-        }
-
-        private void InsertPin_Click(object sender, RoutedEventArgs e)
-        {
-            var canvas = editor.CurrentOptions.CurrentCanvas;
-
-            editor.AddToHistory(canvas);
-
-            editor.InsertPin(canvas, editor.CurrentOptions.RightClick);
-
-            editor.CurrentOptions.LastInsert = ModelConstants.TagElementPin;
-            editor.CurrentOptions.SkipLeftClick = false;
-        }
-
-        private void InsertInput_Click(object sender, RoutedEventArgs e)
-        {
-            var canvas = editor.CurrentOptions.CurrentCanvas;
-
-            editor.AddToHistory(canvas);
-
-            editor.InsertInput(canvas, editor.CurrentOptions.RightClick);
-
-            editor.CurrentOptions.LastInsert = ModelConstants.TagElementInput;
-            editor.CurrentOptions.SkipLeftClick = false;
-        }
-
-        private void InsertOutput_Click(object sender, RoutedEventArgs e)
-        {
-            var canvas = editor.CurrentOptions.CurrentCanvas;
-
-            editor.AddToHistory(canvas);
-
-            editor.InsertOutput(canvas, editor.CurrentOptions.RightClick);
-
-            editor.CurrentOptions.LastInsert = ModelConstants.TagElementOutput;
-            editor.CurrentOptions.SkipLeftClick = false;
-        }
-
-        private void InsertAndGate_Click(object sender, RoutedEventArgs e)
-        {
-            var canvas = editor.CurrentOptions.CurrentCanvas;
-
-            editor.AddToHistory(canvas);
-
-            editor.InsertAndGate(canvas, editor.CurrentOptions.RightClick);
-
-            editor.CurrentOptions.LastInsert = ModelConstants.TagElementAndGate;
-            editor.CurrentOptions.SkipLeftClick = false;
-        }
-
-        private void InsertOrGate_Click(object sender, RoutedEventArgs e)
-        {
-            var canvas = editor.CurrentOptions.CurrentCanvas;
-
-            editor.AddToHistory(canvas);
-
-            editor.InsertOrGate(canvas, editor.CurrentOptions.RightClick);
-
-            editor.CurrentOptions.LastInsert = ModelConstants.TagElementOrGate;
-            editor.CurrentOptions.SkipLeftClick = false;
-        }
-
-        private void DeleteElement_Click(object sender, RoutedEventArgs e)
-        {
-            var canvas = editor.CurrentOptions.CurrentCanvas;
-            var point = new Point(editor.CurrentOptions.RightClick.X, editor.CurrentOptions.RightClick.Y);
-
-            editor.Delete(canvas, point);
-        }
-
-        private void InvertStart_Click(object sender, RoutedEventArgs e)
-        {
-            var canvas = editor.CurrentOptions.CurrentCanvas;
-            var point = new Point(editor.CurrentOptions.RightClick.X, editor.CurrentOptions.RightClick.Y);
-
-            editor.ToggleStart(canvas, point);
-        }
-
-        private void InvertEnd_Click(object sender, RoutedEventArgs e)
-        {
-            var canvas = editor.CurrentOptions.CurrentCanvas;
-            var point = new Point(editor.CurrentOptions.RightClick.X, editor.CurrentOptions.RightClick.Y);
-
-            editor.ToggleEnd(canvas, point);
+            Editor.GenerateGrid(false);
         }
 
         #endregion
@@ -657,39 +125,50 @@ namespace CanvasDiagramEditor
 
         private void EnableHistory_Click(object sender, RoutedEventArgs e)
         {
-            editor.CurrentOptions.EnableHistory = EnableHistory.IsChecked == true ? true : false;
+            Editor.CurrentOptions.EnableHistory = EnableHistory.IsChecked == true ? true : false;
 
-            if (editor.CurrentOptions.EnableHistory == false)
+            if (Editor.CurrentOptions.EnableHistory == false)
             {
-                var canvas = editor.CurrentOptions.CurrentCanvas;
+                var canvas = Editor.CurrentOptions.CurrentCanvas;
 
-                editor.ClearHistory(canvas);
+                Editor.ClearHistory(canvas);
             }
         }
 
         private void EnableSnap_Click(object sender, RoutedEventArgs e)
         {
-            editor.CurrentOptions.EnableSnap = EnableSnap.IsChecked == true ? true : false;
+            Editor.CurrentOptions.EnableSnap = EnableSnap.IsChecked == true ? true : false;
         }
 
         private void SnapOnRelease_Click(object sender, RoutedEventArgs e)
         {
-            editor.CurrentOptions.SnapOnRelease = SnapOnRelease.IsChecked == true ? true : false;
+            Editor.CurrentOptions.SnapOnRelease = SnapOnRelease.IsChecked == true ? true : false;
         }
 
         private void EnableInsertLast_Click(object sender, RoutedEventArgs e)
         {
-            editor.CurrentOptions.EnableInsertLast = EnableInsertLast.IsChecked == true ? true : false;
+            Editor.CurrentOptions.EnableInsertLast = EnableInsertLast.IsChecked == true ? true : false;
+        }
+
+        private void EnablePage_Click(object sender, RoutedEventArgs e)
+        {
+            var diagram = this.DiagramControl;
+            var visibility = diagram.Visibility;
+            diagram.Visibility = visibility == Visibility.Collapsed ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private void EnablePageGrid_Click(object sender, RoutedEventArgs e)
         {
-            editor.CurrentOptions.EnablePageGrid = EnablePageGrid.IsChecked == true ? true : false;
+            var grid = this.DiagramControl.DiagramGrid;
+            var visibility = grid.Visibility;
+            grid.Visibility = visibility == Visibility.Collapsed ? Visibility.Visible :Visibility.Collapsed;
         }
 
         private void EnablePageTemplate_Click(object sender, RoutedEventArgs e)
         {
-            editor.CurrentOptions.EnablePageTemplate = EnablePageTemplate.IsChecked == true ? true : false;
+            var template = this.DiagramControl.DiagramTemplate;
+            var visibility = template.Visibility;
+            template.Visibility = visibility == Visibility.Collapsed ? Visibility.Visible : Visibility.Collapsed;
         }
 
         #endregion
@@ -706,14 +185,14 @@ namespace CanvasDiagramEditor
             //var diagram = editor.Generate();
             //this.TextModel.Text = diagram;
 
-            var solution = editor.GenerateSolution(System.IO.Directory.GetCurrentDirectory());
+            var solution = Editor.GenerateSolution(System.IO.Directory.GetCurrentDirectory());
 
             this.TextModel.Text = solution.Item1;
         }
 
         private void GenerateModelFromSelected_Click(object sender, RoutedEventArgs e)
         {
-            var diagram = editor.GenerateFromSelected();
+            var diagram = Editor.GenerateFromSelected();
 
             this.TextModel.Text = diagram;
         }
@@ -724,12 +203,12 @@ namespace CanvasDiagramEditor
             double offsetX = double.Parse(TextOffsetX.Text);
             double offsetY = double.Parse(TextOffsetY.Text);
 
-            editor.Insert(diagram, offsetX, offsetY);
+            Editor.Insert(diagram, offsetX, offsetY);
         }
 
         private void UpdateGrid_Click(object sender, RoutedEventArgs e)
         {
-            editor.GenerateGrid(true);
+            Editor.GenerateGrid(true);
         }
 
         #endregion
@@ -751,15 +230,15 @@ namespace CanvasDiagramEditor
 
         private void SolutionTree_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
-            if (editor == null)
+            if (Editor == null)
                 return;
 
-            var canvas = editor.CurrentOptions.CurrentCanvas;
+            var canvas = Editor.CurrentOptions.CurrentCanvas;
 
             var oldItem = e.OldValue as TreeViewItem;
             var newItem = e.NewValue as TreeViewItem;
 
-            bool isDiagram = editor.SwitchItems(canvas, oldItem, newItem);
+            bool isDiagram = Editor.SwitchItems(canvas, oldItem, newItem);
             if (isDiagram == true)
             {
                 EnablePage.IsChecked = true;
@@ -774,28 +253,28 @@ namespace CanvasDiagramEditor
         {
             var solution = SolutionTree.SelectedItem as TreeViewItem;
 
-            editor.AddProject(solution);
+            Editor.AddProject(solution);
         }
 
         private void ProjectAddDiagram_Click(object sender, RoutedEventArgs e)
         {
             var project = SolutionTree.SelectedItem as TreeViewItem;
 
-            editor.AddDiagram(project, true);
+            Editor.AddDiagram(project, true);
         }
 
         private void SolutionDeleteProject_Click(object sender, RoutedEventArgs e)
         {
             var project = SolutionTree.SelectedItem as TreeViewItem;
 
-            editor.DeleteProject(project);
+            Editor.DeleteProject(project);
         }
 
         private void ProjectDeleteDiagram_Click(object sender, RoutedEventArgs e)
         {
             var diagram = SolutionTree.SelectedItem as TreeViewItem;
 
-            editor.DeleteDiagram(diagram);
+            Editor.DeleteDiagram(diagram);
         }
 
         #endregion
@@ -804,57 +283,57 @@ namespace CanvasDiagramEditor
 
         private void FileNew_Click(object sender, RoutedEventArgs e)
         {
-            editor.NewSolution();
+            Editor.NewSolution();
         }
 
         private void FileOpen_Click(object sender, RoutedEventArgs e)
         {
-            editor.OpenSolution();
+            Editor.OpenSolution();
         }
 
         private void FileSave_Click(object sender, RoutedEventArgs e)
         {
-            editor.SaveSolution();
+            Editor.SaveSolution();
         }
 
         private void FileOpenDiagram_Click(object sender, RoutedEventArgs e)
         {
-            editor.OpenDiagram();
+            Editor.OpenDiagram();
         }
 
         private void FileSaveDiagram_Click(object sender, RoutedEventArgs e)
         {
-            editor.SaveDiagram();
+            Editor.SaveDiagram();
         }
 
         private void FileOpenTags_Click(object sender, RoutedEventArgs e)
         {
-            editor.OpenTags();
+            Editor.OpenTags();
         }
 
         private void FileSaveTags_Click(object sender, RoutedEventArgs e)
         {
-            editor.SaveTags();
+            Editor.SaveTags();
         }
 
         private void FileImportTags_Click(object sender, RoutedEventArgs e)
         {
-            editor.ImportTags();
+            Editor.ImportTags();
         }
 
         private void FileExportTags_Click(object sender, RoutedEventArgs e)
         {
-            editor.ExportTags();
+            Editor.ExportTags();
         }
 
         private void FleExportToDxf_Click(object sender, RoutedEventArgs e)
         {
-            editor.ExportToDxf(ShortenStart.IsChecked.Value, ShortenEnd.IsChecked.Value);
+            Editor.ExportToDxf(ShortenStart.IsChecked.Value, ShortenEnd.IsChecked.Value);
         }
 
         private void FileImport_Click(object sender, RoutedEventArgs e)
         {
-            var diagram = editor.Import();
+            var diagram = Editor.Import();
 
             if (diagram != null)
             {
@@ -874,49 +353,49 @@ namespace CanvasDiagramEditor
 
         private void EditUndo_Click(object sender, RoutedEventArgs e)
         {
-            editor.Undo();
+            Editor.Undo();
         }
 
         private void EditRedo_Click(object sender, RoutedEventArgs e)
         {
-            editor.Redo();
+            Editor.Redo();
         }
 
         private void EditCut_Click(object sender, RoutedEventArgs e)
         {
-            editor.Cut();
+            Editor.Cut();
         }
 
         private void EditCopy_Click(object sender, RoutedEventArgs e)
         {
-            editor.Copy();
+            Editor.Copy();
         }
 
         private void EditPaste_Click(object sender, RoutedEventArgs e)
         {
             var point = new Point(0.0, 0.0);
 
-            editor.Paste(point);
+            Editor.Paste(point);
         }
 
         private void EditDelete_Click(object sender, RoutedEventArgs e)
         {
-            editor.Delete();
+            Editor.Delete();
         }
 
         private void EditSelectAll_Click(object sender, RoutedEventArgs e)
         {
-            editor.SelectAll();
+            Editor.SelectAll();
         }
 
         private void EditDeselectAll_Click(object sender, RoutedEventArgs e)
         {
-            editor.DeselectAll();
+            Editor.DeselectAll();
         }
 
         private void EditClear_Click(object sender, RoutedEventArgs e)
         {
-            editor.Clear();
+            Editor.Clear();
         }
 
         private void EditOptions_Click(object sender, RoutedEventArgs e)
@@ -992,14 +471,14 @@ namespace CanvasDiagramEditor
 
             var canvas = new Canvas()
             {
-                Width = editor.CurrentOptions.CurrentCanvas.Width,
-                Height = editor.CurrentOptions.CurrentCanvas.Height
+                Width = Editor.CurrentOptions.CurrentCanvas.Width,
+                Height = Editor.CurrentOptions.CurrentCanvas.Height
             };
 
             LineEx.SetShortenStart(grid, ShortenStart.IsChecked.Value);
             LineEx.SetShortenEnd(grid, ShortenEnd.IsChecked.Value);
 
-            editor.ParseDiagramModel(diagram, canvas, null, 0, 0, false, false, false, true);
+            Editor.ParseDiagramModel(diagram, canvas, null, 0, 0, false, false, false, true);
 
             grid.Children.Add(template);
             grid.Children.Add(canvas);
@@ -1162,7 +641,7 @@ namespace CanvasDiagramEditor
             //var diagrams = new List<string>();
             //diagrams.Add(model);
 
-            var diagrams = editor.GenerateSolution(null).Item2;
+            var diagrams = Editor.GenerateSolution(null).Item2;
 
             Print(diagrams, "solution");
         }
@@ -1184,7 +663,7 @@ namespace CanvasDiagramEditor
 
         private void HandleKey(KeyEventArgs e)
         {
-            var canvas = editor.CurrentOptions.CurrentCanvas;
+            var canvas = Editor.CurrentOptions.CurrentCanvas;
             bool isControl = Keyboard.Modifiers == ModifierKeys.Control;
 
             switch (e.Key)
@@ -1207,15 +686,15 @@ namespace CanvasDiagramEditor
                             {
                                 var project = selected.Parent as TreeViewItem;
 
-                                editor.AddDiagram(project, true);
+                                Editor.AddDiagram(project, true);
                             }
                             else if (isSelectedProject == true)
                             {
-                                editor.AddDiagram(selected, false);
+                                Editor.AddDiagram(selected, false);
                             }
                             else if (isSelectedSolution == true)
                             {
-                                editor.AddProject(selected);
+                                Editor.AddProject(selected);
                             }
                         }
                     }
@@ -1226,7 +705,7 @@ namespace CanvasDiagramEditor
                     {
                         if (isControl == true)
                         {
-                            editor.OpenSolution();
+                            Editor.OpenSolution();
                             e.Handled = true;
                         }
                     }
@@ -1237,7 +716,7 @@ namespace CanvasDiagramEditor
                     {
                         if (isControl == true)
                         {
-                            editor.SaveSolution();
+                            Editor.SaveSolution();
                             e.Handled = true;
                         }
                     }
@@ -1248,7 +727,7 @@ namespace CanvasDiagramEditor
                     {
                         if (isControl == true)
                         {
-                            editor.NewSolution();
+                            Editor.NewSolution();
                         }
                     }
                     break;
@@ -1258,7 +737,7 @@ namespace CanvasDiagramEditor
                     {
                         if (isControl == true)
                         {
-                            editor.OpenTags();
+                            Editor.OpenTags();
                         }
                     }
                     break;
@@ -1268,7 +747,7 @@ namespace CanvasDiagramEditor
                     {
                         if (isControl == true)
                         {
-                            editor.Import();
+                            Editor.Import();
                             e.Handled = true;
                         }
                     }
@@ -1279,7 +758,7 @@ namespace CanvasDiagramEditor
                     {
                         if (isControl == true)
                         {
-                            editor.ExportToDxf(ShortenStart.IsChecked.Value, ShortenEnd.IsChecked.Value);
+                            Editor.ExportToDxf(ShortenStart.IsChecked.Value, ShortenEnd.IsChecked.Value);
                             e.Handled = true;
                         }
                     }
@@ -1301,7 +780,7 @@ namespace CanvasDiagramEditor
                     {
                         if (isControl == true)
                         {
-                            editor.Undo();
+                            Editor.Undo();
                             e.Handled = true;
                         }
                     }
@@ -1312,7 +791,7 @@ namespace CanvasDiagramEditor
                     {
                         if (isControl == true)
                         {
-                            editor.Redo();
+                            Editor.Redo();
                             e.Handled = true;
                         }
                     }
@@ -1323,7 +802,7 @@ namespace CanvasDiagramEditor
                     {
                         if (isControl == true)
                         {
-                            editor.Cut();
+                            Editor.Cut();
                             e.Handled = true;
                         }
                     }
@@ -1334,7 +813,7 @@ namespace CanvasDiagramEditor
                     {
                         if (isControl == true)
                         {
-                            editor.Copy();
+                            Editor.Copy();
                             e.Handled = true;
                         }
                     }
@@ -1346,7 +825,7 @@ namespace CanvasDiagramEditor
                         if (isControl == true)
                         {
                             var point = new Point(0.0, 0.0);
-                            editor.Paste(point);
+                            Editor.Paste(point);
                             e.Handled = true;
                         }
                     }
@@ -1357,7 +836,7 @@ namespace CanvasDiagramEditor
                     {
                         if (isControl == true)
                         {
-                            editor.SelectAll();
+                            Editor.SelectAll();
                             e.Handled = true;
                         }
                     }
@@ -1366,7 +845,7 @@ namespace CanvasDiagramEditor
                 // delete
                 case Key.Delete:
                     {
-                        editor.Delete();
+                        Editor.Delete();
                         e.Handled = true;
                     }
                     break;
@@ -1376,7 +855,7 @@ namespace CanvasDiagramEditor
                     {
                         if (e.OriginalSource is ScrollViewer)
                         {
-                            editor.MoveUp(canvas);
+                            Editor.MoveUp(canvas);
                             e.Handled = true;
                         }
                     }
@@ -1387,7 +866,7 @@ namespace CanvasDiagramEditor
                     {
                         if (e.OriginalSource is ScrollViewer)
                         {
-                            editor.MoveDown(canvas);
+                            Editor.MoveDown(canvas);
                             e.Handled = true;
                         }
                     }
@@ -1398,7 +877,7 @@ namespace CanvasDiagramEditor
                     {
                         if (e.OriginalSource is ScrollViewer)
                         {
-                            editor.MoveLeft(canvas);
+                            Editor.MoveLeft(canvas);
                             e.Handled = true;
                         }
                     }
@@ -1409,7 +888,7 @@ namespace CanvasDiagramEditor
                     {
                         if (e.OriginalSource is ScrollViewer)
                         {
-                            editor.MoveRight(canvas);
+                            Editor.MoveRight(canvas);
                             e.Handled = true;
                         }
                     }
@@ -1438,9 +917,9 @@ namespace CanvasDiagramEditor
             var window = new TagEditorWindow();
             var control = window.TagEditorControl;
 
-            if (editor.CurrentOptions.Tags == null)
+            if (Editor.CurrentOptions.Tags == null)
             {
-                editor.CurrentOptions.Tags = new List<object>();
+                Editor.CurrentOptions.Tags = new List<object>();
             }
 
             var selected = GetSelectedInputOutputElements();
@@ -1456,7 +935,7 @@ namespace CanvasDiagramEditor
                 control.Selected = selected;
             }
 
-            control.Tags = editor.CurrentOptions.Tags;
+            control.Tags = Editor.CurrentOptions.Tags;
 
             window.Closing += (sender, e) =>
             {
@@ -1479,7 +958,7 @@ namespace CanvasDiagramEditor
 
         private List<FrameworkElement> GetAllInputOutputElements()
         {
-            var all = editor.GetAllElements().Where(x =>
+            var all = Editor.GetAllElements().Where(x =>
             {
                 string uid = x.Uid;
                 return StringUtil.StartsWith(uid, ModelConstants.TagElementInput) ||
@@ -1491,7 +970,7 @@ namespace CanvasDiagramEditor
 
         private List<FrameworkElement> GetSelectedInputOutputElements()
         {
-            var selected = editor.GetSelectedElements().Where(x =>
+            var selected = Editor.GetSelectedElements().Where(x =>
             {
                 string uid = x.Uid;
                 return StringUtil.StartsWith(uid, ModelConstants.TagElementInput) ||
@@ -1499,6 +978,22 @@ namespace CanvasDiagramEditor
             }).ToList();
 
             return selected;
+        }
+
+        #endregion
+
+        #region Zoom Events
+
+        private void ZoomSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            double zoom = ZoomSlider.Value;
+
+            zoom = Math.Round(zoom, 1);
+
+            if (e.OldValue != e.NewValue)
+            {
+                this.DiagramControl.Zoom(zoom);
+            }
         }
 
         #endregion
