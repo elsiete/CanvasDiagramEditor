@@ -1,4 +1,4 @@
-# CanvasDiagramEditor
+﻿# CanvasDiagramEditor
 
   Logic diagram editor written in WPF using Canvas panel.
 
@@ -32,7 +32,7 @@
         +;Wire|2;330;410;480;410;False;False;True;False
         +;Wire|3;510;410;930;410;False;False;False;True
 
-  in result program produces the following diagram: <a href="http://tinypic.com?ref=11vsdud" target="_blank"><img src="http://i40.tinypic.com/11vsdud.jpg" border="0" alt="Image and video hosting by TinyPic"></a>
+  in result program produces the following diagram: <img src="http://i40.tinypic.com/11vsdud.jpg" border="0">
 
 ## Main functions
 

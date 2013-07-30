@@ -4,6 +4,22 @@
 		"selected_items":
 		[
 			[
+				"r",
+				"region"
+			],
+			[
+				"ap",
+				"Append"
+			],
+			[
+				"ve",
+				"vertices"
+			],
+			[
+				"Bu",
+				"Bulge"
+			],
+			[
 				"DxfText",
 				"DxfTextGenerationFlags"
 			],
@@ -19,24 +35,8 @@
 	},
 	"buffers":
 	[
-		{
-			"file": "CanvasDiagramEditor.sublime-project",
-			"settings":
-			{
-				"buffer_size": 1115,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "DxfDiagramCreator.cs",
-			"settings":
-			{
-				"buffer_size": 66204,
-				"line_ending": "Windows"
-			}
-		}
 	],
-	"build_system": "Build Debug",
+	"build_system": "Build - Debug",
 	"command_palette":
 	{
 		"height": 0.0,
@@ -63,6 +63,23 @@
 	},
 	"file_history":
 	[
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor-master/CanvasDiagramEditor.sublime-project",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor-master/Dxf/DxfEntities.cs",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor-master/Dxf/Util/DxfLwpolylineVertex.cs",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor-master/Dxf/Util/DxfBuilder.cs",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor-master/DxfDiagramCreator.cs",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor-master/Dxf/Enums/DxfLwpolylineFlags.cs",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor-master/Dxf/DxfTables.cs",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor-master/Dxf/DxfBlocks.cs",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor-master/CanvasDiagramEditor.csproj",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor-master/Dxf/Util/DxfPoint3.cs",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor-master/Dxf/Util/DxfLwpolylineVertex",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor-master/Dxf/Enums/DxfLwpolylineFlags",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor-master/Dxf/Enums/DxfAttributeFlags.cs",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor-master/Dxf/Util/DxfPoint2.cs",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor-master/Dxf/DxfPoint3.cs",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor-master/Dxf/DxfBuilder",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor-master/Dxf/Util/DxfDoubleExtensions.cs",
 		"/C/DOWNLOADS/GitHub/CanvasDiagramEditor/DxfDiagramCreator.cs",
 		"/C/DOWNLOADS/GitHub/CanvasDiagramEditor/CanvasDiagramEditor.sublime-project",
 		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/DxfDiagramCreator.cs",
@@ -97,6 +114,8 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"LineWeights",
+			"DxfDoubleExtensions",
 			"DxfAttributeIO",
 			"*.cs"
 		],
@@ -116,65 +135,8 @@
 	"groups":
 	[
 		{
-			"selected": 1,
 			"sheets":
 			[
-				{
-					"buffer": 0,
-					"file": "CanvasDiagramEditor.sublime-project",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 1115,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								304,
-								304
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JSON.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "DxfDiagramCreator.cs",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 66204,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C#/C#.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 1935.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				}
 			]
 		}
 	],
@@ -250,7 +212,7 @@
 	"show_open_files": true,
 	"show_tabs": true,
 	"side_bar_visible": true,
-	"side_bar_width": 197.0,
+	"side_bar_width": 220.0,
 	"status_bar_visible": true,
 	"template_settings":
 	{

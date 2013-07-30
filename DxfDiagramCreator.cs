@@ -31,6 +31,7 @@ namespace CanvasDiagramEditor
     using TreeProject = Tuple<string, Stack<Stack<string>>>;
     using TreeProjects = Stack<Tuple<string, Stack<Stack<string>>>>;
     using TreeSolution = Tuple<string, string, Stack<Tuple<string, Stack<Stack<string>>>>>;
+    using CanvasDiagramEditor.Dxf.Entities;
 
     #endregion
 
@@ -107,7 +108,6 @@ namespace CanvasDiagramEditor
             return null;
         }
 
-
         #endregion
 
         #region Dxf Wrappers
@@ -125,14 +125,37 @@ namespace CanvasDiagramEditor
 
             double thickness = 0.0;
 
-            LineWeights.TryGetValue(layer, out thickness);
+            //LineWeights.TryGetValue(layer, out thickness);
 
-            return DxfEntities.DxfLine(thickness,
-                new DxfPoint3(_x1, _y1, 0.0),
-                new DxfPoint3(_x2, _y2, 0.0),
+            var line = new DxfLine()
+                .Layer(layer)
+                .Color(color.ToString())
+                .Thickness(thickness)
+                .Start(new Vector3(_x1, _y1, 0.0))
+                .End(new Vector3(_x2, _y2, 0.0));
+
+            return line.ToString();
+
+            /*
+            double lineWeight = 0.0;
+
+            //LineWeights.TryGetValue(layer, out lineWeight);
+
+            const int numberOfVertices = 2;
+
+            var vertex1 = new DxfLwpolylineVertex(new Vector2(_x1, _y1), 0.0, 0.0, 0.0);
+            var vertex2 = new DxfLwpolylineVertex(new Vector2(_x2, _y2), 0.0, 0.0, 0.0);
+
+            return DxfFactory.DxfLwpolyline(numberOfVertices,
+                DxfLwpolylineFlags.Default,
+                lineWeight,
+                0.0,
+                0.0,
+                new DxfLwpolylineVertex[numberOfVertices] { vertex1, vertex2 },
                 null,
                 layer,
                 color.ToString());
+            */
         }
 
         public string DxfCircle(double x, double y,
@@ -146,75 +169,107 @@ namespace CanvasDiagramEditor
 
             double thickness = 0.0;
 
-            LineWeights.TryGetValue(layer, out thickness);
+            //LineWeights.TryGetValue(layer, out thickness);
 
-            return DxfEntities.DxfCircle(thickness,
-                new DxfPoint3(_x, _y, 0.0),
-                radius,
-                null,
-                layer,
-                color.ToString());
+            var circle = new DxfCircle()
+                .Layer(layer)
+                .Color(color.ToString())
+                .Thickness(thickness)
+                .Radius(radius)
+                .Center(new Vector3(_x, _y, 0.0));
+
+            return circle.ToString();
         }
 
         private string DxfAttdefIO(string tag, double x, double y, bool isVisible)
         {
-            return DxfEntities.DxfAttdef(0.0,
-                new DxfPoint3(x, y, 0.0),
-                new DxfPoint3(x, y, 0.0),
-                null,
-                tag, tag, tag,
-                isVisible ? DxfAttributeFlags.Default : DxfAttributeFlags.Invisible,
-                6.0,
-                0.0,
-                0.0,
-                "TEXTIO",
-                1.0,
-                DxfTextGenerationFlags.Default,
-                DxfHorizontalTextJustification.Left,
-                DxfVerticalTextJustification.Middle,
-                LayerIO);
+            var attdef = new DxfAttdef()
+                .FirstAlignment(new Vector3(x, y, 0.0))
+                .SecondAlignment(new Vector3(x, y, 0.0))
+                .Tag(tag)
+                .DefaultValue(tag)
+                .Prompt(tag)
+                .AttributeFlags(isVisible ? DxfAttributeFlags.Default : DxfAttributeFlags.Invisible)
+                .TextHeight(6.0)
+                .TextStyle("TEXTIO")
+                .Layer(LayerIO)
+                .HorizontalTextJustification(DxfHorizontalTextJustification.Left)
+                .VerticalTextJustification(DxfVerticalTextJustification.Middle);
+
+            return attdef.ToString();
         }
 
         private string DxfAttribIO(string tag, string text,
             double x, double y,
             bool isVisible)
         {
-            return DxfEntities.DxfAttrib(0.0,
-                new DxfPoint3(x, y, 0.0),
-                new DxfPoint3(x, y, 0.0),
-                null,
-                tag,
-                text,
-                isVisible ? DxfAttributeFlags.Default : DxfAttributeFlags.Invisible,
-                6.0,
-                0.0,
-                0.0,
-                "TEXTIO",
-                1.0,
-                DxfTextGenerationFlags.Default,
-                DxfHorizontalTextJustification.Left,
-                DxfVerticalTextJustification.Middle,
-                LayerIO);
+            var attrib = new DxfAttrib()
+                .FirstAlignment(new Vector3(x, y, 0.0))
+                .SecondAlignment(new Vector3(x, y, 0.0))
+                .Tag(tag)
+                .DefaultValue(text)
+                .AttributeFlags(isVisible ? DxfAttributeFlags.Default : DxfAttributeFlags.Invisible)
+                .TextHeight(6.0)
+                .TextStyle("TEXTIO")
+                .Layer(LayerIO)
+                .HorizontalTextJustification(DxfHorizontalTextJustification.Left)
+                .VerticalTextJustification(DxfVerticalTextJustification.Middle);
+
+            return attrib.ToString();
+        }
+
+        private string DxfAttdefGate(string tag, double x, double y, bool isVisible)
+        {
+            var attdef = new DxfAttdef()
+                .FirstAlignment(new Vector3(x, y, 0.0))
+                .SecondAlignment(new Vector3(x, y, 0.0))
+                .Tag(tag)
+                .DefaultValue(tag)
+                .Prompt(tag)
+                .AttributeFlags(isVisible ? DxfAttributeFlags.Default : DxfAttributeFlags.Invisible)
+                .TextHeight(10.0)
+                .TextStyle("TEXTGATE")
+                .Layer(LayerElements)
+                .HorizontalTextJustification(DxfHorizontalTextJustification.Center)
+                .VerticalTextJustification(DxfVerticalTextJustification.Middle);
+
+            return attdef.ToString();
+        }
+
+        private string DxfAttribGate(string tag, string text,
+            double x, double y,
+            bool isVisible)
+        {
+            var attrib = new DxfAttrib()
+                .FirstAlignment(new Vector3(x, y, 0.0))
+                .SecondAlignment(new Vector3(x, y, 0.0))
+                .Tag(tag)
+                .DefaultValue(text)
+                .AttributeFlags(isVisible ? DxfAttributeFlags.Default : DxfAttributeFlags.Invisible)
+                .TextHeight(10.0)
+                .TextStyle("TEXTGATE")
+                .Layer(LayerElements)
+                .HorizontalTextJustification(DxfHorizontalTextJustification.Center)
+                .VerticalTextJustification(DxfVerticalTextJustification.Middle);
+
+            return attrib.ToString();
         }
 
         private string DxfTextGate(string text, 
             double x1, double y1,
             double x2, double y2)
         {
-            return DxfEntities.DxfText(0.0,
-                new DxfPoint3(x1, y1, 0.0),
-                new DxfPoint3(x2, y2, 0.0),
-                null,
-                text,
-                10.0,
-                0.0,
-                0.0,
-                "TEXTGATE",
-                1.0,
-                DxfTextGenerationFlags.Default,
-                DxfHorizontalTextJustification.Center,
-                DxfVerticalTextJustification.Middle,
-                LayerElements);
+            var txt = new DxfText()
+                .Layer(LayerElements)
+                .Text(text)
+                .TextStyle("TEXTGATE")
+                .TextHeight(10.0)
+                .FirstAlignment(new Vector3(x1, y1, 0.0))
+                .SecondAlignment(new Vector3(x2, y2, 0.0))
+                .HorizontalTextJustification(DxfHorizontalTextJustification.Center)
+                .VerticalTextJustification(DxfVerticalTextJustification.Middle);
+
+            return txt.ToString();
         }
 
         #endregion
@@ -223,67 +278,96 @@ namespace CanvasDiagramEditor
 
         public string DxfHeader(string title)
         {
-            var sb = new StringBuilder();
+             var b = new DxfBuilder();
 
-            // AutoCAD version compatibility: AC1009 = R11 and R12
+            // Current DXF compatibility: AC1009 = R11 and R12
 
             // header comment
-            sb.AppendLine("999");
-            sb.AppendLine(title);
+            b.AddComment(title);
 
             // begin header section
-            sb.AppendLine("0");
-            sb.AppendLine("SECTION");
-            sb.AppendLine("2");
-            sb.AppendLine("HEADER");
+            b.Add("0", "SECTION");
+            b.Add("2", "HEADER");
 
-            sb.AppendLine("9");
-            sb.AppendLine("$ACADVER");
-            sb.AppendLine("1");
-            sb.AppendLine("AC1009");
+            // the AutoCAD drawing database version number: 
+            // AC1006 = R10
+            // AC1009 = R11 and R12, 
+            // AC1012 = R13, AC1014 = R14, 
+            // AC1015 = AutoCAD 2000
+            b.Add("9", "$ACADVER");
+            b.Add("1", "AC1009");
 
-            sb.AppendLine("9");
-            sb.AppendLine("$INSBASE");
-            sb.AppendLine("10");
-            sb.AppendLine("0.0");
-            sb.AppendLine("20");
-            sb.AppendLine("0.0");
-            sb.AppendLine("30");
-            sb.AppendLine("0.0");
+            // drawing extents upper-right corner
+            b.Add("9", "$EXTMAX");
+            b.Add("10", "1260.0");
+            b.Add("20", "891.0");
 
-            sb.AppendLine("9");
-            sb.AppendLine("$EXTMIN");
-            sb.AppendLine("10");
-            sb.AppendLine("0.0");
-            sb.AppendLine("20");
-            sb.AppendLine("0.0");
+            // drawing extents lower-left corner
+            b.Add("9", "$EXTMIN");
+            b.Add("10", "0.0");
+            b.Add("20", "0.0");
 
-            sb.AppendLine("9");
-            sb.AppendLine("$EXTMAX");
-            sb.AppendLine("10");
-            sb.AppendLine("1260.0");
-            sb.AppendLine("20");
-            sb.AppendLine("891.0");
+            // insertion base 
+            b.Add("9", "$INSBASE");
+            b.Add("10", "0.0");
+            b.Add("20", "0.0");
+            b.Add("30", "0.0");
 
-            sb.AppendLine("9");
-            sb.AppendLine("$LIMMIN");
-            sb.AppendLine("10");
-            sb.AppendLine("0.0");
-            sb.AppendLine("20");
-            sb.AppendLine("0.0");
+            // drawing limits upper-right corner 
+            b.Add("9", "$LIMMAX");
+            b.Add("10", "1260.0");
+            b.Add("20", "891.0");
 
-            sb.AppendLine("9");
-            sb.AppendLine("$LIMMAX");
-            sb.AppendLine("10");
-            sb.AppendLine("1260.0");
-            sb.AppendLine("20");
-            sb.AppendLine("891.0");
-            sb.AppendLine("0");
+            // drawing limits lower-left corner 
+            b.Add("9", "$LIMMIN");
+            b.Add("10", "0.0");
+            b.Add("20", "0.0");
+
+            // default drawing units for AutoCAD DesignCenter blocks
+            /* 
+            0 = Unitless;
+            1 = Inches; 
+            2 = Feet; 
+            3 = Miles; 
+            4 = Millimeters; 
+            5 = Centimeters; 
+            6 = Meters; 
+            7 = Kilometers; 
+            8 = Microinches; 
+            9 = Mils; 
+            10 = Yards; 
+            11 = Angstroms; 
+            12 = Nanometers; 
+            13 = Microns; 
+            14 = Decimeters; 
+            15 = Decameters; 
+            16 = Hectometers; 
+            17 = Gigameters; 
+            18 = Astronomical units; 
+            19 = Light years; 
+            20 = Parsecs
+            */
+
+            // units format for coordinates and distances
+            b.Add("9", "$INSUNITS");
+            b.Add("70", (int) 4);
+
+            // units format for coordinates and distances
+            b.Add("9", "$LUNITS");
+            b.Add("70", (int) 2);
+
+            // units precision for coordinates and distances
+            b.Add("9", "$LUPREC");
+            b.Add("70", (int) 4);
+
+            // sets drawing units
+            b.Add("9", "$MEASUREMENT");
+            b.Add("70", (int) 1); // 0 = English; 1 = Metric
 
             // end header section
-            sb.AppendLine("ENDSEC");
+            b.Add("0", "ENDSEC");
 
-            return sb.ToString();
+            return b.Build();
         }
 
         private string DxfTableAppid()
@@ -546,9 +630,9 @@ namespace CanvasDiagramEditor
 
             sb.Append(DxfTableAppid());
 
-            sb.Append(DxfTableLayers());
-
             sb.Append(DxfTableLineStyles());
+
+            sb.Append(DxfTableLayers());
 
             sb.Append(DxfTableTextStyles());
 
@@ -935,7 +1019,7 @@ namespace CanvasDiagramEditor
 
             // block type
             sb.AppendLine("70");
-            sb.AppendLine("2");
+            sb.AppendLine(((int)DxfBlockTypeFlags.NonConstantAttributes).ToString());
 
             // base point: X
             sb.AppendLine("10");
@@ -970,6 +1054,9 @@ namespace CanvasDiagramEditor
             sb.Append(str);
 
             // tag text
+            str = DxfAttdefIO("ID", 288, 30, false);
+            sb.Append(str);
+
             str = DxfAttdefIO("TAGID", 288, 0, false);
             sb.Append(str);
 
@@ -1006,7 +1093,7 @@ namespace CanvasDiagramEditor
 
             // block type
             sb.AppendLine("70");
-            sb.AppendLine("2");
+            sb.AppendLine(((int)DxfBlockTypeFlags.NonConstantAttributes).ToString());
 
             // base point: X
             sb.AppendLine("10");
@@ -1041,6 +1128,9 @@ namespace CanvasDiagramEditor
             sb.Append(str);
 
             // tag text
+            str = DxfAttdefIO("ID", 288, 30, false);
+            sb.Append(str);
+
             str = DxfAttdefIO("TAGID", 288, 0, false);
             sb.Append(str);
 
@@ -1079,7 +1169,7 @@ namespace CanvasDiagramEditor
 
             // block type
             sb.AppendLine("70");
-            sb.AppendLine("0");
+            sb.AppendLine(((int)DxfBlockTypeFlags.NonConstantAttributes).ToString());
 
             // base point: X
             sb.AppendLine("10");
@@ -1109,8 +1199,11 @@ namespace CanvasDiagramEditor
             str = DxfLine(30.0, 0.0, 30.0, 30.0, 0.0, 0.0, LayerElements, 0, 0.0, 30.0);
             sb.Append(str);
 
-            // gate text
-            str = DxfTextGate("&", 15.0, 0.0, 15.0, 15.0);
+            // tag text
+            str = DxfAttdefGate("ID", 30.0, 30.0, false);
+            sb.Append(str);
+
+            str = DxfAttdefGate("TEXT", 15.0, 15.0, true);
             sb.Append(str);
 
             sb.Append(DxfBlocks.DxfBlockEnd());
@@ -1134,7 +1227,7 @@ namespace CanvasDiagramEditor
 
             // block type
             sb.AppendLine("70");
-            sb.AppendLine("0");
+            sb.AppendLine(((int)DxfBlockTypeFlags.NonConstantAttributes).ToString());
 
             // base point: X
             sb.AppendLine("10");
@@ -1164,8 +1257,11 @@ namespace CanvasDiagramEditor
             str = DxfLine(30.0, 0.0, 30.0, 30.0, 0.0, 0.0, LayerElements, 0, 0.0, 30.0);
             sb.Append(str);
 
-            // gate text
-            str = DxfTextGate("\\U+22651", 15.0, 0.0, 15.0, 15.0);
+            // tag text
+            str = DxfAttdefGate("ID", 30.0, 30.0, false);
+            sb.Append(str);
+
+            str = DxfAttdefGate("TEXT", 15.0, 15.0, true);
             sb.Append(str);
 
             sb.Append(DxfBlocks.DxfBlockEnd());
@@ -1441,6 +1537,9 @@ namespace CanvasDiagramEditor
                 sb.AppendLine("66");
                 sb.AppendLine("1");
 
+                str = DxfAttribIO("ID", id.ToString(), x + 288.0, (PageHeight - y - 30), false);
+                sb.Append(str);
+
                 str = DxfAttribIO("TAGID", tag.Id.ToString(), x + 288.0, (PageHeight - y), false);
                 sb.Append(str);
 
@@ -1504,6 +1603,9 @@ namespace CanvasDiagramEditor
                 sb.AppendLine("66");
                 sb.AppendLine("1");
 
+                str = DxfAttribIO("ID", id.ToString(), x + 288.0, (PageHeight - y - 30), false);
+                sb.Append(str);
+
                 str = DxfAttribIO("TAGID", tag.Id.ToString(), x + 288.0, (PageHeight - y), false);
                 sb.Append(str);
 
@@ -1557,17 +1659,22 @@ namespace CanvasDiagramEditor
             sb.Append("0");
 
             // attributes follow: 0 - no, 1 - yes
-            //sb.AppendLine("66");
-            //sb.AppendLine("0");
+            sb.AppendLine("");
+            sb.AppendLine("66");
+            sb.AppendLine("1");
 
-            // attributes
+            string str = null;
 
+            str = DxfAttribGate("ID", id.ToString(), x + 30, (PageHeight - y - 30), false);
+            sb.Append(str);
 
-            // TODO: attributes
+            str = DxfAttribGate("TEXT", "&", x + 15.0, (PageHeight - y - 15.0), true);
+            sb.Append(str);
 
+            sb.AppendLine("0");
+            sb.Append("SEQEND");
 
             DxfString.AppendLine(sb.ToString());
-
 
             return null;
         }
@@ -1601,14 +1708,20 @@ namespace CanvasDiagramEditor
             sb.Append("0");
 
             // attributes follow: 0 - no, 1 - yes
-            //sb.AppendLine("66");
-            //sb.AppendLine("0");
+            sb.AppendLine("");
+            sb.AppendLine("66");
+            sb.AppendLine("1");
 
-            // attributes
+            string str = null;
 
+            str = DxfAttribGate("ID", id.ToString(), x + 30, (PageHeight - y - 30), false);
+            sb.Append(str);
 
-            // TODO: attributes
+            str = DxfAttribGate("TEXT", "\\U+22651", x + 15.0, (PageHeight - y - 15.0), true);
+            sb.Append(str);
 
+            sb.AppendLine("0");
+            sb.Append("SEQEND");
 
             DxfString.AppendLine(sb.ToString());
 
@@ -1690,7 +1803,7 @@ namespace CanvasDiagramEditor
             DxfString.Append(DxfEntities.DxfEntitiesEnd());
 
             // eof
-            DxfString.Append(DxfEntities.DxfEof());
+            DxfString.Append(new DxfEof().ToString());
 
             return DxfString.ToString();
         }

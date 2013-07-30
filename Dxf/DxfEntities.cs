@@ -3,6 +3,7 @@
 
 #region References
 
+using CanvasDiagramEditor.Dxf.Entities;
 using CanvasDiagramEditor.Dxf.Enums;
 using CanvasDiagramEditor.Dxf.Util;
 using System;
@@ -22,15 +23,13 @@ namespace CanvasDiagramEditor.Dxf
 
         public static string DxfEntitiesBegin()
         {
-            var sb = new StringBuilder();
+            var b = new DxfBuilder();
 
             // begin entities section
-            sb.AppendLine("0");
-            sb.AppendLine("SECTION");
-            sb.AppendLine("2");
-            sb.AppendLine("ENTITIES");
+            b.Add("0", "SECTION");
+            b.Add("2", "ENTITIES");
 
-            return sb.ToString();
+            return b.Build();
         } 
 
         #endregion
@@ -39,610 +38,119 @@ namespace CanvasDiagramEditor.Dxf
 
         public static string DxfEntitiesEnd()
         {
-            var sb = new StringBuilder();
+            var b = new DxfBuilder();
 
             // end entities section
-            sb.AppendLine("0");
-            sb.AppendLine("ENDSEC");
+            b.Add("0", "ENDSEC");
 
-            return sb.ToString();
+            return b.Build();
         } 
 
         #endregion
 
-        #region DxfText
-
-        public static string DxfText(double thickness,
-            DxfPoint3 firstAlignmentPoint,
-            DxfPoint3 secondAlignmentPoint,
-            DxfPoint3 extrusionDirection,
-            string text,
-            double textHeight,
-            double textRotation,
-            double obliqueAngle,
-            string textStyle,
-            double scaleFactorX,
-            DxfTextGenerationFlags textGenerationFlags,
-            DxfHorizontalTextJustification horizontalTextJustification,
-            DxfVerticalTextJustification verticalTextJustification,
-            string layer)
-        {
-            var sb = new StringBuilder();
-
-            // begin text definition
-            sb.AppendLine("0");
-            sb.AppendLine("TEXT");
-
-            // layer
-            if (layer != null)
-            {
-                sb.AppendLine("8");
-                sb.AppendLine(layer);
-            }
-
-            // thickness 
-            if (thickness != 0.0)
-            {
-                sb.AppendLine("39");
-                sb.AppendLine(thickness.ToDxfString());
-            }
-
-            // default value
-            sb.AppendLine("1");
-            sb.AppendLine(text);
-
-            // text style
-            sb.AppendLine("7");
-            sb.AppendLine(textStyle);
-
-            // text height
-            sb.AppendLine("40");
-            sb.AppendLine(textHeight.ToDxfString());
-
-            if (textRotation != 0.0)
-            {
-                // text rotation 
-                sb.AppendLine("50");
-                sb.AppendLine(textRotation.ToDxfString());
-            }
-
-            if (obliqueAngle != 0.0)
-            {
-                // oblique angle
-                sb.AppendLine("51");
-                sb.AppendLine(obliqueAngle.ToDxfString());
-            }
-
-            if (scaleFactorX != 1.0)
-            {
-                // relative X scale factor
-                sb.AppendLine("41");
-                sb.AppendLine(scaleFactorX.ToDxfString());
-            }
-
-            // first alignment : X
-            sb.AppendLine("10");
-            sb.AppendLine(firstAlignmentPoint.X.ToDxfString());
-
-            // first alignment : Y
-            sb.AppendLine("20");
-            sb.AppendLine(firstAlignmentPoint.Y.ToDxfString());
-
-            // first alignment: Z
-            sb.AppendLine("30");
-            sb.AppendLine(firstAlignmentPoint.Y.ToDxfString());
-
-            // second alignment  point: X
-            sb.AppendLine("11");
-            sb.AppendLine(secondAlignmentPoint.X.ToDxfString());
-
-            // second alignment  point: Y
-            sb.AppendLine("21");
-            sb.AppendLine(secondAlignmentPoint.Y.ToDxfString());
-
-            // second alignment  point: Z
-            sb.AppendLine("31");
-            sb.AppendLine(secondAlignmentPoint.Y.ToDxfString());
-
-            if (extrusionDirection != null)
-            {
-                // extrusion direction: X
-                sb.AppendLine("210");
-                sb.AppendLine(extrusionDirection.X.ToDxfString());
-
-                // extrusion direction: Y
-                sb.AppendLine("220");
-                sb.AppendLine(extrusionDirection.Y.ToDxfString());
-
-                // extrusion direction: Z
-                sb.AppendLine("230");
-                sb.AppendLine(extrusionDirection.Z.ToDxfString());
-            }
-
-            if (textGenerationFlags != DxfTextGenerationFlags.Default)
-            {
-                // text generation flags
-                sb.AppendLine("71");
-                sb.AppendLine(textGenerationFlags.ToString("d"));
-            }
-
-            if (horizontalTextJustification != DxfHorizontalTextJustification.Default)
-            {
-                // horizontal justification
-                sb.AppendLine("72");
-                sb.AppendLine(horizontalTextJustification.ToString("d"));
-            }
-
-            if (verticalTextJustification != DxfVerticalTextJustification.Default)
-            {
-                // vertical text justification
-                sb.AppendLine("73");
-                sb.AppendLine(verticalTextJustification.ToString("d"));
-            }
-
-            return sb.ToString();
-        }
-
-        #endregion
-
-        #region DxfCircle
-
-        public static string DxfCircle(double thickness,
-            DxfPoint3 centerPoint,
-            double radius,
-            DxfPoint3 extrusionDirection,
+        #region DxfLwpolyline
+ 
+        public static string DxfLwpolyline(int numberOfVertices,
+            DxfLwpolylineFlags lwpolylineFlags,
+            double constantWidth,
+            double elevation,
+            double thickness,
+            DxfLwpolylineVertex [] vertices,
+            Vector3 extrusionDirection,
             string layer,
             string color)
         {
-            var sb = new StringBuilder();
+            var b = new DxfBuilder();
 
-            // line
-            sb.AppendLine("0");
-            sb.AppendLine("CIRCLE");
+            // lwpolyline
+            b.Add("0", "LWPOLYLINE");
 
             // layer
             if (layer != null)
             {
-                sb.AppendLine("8");
-                sb.AppendLine(layer);
+                b.Add("8", layer);
             }
 
             // color
             if (color != null)
             {
-                sb.AppendLine("62");
-                sb.AppendLine(color);
+                b.Add("62", color);
+            }
+
+            // number of vertices
+            b.Add("90", numberOfVertices);
+
+            // polyline flags
+            if (lwpolylineFlags != DxfLwpolylineFlags.Default)
+            {
+                b.Add("70", (int)lwpolylineFlags);
+            }
+
+            // constant width
+            if (constantWidth != 0.0)
+            {
+                b.Add("43", constantWidth);
+            }
+
+            // elevation 
+            if (elevation != 0.0)
+            {
+                b.Add("38", elevation);
             }
 
             // thickness 
             if (thickness != 0.0)
             {
-                sb.AppendLine("39");
-                sb.AppendLine(thickness.ToDxfString());
+                b.Add("39", thickness);
             }
 
-            // radius 
-            sb.AppendLine("40");
-            sb.AppendLine(radius.ToDxfString());
+            if (vertices != null)
+            {
+                // vertices
+                foreach(var vertex in vertices)
+                {
+                    // vertex coordinates: X
+                    b.Add("10", vertex.Coordinates.X);
 
-            // center point: X
-            sb.AppendLine("10");
-            sb.AppendLine(centerPoint.X.ToDxfString());
+                    // vertex coordinates: Y
+                    b.Add("20", vertex.Coordinates.Y);
 
-            // center point: Y
-            sb.AppendLine("20");
-            sb.AppendLine(centerPoint.Y.ToDxfString());
+                    if (constantWidth == 0.0)
+                    {
+                        // starting width
+                        if (vertex.StartWidth != 0.0)
+                        {
+                        b.Add("40", vertex.StartWidth);
+                        }
 
-            // center point: Z
-            sb.AppendLine("30");
-            sb.AppendLine(centerPoint.Y.ToDxfString());
+                        // end width
+                        if (vertex.EndWidth != 0.0)
+                        {
+                            b.Add("41", vertex.EndWidth);
+                        }
+                    }
+
+                    // bulge
+                    if (vertex.Bulge != 0.0)
+                    {
+                        b.Add("42", vertex.Bulge);
+                    }
+                }
+            }
 
             if (extrusionDirection != null)
             {
                 // extrusion direction: X
-                sb.AppendLine("210");
-                sb.AppendLine(extrusionDirection.X.ToDxfString());
+                b.Add("210", extrusionDirection.X);
 
                 // extrusion direction: Y
-                sb.AppendLine("220");
-                sb.AppendLine(extrusionDirection.Y.ToDxfString());
+                b.Add("220", extrusionDirection.Y);
 
                 // extrusion direction: Z
-                sb.AppendLine("230");
-                sb.AppendLine(extrusionDirection.Z.ToDxfString());
+                b.Add("230", extrusionDirection.Z);
             }
 
-            return sb.ToString();
-        }
-
-        #endregion
-
-        #region DxfLine
-
-        public static string DxfLine(double thickness,
-            DxfPoint3 startPoint,
-            DxfPoint3 endPoint,
-            DxfPoint3 extrusionDirection,
-            string layer,
-            string color)
-        {
-            var sb = new StringBuilder();
-
-            // line
-            sb.AppendLine("0");
-            sb.AppendLine("LINE");
-
-            // layer
-            if (layer != null)
-            {
-                sb.AppendLine("8");
-                sb.AppendLine(layer);
-            }
-
-            // color
-            if (color != null)
-            {
-                sb.AppendLine("62");
-                sb.AppendLine(color);
-            }
-
-            // thickness 
-            if (thickness != 0.0)
-            {
-                sb.AppendLine("39");
-                sb.AppendLine(thickness.ToDxfString());
-            }
-
-            // start point: X
-            sb.AppendLine("10");
-            sb.AppendLine(startPoint.X.ToDxfString());
-
-            // start point: Y
-            sb.AppendLine("20");
-            sb.AppendLine(startPoint.Y.ToDxfString());
-
-            // start point: Z
-            sb.AppendLine("30");
-            sb.AppendLine(startPoint.Y.ToDxfString());
-
-            // end point: X
-            sb.AppendLine("11");
-            sb.AppendLine(endPoint.X.ToDxfString());
-
-            // end point: Y
-            sb.AppendLine("21");
-            sb.AppendLine(endPoint.Y.ToDxfString());
-
-            // end point: Z
-            sb.AppendLine("31");
-            sb.AppendLine(endPoint.Y.ToDxfString());
-
-            if (extrusionDirection != null)
-            {
-                // extrusion direction: X
-                sb.AppendLine("210");
-                sb.AppendLine(extrusionDirection.X.ToDxfString());
-
-                // extrusion direction: Y
-                sb.AppendLine("220");
-                sb.AppendLine(extrusionDirection.Y.ToDxfString());
-
-                // extrusion direction: Z
-                sb.AppendLine("230");
-                sb.Append(extrusionDirection.Z.ToDxfString());
-            }
-
-            return sb.ToString();
-        }
-
-        #endregion
-
-        #region DxfAttdef
-
-        public static string DxfAttdef(double thickness,
-            DxfPoint3 firstAlignmentPoint,
-            DxfPoint3 secondAlignmentPoint,
-            DxfPoint3 extrusionDirection,
-            string tag,
-            string defaultValue,
-            string prompt,
-            DxfAttributeFlags attributeFlags,
-            double textHeight,
-            double textRotation,
-            double obliqueAngle,
-            string textStyle,
-            double scaleFactorX,
-            DxfTextGenerationFlags textGenerationFlags,
-            DxfHorizontalTextJustification horizontalTextJustification,
-            DxfVerticalTextJustification verticalTextJustification,
-            string layer)
-        {
-            var sb = new StringBuilder();
-
-            // begin attribute definition
-            sb.AppendLine("0");
-            sb.AppendLine("ATTDEF");
-
-            // layer
-            if (layer != null)
-            {
-                sb.AppendLine("8");
-                sb.AppendLine(layer);
-            }
-
-            // thickness 
-            if (thickness != 0.0)
-            {
-                sb.AppendLine("39");
-                sb.AppendLine(thickness.ToDxfString());
-            }
-
-            // default value
-            sb.AppendLine("1");
-            sb.AppendLine(defaultValue);
-
-            // tag string
-            sb.AppendLine("2");
-            sb.AppendLine(tag);
-
-            // prompt string
-            sb.AppendLine("3");
-            sb.AppendLine(prompt);
-
-            // text style
-            sb.AppendLine("7");
-            sb.AppendLine(textStyle);
-
-            // text height
-            sb.AppendLine("40");
-            sb.AppendLine(textHeight.ToDxfString());
-
-            if (textRotation != 0.0)
-            {
-                // text rotation 
-                sb.AppendLine("50");
-                sb.AppendLine(textRotation.ToDxfString());
-            }
-
-            if (obliqueAngle != 0.0)
-            {
-                // oblique angle
-                sb.AppendLine("51");
-                sb.AppendLine(obliqueAngle.ToDxfString());
-            }
-
-            if (scaleFactorX != 1.0)
-            {
-                // relative X scale factor
-                sb.AppendLine("41");
-                sb.AppendLine(scaleFactorX.ToDxfString());
-            }
-
-            // first alignment : X
-            sb.AppendLine("10");
-            sb.AppendLine(firstAlignmentPoint.X.ToDxfString());
-
-            // first alignment : Y
-            sb.AppendLine("20");
-            sb.AppendLine(firstAlignmentPoint.Y.ToDxfString());
-
-            // first alignment: Z
-            sb.AppendLine("30");
-            sb.AppendLine(firstAlignmentPoint.Y.ToDxfString());
-
-            // second alignment  point: X
-            sb.AppendLine("11");
-            sb.AppendLine(secondAlignmentPoint.X.ToDxfString());
-
-            // second alignment  point: Y
-            sb.AppendLine("21");
-            sb.AppendLine(secondAlignmentPoint.Y.ToDxfString());
-
-            // second alignment  point: Z
-            sb.AppendLine("31");
-            sb.AppendLine(secondAlignmentPoint.Y.ToDxfString());
-
-            if (extrusionDirection != null)
-            {
-                // extrusion direction: X
-                sb.AppendLine("210");
-                sb.AppendLine(extrusionDirection.X.ToDxfString());
-
-                // extrusion direction: Y
-                sb.AppendLine("220");
-                sb.AppendLine(extrusionDirection.Y.ToDxfString());
-
-                // extrusion direction: Z
-                sb.AppendLine("230");
-                sb.AppendLine(extrusionDirection.Z.ToDxfString());
-            }
-
-            // attribute flags
-            sb.AppendLine("70");
-            sb.AppendLine(attributeFlags.ToString("d"));
-
-            if (textGenerationFlags != DxfTextGenerationFlags.Default)
-            {
-                // text generation flags
-                sb.AppendLine("71");
-                sb.AppendLine(textGenerationFlags.ToString("d"));
-            }
-
-            if (horizontalTextJustification != DxfHorizontalTextJustification.Default)
-            {
-                // horizontal justification
-                sb.AppendLine("72");
-                sb.AppendLine(horizontalTextJustification.ToString("d"));
-            }
-
-            if (verticalTextJustification != DxfVerticalTextJustification.Default)
-            {
-                // vertical text justification
-                sb.AppendLine("74");
-                sb.AppendLine(verticalTextJustification.ToString("d"));
-            }
-
-            return sb.ToString();
-        }
-
-        #endregion
-
-        #region DxfAttrib
-
-        public static string DxfAttrib(double thickness,
-            DxfPoint3 firstAlignmentPoint,
-            DxfPoint3 secondAlignmentPoint,
-            DxfPoint3 extrusionDirection,
-            string attributeTag,
-            string defaultValue,
-            DxfAttributeFlags attributeFlags,
-            double textHeight,
-            double textRotation,
-            double obliqueAngle,
-            string textStyle,
-            double scaleFactorX,
-            DxfTextGenerationFlags textGenerationFlags,
-            DxfHorizontalTextJustification horizontalTextJustification,
-            DxfVerticalTextJustification verticalTextJustification,
-            string layer)
-        {
-            var sb = new StringBuilder();
-
-            // begin attribute definition
-            sb.AppendLine("0");
-            sb.AppendLine("ATTRIB");
-
-            // layer
-            if (layer != null)
-            {
-                sb.AppendLine("8");
-                sb.AppendLine(layer);
-            }
-
-            // thickness 
-            if (thickness != 0.0)
-            {
-                sb.AppendLine("39");
-                sb.AppendLine(thickness.ToDxfString());
-            }
-
-            // default value
-            sb.AppendLine("1");
-            sb.AppendLine(defaultValue);
-
-            // attribute tag
-            sb.AppendLine("2");
-            sb.AppendLine(attributeTag);
-
-            // text style
-            sb.AppendLine("7");
-            sb.AppendLine(textStyle);
-
-            // text height
-            sb.AppendLine("40");
-            sb.AppendLine(textHeight.ToDxfString());
-
-            if (textRotation != 0.0)
-            {
-                // text rotation 
-                sb.AppendLine("50");
-                sb.AppendLine(textRotation.ToDxfString());
-            }
-
-            if (obliqueAngle != 0.0)
-            {
-                // oblique angle
-                sb.AppendLine("51");
-                sb.AppendLine(obliqueAngle.ToDxfString());
-            }
-
-            if (scaleFactorX != 1.0)
-            {
-                // relative X scale factor
-                sb.AppendLine("41");
-                sb.AppendLine(scaleFactorX.ToDxfString());
-            }
-
-            // first alignment : X
-            sb.AppendLine("10");
-            sb.AppendLine(firstAlignmentPoint.X.ToDxfString());
-
-            // first alignment : Y
-            sb.AppendLine("20");
-            sb.AppendLine(firstAlignmentPoint.Y.ToDxfString());
-
-            // first alignment: Z
-            sb.AppendLine("30");
-            sb.AppendLine(firstAlignmentPoint.Y.ToDxfString());
-
-            // second alignment  point: X
-            sb.AppendLine("11");
-            sb.AppendLine(secondAlignmentPoint.X.ToDxfString());
-
-            // second alignment  point: Y
-            sb.AppendLine("21");
-            sb.AppendLine(secondAlignmentPoint.Y.ToDxfString());
-
-            // second alignment  point: Z
-            sb.AppendLine("31");
-            sb.AppendLine(secondAlignmentPoint.Y.ToDxfString());
-
-            if (extrusionDirection != null)
-            {
-                // extrusion direction: X
-                sb.AppendLine("210");
-                sb.AppendLine(extrusionDirection.X.ToDxfString());
-
-                // extrusion direction: Y
-                sb.AppendLine("220");
-                sb.AppendLine(extrusionDirection.Y.ToDxfString());
-
-                // extrusion direction: Z
-                sb.AppendLine("230");
-                sb.AppendLine(extrusionDirection.Z.ToDxfString());
-            }
-
-            // attribute flags
-            sb.AppendLine("70");
-            sb.AppendLine(attributeFlags.ToString("d"));
-
-            if (textGenerationFlags != DxfTextGenerationFlags.Default)
-            {
-                // text generation flags
-                sb.AppendLine("71");
-                sb.AppendLine(textGenerationFlags.ToString("d"));
-            }
-
-            if (horizontalTextJustification != DxfHorizontalTextJustification.Default)
-            {
-                // horizontal justification
-                sb.AppendLine("72");
-                sb.AppendLine(horizontalTextJustification.ToString("d"));
-            }
-
-            if (verticalTextJustification != DxfVerticalTextJustification.Default)
-            {
-                // vertical text justification
-                sb.AppendLine("74");
-                sb.AppendLine(verticalTextJustification.ToString("d"));
-            }
-
-            return sb.ToString();
-        }
-
-        #endregion
-
-        #region DxfEof
-
-        public static string DxfEof()
-        {
-            var sb = new StringBuilder();
-
-            // end if file
-            sb.AppendLine("0");
-            sb.AppendLine("EOF");
-
-            return sb.ToString();
+            return b.Build();
         }
 
         #endregion
