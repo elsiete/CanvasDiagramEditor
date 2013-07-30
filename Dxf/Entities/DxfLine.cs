@@ -15,7 +15,7 @@ namespace CanvasDiagramEditor.Dxf.Entities
 {
     #region DxfLine
 
-    public class DxfLine : DxfEntity
+    public class DxfLine : DxfObject
     {
         public DxfLine()
             : base()

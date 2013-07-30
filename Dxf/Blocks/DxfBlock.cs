@@ -10,13 +10,13 @@ using System.Text;
 
 #endregion
 
-namespace CanvasDiagramEditor.Dxf.Entities
+namespace CanvasDiagramEditor.Dxf.Blocks
 {
-    #region DxfLwpolyline
+    #region DxfBlock
 
-    public class DxfLwpolyline : DxfObject
+    public class DxfBlock : DxfObject
     {
-        public DxfLwpolyline()
+        public DxfBlock()
             : base()
         {
         }

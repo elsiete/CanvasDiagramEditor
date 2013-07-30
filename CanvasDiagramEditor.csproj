@@ -56,16 +56,29 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="DxfDiagramCreator.cs" />
+    <Compile Include="Dxf\Blocks\DxfBlock.cs" />
     <Compile Include="Dxf\DxfBlocks.cs" />
     <Compile Include="Dxf\DxfTables.cs" />
+    <Compile Include="Dxf\Entities\Dxf3Dface.cs" />
+    <Compile Include="Dxf\Entities\DxfArc.cs" />
     <Compile Include="Dxf\Entities\DxfAttdef.cs" />
     <Compile Include="Dxf\Entities\DxfAttrib.cs" />
     <Compile Include="Dxf\Entities\DxfCircle.cs" />
-    <Compile Include="Dxf\Entities\DxfEntity.cs" />
+    <Compile Include="Dxf\DxfObject.cs" />
+    <Compile Include="Dxf\Entities\DxfDimension.cs" />
+    <Compile Include="Dxf\Entities\DxfEllipse.cs" />
     <Compile Include="Dxf\Entities\DxfEof.cs" />
+    <Compile Include="Dxf\Entities\DxfInsert.cs" />
     <Compile Include="Dxf\Entities\DxfLine.cs" />
     <Compile Include="Dxf\Entities\DxfLwpolyline.cs" />
+    <Compile Include="Dxf\Entities\DxfPoint.cs" />
+    <Compile Include="Dxf\Entities\DxfPolyline.cs" />
+    <Compile Include="Dxf\Entities\DxfShape.cs" />
+    <Compile Include="Dxf\Entities\DxfSolid.cs" />
     <Compile Include="Dxf\Entities\DxfText.cs" />
+    <Compile Include="Dxf\Entities\DxfTrace.cs" />
+    <Compile Include="Dxf\Entities\DxfVertex.cs" />
+    <Compile Include="Dxf\Entities\DxfViewport.cs" />
     <Compile Include="Dxf\Enums\DxfAttributeFlags.cs" />
     <Compile Include="Dxf\DxfEntities.cs" />
     <Compile Include="Dxf\Enums\DxfBlockTypeFlags.cs" />
@@ -76,6 +89,14 @@
     <Compile Include="Dxf\Enums\DxfStyleFlags.cs" />
     <Compile Include="Dxf\Enums\DxfTextGenerationFlags.cs" />
     <Compile Include="Dxf\Enums\DxfVerticalTextJustification.cs" />
+    <Compile Include="Dxf\Tables\DxfAppid.cs" />
+    <Compile Include="Dxf\Tables\DxfDimstyle.cs" />
+    <Compile Include="Dxf\Tables\DxfLayer.cs" />
+    <Compile Include="Dxf\Tables\DxfLtype.cs" />
+    <Compile Include="Dxf\Tables\DxfStyle.cs" />
+    <Compile Include="Dxf\Tables\DxfUcs.cs" />
+    <Compile Include="Dxf\Tables\DxfView.cs" />
+    <Compile Include="Dxf\Tables\DxfVport.cs" />
     <Compile Include="Dxf\Util\DxfBuilder.cs" />
     <Compile Include="Dxf\Util\DxfDoubleExtensions.cs" />
     <Compile Include="Dxf\Util\DxfLwpolylineVertex.cs" />
@@ -193,6 +214,7 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

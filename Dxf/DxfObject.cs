@@ -10,11 +10,11 @@ using System.Text;
 
 #endregion
 
-namespace CanvasDiagramEditor.Dxf.Entities
+namespace CanvasDiagramEditor.Dxf
 {
-    #region DxfEntity
+    #region DxfObject
 
-    public abstract class DxfEntity
+    public abstract class DxfObject
     {
         protected StringBuilder sb = new StringBuilder();
 
@@ -28,21 +28,21 @@ namespace CanvasDiagramEditor.Dxf.Entities
             return this.sb.ToString();
         }
 
-        public virtual DxfEntity Add(string code, string data)
+        public virtual DxfObject Add(string code, string data)
         {
             this.sb.AppendLine(code);
             this.sb.AppendLine(data);
             return this;
         }
 
-        public virtual DxfEntity Add(string code, int data)
+        public virtual DxfObject Add(string code, int data)
         {
             this.sb.AppendLine(code);
             this.sb.AppendLine(data.ToString());
             return this;
         }
 
-        public virtual DxfEntity Add(string code, double data)
+        public virtual DxfObject Add(string code, double data)
         {
             this.sb.AppendLine(code);
             this.sb.AppendLine(data.ToString(System.Globalization.CultureInfo.GetCultureInfo("en-GB")));

@@ -12,11 +12,11 @@ using System.Text;
 
 namespace CanvasDiagramEditor.Dxf.Entities
 {
-    #region DxfLwpolyline
+    #region Dxf3Dface
 
-    public class DxfLwpolyline : DxfObject
+    public class Dxf3Dface : DxfObject
     {
-        public DxfLwpolyline()
+        public Dxf3Dface()
             : base()
         {
         }

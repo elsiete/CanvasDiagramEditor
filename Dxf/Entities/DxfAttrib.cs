@@ -16,7 +16,7 @@ namespace CanvasDiagramEditor.Dxf.Entities
 {
     #region DxfAttrib
 
-    public class DxfAttrib : DxfEntity
+    public class DxfAttrib : DxfObject
     {
         public DxfAttrib()
             : base()

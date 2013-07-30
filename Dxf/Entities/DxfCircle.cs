@@ -15,7 +15,7 @@ namespace CanvasDiagramEditor.Dxf.Entities
 {
     #region DxfCircle
 
-    public class DxfCircle : DxfEntity
+    public class DxfCircle : DxfObject
     {
         public DxfCircle()
             : base()

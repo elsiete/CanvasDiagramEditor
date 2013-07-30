@@ -14,7 +14,7 @@ namespace CanvasDiagramEditor.Dxf.Entities
 {
     #region DxfEof
 
-    public class DxfEof : DxfEntity
+    public class DxfEof : DxfObject
     {
         public DxfEof()
             : base()
