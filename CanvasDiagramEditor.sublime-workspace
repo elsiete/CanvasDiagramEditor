@@ -4,6 +4,86 @@
 		"selected_items":
 		[
 			[
+				"is",
+				"isCurrentSelected"
+			],
+			[
+				"mo",
+				"ModifierKeys"
+			],
+			[
+				"key",
+				"Keyboard"
+			],
+			[
+				"tag",
+				"Tag"
+			],
+			[
+				"Curr",
+				"CurrentOptions"
+			],
+			[
+				"Mess",
+				"MessageBox"
+			],
+			[
+				"Me",
+				"Message"
+			],
+			[
+				"cur",
+				"CurrentRoot"
+			],
+			[
+				"Cur",
+				"CurrentOptions"
+			],
+			[
+				"st",
+				"startRoot"
+			],
+			[
+				"sele",
+				"selectedSet"
+			],
+			[
+				"ele",
+				"element"
+			],
+			[
+				"elem",
+				"elements"
+			],
+			[
+				"k",
+				"Key"
+			],
+			[
+				"reset",
+				"resetSelectedList"
+			],
+			[
+				"Sele",
+				"SelectedThumbList"
+			],
+			[
+				"s",
+				"select"
+			],
+			[
+				"e",
+				"else"
+			],
+			[
+				"element",
+				"elements"
+			],
+			[
+				"el",
+				"element"
+			],
+			[
 				"r",
 				"region"
 			],
@@ -35,6 +115,30 @@
 	},
 	"buffers":
 	[
+		{
+			"file": "Editor/DiagramEditor.cs",
+			"settings":
+			{
+				"buffer_size": 103535,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "MainWindow.xaml.cs",
+			"settings":
+			{
+				"buffer_size": 38865,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "MainWindow.xaml",
+			"settings":
+			{
+				"buffer_size": 19415,
+				"line_ending": "Windows"
+			}
+		}
 	],
 	"build_system": "Build - Debug",
 	"command_palette":
@@ -63,6 +167,10 @@
 	},
 	"file_history":
 	[
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/LogicDictionary.xaml",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/DxfDiagramCreator.cs",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/Controls/LineEx.cs",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/DiagramControl.xaml.cs",
 		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor-master/CanvasDiagramEditor.sublime-project",
 		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor-master/Dxf/DxfEntities.cs",
 		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor-master/Dxf/Util/DxfLwpolylineVertex.cs",
@@ -82,14 +190,12 @@
 		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor-master/Dxf/Util/DxfDoubleExtensions.cs",
 		"/C/DOWNLOADS/GitHub/CanvasDiagramEditor/DxfDiagramCreator.cs",
 		"/C/DOWNLOADS/GitHub/CanvasDiagramEditor/CanvasDiagramEditor.sublime-project",
-		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/DxfDiagramCreator.cs",
 		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/CanvasDiagramEditor.sublime-project",
 		"/D/DOKUMENTY/WEB/Sublime Text Build 3047/Data/Packages/User/cs.sublime-build",
 		"/D/DOKUMENTY/WEB/Sublime Text Build 3047/Data/Packages/Default/Preferences.sublime-settings",
 		"/D/DOKUMENTY/WEB/Sublime Text Build 3047/Data/Packages/User/JSON.sublime-settings",
 		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/TagEditorControl.xaml",
 		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/MainWindow.xaml",
-		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/LogicDictionary.xaml",
 		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/App.xaml",
 		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/TagEditorWindow.xaml.cs",
 		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/TagEditorControl.xaml.cs",
@@ -114,6 +220,43 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"selectone",
+			"SelectPrevious",
+			"SelectCO",
+			"selectc",
+			"SelectN",
+			"selectco",
+			"Selected",
+			"RemoveWireConnections",
+			"generatedi",
+			"insertla",
+			"insertl",
+			"insertan",
+			"InsertLast",
+			"InsertAndGate",
+			"InsertOrGate",
+			"handle",
+			"handlepr",
+			"CreatePinConnection",
+			"CreateWire",
+			"CreatePinConnection",
+			".tag",
+			"CreateWire",
+			"createw",
+			"line.tag",
+			"CurrentLine",
+			"tuple.item2",
+			"tuple.Item2",
+			"SelectConnected",
+			"SelectOneElement",
+			"getse",
+			"GetThumbElements",
+			"SelectInsertedElement",
+			"SelectP",
+			"AddToH",
+			"undo",
+			"Selectedt",
+			"CurrentThumbNode",
 			"LineWeights",
 			"DxfDoubleExtensions",
 			"DxfAttributeIO",
@@ -135,8 +278,97 @@
 	"groups":
 	[
 		{
+			"selected": 0,
 			"sheets":
 			[
+				{
+					"buffer": 0,
+					"file": "Editor/DiagramEditor.cs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 103535,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								35394,
+								35394
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C#/C#.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 18980.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "MainWindow.xaml.cs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 38865,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								35960,
+								35960
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C#/C#.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 19652.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "MainWindow.xaml",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 19415,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2105,
+								2105
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/XML/XML.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true,
+							"word_wrap": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 216.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				}
 			]
 		}
 	],
