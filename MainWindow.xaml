@@ -78,14 +78,25 @@
                 <MenuItem x:Name="EditDelete" Header="_Delete" Click="EditDelete_Click"  InputGestureText="Del"/>
                 <Separator/>
                 <MenuItem x:Name="EditSelectAll" Header="Select _All" Click="EditSelectAll_Click" InputGestureText="Ctrl+A"/>
-                <MenuItem x:Name="EditDeselectAll" Header="_Select None" Click="EditDeselectAll_Click"/>
+                <MenuItem x:Name="EditDeselectAll" Header="_Select None" Click="EditDeselectAll_Click" InputGestureText="Escape"/>
+                <Separator/>
+                <MenuItem x:Name="EditSelectPrevious" Header="Select Pre_vious" Click="EditSelectPrevious_Click" InputGestureText="["/>
+                <MenuItem x:Name="EditSelectNext" Header="Select Ne_xt" Click="EditSelectNext_Click" InputGestureText="]"/>
+                <MenuItem x:Name="EditSelectConnected" Header="Select Co_nnected" Click="EditSelectConnected_Click" InputGestureText="\"/>
                 <Separator/>
                 <MenuItem x:Name="EditClear" Header="C_lear" Click="EditClear_Click"/>
                 <Separator/>
                 <MenuItem x:Name="EditOptions" Header="_Options" Click="EditOptions_Click"/>
             </MenuItem>
+            <MenuItem Header="_View">
+                <MenuItem x:Name="ViewPreviousDiagramProject" Header="_Previous Diagram (Project)" Click="ViewPreviousDiagramProject_Click" InputGestureText="&lt;"/>
+                <MenuItem x:Name="ViewNextDiagramProjcet" Header="_Next Diagram (Project)" Click="ViewNextDiagramProjcet_Click" InputGestureText="&gt;"/>
+                <Separator/>
+                <MenuItem x:Name="ViewPreviousDiagramSolution" Header="P_revious Diagram (Solution)" Click="ViewPreviousDiagramSolution_Click" InputGestureText="Ctrl+&lt;"/>
+                <MenuItem x:Name="ViewNextDiagramSolution" Header="Ne_xt Diagram (Solution)" Click="ViewNextDiagramSolution_Click" InputGestureText="Ctrl+&gt;"/>
+            </MenuItem>
             <MenuItem Header="_Tools">
-                <MenuItem x:Name="ToolsTagEditor" Header="_Tag Editor" Click="ToolsTagEditor_Click" InputGestureText="F5"/>
+                <MenuItem x:Name="ToolsTagEditor" Header="Tag Edito_r" Click="ToolsTagEditor_Click" InputGestureText="F5"/>
             </MenuItem>
         </Menu>
 

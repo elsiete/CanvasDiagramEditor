@@ -494,7 +494,7 @@ namespace CanvasDiagramEditor
         {
             var canvas = Editor.CurrentOptions.CurrentCanvas;
 
-            Editor.AddToHistory(canvas);
+            Editor.AddToHistory(canvas, true);
 
             Editor.InsertPin(canvas, Editor.CurrentOptions.RightClick);
 
@@ -506,7 +506,7 @@ namespace CanvasDiagramEditor
         {
             var canvas = Editor.CurrentOptions.CurrentCanvas;
 
-            Editor.AddToHistory(canvas);
+            Editor.AddToHistory(canvas, true);
 
             Editor.InsertInput(canvas, Editor.CurrentOptions.RightClick);
 
@@ -518,7 +518,7 @@ namespace CanvasDiagramEditor
         {
             var canvas = Editor.CurrentOptions.CurrentCanvas;
 
-            Editor.AddToHistory(canvas);
+            Editor.AddToHistory(canvas, true);
 
             Editor.InsertOutput(canvas, Editor.CurrentOptions.RightClick);
 
@@ -530,7 +530,7 @@ namespace CanvasDiagramEditor
         {
             var canvas = Editor.CurrentOptions.CurrentCanvas;
 
-            Editor.AddToHistory(canvas);
+            Editor.AddToHistory(canvas, true);
 
             Editor.InsertAndGate(canvas, Editor.CurrentOptions.RightClick);
 
@@ -542,7 +542,7 @@ namespace CanvasDiagramEditor
         {
             var canvas = Editor.CurrentOptions.CurrentCanvas;
 
-            Editor.AddToHistory(canvas);
+            Editor.AddToHistory(canvas, true);
 
             Editor.InsertOrGate(canvas, Editor.CurrentOptions.RightClick);
 

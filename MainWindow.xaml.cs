@@ -53,6 +53,8 @@ namespace CanvasDiagramEditor
         private DiagramEditor Editor { get; set; }
         private string LogicDictionaryUri = "LogicDictionary.xaml";
 
+        private bool HaveKeyE = false;
+
         #endregion
 
         #region Constructor
@@ -287,7 +289,7 @@ namespace CanvasDiagramEditor
 
         #endregion
 
-        #region Main Menu Events
+        #region File Menu Events
 
         private void FileNew_Click(object sender, RoutedEventArgs e)
         {
@@ -359,6 +361,10 @@ namespace CanvasDiagramEditor
             Application.Current.Shutdown();
         }
 
+        #endregion
+
+        #region Edit Menu Events
+
         private void EditUndo_Click(object sender, RoutedEventArgs e)
         {
             Editor.Undo();
@@ -401,6 +407,26 @@ namespace CanvasDiagramEditor
             Editor.DeselectAll();
         }
 
+        private void EditSelectPrevious_Click(object sender, RoutedEventArgs e)
+        {
+            // use control Key to select many element
+            bool deselect = !(Keyboard.Modifiers == ModifierKeys.Control);
+
+            Editor.SelectPrevious(deselect);
+        }
+
+        private void EditSelectNext_Click(object sender, RoutedEventArgs e)
+        {
+            // use control Key to select many element
+            bool deselect = !(Keyboard.Modifiers == ModifierKeys.Control);
+            Editor.SelectNext(deselect);
+        }
+
+        private void EditSelectConnected_Click(object sender, RoutedEventArgs e)
+        {
+            Editor.SelectConnected();
+        }
+
         private void EditClear_Click(object sender, RoutedEventArgs e)
         {
             Editor.Clear();
@@ -414,6 +440,30 @@ namespace CanvasDiagramEditor
         private void ToolsTagEditor_Click(object sender, RoutedEventArgs e)
         {
             ShowTagEditor();
+        }
+
+        #endregion
+
+        #region View Menu Events
+
+        private void ViewPreviousDiagramProject_Click(object sender, RoutedEventArgs e)
+        {
+            Editor.PreviousTreeItem(false);
+        }
+
+        private void ViewNextDiagramProjcet_Click(object sender, RoutedEventArgs e)
+        {
+            Editor.NextTreeItem(false);
+        }
+
+        private void ViewPreviousDiagramSolution_Click(object sender, RoutedEventArgs e)
+        {
+            Editor.PreviousTreeItem(true);
+        }
+
+        private void ViewNextDiagramSolution_Click(object sender, RoutedEventArgs e)
+        {
+            Editor.NextTreeItem(true);
         }
 
         #endregion
@@ -669,8 +719,6 @@ namespace CanvasDiagramEditor
             }
         }
 
-        private bool HaveKeyE = false;
-
         private void HandleKey(KeyEventArgs e)
         {
             var canvas = Editor.CurrentOptions.CurrentCanvas;
@@ -679,6 +727,43 @@ namespace CanvasDiagramEditor
 
             switch (e.Key)
             {
+                // select previous solution tree item
+                case Key.OemComma:
+                    {
+                        Editor.PreviousTreeItem(isControl);
+                    }
+                    break;
+
+                // select next solution tree item
+                case Key.OemPeriod:
+                    {
+                        Editor.NextTreeItem(isControl);
+                    }
+                    break;
+
+                // select previous element
+                case Key.OemOpenBrackets:
+                    {
+                        // use control Key to select many element
+                        Editor.SelectPrevious(!isControl);
+                    }
+                    break;
+
+                // select next element
+                case Key.OemCloseBrackets:
+                    {
+                        // use control Key to select many element
+                        Editor.SelectNext(!isControl);
+                    }
+                    break;
+
+                // select connected elements
+                case Key.OemPipe:
+                    {
+                        Editor.SelectConnected();
+                    }
+                    break;
+
                 // add new project to selected solution
                 // add new diagram to selected project
                 // add new diagram after selected diagram and select new diagram
@@ -966,9 +1051,10 @@ namespace CanvasDiagramEditor
                     }
                     break;
 
-                // reset have E key flah
+                // deselect all & reset have E key flah
                 case Key.Escape:
                     {
+                        Editor.DeselectAll();
                         HaveKeyE = false;
                     }
                     break;
@@ -1036,37 +1122,36 @@ namespace CanvasDiagramEditor
         private Point InsertPointOutput = new Point(930.0, 30.0);
         private Point InsertPointGate = new Point(325.0, 30.0);
 
-        private void SelectInsertedElement(FrameworkElement element)
-        {
-            if (element != null)
-            {
-                Editor.DeselectAll();
-                ElementThumb.SetIsSelected(element, true);
-            }
-        }
-
         private void InsertInput(Canvas canvas)
         {
+            Editor.AddToHistory(canvas, true);
+            
             var element = Editor.InsertInput(canvas, InsertPointInput);
-            SelectInsertedElement(element);
+            Editor.SelectOneElement(element, true);
         }
 
         private void InsertOutput(Canvas canvas)
         {
+            Editor.AddToHistory(canvas, true);
+
             var element = Editor.InsertOutput(canvas, InsertPointOutput);
-            SelectInsertedElement(element);
+            Editor.SelectOneElement(element, true);
         }
 
         private void InsertOrGate(Canvas canvas)
         {
+            Editor.AddToHistory(canvas, true);
+
             var element = Editor.InsertOrGate(canvas, InsertPointGate);
-            SelectInsertedElement(element);
+            Editor.SelectOneElement(element, true);
         }
 
         private void InsertAndGate(Canvas canvas)
         {
+            Editor.AddToHistory(canvas, true);
+
             var element = Editor.InsertAndGate(canvas, InsertPointGate);
-            SelectInsertedElement(element);
+            Editor.SelectOneElement(element, true);
         }
 
         #endregion
@@ -1163,6 +1248,7 @@ namespace CanvasDiagramEditor
         }
 
         #endregion
+
     }
 
     #endregion

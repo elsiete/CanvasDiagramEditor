@@ -44,14 +44,6 @@ namespace CanvasDiagramEditor.Editor
 
     public class DiagramEditor : IDiagramCreator
     {
-        #region Constructor
-
-        public DiagramEditor()
-        {
-        }
-
-        #endregion
-
         #region Fields
 
         public DiagramEditorOptions CurrentOptions = null;
@@ -222,7 +214,7 @@ namespace CanvasDiagramEditor.Editor
                     //System.Diagnostics.Debug.Print(str);
                 }
 
-                if (element.Tag != null)
+                if (element.Tag != null && !(element is LineEx))
                 {
                     var selection = element.Tag as Selection;
                     var tuples = selection.Item2;
@@ -326,6 +318,22 @@ namespace CanvasDiagramEditor.Editor
                                 var mapWire = new MapWire(line, element, null);
 
                                 tuples.Add(mapWire);
+
+                                var lineEx = line as LineEx;
+                                if (lineEx.Tag != null)
+                                {
+                                    var endRoot = lineEx.Tag as FrameworkElement;
+                                    if (endRoot != null)
+                                    {
+                                        // set line Tag as Tuple of start & end root element
+                                        lineEx.Tag = new Tuple<object, object>(element, endRoot);
+                                    }
+                                }
+                                else
+                                {
+                                    // set line Tag as start root element
+                                    lineEx.Tag = element;
+                                }
                             }
                             else
                             {
@@ -345,6 +353,22 @@ namespace CanvasDiagramEditor.Editor
                                 var mapWire = new MapWire(line, null, element);
 
                                 tuples.Add(mapWire);
+
+                                var lineEx = line as LineEx;
+                                if (lineEx.Tag != null)
+                                {
+                                    var startRoot = lineEx.Tag as FrameworkElement;
+                                    if (startRoot != null)
+                                    {
+                                        // set line Tag as Tuple of start & end root element
+                                        lineEx.Tag = new Tuple<object, object>(startRoot, element);
+                                    }
+                                }
+                                else
+                                {
+                                    // set line Tag as end root element
+                                    lineEx.Tag = element;
+                                }
                             }
                             else
                             {
@@ -518,7 +542,7 @@ namespace CanvasDiagramEditor.Editor
 
             if (undo == true)
             {
-                AddToHistory(canvas);
+                AddToHistory(canvas, false);
             }
 
             var prop = CurrentOptions.CurrentProperties;
@@ -550,7 +574,7 @@ namespace CanvasDiagramEditor.Editor
             return tuple;
         }
 
-        public string AddToHistory(Canvas canvas)
+        public string AddToHistory(Canvas canvas, bool resetSelectedList)
         {
             if (CurrentOptions.EnableHistory != true)
                 return null;
@@ -564,6 +588,11 @@ namespace CanvasDiagramEditor.Editor
             undoHistory.Push(model);
 
             redoHistory.Clear();
+
+            if (resetSelectedList == true)
+            {
+                ResetSelectedList();
+            }
 
             return model;
         }
@@ -818,7 +847,7 @@ namespace CanvasDiagramEditor.Editor
 
         public void MoveLeft(Canvas canvas)
         {
-            AddToHistory(canvas);
+            AddToHistory(canvas, false);
 
             if (CurrentOptions.EnableSnap == true)
             {
@@ -833,7 +862,7 @@ namespace CanvasDiagramEditor.Editor
 
         public void MoveRight(Canvas canvas)
         {
-            AddToHistory(canvas);
+            AddToHistory(canvas, false);
 
             if (CurrentOptions.EnableSnap == true)
             {
@@ -848,7 +877,7 @@ namespace CanvasDiagramEditor.Editor
 
         public void MoveUp(Canvas canvas)
         {
-            AddToHistory(canvas);
+            AddToHistory(canvas, false);
 
             if (CurrentOptions.EnableSnap == true)
             {
@@ -863,7 +892,7 @@ namespace CanvasDiagramEditor.Editor
 
         public void MoveDown(Canvas canvas)
         {
-            AddToHistory(canvas);
+            AddToHistory(canvas, false);
 
             if (CurrentOptions.EnableSnap == true)
             {
@@ -897,7 +926,7 @@ namespace CanvasDiagramEditor.Editor
 
         public void DragStart(Canvas canvas, ElementThumb element)
         {
-            AddToHistory(canvas);
+            AddToHistory(canvas, false);
 
             if (ElementThumb.GetIsSelected(element) == true)
             {
@@ -973,16 +1002,16 @@ namespace CanvasDiagramEditor.Editor
             DragEnd(canvas, element);
         }
 
-        #endregion
-
-        #region Create
-
         private void SetThumbEvents(ElementThumb thumb)
         {
             thumb.DragDelta += this.RootElement_DragDelta;
             thumb.DragStarted += this.RootElement_DragStarted;
             thumb.DragCompleted += this.RootElement_DragCompleted;
         }
+
+        #endregion
+
+        #region Create
 
         public object CreatePin(double x, double y, int id, bool snap)
         {
@@ -1185,6 +1214,12 @@ namespace CanvasDiagramEditor.Editor
 
                 canvas.Children.Add(CurrentOptions.CurrentLine);
 
+                // line Tag is start root element
+                if (CurrentOptions.CurrentLine != null || !(CurrentOptions.CurrentLine is LineEx))
+                {
+                    CurrentOptions.CurrentLine.Tag = CurrentOptions.CurrentRoot;
+                }
+
                 result = line;
             }
             else
@@ -1196,13 +1231,28 @@ namespace CanvasDiagramEditor.Editor
 
                 // update IsEndIO flag
                 string rootUid = CurrentOptions.CurrentRoot.Uid;
-                bool endIsIO = StringUtil.StartsWith(rootUid, ModelConstants.TagElementInput) || StringUtil.StartsWith(rootUid, ModelConstants.TagElementOutput);
+                bool endIsIO = StringUtil.StartsWith(rootUid, ModelConstants.TagElementInput) || 
+                    StringUtil.StartsWith(rootUid, ModelConstants.TagElementOutput);
 
                 CurrentOptions.CurrentLine.IsEndIO = endIsIO;
 
                 // update connections
                 var tuple = new MapWire(CurrentOptions.CurrentLine, null, CurrentOptions.CurrentRoot);
                 tuples.Add(tuple);
+
+                // line Tag is start root element
+                var line = CurrentOptions.CurrentLine;
+                if (line != null && line.Tag != null)
+                {
+                    // line Tag is start root element
+                    var start = line.Tag as FrameworkElement;
+                    if (start != null)
+                    {
+                        // line Tag is Tuple of start & end root element
+                        // this Tag is used to find all connected elements
+                        line.Tag = new Tuple<object, object>(start, CurrentOptions.CurrentRoot);
+                    }
+                }
 
                 result = CurrentOptions.CurrentLine;
 
@@ -1216,7 +1266,7 @@ namespace CanvasDiagramEditor.Editor
         private bool SplitWire(Canvas canvas, LineEx line, ref Point point)
         {
             if (CurrentOptions.CurrentLine == null)
-                AddToHistory(canvas);
+                AddToHistory(canvas, true);
 
             // create split pin
             var splitPin = InsertPin(canvas, point);
@@ -1384,36 +1434,7 @@ namespace CanvasDiagramEditor.Editor
 
         #endregion
 
-        #region Delete
-
-        private void DeleteElement(Canvas canvas, Point point)
-        {
-            var element = HitTest(canvas, ref point).FirstOrDefault() as FrameworkElement;
-            if (element == null)
-                return;
-
-            DeleteElement(canvas, element);
-        }
-
-        private void DeleteElement(Canvas canvas, FrameworkElement element)
-        {
-            string uid = element.Uid;
-
-            //System.Diagnostics.Debug.Print("DeleteElement, element: {0}, uid: {1}, parent: {2}", 
-            //    element.GetType(), element.Uid, element.Parent.GetType());
-
-            if (element is LineEx && uid != null &&
-                StringUtil.StartsWith(uid, ModelConstants.TagElementWire))
-            {
-                var line = element as LineEx;
-
-                DeleteWire(canvas, line);
-            }
-            else
-            {
-                canvas.Children.Remove(element);
-            }
-        }
+        #region HitTest
 
         public IEnumerable<FrameworkElement> HitTest(Canvas canvas, ref Point point)
         {
@@ -1468,6 +1489,39 @@ namespace CanvasDiagramEditor.Editor
             VisualTreeHelper.HitTest(canvas, filterCallback, resultCallback, hitTestParams);
 
             return selectedElements.Cast<FrameworkElement>();
+        }
+
+        #endregion
+
+        #region Delete
+
+        private void DeleteElement(Canvas canvas, Point point)
+        {
+            var element = HitTest(canvas, ref point).FirstOrDefault() as FrameworkElement;
+            if (element == null)
+                return;
+
+            DeleteElement(canvas, element);
+        }
+
+        private void DeleteElement(Canvas canvas, FrameworkElement element)
+        {
+            string uid = element.Uid;
+
+            //System.Diagnostics.Debug.Print("DeleteElement, element: {0}, uid: {1}, parent: {2}", 
+            //    element.GetType(), element.Uid, element.Parent.GetType());
+
+            if (element is LineEx && uid != null &&
+                StringUtil.StartsWith(uid, ModelConstants.TagElementWire))
+            {
+                var line = element as LineEx;
+
+                DeleteWire(canvas, line);
+            }
+            else
+            {
+                canvas.Children.Remove(element);
+            }
         }
 
         private static void DeleteWire(Canvas canvas, LineEx line)
@@ -1531,7 +1585,7 @@ namespace CanvasDiagramEditor.Editor
             {
                 var element = child as FrameworkElement;
 
-                if (element.Tag != null)
+                if (element.Tag != null && !(element is LineEx))
                 {
                     var selection = element.Tag as Selection;
                     var tuples = selection.Item2;
@@ -1565,7 +1619,7 @@ namespace CanvasDiagramEditor.Editor
 
         public void Delete(Canvas canvas, Point point)
         {
-            AddToHistory(canvas);
+            AddToHistory(canvas, true);
 
             DeleteElement(canvas, point);
 
@@ -1604,7 +1658,7 @@ namespace CanvasDiagramEditor.Editor
 
             if (line != null)
             {
-                AddToHistory(canvas);
+                AddToHistory(canvas, false);
 
                 line.IsStartVisible = line.IsStartVisible == true ? false : true;
 
@@ -1618,7 +1672,7 @@ namespace CanvasDiagramEditor.Editor
 
             if (line != null)
             {
-                AddToHistory(canvas);
+                AddToHistory(canvas, false);
 
                 line.IsEndVisible = line.IsEndVisible == true ? false : true;
 
@@ -1651,7 +1705,7 @@ namespace CanvasDiagramEditor.Editor
             {
                 string diagram = reader.ReadToEnd();
 
-                AddToHistory(canvas);
+                AddToHistory(canvas, true);
 
                 ClearDiagramModel(canvas);
                 ParseDiagramModel(diagram, canvas, path, 0, 0, false, true, false, true);
@@ -1825,7 +1879,7 @@ namespace CanvasDiagramEditor.Editor
             var canvas = CurrentOptions.CurrentCanvas;
             var path = CurrentOptions.CurrentPathGrid;
 
-            AddToHistory(canvas);
+            AddToHistory(canvas, true);
 
             DeselectAll();
             ParseDiagramModel(diagram, canvas, path, offsetX, offsetY, true, true, true, true);
@@ -1835,7 +1889,7 @@ namespace CanvasDiagramEditor.Editor
         {
             var canvas = CurrentOptions.CurrentCanvas;
 
-            AddToHistory(canvas);
+            AddToHistory(canvas, true);
 
             ClearDiagramModel(canvas);
         }
@@ -1860,7 +1914,7 @@ namespace CanvasDiagramEditor.Editor
 
         #endregion
 
-        #region Export
+        #region Export To Dxf
 
         public string GenerateDxf(string model, bool shortenStart, bool shortenEnd)
         {
@@ -1970,7 +2024,7 @@ namespace CanvasDiagramEditor.Editor
 
         public void Delete(Canvas canvas, IEnumerable<FrameworkElement> elements)
         {
-            AddToHistory(canvas);
+            AddToHistory(canvas, true);
 
             // delete thumbs & lines
 
@@ -2009,11 +2063,36 @@ namespace CanvasDiagramEditor.Editor
             return elements;
         }
 
+        public static IEnumerable<FrameworkElement> GetSelectedThumbElements(Canvas canvas)
+        {
+            var elements = new List<FrameworkElement>();
+
+            // get selected thumbs
+            var thumbs = canvas.Children.OfType<ElementThumb>();
+
+            foreach (var thumb in thumbs)
+            {
+                if (ElementThumb.GetIsSelected(thumb) == true)
+                {
+                    elements.Add(thumb);
+                }
+            }
+
+            return elements;
+        }
+
         public IEnumerable<FrameworkElement> GetSelectedElements()
         {
             var canvas = CurrentOptions.CurrentCanvas;
 
             return GetSelectedElements(canvas);
+        }
+
+        public IEnumerable<FrameworkElement> GetSelectedThumbElements()
+        {
+            var canvas = CurrentOptions.CurrentCanvas;
+
+            return GetSelectedThumbElements(canvas);
         }
 
         public static IEnumerable<FrameworkElement> GetAllElements(Canvas canvas)
@@ -2038,6 +2117,29 @@ namespace CanvasDiagramEditor.Editor
             }
 
             return elements;
+        }
+
+        public static IEnumerable<FrameworkElement> GetThumbElements(Canvas canvas)
+        {
+            var elements = new List<FrameworkElement>();
+
+            // get all thumbs
+            var thumbs = canvas.Children.OfType<ElementThumb>();
+
+            foreach (var thumb in thumbs)
+            {
+
+                elements.Add(thumb);
+            }
+
+            return elements;
+        }
+
+        public IEnumerable<FrameworkElement> GetThumbElements()
+        {
+            var canvas = CurrentOptions.CurrentCanvas;
+
+            return GetThumbElements(canvas);
         }
 
         public IEnumerable<FrameworkElement> GetAllElements()
@@ -2087,7 +2189,7 @@ namespace CanvasDiagramEditor.Editor
 
         #endregion
 
-        #region Handlers
+        #region Mouse Handlers
 
         public void HandleLeftDown(Canvas canvas, Point point)
         {
@@ -2116,7 +2218,7 @@ namespace CanvasDiagramEditor.Editor
             }
             else if (CurrentOptions.EnableInsertLast == true)
             {
-                AddToHistory(canvas);
+                AddToHistory(canvas, true);
 
                 InsertLast(canvas, CurrentOptions.LastInsert, point);
             }
@@ -2142,53 +2244,62 @@ namespace CanvasDiagramEditor.Editor
 
         public bool HandlePreviewLeftDown(Canvas canvas, Point point, FrameworkElement pin)
         {
-            if (pin != null &&
-                (!StringUtil.Compare(pin.Name, ResourceConstants.StandalonePinName) 
-                || Keyboard.Modifiers == ModifierKeys.Control))
+            try
             {
-                if (CurrentOptions.CurrentLine == null)
-                    AddToHistory(canvas);
-
-                CreatePinConnection(canvas, pin);
-
-                return true;
-            }
-            else
-            {
-                if (CurrentOptions.CurrentLine == null)
+                if (pin != null &&
+                    (!StringUtil.Compare(pin.Name, ResourceConstants.StandalonePinName) 
+                    || Keyboard.Modifiers == ModifierKeys.Control))
                 {
-                    return false;
-                }
+                    if (CurrentOptions.CurrentLine == null)
+                        AddToHistory(canvas, true);
 
-                var element = HitTest(canvas, ref point)
-                    .Where(x => StringUtil.Compare(CurrentOptions.CurrentLine.Uid, x.Uid) == false)
-                    .FirstOrDefault() as FrameworkElement;
+                    CreatePinConnection(canvas, pin);
 
-                System.Diagnostics.Debug.Print("Split wire: {0}", element == null ? "<null>" : element.Uid);
-
-                if (element != null && 
-                    CurrentOptions.CurrentLine != null &&
-                    CurrentOptions.CurrentRoot != null &&
-                    StringUtil.Compare(CurrentOptions.CurrentLine.Uid, element.Uid) == false &&
-                    StringUtil.StartsWith(element.Uid, ModelConstants.TagElementWire) == true)
-                {
-                    return SplitWire(canvas, element as LineEx,  ref point);
-                }
-            }
-
-            if (CurrentOptions.CurrentRoot == null && 
-                CurrentOptions.CurrentLine == null &&
-                Keyboard.Modifiers != ModifierKeys.Control)
-            {
-                var element = HitTest(canvas, ref point).FirstOrDefault() as FrameworkElement;
-                if (element != null)
-                {
-                    ToggleLineSelection(element);
+                    return true;
                 }
                 else
                 {
-                    SetLinesSelection(canvas, false);
+                    if (CurrentOptions.CurrentLine == null)
+                    {
+                        return false;
+                    }
+
+                    var element = HitTest(canvas, ref point)
+                        .Where(x => StringUtil.Compare(CurrentOptions.CurrentLine.Uid, x.Uid) == false)
+                        .FirstOrDefault() as FrameworkElement;
+
+                    System.Diagnostics.Debug.Print("Split wire: {0}", element == null ? "<null>" : element.Uid);
+
+                    if (element != null && 
+                        CurrentOptions.CurrentLine != null &&
+                        CurrentOptions.CurrentRoot != null &&
+                        StringUtil.Compare(CurrentOptions.CurrentLine.Uid, element.Uid) == false &&
+                        StringUtil.StartsWith(element.Uid, ModelConstants.TagElementWire) == true)
+                    {
+                        return SplitWire(canvas, element as LineEx,  ref point);
+                    }
                 }
+
+                if (CurrentOptions.CurrentRoot == null && 
+                    CurrentOptions.CurrentLine == null &&
+                    Keyboard.Modifiers != ModifierKeys.Control)
+                {
+                    var element = HitTest(canvas, ref point).FirstOrDefault() as FrameworkElement;
+                    if (element != null)
+                    {
+                        ToggleLineSelection(element);
+                    }
+                    else
+                    {
+                        SetLinesSelection(canvas, false);
+                    }
+                }
+            }
+            catch(Exception ex) 
+            { 
+                MessageBox.Show("HandlePreviewLeftDown Error: " + ex.Message
+                    + Environment.NewLine +
+                    ex.StackTrace); 
             }
 
             return false;
@@ -2255,7 +2366,7 @@ namespace CanvasDiagramEditor.Editor
             if (item != null)
             {
                 item.IsSelected = true;
-                //item.Focus();
+                item.Focus();
                 item.BringIntoView();
 
                 e.Handled = true;
@@ -2264,7 +2375,310 @@ namespace CanvasDiagramEditor.Editor
 
         #endregion
 
-        #region Solution
+        #region Selection Open/Close Bracket ([, ]) and Pipe (\ or |)
+
+        public LinkedList<FrameworkElement> SelectedThumbList = null;
+        public LinkedListNode<FrameworkElement> CurrentThumbNode = null;
+        public HashSet<string> SelectedSet = null;
+
+        public void SelectPrevious(bool deselect)
+        {
+            if (SelectedThumbList == null)
+            {
+                var canvas = CurrentOptions.CurrentCanvas;
+                var elements = DiagramEditor.GetThumbElements(canvas);
+
+                if (elements != null)
+                {
+                    SelectedThumbList = new LinkedList<FrameworkElement>(elements);
+
+                    CurrentThumbNode = SelectedThumbList.Last;
+                    if (CurrentThumbNode != null)
+                    {
+                        SelectOneElement(CurrentThumbNode.Value, deselect);
+                    }
+                }
+            }
+            else
+            {
+                // bool isCurrentSelected = ElementThumb.GetIsSelected(CurrentThumbNode.Value);
+                // if (deselect == false && isCurrentSelected)
+                // {
+                //     ElementThumb.SetIsSelected(CurrentThumbNode.Value, false);
+                // }
+
+                if (CurrentThumbNode != null)
+                {
+                    CurrentThumbNode = CurrentThumbNode.Previous;
+                    if (CurrentThumbNode == null)
+                    {
+                        CurrentThumbNode = SelectedThumbList.Last;
+                    }
+
+                    SelectOneElement(CurrentThumbNode.Value, deselect);
+                }
+            }
+        }
+
+        public void SelectNext(bool deselect)
+        {
+            if (SelectedThumbList == null)
+            {
+                var canvas = CurrentOptions.CurrentCanvas;
+                var elements = DiagramEditor.GetThumbElements(canvas);
+
+                if (elements != null)
+                {
+                    SelectedThumbList = new LinkedList<FrameworkElement>(elements);
+
+                    CurrentThumbNode = SelectedThumbList.First;
+                    if (CurrentThumbNode != null)
+                    {
+                        SelectOneElement(CurrentThumbNode.Value, deselect);
+                    }
+                }
+            }
+            else
+            {
+                if (CurrentThumbNode != null)
+                {
+                    // bool isCurrentSelected = ElementThumb.GetIsSelected(CurrentThumbNode.Value);
+                    // if (deselect == false && isCurrentSelected)
+                    // {
+                    //     ElementThumb.SetIsSelected(CurrentThumbNode.Value, false);
+                    // }
+
+                    CurrentThumbNode = CurrentThumbNode.Next;
+                    if (CurrentThumbNode == null)
+                    {
+                        CurrentThumbNode = SelectedThumbList.First;
+                    }
+
+                    SelectOneElement(CurrentThumbNode.Value, deselect);
+                }
+            }
+        }
+
+        public void ResetSelectedList()
+        {
+            if (SelectedThumbList != null)
+            {
+                SelectedThumbList.Clear();
+                SelectedThumbList = null;
+                CurrentThumbNode = null;
+            }
+        }
+
+        public void SelectOneElement(FrameworkElement element, bool deselect)
+        {
+            if (element != null)
+            {
+                if (deselect == true)
+                {
+                    DeselectAll();
+
+                    ElementThumb.SetIsSelected(element, true);
+                }
+                else
+                {
+                    bool isSelected = ElementThumb.GetIsSelected(element);
+                    ElementThumb.SetIsSelected(element, !isSelected);
+                }
+            }
+        }
+
+        public void SelectConnected()
+        {
+            var elements = GetSelectedThumbElements();
+
+            if (elements != null)
+            {
+                var element = elements.FirstOrDefault();
+
+                if (element != null)
+                {
+                    DeselectAll();
+
+                    SelectedSet = new HashSet<string>();
+
+                    SelectConnected(element);
+
+                    SelectedSet = null;
+                }
+            }
+        }
+
+        private void SelectConnected(FrameworkElement element)
+        {
+            if (element != null && element.Tag != null)
+            {
+                SelectedSet.Add(element.Uid);
+                ElementThumb.SetIsSelected(element, true);
+
+                var selection = element.Tag as Selection;
+                var tuples = selection.Item2;
+
+                foreach (var tuple in tuples)
+                {
+                    SelectConnected(tuple, element);
+                }
+            }
+        }
+
+        private void SelectConnected(MapWire tuple, FrameworkElement root)
+        {
+            var line = tuple.Item1 as LineEx;
+            var tag = line.Tag as Tuple<object, object>;
+
+            ElementThumb.SetIsSelected(line, true);
+
+            if (tag == null)
+            {
+                // MessageBox.Show("Tag is null.");
+                return;
+            }
+
+            var startRoot = tag.Item1 as FrameworkElement;
+            var endRoot = tag.Item2 as FrameworkElement;
+
+            // if (startRoot != null)
+            //     MessageBox.Show("SelectConnected, startRoot:" + startRoot.Uid);
+
+            // if (endRoot != null)
+            //     MessageBox.Show("SelectConnected, endRoot:" + endRoot.Uid);
+
+            if (startRoot != null &&
+                StringUtil.Compare(startRoot.Uid, root.Uid) == false &&
+                SelectedSet.Contains(startRoot.Uid) == false)
+            {
+                SelectConnected(startRoot);
+            }
+
+            if (endRoot != null &&
+                StringUtil.Compare(endRoot.Uid, root.Uid) == false &&
+                SelectedSet.Contains(endRoot.Uid) == false)
+            {
+                SelectConnected(endRoot);
+            }
+        }
+
+        #endregion
+
+        #region Tree View
+
+        public void PreviousTreeItem(bool selectParent)
+        {
+            var tree = CurrentOptions.CurrentTree;
+
+            // get current diagram
+            var selected = tree.SelectedItem as TreeViewItem;
+
+            if (selected != null && 
+                StringUtil.StartsWith(selected.Uid, ModelConstants.TagHeaderDiagram))
+            {
+                // get current project
+                var parent = selected.Parent as TreeViewItem;
+                if (parent != null)
+                {
+                    // get all sibling diagrams in current project
+                    var items = parent.Items;
+                    int index = items.IndexOf(selected);
+                    int count = items.Count;
+
+                    // use '<' key for navigation in tree (project scope)
+                    if (count > 0 && index > 0)
+                    {
+                        // select previous diagram
+                        index = index - 1;
+
+                        var item = items[index] as TreeViewItem;
+                        item.IsSelected = true;
+                        item.BringIntoView();
+                    }
+
+                    // use 'Ctrl + <' key combination for navigation in tree (solution scope)
+                    else if (selectParent == true)
+                    {
+                        // get parent of current project
+                        var parentParent = parent.Parent as TreeViewItem;
+                        int parentIndex = parentParent.Items.IndexOf(parent);
+                        int parentCount = parentParent.Items.Count;
+
+                        if (parentCount > 0 && parentIndex > 0)
+                        {
+                            // get previous project
+                            parentIndex = parentIndex - 1;
+                            var parentProject = (parentParent.Items[parentIndex] as TreeViewItem);
+
+                            // select last item in previous project
+                            if (parentProject.Items.Count > 0)
+                            {
+                                var item = (parentProject.Items[parentProject.Items.Count - 1] as TreeViewItem);
+                                item.IsSelected = true;
+                                item.BringIntoView();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        public void NextTreeItem(bool selectParent)
+        {
+            var tree = CurrentOptions.CurrentTree;
+
+            // get current diagram
+            var selected = tree.SelectedItem as TreeViewItem;
+
+            if (selected != null && 
+                StringUtil.StartsWith(selected.Uid, ModelConstants.TagHeaderDiagram))
+            {
+                // get current project
+                var parent = selected.Parent as TreeViewItem;
+                if (parent != null)
+                {
+                    // get all sibling diagrams in current project
+                    var items = parent.Items;
+                    int index = items.IndexOf(selected);
+                    int count = items.Count;
+
+                    // use '>' key for navigation in tree (project scope)
+                    if (count > 0 && index < count - 1)
+                    {
+                        // select next diagram
+                        index = index + 1;
+
+                        var item = items[index] as TreeViewItem;
+                        item.IsSelected = true;
+                        item.BringIntoView();
+                    }
+             
+                    // use 'Ctrl + >' key combination for navigation in tree (solution scope)
+                    else if (selectParent == true)
+                    {
+                        // get parent of current project
+                        var parentParent = parent.Parent as TreeViewItem;
+                        int parentIndex = parentParent.Items.IndexOf(parent);
+                        int parentCount = parentParent.Items.Count;
+
+                        if (parentCount > 0 && parentIndex < parentCount - 1)
+                        {
+                            // get next project
+                            parentIndex = parentIndex + 1;
+                            var parentProject = (parentParent.Items[parentIndex] as TreeViewItem);
+
+                            // select first item in next project
+                            if (parentProject.Items.Count > 0)
+                            {
+                                var item = (parentProject.Items[0] as TreeViewItem);
+                                item.IsSelected = true;
+                                item.BringIntoView();
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         public bool SwitchItems(Canvas canvas, TreeViewItem oldItem, TreeViewItem newItem)
         {
@@ -2730,6 +3144,8 @@ namespace CanvasDiagramEditor.Editor
             }
 
             CurrentOptions.TagFileName = null;
+
+            ResetSelectedList();
 
             ElementThumb.SetItems(CurrentOptions.CurrentCanvas, null);
         }
