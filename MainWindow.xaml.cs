@@ -447,22 +447,22 @@ namespace CanvasDiagramEditor
 
         private void ViewPreviousDiagramProject_Click(object sender, RoutedEventArgs e)
         {
-            Editor.PreviousTreeItem(false);
+            Editor.SelectPreviousTreeItem(false);
         }
 
         private void ViewNextDiagramProjcet_Click(object sender, RoutedEventArgs e)
         {
-            Editor.NextTreeItem(false);
+            Editor.SelectNextTreeItem(false);
         }
 
         private void ViewPreviousDiagramSolution_Click(object sender, RoutedEventArgs e)
         {
-            Editor.PreviousTreeItem(true);
+            Editor.SelectPreviousTreeItem(true);
         }
 
         private void ViewNextDiagramSolution_Click(object sender, RoutedEventArgs e)
         {
-            Editor.NextTreeItem(true);
+            Editor.SelectNextTreeItem(true);
         }
 
         #endregion
@@ -731,14 +731,14 @@ namespace CanvasDiagramEditor
                 // select previous solution tree item
                 case Key.OemComma:
                     {
-                        Editor.PreviousTreeItem(isControl);
+                        Editor.SelectPreviousTreeItem(isControl);
                     }
                     break;
 
                 // select next solution tree item
                 case Key.OemPeriod:
                     {
-                        Editor.NextTreeItem(isControl);
+                        Editor.SelectNextTreeItem(isControl);
                     }
                     break;
 

@@ -563,7 +563,7 @@ namespace CanvasDiagramEditor
             var canvas = Editor.CurrentOptions.CurrentCanvas;
             var point = new Point(Editor.CurrentOptions.RightClick.X, Editor.CurrentOptions.RightClick.Y);
 
-            Editor.ToggleStart(canvas, point);
+            Editor.ToggleWireStart(canvas, point);
         }
 
         private void InvertEnd_Click(object sender, RoutedEventArgs e)
@@ -571,7 +571,7 @@ namespace CanvasDiagramEditor
             var canvas = Editor.CurrentOptions.CurrentCanvas;
             var point = new Point(Editor.CurrentOptions.RightClick.X, Editor.CurrentOptions.RightClick.Y);
 
-            Editor.ToggleEnd(canvas, point);
+            Editor.ToggleWireEnd(canvas, point);
         }
 
         #endregion
