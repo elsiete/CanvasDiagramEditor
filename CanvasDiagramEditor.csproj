@@ -105,8 +105,9 @@
     <Compile Include="Dxf\Util\DxfLwpolylineVertex.cs" />
     <Compile Include="Dxf\Util\Vector2.cs" />
     <Compile Include="Dxf\Util\Vector3.cs" />
-    <Compile Include="Editor\DiagramEditor.cs" />
-    <Compile Include="Editor\DiagramEditorOptions.cs" />
+    <Compile Include="Editor\DiagramCreator.cs" />
+    <Compile Include="Editor\DiagramCreatorOptions.cs" />
+    <Compile Include="Editor\Editor.cs" />
     <Compile Include="Parser\LineCalc.cs" />
     <Compile Include="Parser\Tag.cs" />
     <Compile Include="TagEditorControl.xaml.cs">

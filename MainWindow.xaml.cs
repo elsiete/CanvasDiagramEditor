@@ -50,7 +50,7 @@ namespace CanvasDiagramEditor
     {
         #region Fields
 
-        private DiagramEditor Editor { get; set; }
+        private DiagramCreator Editor { get; set; }
         private string LogicDictionaryUri = "LogicDictionary.xaml";
 
         private bool HaveKeyE = false;
@@ -78,9 +78,9 @@ namespace CanvasDiagramEditor
 
         private void InitializeEditor()
         {
-            var options = new DiagramEditorOptions();
+            var options = new DiagramCreatorOptions();
 
-            Editor = new DiagramEditor();
+            Editor = new DiagramCreator();
             Editor.CurrentOptions = options;
 
             Editor.CurrentOptions.Counter.ProjectCount = 1;
@@ -184,17 +184,16 @@ namespace CanvasDiagramEditor
 
         private void GenerateModel_Click(object sender, RoutedEventArgs e)
         {
-            //var diagram = editor.Generate();
-            //this.TextModel.Text = diagram;
+            Editor.UpdateSelectedDiagramModel();
 
-            var solution = Editor.GenerateSolution(System.IO.Directory.GetCurrentDirectory());
+            var solution = Editor.GenerateSolutionModel(System.IO.Directory.GetCurrentDirectory());
 
             this.TextModel.Text = solution.Item1;
         }
 
         private void GenerateModelFromSelected_Click(object sender, RoutedEventArgs e)
         {
-            var diagram = Editor.GenerateFromSelected();
+            var diagram = Editor.GenerateModelFromSelected();
 
             this.TextModel.Text = diagram;
         }
@@ -699,7 +698,9 @@ namespace CanvasDiagramEditor
             //var diagrams = new List<string>();
             //diagrams.Add(model);
 
-            var diagrams = Editor.GenerateSolution(null).Item2;
+            Editor.UpdateSelectedDiagramModel();
+
+            var diagrams = Editor.GenerateSolutionModel(null).Item2;
 
             Print(diagrams, "solution");
         }

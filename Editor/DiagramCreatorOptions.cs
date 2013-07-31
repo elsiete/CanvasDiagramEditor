@@ -18,9 +18,9 @@ using System.Windows.Shapes;
 
 namespace CanvasDiagramEditor.Editor
 {
-    #region DiagramEditorOptions
+    #region DiagramCreatorOptions
 
-    public class DiagramEditorOptions
+    public class DiagramCreatorOptions
     {
         #region Fields
 

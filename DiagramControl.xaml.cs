@@ -31,7 +31,7 @@ namespace CanvasDiagramEditor
         #region Fields
 
         public Slider ZoomSlider { get; set; }
-        public DiagramEditor Editor { get; set; }
+        public DiagramCreator Editor { get; set; }
         private SelectionAdorner Adorner { get; set; }
 
         #endregion
