@@ -109,6 +109,9 @@
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="Cursor" Value="SizeAll"/>
             </Trigger>
+            <Trigger Property="controls:ElementThumb.IsSelected" Value="True">
+                <Setter Property="Panel.ZIndex" Value="3"/>
+            </Trigger>
         </Style.Triggers>
     </Style>
 
