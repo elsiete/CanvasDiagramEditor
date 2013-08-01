@@ -4,6 +4,26 @@
 		"selected_items":
 		[
 			[
+				"ap",
+				"AppendLine"
+			],
+			[
+				"ne",
+				"NewLine"
+			],
+			[
+				"en",
+				"entity"
+			],
+			[
+				"Dxf",
+				"DxfTag"
+			],
+			[
+				"ha",
+				"haveCode"
+			],
+			[
 				"is",
 				"isCurrentSelected"
 			],
@@ -88,10 +108,6 @@
 				"region"
 			],
 			[
-				"ap",
-				"Append"
-			],
-			[
 				"ve",
 				"vertices"
 			],
@@ -116,18 +132,26 @@
 	"buffers":
 	[
 		{
-			"file": "Editor/DiagramEditor.cs",
+			"file": "DxfDiagramCreator.cs",
 			"settings":
 			{
-				"buffer_size": 103535,
+				"buffer_size": 53515,
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"file": "MainWindow.xaml.cs",
+			"file": "Dxf/DxfBlocks.cs",
 			"settings":
 			{
-				"buffer_size": 38865,
+				"buffer_size": 1622,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "Dxf/DxfTables.cs",
+			"settings":
+			{
+				"buffer_size": 8893,
 				"line_ending": "Windows"
 			}
 		},
@@ -135,7 +159,15 @@
 			"file": "MainWindow.xaml",
 			"settings":
 			{
-				"buffer_size": 19415,
+				"buffer_size": 20404,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "MainWindow.xaml.cs",
+			"settings":
+			{
+				"buffer_size": 44924,
 				"line_ending": "Windows"
 			}
 		}
@@ -167,6 +199,11 @@
 	},
 	"file_history":
 	[
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/Editor/Editor.cs",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/Editor/DiagramCreator.cs",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/MainWindow.xaml",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/MainWindow.xaml.cs",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/Editor/DiagramEditor.cs",
 		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/LogicDictionary.xaml",
 		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/DxfDiagramCreator.cs",
 		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/Controls/LineEx.cs",
@@ -195,11 +232,9 @@
 		"/D/DOKUMENTY/WEB/Sublime Text Build 3047/Data/Packages/Default/Preferences.sublime-settings",
 		"/D/DOKUMENTY/WEB/Sublime Text Build 3047/Data/Packages/User/JSON.sublime-settings",
 		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/TagEditorControl.xaml",
-		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/MainWindow.xaml",
 		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/App.xaml",
 		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/TagEditorWindow.xaml.cs",
 		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/TagEditorControl.xaml.cs",
-		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/MainWindow.xaml.cs",
 		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/App.xaml.cs",
 		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/TagEditorWindow.xaml"
 	],
@@ -220,6 +255,8 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"import",
+			"FleInspectDxf_Click",
 			"selectone",
 			"SelectPrevious",
 			"SelectCO",
@@ -278,24 +315,24 @@
 	"groups":
 	[
 		{
-			"selected": 0,
+			"selected": 4,
 			"sheets":
 			[
 				{
 					"buffer": 0,
-					"file": "Editor/DiagramEditor.cs",
+					"file": "DxfDiagramCreator.cs",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 103535,
+						"buffer_size": 53515,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								35394,
-								35394
+								9601,
+								9601
 							]
 						],
 						"settings":
@@ -305,26 +342,26 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 18980.0,
+						"translation.y": 7757.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
 				},
 				{
 					"buffer": 1,
-					"file": "MainWindow.xaml.cs",
+					"file": "Dxf/DxfBlocks.cs",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 38865,
+						"buffer_size": 1622,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								35960,
-								35960
+								1342,
+								1342
 							]
 						],
 						"settings":
@@ -334,26 +371,55 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 19652.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
 				},
 				{
 					"buffer": 2,
-					"file": "MainWindow.xaml",
-					"semi_transient": false,
+					"file": "Dxf/DxfTables.cs",
+					"semi_transient": true,
 					"settings":
 					{
-						"buffer_size": 19415,
+						"buffer_size": 8893,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								2105,
-								2105
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C#/C#.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 5616.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "MainWindow.xaml",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 20404,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								20279,
+								20288
 							]
 						],
 						"settings":
@@ -364,7 +430,36 @@
 							"word_wrap": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 216.0,
+						"translation.y": 1117.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "MainWindow.xaml.cs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 44924,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								44629,
+								44629
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C#/C#.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 25022.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
