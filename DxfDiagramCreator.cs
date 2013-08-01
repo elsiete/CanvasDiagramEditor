@@ -465,6 +465,8 @@ namespace CanvasDiagramEditor
                 "Solid line",
                 0.0, 0.0, null);
 
+            sb.Append(str);
+
             sb.Append(DxfTables.DxfLtypesEnd());
 
             return sb.ToString();
