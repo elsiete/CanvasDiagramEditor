@@ -15,6 +15,11 @@
 
     <sys:Double x:Key="PageStrokeThicknessKey">1.0</sys:Double>
 
+    <!-- images -->
+    
+    <ImageSource x:Key="TransparentImageSourceKey">Images/TransparentLogo.png</ImageSource>
+    <ImageSource x:Key="WhiteImageSourceKey">Images/WhiteLogo.png</ImageSource>
+    
     <!-- colors -->
 
     <SolidColorBrush x:Key="LogicBackgroundColorKey" Color="#FFDDDDDD"/>
@@ -327,10 +332,6 @@
             <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="930" Canvas.Top="35" Data="M 210,0 L 210,750 M 285,750 L 285,0"/>
             <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="930" Canvas.Top="35" Data="M 315,0 L 0,0 M 0,750 L 315,750"/>
             <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="930" Canvas.Top="35" Data="M 0,30 L 315,30 M 315,60 L 0,60 M 0,90 L 315,90 M 315,120 L 0,120 M 0,150 L 315,150 M 315,180 L 0,180 M 0,210 L 315,210 M 315,240 L 0,240 M 0,270 L 315,270 M 315,300 L 0,300 M 0,330 L 315,330 M 315,360 L 0,360 M 0,390 L 315,390 M 315,420 L 0,420 M 0,450 L 315,450 M 315,480 L 0,480 M 0,510 L 315,510 M 315,540 L 0,540 M 0,570 L 315,570 M 315,600 L 0,600 M 0,630 L 315,630 M 315,660 L 0,660 M 0,690 L 315,690 M 315,720 L 0,720"/>
-            <!-- frame -->
-            <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="330" Canvas.Top="15" Data="M 0,20 L 600,20 M 600,770 L 0,770 M 0,770 L 0,0 M 600,0 L 600,770"/>
-            <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="0" Canvas.Top="0" Data="M 15,15 L 1245,15 M 1245,816 L 15,816 M 15,876 L 1245,876 M 1245,876 L 1245,15 M 15,15 L 15,876"/>
-            <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="0" Canvas.Top="0" Data="M 1,1 L 1259,1 M 1259,890 L 1,890 M 1,890 L 1,1 M 1259,1 L 1259,890"/>
             <!-- page headers -->
             <Grid Canvas.Left="15" Canvas.Top="15" Width="1230" Height="20">
                 <Grid.ColumnDefinitions>
@@ -496,11 +497,8 @@
                 <TextBlock Grid.Row="23" Grid.Column="0" Text="23" Style="{DynamicResource NumberTextBlockStyleKey}"/>
                 <TextBlock Grid.Row="24" Grid.Column="0" Text="24" Style="{DynamicResource NumberTextBlockStyleKey}"/>
             </Grid>
-            <!-- page table -->
-            <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="15" Canvas.Top="816" Data="M 0,15 L 175,15 M 405,15 L 1230,15 M 1230,30 L 965,30 M 695,30 L 405,30 M 175,30, 0,30 M 0,45 L 175,45 M 405,45 L 695,45 M 965,45 L 1230,45"/>
-            <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="15" Canvas.Top="816" Data="M 30,0 L 30,60 M 75,0 L 75,60 M 175,60 L 175,0 M 290,0 L 290,60 M 405,60 L 405,0 M 465,0 L 465,60 M 605,60 L 605,0 M 650,0 L 650,60 M 695,60 L 695,0 M 965,0 L 965,60 M 1005,60 L 1005,0 M 1045,0 L 1045,60 M 1100,60 L 1100,0"/>
             <!-- page table text -->
-            <Grid Canvas.Left="15" Canvas.Top="816">
+            <controls:TableGrid Canvas.Left="15" Canvas.Top="816" ShowGridLines="False">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="30"/>
                     <ColumnDefinition Width="45"/>
@@ -508,9 +506,9 @@
                     <ColumnDefinition Width="115"/>
                     <ColumnDefinition Width="115"/>
                     <ColumnDefinition Width="60"/>
-                    <ColumnDefinition Width="140"/>
+                    <ColumnDefinition Width="130"/>
                     <ColumnDefinition Width="45"/>
-                    <ColumnDefinition Width="45"/>
+                    <ColumnDefinition Width="55"/>
                     <ColumnDefinition Width="270"/>
                     <ColumnDefinition Width="40"/>
                     <ColumnDefinition Width="40"/>
@@ -525,68 +523,133 @@
                 </Grid.RowDefinitions>
                 <!-- Rev. -->
                 <TextBlock Grid.Row="0" Grid.Column="0" Text="Rev." Style="{DynamicResource TableHeaderTextBlockStyleKey}"/>
-                <TextBlock Grid.Row="1" Grid.Column="0" Text="" Style="{DynamicResource TableTextBlockStyleKey}"/>
-                <TextBlock Grid.Row="2" Grid.Column="0" Text="" Style="{DynamicResource TableTextBlockStyleKey}"/>
-                <TextBlock Grid.Row="3" Grid.Column="0" Text="" Style="{DynamicResource TableTextBlockStyleKey}"/>
+                <TextBlock Grid.Row="1" Grid.Column="0" 
+                           Text="{Binding Path=(controls:TableGrid.Data).Revision1.Version, RelativeSource={RelativeSource Self}, FallbackValue={x:Null}}" 
+                           Style="{DynamicResource TableTextBlockStyleKey}"/>
+                <TextBlock Grid.Row="2" Grid.Column="0" 
+                           Text="{Binding Path=(controls:TableGrid.Data).Revision2.Version, RelativeSource={RelativeSource Self}, FallbackValue={x:Null}}" 
+                           Style="{DynamicResource TableTextBlockStyleKey}"/>
+                <TextBlock Grid.Row="3" Grid.Column="0" 
+                           Text="{Binding Path=(controls:TableGrid.Data).Revision3.Version, RelativeSource={RelativeSource Self}, FallbackValue={x:Null}}" 
+                           Style="{DynamicResource TableTextBlockStyleKey}"/>
                 <!-- Rev.: Date -->
                 <TextBlock Grid.Row="0" Grid.Column="1" Text="Date" Style="{DynamicResource TableHeaderTextBlockStyleKey}"/>
-                <TextBlock Grid.Row="1" Grid.Column="1" Text="" Style="{DynamicResource TableTextBlockStyleKey}"/>
-                <TextBlock Grid.Row="2" Grid.Column="1" Text="" Style="{DynamicResource TableTextBlockStyleKey}"/>
-                <TextBlock Grid.Row="3" Grid.Column="1" Text="" Style="{DynamicResource TableTextBlockStyleKey}"/>
+                <TextBlock Grid.Row="1" Grid.Column="1" 
+                           Text="{Binding Path=(controls:TableGrid.Data).Revision1.Date, RelativeSource={RelativeSource Self}, FallbackValue={x:Null}}" 
+                           Style="{DynamicResource TableTextBlockStyleKey}"/>
+                <TextBlock Grid.Row="2" Grid.Column="1" 
+                           Text="{Binding Path=(controls:TableGrid.Data).Revision2.Date, RelativeSource={RelativeSource Self}, FallbackValue={x:Null}}" 
+                           Style="{DynamicResource TableTextBlockStyleKey}"/>
+                <TextBlock Grid.Row="3" Grid.Column="1" 
+                           Text="{Binding Path=(controls:TableGrid.Data).Revision3.Date, RelativeSource={RelativeSource Self}, FallbackValue={x:Null}}" 
+                           Style="{DynamicResource TableTextBlockStyleKey}"/>
                 <!-- Rev.: Remarks -->
                 <TextBlock Grid.Row="0" Grid.Column="2" Text="Remarks" Style="{DynamicResource TableHeaderTextBlockStyleKey}"/>
-                <TextBlock Grid.Row="1" Grid.Column="2" Text="" Style="{DynamicResource TableTextBlockStyleKey}"/>
-                <TextBlock Grid.Row="2" Grid.Column="2" Text="" Style="{DynamicResource TableTextBlockStyleKey}"/>
-                <TextBlock Grid.Row="3" Grid.Column="2" Text="" Style="{DynamicResource TableTextBlockStyleKey}"/>
+                <TextBlock Grid.Row="1" Grid.Column="2" 
+                           Text="{Binding Path=(controls:TableGrid.Data).Revision1.Remarks, RelativeSource={RelativeSource Self}, FallbackValue={x:Null}}" 
+                           Style="{DynamicResource TableTextBlockStyleKey}"/>
+                <TextBlock Grid.Row="2" Grid.Column="2" 
+                           Text="{Binding Path=(controls:TableGrid.Data).Revision2.Remarks, RelativeSource={RelativeSource Self}, FallbackValue={x:Null}}" 
+                           Style="{DynamicResource TableTextBlockStyleKey}"/>
+                <TextBlock Grid.Row="3" Grid.Column="2" 
+                           Text="{Binding Path=(controls:TableGrid.Data).Revision3.Remarks, RelativeSource={RelativeSource Self}, FallbackValue={x:Null}}" 
+                           Style="{DynamicResource TableTextBlockStyleKey}"/>
                 <!-- Logo No. 1 -->
-                <Image Grid.Row="0" Grid.RowSpan="4" Grid.Column="3" Width="115" Height="60"/>
+                <Image Grid.Row="0" 
+                       Source="{Binding Path=(controls:TableGrid.Data).Logo1, RelativeSource={RelativeSource Self}, TargetNullValue={x:Static DependencyProperty.UnsetValue}, FallbackValue={StaticResource TransparentImageSourceKey}}" 
+                       Grid.RowSpan="4" Grid.Column="3" Width="115" Height="60"/>
                 <!-- Logo No. 2 -->
-                <Image Grid.Row="0" Grid.RowSpan="4" Grid.Column="4" Width="115" Height="60"/>
+                <Image Grid.Row="0" 
+                       Source="{Binding Path=(controls:TableGrid.Data).Logo2, RelativeSource={RelativeSource Self}, TargetNullValue={x:Static DependencyProperty.UnsetValue}, FallbackValue={StaticResource TransparentImageSourceKey}}" 
+                       Grid.RowSpan="4" Grid.Column="4" Width="115" Height="60"/>
                 <!-- Drawn, Checked, etc. -->
                 <TextBlock Grid.Row="0" Grid.Column="5" Text="Drawn" Style="{DynamicResource TableHeaderTextBlockStyleKey}"/>
                 <TextBlock Grid.Row="1" Grid.Column="5" Text="Checked" Style="{DynamicResource TableHeaderTextBlockStyleKey}"/>
                 <TextBlock Grid.Row="2" Grid.Column="5" Text="Approved" Style="{DynamicResource TableHeaderTextBlockStyleKey}"/>
                 <TextBlock Grid.Row="3" Grid.Column="5" Text="" Style="{DynamicResource TableHeaderTextBlockStyleKey}"/>
                 <!-- Drawn, Checked, etc.: Name -->
-                <TextBlock Grid.Row="0" Grid.Column="6" Text="" Style="{DynamicResource TableTextBlockStyleKey}"/>
-                <TextBlock Grid.Row="1" Grid.Column="6" Text="" Style="{DynamicResource TableTextBlockStyleKey}"/>
-                <TextBlock Grid.Row="2" Grid.Column="6" Text="" Style="{DynamicResource TableTextBlockStyleKey}"/>
+                <TextBlock Grid.Row="0" Grid.Column="6" 
+                           Text="{Binding Path=(controls:TableGrid.Data).Drawn.Name, RelativeSource={RelativeSource Self}, FallbackValue={x:Null}}" 
+                           Style="{DynamicResource TableTextBlockStyleKey}"/>
+                <TextBlock Grid.Row="1" Grid.Column="6" 
+                           Text="{Binding Path=(controls:TableGrid.Data).Checked.Name, RelativeSource={RelativeSource Self}, FallbackValue={x:Null}}" 
+                           Style="{DynamicResource TableTextBlockStyleKey}"/>
+                <TextBlock Grid.Row="2" Grid.Column="6" 
+                           Text="{Binding Path=(controls:TableGrid.Data).Approved.Name, RelativeSource={RelativeSource Self}, FallbackValue={x:Null}}" 
+                           Style="{DynamicResource TableTextBlockStyleKey}"/>
                 <TextBlock Grid.Row="3" Grid.Column="6" Text="" Style="{DynamicResource TableTextBlockStyleKey}"/>
                 <!-- Drawn, Checked, etc.: Date -->
-                <TextBlock Grid.Row="0" Grid.Column="8" Text="" Style="{DynamicResource TableTextBlockStyleKey}"/>
-                <TextBlock Grid.Row="1" Grid.Column="8" Text="" Style="{DynamicResource TableTextBlockStyleKey}"/>
-                <TextBlock Grid.Row="2" Grid.Column="8" Text="" Style="{DynamicResource TableTextBlockStyleKey}"/>
+                <TextBlock Grid.Row="0" Grid.Column="8" 
+                           Text="{Binding Path=(controls:TableGrid.Data).Drawn.Date, RelativeSource={RelativeSource Self}, FallbackValue={x:Null}}" 
+                           Style="{DynamicResource TableTextBlockStyleKey}"/>
+                <TextBlock Grid.Row="1" Grid.Column="8" 
+                           Text="{Binding Path=(controls:TableGrid.Data).Checked.Date, RelativeSource={RelativeSource Self}, FallbackValue={x:Null}}"
+                           Style="{DynamicResource TableTextBlockStyleKey}"/>
+                <TextBlock Grid.Row="2" Grid.Column="8" 
+                           Text="{Binding Path=(controls:TableGrid.Data).Approved.Date, RelativeSource={RelativeSource Self}, FallbackValue={x:Null}}" 
+                           Style="{DynamicResource TableTextBlockStyleKey}"/>
                 <TextBlock Grid.Row="3" Grid.Column="8" Text="" Style="{DynamicResource TableTextBlockStyleKey}"/>
                 <!-- Titles, Sub-Titles -->
-                <TextBlock Grid.Row="0" Grid.Column="9" Text="" Style="{DynamicResource TableTextBlockStyleKey}"/>
-                <TextBlock Grid.Row="1" Grid.Column="9" Text="" Style="{DynamicResource TableTextBlockStyleKey}" HorizontalAlignment="Left" Margin="4,0,0,0"/>
-                <TextBlock Grid.Row="2" Grid.Column="9" Text="" Style="{DynamicResource TableTextBlockStyleKey}" HorizontalAlignment="Left" Margin="4,0,0,0"/>
-                <TextBlock Grid.Row="3" Grid.Column="9" Text="" Style="{DynamicResource TableTextBlockStyleKey}" HorizontalAlignment="Left" Margin="4,0,0,0"/>
+                <TextBlock Grid.Row="0" Grid.Column="9" 
+                           Text="{Binding Path=(controls:TableGrid.Data).Title, RelativeSource={RelativeSource Self}, FallbackValue={x:Null}}" 
+                           Style="{DynamicResource TableTextBlockStyleKey}"/>
+                <TextBlock Grid.Row="1" Grid.Column="9" 
+                           Text="{Binding Path=(controls:TableGrid.Data).SubTitle1, RelativeSource={RelativeSource Self}, FallbackValue={x:Null}}" 
+                           Style="{DynamicResource TableTextBlockStyleKey}" HorizontalAlignment="Left" Margin="4,0,0,0"/>
+                <TextBlock Grid.Row="2" Grid.Column="9" 
+                           Text="{Binding Path=(controls:TableGrid.Data).SubTitle2, RelativeSource={RelativeSource Self}, FallbackValue={x:Null}}" 
+                           Style="{DynamicResource TableTextBlockStyleKey}" HorizontalAlignment="Left" Margin="4,0,0,0"/>
+                <TextBlock Grid.Row="3" Grid.Column="9" 
+                           Text="{Binding Path=(controls:TableGrid.Data).SubTitle3, RelativeSource={RelativeSource Self}, FallbackValue={x:Null}}" 
+                           Style="{DynamicResource TableTextBlockStyleKey}" HorizontalAlignment="Left" Margin="4,0,0,0"/>
                 <!-- Rev. -->
                 <TextBlock Grid.Row="0" Grid.Column="10" Text="Rev." Style="{DynamicResource TableHeaderTextBlockStyleKey}" HorizontalAlignment="Center" Margin="0,0,0,0"/>
-                <TextBlock Grid.Row="1" Grid.Column="10" Text="" Style="{DynamicResource TableTextBlockStyleKey}"/>
+                <TextBlock Grid.Row="1" Grid.Column="10" 
+                           Text="{Binding Path=(controls:TableGrid.Data).Rev, RelativeSource={RelativeSource Self}, FallbackValue={x:Null}}" 
+                           Style="{DynamicResource TableTextBlockStyleKey}"/>
                 <!-- Status -->
                 <TextBlock Grid.Row="0" Grid.Column="11" Text="Status" Style="{DynamicResource TableHeaderTextBlockStyleKey}" HorizontalAlignment="Center" Margin="0,0,0,0"/>
-                <TextBlock Grid.Row="1" Grid.Column="11" Text="" Style="{DynamicResource TableTextBlockStyleKey}"/>
+                <TextBlock Grid.Row="1" Grid.Column="11" 
+                           Text="{Binding Path=(controls:TableGrid.Data).Status, RelativeSource={RelativeSource Self}, FallbackValue={x:Null}}" 
+                           Style="{DynamicResource TableTextBlockStyleKey}"/>
                 <!-- Page -->
                 <TextBlock Grid.Row="2" Grid.Column="10" Text="Page" Style="{DynamicResource TableHeaderTextBlockStyleKey}" HorizontalAlignment="Center" Margin="0,0,0,0"/>
-                <TextBlock Grid.Row="3" Grid.Column="10" Text="" Style="{DynamicResource TableTextBlockStyleKey}"/>
+                <TextBlock Grid.Row="3" Grid.Column="10" 
+                           Text="{Binding Path=(controls:TableGrid.Data).Page, RelativeSource={RelativeSource Self}, FallbackValue={x:Null}}" 
+                           Style="{DynamicResource TableTextBlockStyleKey}"/>
                 <!-- Pages. -->
                 <TextBlock Grid.Row="2" Grid.Column="11" Text="Pages" Style="{DynamicResource TableHeaderTextBlockStyleKey}" HorizontalAlignment="Center" Margin="0,0,0,0"/>
-                <TextBlock Grid.Row="3" Grid.Column="11" Text="" Style="{DynamicResource TableTextBlockStyleKey}"/>
+                <TextBlock Grid.Row="3" Grid.Column="11" 
+                           Text="{Binding Path=(controls:TableGrid.Data).Pages, RelativeSource={RelativeSource Self}, FallbackValue={x:Null}}" 
+                           Style="{DynamicResource TableTextBlockStyleKey}"/>
                 <!-- Project -->
                 <TextBlock Grid.Row="0" Grid.Column="12" Text="Project" Style="{DynamicResource TableHeaderTextBlockStyleKey}"/>
-                <TextBlock Grid.Row="0" Grid.Column="13" Text="" Style="{DynamicResource TableTextBlockStyleKey}" HorizontalAlignment="Left" Margin="4,0,0,0"/>
+                <TextBlock Grid.Row="0" Grid.Column="13" 
+                           Text="{Binding Path=(controls:TableGrid.Data).Project, RelativeSource={RelativeSource Self}, FallbackValue={x:Null}}" 
+                           Style="{DynamicResource TableTextBlockStyleKey}" HorizontalAlignment="Left" Margin="4,0,0,0"/>
                 <!-- Order No -->
                 <TextBlock Grid.Row="1" Grid.Column="12" Text="Order No" Style="{DynamicResource TableHeaderTextBlockStyleKey}"/>
-                <TextBlock Grid.Row="1" Grid.Column="13" Text="" Style="{DynamicResource TableTextBlockStyleKey}" HorizontalAlignment="Left" Margin="4,0,0,0"/>
+                <TextBlock Grid.Row="1" Grid.Column="13" 
+                           Text="{Binding Path=(controls:TableGrid.Data).OrderNo, RelativeSource={RelativeSource Self}, FallbackValue={x:Null}}" 
+                           Style="{DynamicResource TableTextBlockStyleKey}" HorizontalAlignment="Left" Margin="4,0,0,0"/>
                 <!-- Document No -->
                 <TextBlock Grid.Row="2" Grid.Column="12" Text="Doc. No" Style="{DynamicResource TableHeaderTextBlockStyleKey}"/>
-                <TextBlock Grid.Row="2" Grid.Column="13" Text="" Style="{DynamicResource TableTextBlockStyleKey}" HorizontalAlignment="Left" Margin="4,0,0,0"/>
+                <TextBlock Grid.Row="2" Grid.Column="13"
+                           Text="{Binding Path=(controls:TableGrid.Data).DocumentNo, RelativeSource={RelativeSource Self}, FallbackValue={x:Null}}" 
+                           Style="{DynamicResource TableTextBlockStyleKey}" HorizontalAlignment="Left" Margin="4,0,0,0"/>
                 <!-- Archive No -->
                 <TextBlock Grid.Row="3" Grid.Column="12" Text="Arch. No" Style="{DynamicResource TableHeaderTextBlockStyleKey}"/>
-                <TextBlock Grid.Row="3" Grid.Column="13" Text="" Style="{DynamicResource TableTextBlockStyleKey}" HorizontalAlignment="Left" Margin="4,0,0,0"/>
-            </Grid>
+                <TextBlock Grid.Row="3" Grid.Column="13" 
+                           Text="{Binding Path=(controls:TableGrid.Data).ArchiveNo, RelativeSource={RelativeSource Self}, FallbackValue={x:Null}}" 
+                           Style="{DynamicResource TableTextBlockStyleKey}" HorizontalAlignment="Left" Margin="4,0,0,0"/>
+            </controls:TableGrid>
+            <!-- frame -->
+            <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="330" Canvas.Top="15" Data="M 0,20 L 600,20 M 600,770 L 0,770 M 0,770 L 0,0 M 600,0 L 600,770"/>
+            <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="0" Canvas.Top="0" Data="M 15,15 L 1245,15 M 1245,816 L 15,816 M 15,876 L 1245,876 M 1245,876 L 1245,15 M 15,15 L 15,876"/>
+            <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="0" Canvas.Top="0" Data="M 1,1 L 1259,1 M 1259,890 L 1,890 M 1,890 L 1,1 M 1259,1 L 1259,890"/>
+            <!-- page table -->
+            <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="15" Canvas.Top="816" Data="M 0,15 L 175,15 M 405,15 L 1230,15 M 1230,30 L 965,30 M 695,30 L 405,30 M 175,30, 0,30 M 0,45 L 175,45 M 405,45 L 695,45 M 965,45 L 1230,45"/>
+            <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="15" Canvas.Top="816" Data="M 30,0 L 30,60 M 75,0 L 75,60 M 175,60 L 175,0 M 290,0 L 290,60 M 405,60 L 405,0 M 465,0 L 465,60 M 595,60 L 595,0 M 640,0 L 640,60 M 695,60 L 695,0 M 965,0 L 965,60 M 1005,60 L 1005,0 M 1045,0 L 1045,60 M 1100,60 L 1100,0"/>
         </Canvas>
     </ControlTemplate>
 

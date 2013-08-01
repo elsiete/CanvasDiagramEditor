@@ -97,7 +97,9 @@
                 <MenuItem x:Name="ViewNextDiagramSolution" Header="Ne_xt Diagram (Solution)" Click="ViewNextDiagramSolution_Click" InputGestureText="Ctrl+&gt;"/>
             </MenuItem>
             <MenuItem Header="_Tools">
-                <MenuItem x:Name="ToolsTagEditor" Header="Tag Edito_r" Click="ToolsTagEditor_Click" InputGestureText="F5"/>
+                <MenuItem x:Name="ToolsTagEditor" Header="Ta_g Editor" Click="ToolsTagEditor_Click" InputGestureText="F5"/>
+                <Separator/>
+                <MenuItem x:Name="ToolsTableEditor" Header="Ta_ble Editor" Click="ToolsTableEditor_Click" InputGestureText="F6"/>
             </MenuItem>
         </Menu>
 

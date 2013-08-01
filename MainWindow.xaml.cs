@@ -74,6 +74,60 @@ namespace CanvasDiagramEditor
         void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             this.DiagramControl.PanScrollViewer.Focus();
+
+            var table = new DiagramTable()
+            {
+                Id = 0,
+                Revision1 = new Revision()
+                {
+                    Version = "",
+                    Date = "",
+                    Remarks = "",
+                },
+                Revision2 = new Revision()
+                {
+                    Version = "",
+                    Date = "",
+                    Remarks = "",
+                },
+                Revision3 = new Revision()
+                {
+                    Version = "",
+                    Date = "",
+                    Remarks = "",
+                },
+                Logo1 = null,
+                Logo2 = null,
+                Drawn = new Person()
+                {
+                    Name = "user",
+                    Date = DateTime.Today.ToString("yyyy-MM-dd")
+                },
+                Checked = new Person()
+                {
+                    Name = "user",
+                    Date = DateTime.Today.ToString("yyyy-MM-dd")
+                },
+                Approved = new Person()
+                {
+                    Name = "user",
+                    Date = DateTime.Today.ToString("yyyy-MM-dd")
+                },
+                Title = "LOGIC DIAGRAM",
+                SubTitle1 = "DIAGRAM TITLE",
+                SubTitle2 = "",
+                SubTitle3 = "",
+                Rev = "0",
+                Status = "-",
+                Page = "-",
+                Pages = "-",
+                Project = "sample",
+                OrderNo = "",
+                DocumentNo = "",
+                ArchiveNo = ""
+            };
+
+            TableGrid.SetData(this, table);
         }
 
         private void InitializeEditor()
@@ -472,6 +526,11 @@ namespace CanvasDiagramEditor
         private void ToolsTagEditor_Click(object sender, RoutedEventArgs e)
         {
             ShowTagEditor();
+        }
+
+        private void ToolsTableEditor_Click(object sender, RoutedEventArgs e)
+        {
+            ShowTableEditor();
         }
 
         #endregion
@@ -1061,6 +1120,14 @@ namespace CanvasDiagramEditor
                     }
                     break;
 
+                    // table editor
+                case Key.F6:
+                    {
+                        ShowTableEditor();
+                        e.Handled = true;
+                    }
+                    break;
+
                 // deselect all & reset have E key flah
                 case Key.Escape:
                     {
@@ -1239,6 +1306,61 @@ namespace CanvasDiagramEditor
             }).ToList();
 
             return selected;
+        }
+
+        #endregion
+
+        #region Table Editor
+
+        public void ShowTableEditor()
+        {
+            SetLogo(1);
+            SetLogo(2);
+        }
+
+        public void SetLogo(int logoId)
+        {
+            var dlg = new Microsoft.Win32.OpenFileDialog()
+            {
+                Filter = "Png (*.png)|*.png|Jpg (*.jpg;*.jpeg)|*.jpg;*.jpeg|All Files (*.*)|*.*",
+                Title = "Open Image (115x60 @ 96dpi)"
+            };
+
+            var res = dlg.ShowDialog();
+            if (res == true)
+            {
+                try
+                {
+                    var fileName = dlg.FileName;
+
+                    var table = TableGrid.GetData(this) as DiagramTable;
+                    if (table != null)
+                    {
+                        BitmapImage src = new BitmapImage();
+                        src.BeginInit();
+                        src.UriSource = new Uri(fileName, UriKind.RelativeOrAbsolute);
+                        src.CacheOption = BitmapCacheOption.OnLoad;
+                        src.EndInit();
+
+                        if (logoId == 1)
+                        {
+                            table.Logo1 = src;
+                            TableGrid.SetData(this, null);
+                            TableGrid.SetData(this, table);
+                        }
+                        else if (logoId == 2)
+                        {
+                            table.Logo2 = src;
+                            TableGrid.SetData(this, null);
+                            TableGrid.SetData(this, table);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
+                }
+            }
         }
 
         #endregion

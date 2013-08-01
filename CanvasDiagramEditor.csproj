@@ -55,6 +55,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controls\TableGrid.cs" />
     <Compile Include="DiagramControl.xaml.cs">
       <DependentUpon>DiagramControl.xaml</DependentUpon>
     </Compile>
@@ -112,6 +113,7 @@
       <DependentUpon>HtmlWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Parser\LineCalc.cs" />
+    <Compile Include="Parser\Table.cs" />
     <Compile Include="Parser\Tag.cs" />
     <Compile Include="TagEditorControl.xaml.cs">
       <DependentUpon>TagEditorControl.xaml</DependentUpon>
@@ -229,7 +231,12 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Images\TransparentLogo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\WhiteLogo.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

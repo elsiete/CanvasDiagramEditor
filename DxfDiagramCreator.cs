@@ -925,12 +925,12 @@ namespace CanvasDiagramEditor
             str = DxfLine(465.0, 0.0, 465.0, 60.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY);
             sb.Append(str);
 
-            // M 605,60 L 605,0 
-            str = DxfLine(605.0, 60.0, 605.0, 0.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY);
+            // M 595,60 L 595,0
+            str = DxfLine(595.0, 60.0, 595.0, 0.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY);
             sb.Append(str);
 
-            // M 650,0 L 650,60 
-            str = DxfLine(650.0, 0.0, 650.0, 60.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY);
+            // M 640,0 L 640,60 
+            str = DxfLine(640.0, 0.0, 640.0, 60.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY);
             sb.Append(str);
 
             // M 695,60 L 695,0 
