@@ -108,6 +108,9 @@
     <Compile Include="Editor\DiagramCreator.cs" />
     <Compile Include="Editor\DiagramCreatorOptions.cs" />
     <Compile Include="Editor\Editor.cs" />
+    <Compile Include="HtmlWindow.xaml.cs">
+      <DependentUpon>HtmlWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Parser\LineCalc.cs" />
     <Compile Include="Parser\Tag.cs" />
     <Compile Include="TagEditorControl.xaml.cs">
@@ -140,6 +143,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Elements\PinControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="HtmlWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

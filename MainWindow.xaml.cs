@@ -335,9 +335,14 @@ namespace CanvasDiagramEditor
             Editor.ExportTags();
         }
 
-        private void FleExportToDxf_Click(object sender, RoutedEventArgs e)
+        private void FileExportToDxf_Click(object sender, RoutedEventArgs e)
         {
             Editor.ExportToDxf(ShortenStart.IsChecked.Value, ShortenEnd.IsChecked.Value);
+        }
+
+        private void FileInspectDxf_Click(object sender, RoutedEventArgs e)
+        {
+            InspectDxf();
         }
 
         private void FileImport_Click(object sender, RoutedEventArgs e)
@@ -436,11 +441,6 @@ namespace CanvasDiagramEditor
             TabOptions.IsSelected = true;
         }
 
-        private void ToolsTagEditor_Click(object sender, RoutedEventArgs e)
-        {
-            ShowTagEditor();
-        }
-
         #endregion
 
         #region View Menu Events
@@ -463,6 +463,15 @@ namespace CanvasDiagramEditor
         private void ViewNextDiagramSolution_Click(object sender, RoutedEventArgs e)
         {
             Editor.SelectNextTreeItem(true);
+        }
+
+        #endregion
+
+        #region Tools Menu Events
+
+        private void ToolsTagEditor_Click(object sender, RoutedEventArgs e)
+        {
+            ShowTagEditor();
         }
 
         #endregion
@@ -1250,6 +1259,153 @@ namespace CanvasDiagramEditor
 
         #endregion
 
+        #region Dxf Inspect
+
+        private void ShowHtmlWindow(string html, string title)
+        {
+            var window = new HtmlWindow();
+
+            window.Title = title;
+
+            window.Html.NavigateToString(html);
+
+            window.ShowDialog();
+        }
+
+        public void InspectDxf()
+        {
+            var dlg = new Microsoft.Win32.OpenFileDialog()
+            {
+                Filter = "Dxf (*.dxf)|*.dxf|All Files (*.*)|*.*",
+                Title = "Inspect Dxf"
+            };
+
+            var res = dlg.ShowDialog();
+            if (res == true)
+            {
+                try
+                {
+                    var html = ParseDxf(dlg.FileName);
+
+                    ShowHtmlWindow(html, "Dxf Inspect");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
+                }
+            }
+        }
+
+        private const string CodeEntityType = "0";
+        private const string CodeName = "2";
+
+        private const string HeaderSection = "SECTION";
+
+        public class DxfTag
+        {
+            public string Code { get; set; }
+            public string Data { get; set; }
+        }
+
+        public string ParseDxf(string fileName)
+        {
+            var sb = new StringBuilder();
+            var tags = new List<DxfTag>();
+            DxfTag tag = null;
+            bool previousName = false;
+            //bool haveCodeEntityType = false;
+
+            sb.AppendLine(@"<html><head>");
+            sb.AppendLine(@"<style>");
+            sb.AppendLine(@"body { background-color:#DDDDDD; }");
+            sb.AppendLine(@"dl,dt,dd { font-family: Arial; font-size:10pt; width:100%; }");
+            sb.AppendLine(@"dl { font-weight:normal; margin:0.0cm 0.0cm 0.0cm 0.0cm; background-color:#DDDDDD; }");
+            sb.AppendLine(@"dt { font-weight:bold; }");
+            sb.AppendLine(@"dt.section { margin:0.0cm 0.0cm 0.0cm 0.0cm; background-color:rgb(255,242,102); }");
+            sb.AppendLine(@"dt.other { margin:0.0cm 0.0cm 0.0cm 1.5cm; background-color:rgb(191,191,191); }");
+            sb.AppendLine(@"dd { font-weight:normal; margin:0.0cm 0.0cm 0.0cm 1.5cm; background-color:#DDDDDD; }");
+            sb.AppendLine(@"code.code{ width:1.2cm; text-align:right; color:#747474; }");
+            sb.AppendLine(@"code.data{ margin:0.0cm 0.0cm 0.0cm 0.3cm; text-align:left; color:#000000; }");
+            sb.AppendLine(@"</style>");
+            sb.AppendLine(@"</head><body>");
+            sb.AppendLine(@"<dl>");
+
+            using (var reader = new System.IO.StreamReader(fileName))
+            {
+                string data = reader.ReadToEnd();
+
+                //var lines = data.Split(Environment.NewLine.ToCharArray(),
+                //    StringSplitOptions.RemoveEmptyEntries);
+
+                var lines = data.Split("\n".ToCharArray(),
+                    StringSplitOptions.RemoveEmptyEntries);
+
+                string[] entity = new string[2] { null, null };
+
+                foreach (var line in lines)
+                {
+                    var str = line.Trim();
+
+                    // CodeEntityType data
+                    if (tag != null)
+                    {
+                        tag.Data = str;
+                        tags.Add(tag);
+
+                        string entityClass = str == HeaderSection ? "section" : "other";
+
+                        sb.AppendFormat("<dt class=\"{3}\"><code class=\"code\">{0}:</code><code class=\"data\">{1}</code></dt>{2}",
+                            tag.Code,
+                            tag.Data,
+                            Environment.NewLine,
+                            entityClass);
+
+                        //haveCodeEntityType = true;
+
+                        tag = null;
+                    }
+                    else
+                    {
+                        if (str == CodeEntityType && entity[0] == null)
+                        {
+                            tag = new DxfTag();
+                            tag.Code = str;
+                        }
+                        else
+                        {
+                            if (entity[0] == null)
+                            {
+                                entity[0] = str;
+                                entity[1] = null;
+                            }
+                            else
+                            {
+                                entity[1] = str;
+
+                                sb.AppendFormat("<dd><code class=\"code\">{0}:</code><code class=\"data\">{1}</code></dd>{2}",
+                                    entity[0],
+                                    entity[1],
+                                    Environment.NewLine);
+
+                                // entity Name
+                                previousName = entity[0] == CodeName;
+
+                                entity[0] = null;
+                                entity[1] = null;
+
+                                //haveCodeEntityType = false;
+                            }
+                        }
+                    }
+                }
+            }
+
+            sb.AppendLine(@"</dl></body></html>");
+
+            return sb.ToString();
+        } 
+
+        #endregion
     }
 
     #endregion
