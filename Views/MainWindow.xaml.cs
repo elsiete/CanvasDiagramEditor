@@ -52,7 +52,7 @@ namespace CanvasDiagramEditor
         #region Fields
 
         private DiagramEditor Editor { get; set; }
-        private string LogicDictionaryUri = "LogicDictionary.xaml";
+        private string LogicDictionaryUri = "Views/LogicDictionary.xaml";
 
         private bool HaveKeyE = false;
 

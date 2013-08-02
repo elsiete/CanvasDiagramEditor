@@ -75,7 +75,7 @@
     <Compile Include="Core\MarginEx.cs" />
     <Compile Include="Core\PointEx.cs" />
     <Compile Include="Core\RectEx.cs" />
-    <Compile Include="DiagramControl.xaml.cs">
+    <Compile Include="Views\DiagramControl.xaml.cs">
       <DependentUpon>DiagramControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Dxf\Blocks\DxfBlock.cs" />
@@ -129,28 +129,28 @@
     <Compile Include="Editor\DxfDiagramCreator.cs" />
     <Compile Include="Editor\Editor.cs" />
     <Compile Include="Editor\WpfDiagramCreator.cs" />
-    <Compile Include="HtmlWindow.xaml.cs">
+    <Compile Include="Views\HtmlWindow.xaml.cs">
       <DependentUpon>HtmlWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Parser\LineCalc.cs" />
     <Compile Include="Parser\Table.cs" />
     <Compile Include="Parser\Tag.cs" />
-    <Compile Include="TableEditorControl.xaml.cs">
+    <Compile Include="Views\TableEditorControl.xaml.cs">
       <DependentUpon>TableEditorControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="TableEditorWindow.xaml.cs">
+    <Compile Include="Views\TableEditorWindow.xaml.cs">
       <DependentUpon>TableEditorWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="TagEditorControl.xaml.cs">
+    <Compile Include="Views\TagEditorControl.xaml.cs">
       <DependentUpon>TagEditorControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="TagEditorWindow.xaml.cs">
+    <Compile Include="Views\TagEditorWindow.xaml.cs">
       <DependentUpon>TagEditorWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Util\DipUtil.cs" />
     <Compile Include="Util\StringUtil.cs" />
     <Compile Include="Util\Tuple.cs" />
-    <Page Include="DiagramControl.xaml">
+    <Page Include="Views\DiagramControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -174,15 +174,15 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="HtmlWindow.xaml">
+    <Page Include="Views\HtmlWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="LogicDictionary.xaml">
+    <Page Include="Views\LogicDictionary.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="MainWindow.xaml">
+    <Page Include="Views\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -209,23 +209,23 @@
     <Compile Include="Editor\ResourceConstants.cs" />
     <Compile Include="Controls\SelectionAdorner.cs" />
     <Compile Include="Controls\ElementThumb.cs" />
-    <Compile Include="MainWindow.xaml.cs">
+    <Compile Include="Views\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="TableEditorControl.xaml">
+    <Page Include="Views\TableEditorControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="TableEditorWindow.xaml">
+    <Page Include="Views\TableEditorWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="TagEditorControl.xaml">
+    <Page Include="Views\TagEditorControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="TagEditorWindow.xaml">
+    <Page Include="Views\TagEditorWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

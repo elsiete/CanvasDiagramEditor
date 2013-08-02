@@ -17,8 +17,8 @@
 
     <!-- images -->
     
-    <ImageSource x:Key="TransparentImageSourceKey">Images/TransparentLogo.png</ImageSource>
-    <ImageSource x:Key="WhiteImageSourceKey">Images/WhiteLogo.png</ImageSource>
+    <ImageSource x:Key="TransparentImageSourceKey">../Images/TransparentLogo.png</ImageSource>
+    <ImageSource x:Key="WhiteImageSourceKey">../Images/WhiteLogo.png</ImageSource>
     
     <!-- colors -->
 

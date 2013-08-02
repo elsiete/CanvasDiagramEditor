@@ -8,13 +8,13 @@
              xmlns:controls="clr-namespace:CanvasDiagramEditor.Controls"
              xmlns:elements="clr-namespace:CanvasDiagramEditor.Elements"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
-             StartupUri="MainWindow.xaml">
+             StartupUri="Views/MainWindow.xaml">
     
     <Application.Resources>
 
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="LogicDictionary.xaml"/>
+                <ResourceDictionary Source="Views/LogicDictionary.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
 
