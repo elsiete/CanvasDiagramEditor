@@ -22,7 +22,7 @@ namespace CanvasDiagramEditor.Core
         void Remove(ITreeItem item);
         void Clear();
 
-        ITreeItem GetSelectedItem();
+        object GetSelectedItem();
     }
 
     #endregion

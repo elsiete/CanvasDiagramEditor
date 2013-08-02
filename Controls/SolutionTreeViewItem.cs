@@ -45,9 +45,9 @@ namespace CanvasDiagramEditor.Controls
             this.Items.Clear();
         }
 
-        public ITreeItem GetParent()
+        public object GetParent()
         {
-            return this.Parent as ITreeItem;
+            return this.Parent;
         }
 
         #endregion

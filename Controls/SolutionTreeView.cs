@@ -45,9 +45,9 @@ namespace CanvasDiagramEditor.Controls
             this.Items.Clear();
         }
 
-        public ITreeItem GetSelectedItem()
+        public object GetSelectedItem()
         {
-            return this.SelectedItem as ITreeItem;
+            return this.SelectedItem;
         }
 
         #endregion

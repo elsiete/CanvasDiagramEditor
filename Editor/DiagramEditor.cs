@@ -2040,7 +2040,7 @@ namespace CanvasDiagramEditor.Editor
             var tree = CurrentOptions.CurrentTree;
 
             // get current diagram
-            var selected = tree.GetSelectedItem();
+            var selected = tree.GetSelectedItem() as ITreeItem;
 
             if (selected != null && 
                 StringUtil.StartsWith(selected.GetUid(), ModelConstants.TagHeaderDiagram))
@@ -2242,7 +2242,7 @@ namespace CanvasDiagramEditor.Editor
         {
             var tree = CurrentOptions.CurrentTree;
             var canvas = CurrentOptions.CurrentCanvas;
-            var item = tree.GetSelectedItem();
+            var item = tree.GetSelectedItem() as ITreeItem;
 
             if (item != null)
             {
@@ -2368,7 +2368,7 @@ namespace CanvasDiagramEditor.Editor
 
         private void DeleteSolution(ITreeItem solution)
         {
-            var tree = (solution as SolutionTreeViewItem).Parent as TreeView;
+            var tree = solution.GetParent() as ITree;
 
             var projects = solution.GetItems().ToList();
 
@@ -2384,7 +2384,7 @@ namespace CanvasDiagramEditor.Editor
                 solution.Remove(project);
             }
 
-            tree.Items.Remove(solution);
+            tree.Remove(solution as ITreeItem);
         }
 
         public void DeleteProject(SolutionTreeViewItem project)
