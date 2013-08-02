@@ -32,7 +32,7 @@ namespace CanvasDiagramEditor.Editor
         public string TagFileName = null;
         public List<object> Tags = null;
 
-        public TreeView CurrentTree = null;
+        public ITree CurrentTree = null;
         public DiagramCanvas CurrentCanvas = null;
         public Path CurrentPathGrid = null;
 

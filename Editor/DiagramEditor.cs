@@ -14,7 +14,7 @@ using System.Text;
 
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Shapes; 
+using System.Windows.Shapes;
 using System.Windows.Media;
 using System.Windows.Input;
 
@@ -2036,13 +2036,13 @@ namespace CanvasDiagramEditor.Editor
             var tree = CurrentOptions.CurrentTree;
 
             // get current diagram
-            var selected = tree.SelectedItem as SolutionTreeViewItem;
+            var selected = tree.GetSelectedItem();
 
             if (selected != null && 
-                StringUtil.StartsWith(selected.Uid, ModelConstants.TagHeaderDiagram))
+                StringUtil.StartsWith(selected.GetUid(), ModelConstants.TagHeaderDiagram))
             {
                 // get current project
-                var parent = selected.Parent as SolutionTreeViewItem;
+                var parent = selected.GetParent() as SolutionTreeViewItem;
                 if (parent != null)
                 {
                     // get all sibling diagrams in current project
@@ -2103,7 +2103,7 @@ namespace CanvasDiagramEditor.Editor
             var tree = CurrentOptions.CurrentTree;
 
             // get current diagram
-            var selected = tree.SelectedItem as SolutionTreeViewItem;
+            var selected = tree.GetSelectedItem() as SolutionTreeViewItem;
 
             if (selected != null && 
                 StringUtil.StartsWith(selected.Uid, ModelConstants.TagHeaderDiagram))
@@ -2335,21 +2335,22 @@ namespace CanvasDiagramEditor.Editor
             System.Diagnostics.Debug.Print("Added diagram: {0} to project: {1}", diagram.Uid, project.Uid);
         }
 
-        private void DeleteSolution(SolutionTreeViewItem solution)
+        private void DeleteSolution(ITreeItem solution)
         {
-            var tree = solution.Parent as TreeView;
-            var projects = solution.Items.Cast<SolutionTreeViewItem>().ToList();
+            var tree = (solution as SolutionTreeViewItem).Parent as TreeView;
+
+            var projects = solution.GetItems().ToList();
 
             foreach (var project in projects)
             {
-                var diagrams = project.Items.Cast<SolutionTreeViewItem>().ToList();
+                var diagrams = project.GetItems().ToList();
 
                 foreach (var diagram in diagrams)
                 {
-                    project.Items.Remove(diagram);
+                    project.Remove(diagram);
                 }
 
-                solution.Items.Remove(project);
+                solution.Remove(project);
             }
 
             tree.Items.Remove(solution);
@@ -2379,18 +2380,18 @@ namespace CanvasDiagramEditor.Editor
         {
             var tree = CurrentOptions.CurrentTree;
             var canvas = CurrentOptions.CurrentCanvas;
-            var item = tree.SelectedItem as SolutionTreeViewItem;
+            var item = tree.GetSelectedItem();
 
             if (item != null)
             {
-                string uid = item.Uid;
+                string uid = item.GetUid();
                 bool isDiagram = StringUtil.StartsWith(uid, ModelConstants.TagHeaderDiagram);
 
                 if (isDiagram == true)
                 {
                     var model = Editor.GenerateModel(canvas, uid, CurrentOptions.CurrentProperties);
 
-                    item.Tag = new Diagram(model, canvas.Tag as History);
+                    item.SetTag(new Diagram(model, canvas.Tag as History));
                 }
             }
         }
@@ -2413,15 +2414,15 @@ namespace CanvasDiagramEditor.Editor
             }
         }
 
-        public static Tuple<string, IEnumerable<string>> GenerateSolutionModel(TreeView tree, 
+        public static Tuple<string, IEnumerable<string>> GenerateSolutionModel(ITree tree, 
             string fileName, 
             string tagFileName,
             bool includeHistory)
         {
             var models = new List<string>();
 
-            var solution = tree.Items.Cast<SolutionTreeViewItem>().First();
-            var projects = solution.Items.Cast<SolutionTreeViewItem>();
+            var solution = tree.GetItems().First();
+            var projects = solution.GetItems();
             string line = null;
 
             var sb = new StringBuilder();
@@ -2443,7 +2444,7 @@ namespace CanvasDiagramEditor.Editor
             line = string.Format("{0}{1}{2}{1}{3}",
                 ModelConstants.PrefixRoot,
                 ModelConstants.ArgumentSeparator,
-                solution.Uid,
+                solution.GetUid(),
                 tagFileName);
 
             sb.AppendLine(line);
@@ -2452,13 +2453,13 @@ namespace CanvasDiagramEditor.Editor
 
             foreach (var project in projects)
             {
-                var diagrams = project.Items.Cast<SolutionTreeViewItem>();
+                var diagrams = project.GetItems();
 
                 // Project
                 line = string.Format("{0}{1}{2}",
                     ModelConstants.PrefixRoot,
                     ModelConstants.ArgumentSeparator,
-                    project.Uid);
+                    project.GetUid());
 
                 sb.AppendLine(line);
 
@@ -2476,9 +2477,9 @@ namespace CanvasDiagramEditor.Editor
                     //System.Diagnostics.Debug.Print(line);
 
                     // Diagram Elements
-                    if (diagram.Tag != null)
+                    if (diagram.GetTag() != null)
                     {
-                        var _diagram = diagram.Tag as Diagram;
+                        var _diagram = diagram.GetTag() as Diagram;
 
                         var model = _diagram.Item1;
                         var history = _diagram.Item2;
@@ -2515,14 +2516,14 @@ namespace CanvasDiagramEditor.Editor
             return GenerateSolutionModel(tree, fileName, tagFileName, includeHistory);
         }
 
-        private void OpenSolution(TreeView tree, TreeSolution solution)
+        private void OpenSolution(ITree tree, TreeSolution solution)
         {
             ClearSolution();
 
             ParseSolution(tree, solution);
         }
 
-        private void ParseSolution(TreeView tree, TreeSolution solution)
+        private void ParseSolution(ITree tree, TreeSolution solution)
         {
             var counter = CurrentOptions.Counter;
 
@@ -2538,7 +2539,7 @@ namespace CanvasDiagramEditor.Editor
             //System.Diagnostics.Debug.Print("Solution: {0}", name);
 
             var solutionItem = CreateSolutionItem(solutionName);
-            tree.Items.Add(solutionItem);
+            tree.Add(solutionItem);
 
             ParseProjects(projects, counter, solutionItem);
         }
@@ -2641,9 +2642,9 @@ namespace CanvasDiagramEditor.Editor
             ElementThumb.SetItems(CurrentOptions.CurrentCanvas, null);
         }
 
-        private void ClearSolutionTree(TreeView tree)
+        private void ClearSolutionTree(ITree tree)
         {
-            var items = tree.Items.Cast<SolutionTreeViewItem>().ToList();
+            var items = tree.GetItems().ToList();
 
             foreach (var item in items)
             {
@@ -2663,10 +2664,10 @@ namespace CanvasDiagramEditor.Editor
             CreateDefaultSolution(tree);
         }
 
-        public void CreateDefaultSolution(TreeView tree)
+        public void CreateDefaultSolution(ITree tree)
         {
             var solutionItem = CreateSolutionItem(null);
-            tree.Items.Add(solutionItem);
+            tree.Add(solutionItem);
 
             var projectItem = CreateProjectItem(null);
             solutionItem.Items.Add(projectItem);
