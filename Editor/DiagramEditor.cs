@@ -1546,8 +1546,12 @@ namespace CanvasDiagramEditor.Editor
 
         private static string GetClipboardText()
         {
-            var model = Clipboard.GetText();
-            return model;
+            if (Clipboard.ContainsText())
+            {
+                return Clipboard.GetText();
+            }
+
+            return null;
         }
 
         private static void SetClipboardText(string model)
