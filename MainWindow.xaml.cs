@@ -1521,16 +1521,20 @@ namespace CanvasDiagramEditor
 
         public void ShowProjectDiagrams()
         {
+            //Editor.UpdateSelectedDiagramModel();
 
+            //var diagrams = Editor.GenerateProjectModel(null, false).Item2;
+
+            //ShowDiagramsWindow(diagrams, "Project Diagrams");
         }
 
         public void ShowSolutionDiagrams()
         {
             Editor.UpdateSelectedDiagramModel();
 
-            var diagrams = Editor.GenerateSolutionModel(null, false).Item2;;
+            var diagrams = Editor.GenerateSolutionModel(null, false).Item2;
 
-            ShowDiagramsWindow(diagrams, "Diagram History");
+            ShowDiagramsWindow(diagrams, "Solution Diagrams");
         }
 
         public void ShowDiagramHistory()
