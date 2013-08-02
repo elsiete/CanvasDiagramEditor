@@ -4,6 +4,7 @@
 #region References
 
 using CanvasDiagramEditor.Controls;
+using CanvasDiagramEditor.Core;
 using CanvasDiagramEditor.Editor;
 using CanvasDiagramEditor.Parser;
 using System;
@@ -55,7 +56,7 @@ namespace CanvasDiagramEditor
             Adorner.Zoom = GetZoomScaleTransform().ScaleX;
             Adorner.SelectionOrigin = new Point(origin.X, origin.Y);
 
-            Adorner.SelectionRect = new Rect(origin, point);
+            Adorner.SelectionRect = new RectEx(origin.X, origin.Y, point.X, point.Y);
 
             Adorner.SnapsToDevicePixels = false;
             RenderOptions.SetEdgeMode(Adorner, EdgeMode.Aliased);
@@ -79,7 +80,7 @@ namespace CanvasDiagramEditor
             double width = Math.Abs(point.X - origin.X);
             double height = Math.Abs(point.Y - origin.Y);
 
-            Adorner.SelectionRect = new Rect(point, origin);
+            Adorner.SelectionRect = new RectEx(point.X, point.Y, origin.X, origin.Y);
             Adorner.InvalidateVisual();
         }
 
@@ -397,19 +398,19 @@ namespace CanvasDiagramEditor
                 if (Adorner != null)
                 {
                     var rect = Adorner.SelectionRect;
-                    var elements = Editor.HitTest(canvas, ref rect);
+                    var elements = canvas.HitTest(rect);
 
                     if (elements != null)
                     {
                         foreach (var element in elements)
                         {
-                            if (ElementThumb.GetIsSelected(element) == false)
+                            if (element.GetSelected() == false)
                             {
-                                ElementThumb.SetIsSelected(element, true);
+                                element.SetSelected(true);
                             }
                             else
                             {
-                                ElementThumb.SetIsSelected(element, false);
+                                element.SetSelected(false);
                             }
                         }
                     }

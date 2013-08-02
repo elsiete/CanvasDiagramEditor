@@ -4,6 +4,7 @@
 #region References
 
 using CanvasDiagramEditor.Controls;
+using CanvasDiagramEditor.Core;
 using CanvasDiagramEditor.Parser;
 using System;
 using System.Collections.Generic;
@@ -32,13 +33,13 @@ namespace CanvasDiagramEditor.Editor
         public List<object> Tags = null;
 
         public TreeView CurrentTree = null;
-        public Canvas CurrentCanvas = null;
+        public DiagramCanvas CurrentCanvas = null;
         public Path CurrentPathGrid = null;
 
         public bool EnableHistory = true;
 
-        public LineEx CurrentLine = null;
-        public FrameworkElement CurrentRoot = null;
+        public ILine CurrentLine = null;
+        public IElement CurrentRoot = null;
 
         public IdCounter Counter = new IdCounter();
 

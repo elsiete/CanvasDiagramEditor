@@ -4,6 +4,8 @@
 #region References
 
 using CanvasDiagramEditor.Controls;
+using CanvasDiagramEditor.Core;
+using CanvasDiagramEditor.Editor;
 using CanvasDiagramEditor.Parser;
 using CanvasDiagramEditor.Util;
 using System;
@@ -31,7 +33,7 @@ namespace CanvasDiagramEditor
         #region Properties
 
         public List<object> Tags { get; set; }
-        public List<FrameworkElement> Selected { get; set; }
+        public List<IElement> Selected { get; set; }
 
         #endregion
 
@@ -69,7 +71,7 @@ namespace CanvasDiagramEditor
 
             foreach (var element in Selected)
             {
-                list.Items.Add(new Tuple<FrameworkElement>(element));
+                list.Items.Add(new Tuple<FrameworkElement>(element as FrameworkElement));
             }
 
             list.SelectedIndex = 0;

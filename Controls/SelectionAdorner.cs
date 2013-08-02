@@ -3,6 +3,8 @@
 
 #region References
 
+using CanvasDiagramEditor.Core;
+using CanvasDiagramEditor.Editor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,15 +45,15 @@ namespace CanvasDiagramEditor.Controls
             new FrameworkPropertyMetadata(new Point(),
                 FrameworkPropertyMetadataOptions.None));
 
-        public Rect SelectionRect
+        public RectEx SelectionRect
         {
-            get { return (Rect)GetValue(SelectionRectProperty); }
+            get { return (RectEx)GetValue(SelectionRectProperty); }
             set { SetValue(SelectionRectProperty, value); }
         }
 
         public static readonly DependencyProperty SelectionRectProperty =
-            DependencyProperty.Register("SelectionRect", typeof(Rect), typeof(SelectionAdorner),
-            new FrameworkPropertyMetadata(new Rect(),
+            DependencyProperty.Register("SelectionRect", typeof(RectEx), typeof(SelectionAdorner),
+            new FrameworkPropertyMetadata(new RectEx(),
                 FrameworkPropertyMetadataOptions.None));
 
         #endregion
@@ -89,7 +91,8 @@ namespace CanvasDiagramEditor.Controls
 
                 pen.Thickness = thickness;
 
-                drawingContext.DrawRectangle(brush, pen, rect);
+                var r = new Rect(new Point(rect.X1, rect.Y1), new Point(rect.X2, rect.Y2));
+                drawingContext.DrawRectangle(brush, pen, r);
             }
         }
 

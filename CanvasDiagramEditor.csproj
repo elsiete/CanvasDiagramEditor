@@ -55,7 +55,22 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controls\DiagramCanvas.cs" />
     <Compile Include="Controls\TableGrid.cs" />
+    <Compile Include="Core\ICanvas.cs" />
+    <Compile Include="Core\IData.cs" />
+    <Compile Include="Core\IElement.cs" />
+    <Compile Include="Core\ILine.cs" />
+    <Compile Include="Core\IMargin.cs" />
+    <Compile Include="Core\IPoint.cs" />
+    <Compile Include="Core\IRect.cs" />
+    <Compile Include="Core\ISelected.cs" />
+    <Compile Include="Core\ITag.cs" />
+    <Compile Include="Core\IThumb.cs" />
+    <Compile Include="Core\IUid.cs" />
+    <Compile Include="Core\MarginEx.cs" />
+    <Compile Include="Core\PointEx.cs" />
+    <Compile Include="Core\RectEx.cs" />
     <Compile Include="DiagramControl.xaml.cs">
       <DependentUpon>DiagramControl.xaml</DependentUpon>
     </Compile>

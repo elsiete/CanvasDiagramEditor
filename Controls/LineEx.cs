@@ -3,12 +3,15 @@
 
 #region References
 
+using CanvasDiagramEditor.Core;
+using CanvasDiagramEditor.Editor;
 using CanvasDiagramEditor.Parser;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
@@ -18,7 +21,7 @@ namespace CanvasDiagramEditor.Controls
 {
     #region LineEx
 
-    public class LineEx : Shape
+    public class LineEx : Shape, ILine
     {
         #region Properties
 
@@ -250,6 +253,188 @@ namespace CanvasDiagramEditor.Controls
         }
 
         #endregion
+
+        #region IElement
+
+        public double GetX()
+        {
+            return Canvas.GetLeft(this);
+        }
+
+        public double GetY()
+        {
+            return Canvas.GetTop(this);
+        }
+
+        public void SetX(double x)
+        {
+            Canvas.SetLeft(this, x);
+        }
+
+        public void SetY(double y)
+        {
+            Canvas.SetTop(this, y);
+        }
+
+        #endregion
+
+        #region IUid
+
+        public string GetUid()
+        {
+            return this.Uid;
+        }
+
+        public void SetUid(string uid)
+        {
+            this.Uid = uid;
+        }
+
+        #endregion
+
+        #region ITag
+
+        public object GetTag()
+        {
+            return this.Tag;
+        }
+
+        public void SetTag(object tag)
+        {
+            this.Tag = tag;
+        } 
+
+        #endregion
+
+        #region IData
+
+        public object GetData()
+        {
+            return ElementThumb.GetData(this);
+        }
+
+        public void SetData(object data)
+        {
+            ElementThumb.SetData(this, data);
+        } 
+
+        #endregion
+
+        #region ISelected
+
+        public bool GetSelected()
+        {
+            return ElementThumb.GetIsSelected(this);
+        }
+
+        public void SetSelected(bool selected)
+        {
+            ElementThumb.SetIsSelected(this, selected);
+        }
+
+        #endregion
+
+        #region ILine
+
+        public bool GetStartVisible()
+        {
+            return this.IsStartVisible;
+        }
+
+        public void SetStartVisible(bool visible)
+        {
+            this.IsStartVisible = visible;
+        }
+
+        public bool GetEndVisible()
+        {
+            return this.IsEndVisible;
+        }
+
+        public void SetEndVisible(bool visible)
+        {
+            this.IsEndVisible = visible;
+        }
+
+        public bool GetStartIO()
+        {
+            return this.IsStartVisible;
+        }
+
+        public void SetStartIO(bool flag)
+        {
+            this.IsStartIO = flag;
+        }
+
+        public bool GetEndIO()
+        {
+            return this.IsEndIO;
+        }
+
+        public void SetEndIO(bool flag)
+        {
+            this.IsEndIO = flag;
+        }
+
+        public double GetX1()
+        {
+            return this.X1;
+        }
+
+        public void SetX1(double x1)
+        {
+            this.X1 = x1;
+        }
+
+        public double GetY1()
+        {
+            return this.Y1;
+        }
+
+        public void SetY1(double y1)
+        {
+            this.Y1 = y1;
+        }
+
+        public double GetX2()
+        {
+            return this.X2;
+        }
+
+        public void SetX2(double x2)
+        {
+            this.X2 = x2;
+        }
+
+        public double GetY2()
+        {
+            return this.Y2;
+        }
+
+        public void SetY2(double y2)
+        {
+            this.Y2 = y2;
+        }
+
+        #endregion
+
+        public IMargin GetMargin()
+        {
+            var margin = this.Margin;
+
+            return new MarginEx()
+            {
+                Bottom = margin.Bottom,
+                Left = margin.Left,
+                Right = margin.Right,
+                Top = margin.Top
+            };
+        }
+
+        public void SetMargin(IMargin margin)
+        {
+            this.Margin = new Thickness(margin.Left, margin.Top, margin.Right, margin.Bottom);
+        }
     }
 
     #endregion

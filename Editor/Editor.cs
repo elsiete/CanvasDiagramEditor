@@ -3,19 +3,13 @@
 
 #region References
 
+using CanvasDiagramEditor.Core;
 using CanvasDiagramEditor.Parser;
 using CanvasDiagramEditor.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Shapes;
-using System.Windows.Media;
-using CanvasDiagramEditor.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Input;
 
 #endregion
 
@@ -35,8 +29,8 @@ namespace CanvasDiagramEditor.Editor
     using TreeProjects = Stack<Tuple<string, Stack<Stack<string>>>>;
     using TreeSolution = Tuple<string, string, Stack<Tuple<string, Stack<Stack<string>>>>>;
 
-    using Connection = Tuple<FrameworkElement, List<Tuple<object, object, object>>>;
-    using Connections = List<Tuple<FrameworkElement, List<Tuple<object, object, object>>>>;
+    using Connection = Tuple<IElement, List<Tuple<object, object, object>>>;
+    using Connections = List<Tuple<IElement, List<Tuple<object, object, object>>>>;
 
     #endregion
 
@@ -46,29 +40,29 @@ namespace CanvasDiagramEditor.Editor
     {
         #region Generate Model
 
-        public static string GenerateModel(IEnumerable<FrameworkElement> elements)
+        public static string GenerateModel(IEnumerable<IElement> elements)
         {
             var sb = new StringBuilder();
 
             foreach (var element in elements)
             {
-                double x = Canvas.GetLeft(element);
-                double y = Canvas.GetTop(element);
-                string uid = element.Uid;
+                double x = element.GetX();
+                double y = element.GetY();
+                string uid = element.GetUid();
 
                 if (StringUtil.StartsWith(uid, ModelConstants.TagElementWire))
                 {
-                    var line = element as LineEx;
-                    var margin = line.Margin;
+                    var line = element as ILine;
+                    var margin = line.GetMargin();
 
                     string str = string.Format("{6}{5}{0}{5}{1}{5}{2}{5}{3}{5}{4}{5}{7}{5}{8}{5}{9}{5}{10}",
                         uid,
                         margin.Left, margin.Top, //line.X1, line.Y1,
-                        line.X2 + margin.Left, line.Y2 + margin.Top,
+                        line.GetX2() + margin.Left, line.GetY2() + margin.Top,
                         ModelConstants.ArgumentSeparator,
                         ModelConstants.PrefixRoot,
-                        line.IsStartVisible, line.IsEndVisible,
-                        line.IsStartIO, line.IsEndIO);
+                        line.GetStartVisible(), line.GetEndVisible(),
+                        line.GetStartIO(), line.GetEndIO());
 
                     sb.AppendLine("".PadLeft(4, ' ') + str);
 
@@ -77,7 +71,7 @@ namespace CanvasDiagramEditor.Editor
                 else if (StringUtil.StartsWith(uid, ModelConstants.TagElementInput) ||
                     StringUtil.StartsWith(uid, ModelConstants.TagElementOutput))
                 {
-                    var data = ElementThumb.GetData(element);
+                    var data = element.GetData();
                     Tag tag = null;
 
                     if (data != null && data is Tag)
@@ -110,14 +104,15 @@ namespace CanvasDiagramEditor.Editor
                     //System.Diagnostics.Debug.Print(str);
                 }
 
-                if (element.Tag != null && !(element is LineEx))
+                var elementTag = element.GetTag();
+                if (elementTag != null && !(element is ILine))
                 {
-                    var selection = element.Tag as Selection;
+                    var selection = elementTag as Selection;
                     var tuples = selection.Item2;
 
                     foreach (var tuple in tuples)
                     {
-                        var line = tuple.Item1 as LineEx;
+                        var line = tuple.Item1 as ILine;
                         var start = tuple.Item2;
                         var end = tuple.Item3;
 
@@ -125,7 +120,7 @@ namespace CanvasDiagramEditor.Editor
                         {
                             // Start
                             string str = string.Format("{3}{2}{0}{2}{1}",
-                                line.Uid,
+                                line.GetUid(),
                                 ModelConstants.WireStartType,
                                 ModelConstants.ArgumentSeparator,
                                 ModelConstants.PrefixChild);
@@ -138,7 +133,7 @@ namespace CanvasDiagramEditor.Editor
                         {
                             // End
                             string str = string.Format("{3}{2}{0}{2}{1}",
-                                line.Uid,
+                                line.GetUid(),
                                 ModelConstants.WireEndType,
                                 ModelConstants.ArgumentSeparator,
                                 ModelConstants.PrefixChild);
@@ -154,12 +149,17 @@ namespace CanvasDiagramEditor.Editor
             return sb.ToString();
         }
 
-        public static string GenerateModel(Canvas canvas, string uid, DiagramProperties properties)
+        public static string GenerateModel(ICanvas canvas, string uid, DiagramProperties properties)
         {
+            if (canvas == null)
+            {
+                return null;
+            }
+
             var sw = System.Diagnostics.Stopwatch.StartNew();
 
             var sb = new StringBuilder();
-            var elements = canvas != null ? canvas.Children.Cast<FrameworkElement>() : Enumerable.Empty<FrameworkElement>();
+            var elements = canvas.GetElements();
 
             string header = string.Format("{0}{1}{2}{1}{3}{1}{4}{1}{5}{1}{6}{1}{7}{1}{8}{1}{9}{1}{10}{1}{11}{1}{12}{1}{13}",
                 ModelConstants.PrefixRoot,
@@ -187,131 +187,31 @@ namespace CanvasDiagramEditor.Editor
             return result;
         }
 
-        public static Tuple<string, IEnumerable<string>> GenerateSolutionModel(TreeView tree, string fileName, string tagFileName)
-        {
-            var models = new List<string>();
-
-            var solution = tree.Items.Cast<TreeViewItem>().First();
-            var projects = solution.Items.Cast<TreeViewItem>();
-            string line = null;
-
-            var sb = new StringBuilder();
-
-            // tags file path is relative to solution file path
-            if (tagFileName != null && fileName != null)
-            {
-                string relativePath = MakeRelativePath(tagFileName, fileName);
-                string onlyFileName = System.IO.Path.GetFileName(tagFileName);
-
-                if (relativePath != null)
-                {
-                    tagFileName = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(relativePath), onlyFileName);
-                }
-            }
-
-            // Solution
-            line = string.Format("{0}{1}{2}{1}{3}",
-                ModelConstants.PrefixRoot,
-                ModelConstants.ArgumentSeparator,
-                solution.Uid,
-                tagFileName);
-
-            sb.AppendLine(line);
-
-            //System.Diagnostics.Debug.Print(line);
-
-            foreach (var project in projects)
-            {
-                var diagrams = project.Items.Cast<TreeViewItem>();
-
-                // Project
-                line = string.Format("{0}{1}{2}",
-                    ModelConstants.PrefixRoot,
-                    ModelConstants.ArgumentSeparator,
-                    project.Uid);
-
-                sb.AppendLine(line);
-
-                //System.Diagnostics.Debug.Print(line);
-
-                foreach (var diagram in diagrams)
-                {
-                    // Diagram
-
-                    //line = string.Format("{0}{1}{2}",
-                    //    ModelConstants.PrefixRootElement,
-                    //    ModelConstants.ArgumentSeparator,
-                    //    diagram.Uid);
-                    //sb.AppendLine(line);
-                    //System.Diagnostics.Debug.Print(line);
-
-                    // Diagram Elements
-                    if (diagram.Tag != null)
-                    {
-                        var _diagram = diagram.Tag as Diagram;
-
-                        var model = _diagram.Item1;
-                        var history = _diagram.Item2;
-
-                        models.Add(model);
-
-                        sb.Append(model);
-                    }
-                }
-            }
-
-            var tuple = new Tuple<string, IEnumerable<string>>(sb.ToString(), models);
-
-            return tuple;
-        }
-
-        #endregion
-
-        #region Relative Path
-
-        public static string MakeRelativePath(string fromPath, string toPath)
-        {
-            Uri fromUri = new Uri(fromPath, UriKind.RelativeOrAbsolute);
-            Uri toUri = new Uri(toPath, UriKind.RelativeOrAbsolute);
-
-            if (fromUri.IsAbsoluteUri == true)
-            {
-                Uri relativeUri = fromUri.MakeRelativeUri(toUri);
-                string relativePath = Uri.UnescapeDataString(relativeUri.ToString());
-
-                return relativePath.Replace('/', System.IO.Path.DirectorySeparatorChar);
-            }
-            else
-            {
-                return null;
-            }
-        }
-
         #endregion
 
         #region Get Elements
 
-        public static IEnumerable<FrameworkElement> GetSelectedElements(Canvas canvas)
+        public static IEnumerable<IElement> GetSelectedElements(ICanvas canvas)
         {
-            var elements = new List<FrameworkElement>();
+            var elements = new List<IElement>();
 
             // get selected thumbs
-            var thumbs = canvas.Children.OfType<ElementThumb>();
+            var thumbs = canvas.GetElements().OfType<IThumb>();
 
             foreach (var thumb in thumbs)
             {
-                if (ElementThumb.GetIsSelected(thumb) == true)
+                if (thumb.GetSelected() == true)
                 {
                     elements.Add(thumb);
                 }
             }
 
             // get selected lines
-            var lines = canvas.Children.OfType<LineEx>();
+            var lines = canvas.GetElements().OfType<ILine>();
 
             foreach (var line in lines)
             {
-                if (ElementThumb.GetIsSelected(line) == true)
+                if (line.GetSelected() == true)
                 {
                     elements.Add(line);
                 }
@@ -320,16 +220,16 @@ namespace CanvasDiagramEditor.Editor
             return elements;
         }
 
-        public static IEnumerable<FrameworkElement> GetSelectedThumbElements(Canvas canvas)
+        public static IEnumerable<IElement> GetSelectedThumbElements(ICanvas canvas)
         {
-            var elements = new List<FrameworkElement>();
+            var elements = new List<IElement>();
 
             // get selected thumbs
-            var thumbs = canvas.Children.OfType<ElementThumb>();
+            var thumbs = canvas.GetElements().OfType<IThumb>();
 
             foreach (var thumb in thumbs)
             {
-                if (ElementThumb.GetIsSelected(thumb) == true)
+                if (thumb.GetSelected() == true)
                 {
                     elements.Add(thumb);
                 }
@@ -338,12 +238,12 @@ namespace CanvasDiagramEditor.Editor
             return elements;
         }
 
-        public static IEnumerable<FrameworkElement> GetAllElements(Canvas canvas)
+        public static IEnumerable<IElement> GetAllElements(ICanvas canvas)
         {
-            var elements = new List<FrameworkElement>();
+            var elements = new List<IElement>();
 
             // get all thumbs
-            var thumbs = canvas.Children.OfType<ElementThumb>();
+            var thumbs = canvas.GetElements().OfType<IThumb>();
 
             foreach (var thumb in thumbs)
             {
@@ -352,7 +252,7 @@ namespace CanvasDiagramEditor.Editor
             }
 
             // get all lines
-            var lines = canvas.Children.OfType<LineEx>();
+            var lines = canvas.GetElements().OfType<ILine>();
 
             foreach (var line in lines)
             {
@@ -362,16 +262,15 @@ namespace CanvasDiagramEditor.Editor
             return elements;
         }
 
-        public static IEnumerable<FrameworkElement> GetThumbElements(Canvas canvas)
+        public static IEnumerable<IElement> GetThumbElements(ICanvas canvas)
         {
-            var elements = new List<FrameworkElement>();
+            var elements = new List<IElement>();
 
             // get all thumbs
-            var thumbs = canvas.Children.OfType<ElementThumb>();
+            var thumbs = canvas.GetElements().OfType<IThumb>();
 
             foreach (var thumb in thumbs)
             {
-
                 elements.Add(thumb);
             }
 
@@ -382,15 +281,15 @@ namespace CanvasDiagramEditor.Editor
 
         #region Insert Elements
 
-        public static void InsertElements(Canvas canvas, IEnumerable<FrameworkElement> elements, bool select)
+        public static void InsertElements(ICanvas canvas, IEnumerable<IElement> elements, bool select)
         {
             foreach (var element in elements)
             {
-                canvas.Children.Add(element);
+                canvas.Add(element);
 
                 if (select == true)
                 {
-                    ElementThumb.SetIsSelected(element, true);
+                    element.SetSelected(true);
                 }
             }
         }
@@ -399,53 +298,53 @@ namespace CanvasDiagramEditor.Editor
 
         #region Selection
 
-        public static void SetThumbsSelection(Canvas canvas, bool isSelected)
+        public static void SetThumbsSelection(ICanvas canvas, bool isSelected)
         {
-            var thumbs = canvas.Children.OfType<ElementThumb>();
+            var thumbs = canvas.GetElements().OfType<IThumb>();
 
             foreach (var thumb in thumbs)
             {
                 // select
-                ElementThumb.SetIsSelected(thumb, isSelected);
+                thumb.SetSelected(isSelected);
             }
         }
 
-        public static void SetLinesSelection(Canvas canvas, bool isSelected)
+        public static void SetLinesSelection(ICanvas canvas, bool isSelected)
         {
-            var lines = canvas.Children.OfType<LineEx>();
+            var lines = canvas.GetElements().OfType<ILine>();
 
             // deselect all lines
             foreach (var line in lines)
             {
-                ElementThumb.SetIsSelected(line, isSelected);
+                line.SetSelected(isSelected);
             }
         }
 
-        public static void ToggleLineSelection(FrameworkElement element)
+        public static void ToggleLineSelection(IElement element)
         {
-            string uid = element.Uid;
+            string uid = element.GetUid();
 
             //System.Diagnostics.Debug.Print("ToggleLineSelection: {0}, uid: {1}, parent: {2}",
             //    element.GetType(), element.Uid, element.Parent.GetType());
 
-            if (element is LineEx && uid != null &&
+            if (element is ILine && uid != null &&
                 StringUtil.StartsWith(uid, ModelConstants.TagElementWire))
             {
-                var line = element as LineEx;
+                var line = element as ILine;
 
                 // select/deselect line
-                bool isSelected = ElementThumb.GetIsSelected(line);
-                ElementThumb.SetIsSelected(line, isSelected ? false : true);
+                bool isSelected = line.GetSelected();
+                line.SetSelected(isSelected ? false : true);
             }
         }
 
-        public static void SelectAll(Canvas canvas)
+        public static void SelectAll(ICanvas canvas)
         {
             Editor.SetThumbsSelection(canvas, true);
             Editor.SetLinesSelection(canvas, true);
         }
 
-        public static void DeselectAll(Canvas canvas)
+        public static void DeselectAll(ICanvas canvas)
         {
             Editor.SetThumbsSelection(canvas, false);
             Editor.SetLinesSelection(canvas, false);
@@ -455,7 +354,7 @@ namespace CanvasDiagramEditor.Editor
 
         #region Select Connected
 
-        public static void SelectConnected(Canvas canvas)
+        public static void SelectConnected(ICanvas canvas)
         {
             var elements = GetSelectedThumbElements(canvas);
 
@@ -476,14 +375,20 @@ namespace CanvasDiagramEditor.Editor
             }
         }
 
-        public static void SelectConnected(FrameworkElement element, HashSet<string> visited)
+        public static void SelectConnected(IElement element, HashSet<string> visited)
         {
-            if (element != null && element.Tag != null)
+            if (element == null)
             {
-                visited.Add(element.Uid);
-                ElementThumb.SetIsSelected(element, true);
+                return;
+            }
 
-                var selection = element.Tag as Selection;
+            var elmentTag = element.GetTag();
+            if (elmentTag != null)
+            {
+                visited.Add(element.GetUid());
+                element.SetSelected(true);
+
+                var selection = elmentTag as Selection;
                 var tuples = selection.Item2;
 
                 foreach (var tuple in tuples)
@@ -493,12 +398,12 @@ namespace CanvasDiagramEditor.Editor
             }
         }
 
-        public static void SelectConnected(MapWire tuple, FrameworkElement root, HashSet<string> visited)
+        public static void SelectConnected(MapWire tuple, IElement root, HashSet<string> visited)
         {
-            var line = tuple.Item1 as LineEx;
-            var tag = line.Tag as Tuple<object, object>;
+            var line = tuple.Item1 as ILine;
+            var tag = line.GetTag() as Tuple<object, object>;
 
-            ElementThumb.SetIsSelected(line, true);
+            line.SetSelected(true);
 
             if (tag == null)
             {
@@ -506,19 +411,19 @@ namespace CanvasDiagramEditor.Editor
                 return;
             }
 
-            var startRoot = tag.Item1 as FrameworkElement;
-            var endRoot = tag.Item2 as FrameworkElement;
+            var startRoot = tag.Item1 as IElement;
+            var endRoot = tag.Item2 as IElement;
 
             if (startRoot != null &&
-                StringUtil.Compare(startRoot.Uid, root.Uid) == false &&
-                visited.Contains(startRoot.Uid) == false)
+                StringUtil.Compare(startRoot.GetUid(), root.GetUid()) == false &&
+                visited.Contains(startRoot.GetUid()) == false)
             {
                 SelectConnected(startRoot, visited);
             }
 
             if (endRoot != null &&
-                StringUtil.Compare(endRoot.Uid, root.Uid) == false &&
-                visited.Contains(endRoot.Uid) == false)
+                StringUtil.Compare(endRoot.GetUid(), root.GetUid()) == false &&
+                visited.Contains(endRoot.GetUid()) == false)
             {
                 SelectConnected(endRoot, visited);
             }
@@ -533,9 +438,9 @@ namespace CanvasDiagramEditor.Editor
             // append ids to the existing elements in canvas
             //System.Diagnostics.Debug.Print("Appending Ids:");
 
-            foreach (var element in elements.Cast<FrameworkElement>())
+            foreach (var element in elements.Cast<IElement>())
             {
-                string[] uid = element.Uid.Split(ModelConstants.TagNameSeparator);
+                string[] uid = element.GetUid().Split(ModelConstants.TagNameSeparator);
 
                 string type = uid[0];
                 int id = int.Parse(uid[1]);
@@ -545,7 +450,7 @@ namespace CanvasDiagramEditor.Editor
                 //System.Diagnostics.Debug.Print("+{0}, id: {1} -> {2} ", type, id, appendedId);
 
                 string appendedUid = string.Concat(type, ModelConstants.TagNameSeparator, appendedId.ToString());
-                element.Uid = appendedUid;
+                element.SetUid(appendedUid);
 
                 //if (element.Tag != null)
                 //{
@@ -614,17 +519,17 @@ namespace CanvasDiagramEditor.Editor
             // update wire to element connections
             foreach (var item in dict)
             {
-                var element = item.Value.Item1 as FrameworkElement;
+                var element = item.Value.Item1 as IElement;
                 var wires = item.Value.Item2;
 
-                if (element.Tag == null)
+                if (element.GetTag() == null)
                 {
-                    element.Tag = new Selection(false, new List<MapWire>());
+                    element.SetTag(new Selection(false, new List<MapWire>()));
                 }
 
                 if (wires.Count > 0)
                 {
-                    var selection = element.Tag as Selection;
+                    var selection = element.GetTag() as Selection;
                     var tuples = selection.Item2;
 
                     foreach (var wire in wires)
@@ -642,20 +547,20 @@ namespace CanvasDiagramEditor.Editor
 
                                 tuples.Add(mapWire);
 
-                                var lineEx = line as LineEx;
-                                if (lineEx.Tag != null)
+                                var lineEx = line as ILine;
+                                if (lineEx.GetTag() != null)
                                 {
-                                    var endRoot = lineEx.Tag as FrameworkElement;
+                                    var endRoot = lineEx.GetTag() as IElement;
                                     if (endRoot != null)
                                     {
                                         // set line Tag as Tuple of start & end root element
-                                        lineEx.Tag = new Tuple<object, object>(element, endRoot);
+                                        lineEx.SetTag(new Tuple<object, object>(element, endRoot));
                                     }
                                 }
                                 else
                                 {
                                     // set line Tag as start root element
-                                    lineEx.Tag = element;
+                                    lineEx.SetTag(element);
                                 }
                             }
                             else
@@ -677,20 +582,20 @@ namespace CanvasDiagramEditor.Editor
 
                                 tuples.Add(mapWire);
 
-                                var lineEx = line as LineEx;
-                                if (lineEx.Tag != null)
+                                var lineEx = line as ILine;
+                                if (lineEx.GetTag() != null)
                                 {
-                                    var startRoot = lineEx.Tag as FrameworkElement;
+                                    var startRoot = lineEx.GetTag() as IElement;
                                     if (startRoot != null)
                                     {
                                         // set line Tag as Tuple of start & end root element
-                                        lineEx.Tag = new Tuple<object, object>(startRoot, element);
+                                        lineEx.SetTag(new Tuple<object, object>(startRoot, element));
                                     }
                                 }
                                 else
                                 {
                                     // set line Tag as end root element
-                                    lineEx.Tag = element;
+                                    lineEx.SetTag(element);
                                 }
                             }
                             else

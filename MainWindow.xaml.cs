@@ -3,6 +3,7 @@
 
 #region References
 
+using CanvasDiagramEditor.Core;
 using CanvasDiagramEditor.Controls;
 using CanvasDiagramEditor.Editor;
 using CanvasDiagramEditor.Parser;
@@ -594,7 +595,7 @@ namespace CanvasDiagramEditor
                 Template = grid.Resources["LandscapePageTemplateKey"] as ControlTemplate 
             };
 
-            var canvas = new Canvas()
+            var canvas = new DiagramCanvas()
             {
                 Width = Editor.CurrentOptions.CurrentCanvas.Width,
                 Height = Editor.CurrentOptions.CurrentCanvas.Height
@@ -1199,7 +1200,7 @@ namespace CanvasDiagramEditor
         private Point InsertPointOutput = new Point(930.0, 30.0);
         private Point InsertPointGate = new Point(325.0, 30.0);
 
-        private void InsertInput(Canvas canvas)
+        private void InsertInput(DiagramCanvas canvas)
         {
             Editor.AddToHistory(canvas, true);
             
@@ -1207,7 +1208,7 @@ namespace CanvasDiagramEditor
             Editor.SelectOneElement(element, true);
         }
 
-        private void InsertOutput(Canvas canvas)
+        private void InsertOutput(DiagramCanvas canvas)
         {
             Editor.AddToHistory(canvas, true);
 
@@ -1215,7 +1216,7 @@ namespace CanvasDiagramEditor
             Editor.SelectOneElement(element, true);
         }
 
-        private void InsertOrGate(Canvas canvas)
+        private void InsertOrGate(DiagramCanvas canvas)
         {
             Editor.AddToHistory(canvas, true);
 
@@ -1223,7 +1224,7 @@ namespace CanvasDiagramEditor
             Editor.SelectOneElement(element, true);
         }
 
-        private void InsertAndGate(Canvas canvas)
+        private void InsertAndGate(DiagramCanvas canvas)
         {
             Editor.AddToHistory(canvas, true);
 
@@ -1284,11 +1285,11 @@ namespace CanvasDiagramEditor
             window.ShowDialog();
         }
 
-        private List<FrameworkElement> GetAllInputOutputElements()
+        private List<IElement> GetAllInputOutputElements()
         {
             var all = Editor.GetAllElements().Where(x =>
             {
-                string uid = x.Uid;
+                string uid = x.GetUid();
                 return StringUtil.StartsWith(uid, ModelConstants.TagElementInput) ||
                     StringUtil.StartsWith(uid, ModelConstants.TagElementOutput);
             }).ToList();
@@ -1296,11 +1297,11 @@ namespace CanvasDiagramEditor
             return all;
         }
 
-        private List<FrameworkElement> GetSelectedInputOutputElements()
+        private List<IElement> GetSelectedInputOutputElements()
         {
             var selected = Editor.GetSelectedElements().Where(x =>
             {
-                string uid = x.Uid;
+                string uid = x.GetUid();
                 return StringUtil.StartsWith(uid, ModelConstants.TagElementInput) ||
                     StringUtil.StartsWith(uid, ModelConstants.TagElementOutput);
             }).ToList();
