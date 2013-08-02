@@ -510,6 +510,31 @@ namespace CanvasDiagramEditor
 
         #region View Menu Events
 
+        private void ViewProjectDiagrams_Click(object sender, RoutedEventArgs e)
+        {
+            ShowProjectDiagrams();
+        }
+
+        private void ViewSolutionDiagrams_Click(object sender, RoutedEventArgs e)
+        {
+            ShowSolutionDiagrams();
+        }
+
+        private void ViewDiagram_Click(object sender, RoutedEventArgs e)
+        {
+            ShowDiagram();
+        }
+
+        private void ViewDiagramSelectedElements_Click(object sender, RoutedEventArgs e)
+        {
+            ShowDiagramSelectedElements();
+        }
+
+        private void ViewDiagramHistory_Click(object sender, RoutedEventArgs e)
+        {
+            ShowDiagramHistory();
+        }
+
         private void ViewPreviousDiagramProject_Click(object sender, RoutedEventArgs e)
         {
             Editor.SelectPreviousTreeItem(false);
@@ -898,10 +923,37 @@ namespace CanvasDiagramEditor
                     }
                     break;
 
-                    // table editor
+                // table editor
                 case Key.F6:
                     {
                         ShowTableEditor();
+                        e.Handled = true;
+                    }
+                    break;
+
+                // show diagram history
+                case Key.H:
+                    {
+                        if (isControl == true)
+                        {
+                            ShowDiagramHistory();
+                            e.Handled = true;
+                        }
+                    }
+                    break;
+
+                // show project diagrams
+                case Key.F7:
+                    {
+                        ShowProjectDiagrams();
+                        e.Handled = true;
+                    }
+                    break;
+
+                // show solution diagrams
+                case Key.F8:
+                    {
+                        ShowSolutionDiagrams();
                         e.Handled = true;
                     }
                     break;
@@ -1169,17 +1221,22 @@ namespace CanvasDiagramEditor
 
         #endregion
 
-        #region Print
+        #region Fixed Document
+
+        private const double PageWidth = 1260;
+        private const double PageHeight = 891;
 
         private void SetPrintStrokeSthickness(FrameworkElement element)
         {
             if (element != null)
             {
-                element.Resources[ResourceConstants.KeyLogicStrokeThickness] = DipUtil.MmToDip(DxfDiagramCreator.LogicThicknessMm);
-                element.Resources[ResourceConstants.KeyWireStrokeThickness] = DipUtil.MmToDip(DxfDiagramCreator.WireThicknessMm);
-                element.Resources[ResourceConstants.KeyElementStrokeThickness] = DipUtil.MmToDip(DxfDiagramCreator.ElementThicknessMm);
-                element.Resources[ResourceConstants.KeyIOStrokeThickness] = DipUtil.MmToDip(DxfDiagramCreator.IOThicknessMm);
-                element.Resources[ResourceConstants.KeyPageStrokeThickness] = DipUtil.MmToDip(DxfDiagramCreator.PageThicknessMm);
+                var resources = element.Resources;
+
+                resources[ResourceConstants.KeyLogicStrokeThickness] = DipUtil.MmToDip(DxfDiagramCreator.LogicThicknessMm);
+                resources[ResourceConstants.KeyWireStrokeThickness] = DipUtil.MmToDip(DxfDiagramCreator.WireThicknessMm);
+                resources[ResourceConstants.KeyElementStrokeThickness] = DipUtil.MmToDip(DxfDiagramCreator.ElementThicknessMm);
+                resources[ResourceConstants.KeyIOStrokeThickness] = DipUtil.MmToDip(DxfDiagramCreator.IOThicknessMm);
+                resources[ResourceConstants.KeyPageStrokeThickness] = DipUtil.MmToDip(DxfDiagramCreator.PageThicknessMm);
             }
         }
 
@@ -1207,7 +1264,11 @@ namespace CanvasDiagramEditor
             helperColor.Color = Colors.Transparent;
         }
 
-        public FrameworkElement CreateContextElement(string diagram, Size areaExtent, Point origin, Rect area)
+        public FrameworkElement CreateContextElement(string diagram, 
+            Size areaExtent, 
+            Point origin, 
+            Rect area,
+            bool fixeStrokeThickness)
         {
             var grid = new Grid()
             {
@@ -1217,7 +1278,10 @@ namespace CanvasDiagramEditor
             // set print dictionary
             grid.Resources.Source = new Uri(LogicDictionaryUri, UriKind.Relative);
 
-            SetPrintStrokeSthickness(grid);
+            if (fixeStrokeThickness == false)
+            {
+                SetPrintStrokeSthickness(grid);
+            }
 
             // set print colors
             SetPrintColors(grid);
@@ -1250,17 +1314,17 @@ namespace CanvasDiagramEditor
             return grid;
         }
 
-        public FixedDocument CreateFixedDocument(IEnumerable<string> diagrams, Size areaExtent, Size areaOrigin)
+        public FixedDocument CreateFixedDocument(IEnumerable<string> diagrams, 
+            Size areaExtent, 
+            Size areaOrigin, 
+            bool fixedStrokeThickness)
         {
-            if (diagrams == null)
-                throw new ArgumentNullException();
-
             var origin = new Point(areaOrigin.Width, areaOrigin.Height);
             var area = new Rect(origin, areaExtent);
-            var scale = Math.Min(areaExtent.Width / 1260, areaExtent.Height / 891);
+            var scale = Math.Min(areaExtent.Width / PageWidth, areaExtent.Height / PageHeight);
 
             // create fixed document
-            var fixedDocument = new FixedDocument();
+            var fixedDocument = new FixedDocument() { Name = "diagrams" };
 
             //fixedDocument.DocumentPaginator.PageSize = new Size(areaExtent.Width, areaExtent.Height);
 
@@ -1277,7 +1341,11 @@ namespace CanvasDiagramEditor
                 fixedPage.Width = areaExtent.Width;
                 fixedPage.Height = areaExtent.Height;
 
-                var element = CreateContextElement(diagram, areaExtent, origin, area);
+                var element = CreateContextElement(diagram, 
+                    areaExtent, 
+                    origin, 
+                    area, 
+                    fixedStrokeThickness);
 
                 // transform and scale for print
                 element.LayoutTransform = new ScaleTransform(scale, scale);
@@ -1297,16 +1365,19 @@ namespace CanvasDiagramEditor
             return fixedDocument;
         }
 
-        public FixedDocumentSequence CreateFixedDocumentSequence(IEnumerable<IEnumerable<string>> projects, Size areaExtent, Size areaOrigin)
+        public FixedDocumentSequence CreateFixedDocumentSequence(IEnumerable<IEnumerable<string>> projects, 
+            Size areaExtent, 
+            Size areaOrigin,
+            bool fixedStrokeThickness)
         {
-            if (projects == null)
-                throw new ArgumentNullException();
-
-            var fixedDocumentSeq = new FixedDocumentSequence();
+            var fixedDocumentSeq = new FixedDocumentSequence() { Name = "diagrams" };
 
             foreach (var diagrams in projects)
             {
-                var fixedDocument = CreateFixedDocument(diagrams, areaExtent, areaOrigin);
+                var fixedDocument = CreateFixedDocument(diagrams, 
+                    areaExtent, 
+                    areaOrigin, 
+                    fixedStrokeThickness);
 
                 var documentRef = new DocumentReference();
                 documentRef.BeginInit();
@@ -1318,6 +1389,10 @@ namespace CanvasDiagramEditor
 
             return fixedDocumentSeq;
         }
+
+        #endregion
+
+        #region Print
 
         private void SetPrintDialogOptions(PrintDialog dlg)
         {
@@ -1349,9 +1424,6 @@ namespace CanvasDiagramEditor
 
         public void Print(IEnumerable<string> diagrams, string name)
         {
-            if (diagrams == null)
-                throw new ArgumentNullException();
-
             var dlg = new PrintDialog();
 
             ShowPrintDialog(dlg);
@@ -1364,7 +1436,10 @@ namespace CanvasDiagramEditor
             // create document
             var s = System.Diagnostics.Stopwatch.StartNew();
 
-            var fixedDocument = CreateFixedDocument(diagrams, areaExtent, areaOrigin);
+            var fixedDocument = CreateFixedDocument(diagrams, 
+                areaExtent, 
+                areaOrigin,
+                false);
 
             s.Stop();
             System.Diagnostics.Debug.Print("CreateFixedDocument in {0}ms", s.Elapsed.TotalMilliseconds);
@@ -1390,7 +1465,10 @@ namespace CanvasDiagramEditor
             // create document
             var s = System.Diagnostics.Stopwatch.StartNew();
 
-            var fixedDocumentSeq = CreateFixedDocumentSequence(projects, areaExtent, areaOrigin);
+            var fixedDocumentSeq = CreateFixedDocumentSequence(projects, 
+                areaExtent, 
+                areaOrigin,
+                false);
 
             s.Stop();
             System.Diagnostics.Debug.Print("CreateFixedDocumentSequence in {0}ms", s.Elapsed.TotalMilliseconds);
@@ -1401,10 +1479,6 @@ namespace CanvasDiagramEditor
 
         public void Print()
         {
-            //var model = editor.GenerateDiagramModel(editor.CurrentOptions.CurrentCanvas, null);
-            //var diagrams = new List<string>();
-            //diagrams.Add(model);
-
             Editor.UpdateSelectedDiagramModel();
 
             var diagrams = Editor.GenerateSolutionModel(null, false).Item2;
@@ -1419,6 +1493,77 @@ namespace CanvasDiagramEditor
             var diagrams = Editor.GenerateSolutionModel(null, true).Item2;
 
             Print(diagrams, "history");
+        }
+
+        #endregion
+
+        #region Show
+
+        public void ShowDiagram()
+        {
+            var model = Editor.UpdateSelectedDiagramModel();
+
+            var diagrams = new List<string>();
+            diagrams.Add(model);
+
+            ShowDiagramsWindow(diagrams, "Diagram");
+        }
+
+        public void ShowDiagramSelectedElements()
+        {
+            var model = Editor.GenerateModelFromSelected();
+
+            var diagrams = new List<string>();
+            diagrams.Add(model);
+
+            ShowDiagramsWindow(diagrams, "Diagram (Selected Elements)");
+        }
+
+        public void ShowProjectDiagrams()
+        {
+
+        }
+
+        public void ShowSolutionDiagrams()
+        {
+            Editor.UpdateSelectedDiagramModel();
+
+            var diagrams = Editor.GenerateSolutionModel(null, false).Item2;;
+
+            ShowDiagramsWindow(diagrams, "Diagram History");
+        }
+
+        public void ShowDiagramHistory()
+        {
+            Editor.UpdateSelectedDiagramModel();
+
+            var diagrams = Editor.GenerateSolutionModel(null, false).Item2;
+
+            ShowDiagramsWindow(diagrams, "Diagram History");
+        }
+
+        public void ShowDiagramsWindow(IEnumerable<string> diagrams, string title)
+        {
+            var areaExtent = new Size(PageWidth, PageHeight);
+            var areaOrigin = new Size(0, 0);
+
+            var fixedDocument = CreateFixedDocument(diagrams,
+                areaExtent,
+                areaOrigin,
+                true);
+
+            var window = new Window()
+            {
+                Title = title,
+                Width = PageWidth + 80,
+                Height = PageHeight + 120,
+                WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                WindowState = WindowState.Maximized
+            };
+
+            window.Content = fixedDocument;
+
+            window.Show();
         }
 
         #endregion

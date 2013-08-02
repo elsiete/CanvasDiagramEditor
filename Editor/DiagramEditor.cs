@@ -2233,6 +2233,33 @@ namespace CanvasDiagramEditor.Editor
                 item.Tag = new Diagram(model, canvas != null ? canvas.Tag as History : null);
             }
         }
+
+        public string GetCurrentModel(bool update)
+        {
+            var tree = CurrentOptions.CurrentTree;
+            var canvas = CurrentOptions.CurrentCanvas;
+            var item = tree.GetSelectedItem();
+
+            if (item != null)
+            {
+                string uid = item.GetUid();
+                bool isDiagram = StringUtil.StartsWith(uid, ModelConstants.TagHeaderDiagram);
+
+                if (isDiagram == true)
+                {
+                    var model = Editor.GenerateModel(canvas, uid, CurrentOptions.CurrentProperties);
+
+                    if (update == true)
+                    {
+                        item.SetTag(new Diagram(model, canvas.Tag as History));
+                    }
+
+                    return model;
+                }
+            }
+
+            return null;
+        }
         
         private SolutionTreeViewItem CreateSolutionItem(string uid)
         {
@@ -2376,24 +2403,14 @@ namespace CanvasDiagramEditor.Editor
             project.Items.Remove(diagram);
         }
 
-        public void UpdateSelectedDiagramModel()
+        public string UpdateSelectedDiagramModel()
         {
-            var tree = CurrentOptions.CurrentTree;
-            var canvas = CurrentOptions.CurrentCanvas;
-            var item = tree.GetSelectedItem();
+            return GetCurrentModel(true);
+        }
 
-            if (item != null)
-            {
-                string uid = item.GetUid();
-                bool isDiagram = StringUtil.StartsWith(uid, ModelConstants.TagHeaderDiagram);
-
-                if (isDiagram == true)
-                {
-                    var model = Editor.GenerateModel(canvas, uid, CurrentOptions.CurrentProperties);
-
-                    item.SetTag(new Diagram(model, canvas.Tag as History));
-                }
-            }
+        public string GetSelectedDiagramModel()
+        {
+            return GetCurrentModel(false);
         }
 
         public static string MakeRelativePath(string fromPath, string toPath)
