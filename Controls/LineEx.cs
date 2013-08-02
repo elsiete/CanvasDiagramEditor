@@ -188,8 +188,8 @@ namespace CanvasDiagramEditor.Controls
 
             bool shortenStart = GetShortenStart(this);
             bool shortenEnd = GetShortenEnd(this);
-            bool isStartIO = IsStartIO;
-            bool isEndIO = IsEndIO;
+            bool isStartIO = GetStartIO();
+            bool isEndIO = GetEndIO();
 
             // shorten start
             if (isStartIO == true && isEndIO == false && shortenStart == true)
@@ -358,7 +358,7 @@ namespace CanvasDiagramEditor.Controls
 
         public bool GetStartIO()
         {
-            return this.IsStartVisible;
+            return this.IsStartIO;
         }
 
         public void SetStartIO(bool flag)

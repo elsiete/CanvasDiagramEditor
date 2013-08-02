@@ -20,6 +20,18 @@ namespace CanvasDiagramEditor.Core
         public double Left { get; set; }
         public double Right { get; set; }
         public double Top { get; set; }
+
+        public MarginEx()
+        {
+        }
+
+        public MarginEx(double bottom, double left, double right, double top)
+        {
+            Bottom = bottom;
+            Left = left;
+            Right = right;
+            Top = top;
+        }
     }
 
     #endregion

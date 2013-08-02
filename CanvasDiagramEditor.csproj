@@ -57,6 +57,8 @@
     </ApplicationDefinition>
     <Compile Include="Controls\DiagramCanvas.cs" />
     <Compile Include="Controls\TableGrid.cs" />
+    <Compile Include="Controls\SolutionTreeView.cs" />
+    <Compile Include="Controls\SolutionTreeViewItem.cs" />
     <Compile Include="Core\ICanvas.cs" />
     <Compile Include="Core\IData.cs" />
     <Compile Include="Core\IElement.cs" />
@@ -67,6 +69,8 @@
     <Compile Include="Core\ISelected.cs" />
     <Compile Include="Core\ITag.cs" />
     <Compile Include="Core\IThumb.cs" />
+    <Compile Include="Core\ITree.cs" />
+    <Compile Include="Core\ITreeItem.cs" />
     <Compile Include="Core\IUid.cs" />
     <Compile Include="Core\MarginEx.cs" />
     <Compile Include="Core\PointEx.cs" />
@@ -74,7 +78,6 @@
     <Compile Include="DiagramControl.xaml.cs">
       <DependentUpon>DiagramControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="DxfDiagramCreator.cs" />
     <Compile Include="Dxf\Blocks\DxfBlock.cs" />
     <Compile Include="Dxf\DxfBlocks.cs" />
     <Compile Include="Dxf\DxfTables.cs" />
@@ -123,13 +126,21 @@
     <Compile Include="Dxf\Util\Vector3.cs" />
     <Compile Include="Editor\DiagramCreator.cs" />
     <Compile Include="Editor\DiagramCreatorOptions.cs" />
+    <Compile Include="Editor\DxfDiagramCreator.cs" />
     <Compile Include="Editor\Editor.cs" />
+    <Compile Include="Editor\WpfDiagramCreator.cs" />
     <Compile Include="HtmlWindow.xaml.cs">
       <DependentUpon>HtmlWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Parser\LineCalc.cs" />
     <Compile Include="Parser\Table.cs" />
     <Compile Include="Parser\Tag.cs" />
+    <Compile Include="TableEditorControl.xaml.cs">
+      <DependentUpon>TableEditorControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="TableEditorWindow.xaml.cs">
+      <DependentUpon>TableEditorWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="TagEditorControl.xaml.cs">
       <DependentUpon>TagEditorControl.xaml</DependentUpon>
     </Compile>
@@ -202,6 +213,14 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="TableEditorControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="TableEditorWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="TagEditorControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

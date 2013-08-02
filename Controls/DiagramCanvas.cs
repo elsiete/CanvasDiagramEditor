@@ -45,6 +45,26 @@ namespace CanvasDiagramEditor.Controls
             this.Children.Clear();
         }
 
+        public double GetWidth()
+        {
+            return this.Width;
+        }
+
+        public void SetWidth(double width)
+        {
+            this.Width = width;
+        }
+
+        public double GetHeight()
+        {
+            return this.Height;
+        }
+
+        public void SetHeight(double height)
+        {
+            this.Height = height;
+        }
+
         #endregion
 
         #region IUid

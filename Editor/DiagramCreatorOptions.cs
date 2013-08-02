@@ -55,9 +55,6 @@ namespace CanvasDiagramEditor.Editor
 
         public bool MoveAllSelected = false;
 
-        public double HitTestRadiusX = 6.0;
-        public double HitTestRadiusY = 6.0;
-
         public bool SkipContextMenu = false;
         public bool SkipLeftClick = false;
 

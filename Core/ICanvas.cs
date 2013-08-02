@@ -22,6 +22,11 @@ namespace CanvasDiagramEditor.Core
         void Remove(IElement element);
         void Clear();
 
+        double GetWidth();
+        void SetWidth(double width);
+        double GetHeight();
+        void SetHeight(double height);
+
         IEnumerable<IElement> HitTest(IPoint point, double radius);
         IEnumerable<IElement> HitTest(IRect rect);
     }

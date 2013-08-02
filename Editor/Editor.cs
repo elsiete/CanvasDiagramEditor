@@ -340,14 +340,14 @@ namespace CanvasDiagramEditor.Editor
 
         public static void SelectAll(ICanvas canvas)
         {
-            Editor.SetThumbsSelection(canvas, true);
-            Editor.SetLinesSelection(canvas, true);
+            SetThumbsSelection(canvas, true);
+            SetLinesSelection(canvas, true);
         }
 
         public static void DeselectAll(ICanvas canvas)
         {
-            Editor.SetThumbsSelection(canvas, false);
-            Editor.SetLinesSelection(canvas, false);
+            SetThumbsSelection(canvas, false);
+            SetLinesSelection(canvas, false);
         }
 
         #endregion
@@ -737,6 +737,146 @@ namespace CanvasDiagramEditor.Editor
         {
             var model = GenerateTags(tags);
             SaveTags(fileName, model);
+        }
+
+        #endregion
+
+        #region Delete
+
+        public static void DeleteElement(ICanvas canvas, IPoint point)
+        {
+            var element = canvas.HitTest(point, 6.0).FirstOrDefault() as IElement;
+            if (element == null)
+                return;
+
+            DeleteElement(canvas, element);
+        }
+
+        public static void DeleteElement(ICanvas canvas, IElement element)
+        {
+            string uid = element.GetUid();
+
+            //System.Diagnostics.Debug.Print("DeleteElement, element: {0}, uid: {1}, parent: {2}", 
+            //    element.GetType(), element.Uid, element.Parent.GetType());
+
+            if (element is ILine && uid != null &&
+                StringUtil.StartsWith(uid, ModelConstants.TagElementWire))
+            {
+                var line = element as ILine;
+
+                DeleteWire(canvas, line);
+            }
+            else
+            {
+                canvas.Remove(element);
+            }
+        }
+
+        public static void DeleteWire(ICanvas canvas, ILine line)
+        {
+            canvas.Remove(line);
+
+            RemoveWireConnections(canvas, line);
+
+            DeleteEmptyPins(canvas);
+        }
+
+        public static void DeleteEmptyPins(ICanvas canvas)
+        {
+            var pins = FindEmptyPins(canvas);
+
+            // remove empty pins
+            foreach (var pin in pins)
+            {
+                canvas.Remove(pin);
+            }
+        }
+
+        public static List<IElement> FindEmptyPins(ICanvas canvas)
+        {
+            var pins = new List<IElement>();
+
+            foreach (var element in canvas.GetElements())
+            {
+                string uid = element.GetUid();
+
+                if (IsElementPin(uid))
+                {
+                    var elementTag = element.GetTag();
+                    if (elementTag != null)
+                    {
+                        var selection = elementTag as Selection;
+                        var tuples = selection.Item2;
+
+                        if (tuples.Count <= 0)
+                        {
+                            // empty pin
+                            pins.Add(element);
+                        }
+                    }
+                    else
+                    {
+                        // empty pin
+                        pins.Add(element);
+                    }
+                }
+            }
+
+            return pins;
+        }
+
+        public static bool IsElementPin(string uid)
+        {
+            return uid != null &&
+                   StringUtil.StartsWith(uid, ModelConstants.TagElementPin);
+        }
+
+        public static Connections RemoveWireConnections(ICanvas canvas, ILine line)
+        {
+            var connections = new Connections();
+
+            foreach (var element in canvas.GetElements())
+            {
+                var elementTag = element.GetTag();
+                if (elementTag  != null && !(element is ILine))
+                {
+                    RemoveWireConnections(line, connections, element);
+                }
+            }
+
+            return connections;
+        }
+
+        public static void RemoveWireConnections(ILine line, Connections connections, IElement element)
+        {
+            var selection = element.GetTag() as Selection;
+            var tuples = selection.Item2;
+            var map = new List<MapWire>();
+
+            CreateMapWire(line, tuples, map);
+
+            if (map.Count > 0)
+            {
+                connections.Add(new Connection(element, map));
+            }
+
+            foreach (var tuple in map)
+            {
+                tuples.Remove(tuple);
+            }
+        }
+
+        private static void CreateMapWire(ILine line, List<MapWire> tuples, List<MapWire> map)
+        {
+            foreach (var tuple in tuples)
+            {
+                var _line = tuple.Item1 as ILine;
+
+                if (StringUtil.Compare(_line.GetUid(), line.GetUid()))
+                {
+                    map.Add(tuple);
+                }
+            }
         }
 
         #endregion

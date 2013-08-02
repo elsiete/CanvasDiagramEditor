@@ -241,7 +241,7 @@ namespace CanvasDiagramEditor
         {
             Editor.UpdateSelectedDiagramModel();
 
-            var solution = Editor.GenerateSolutionModel(System.IO.Directory.GetCurrentDirectory());
+            var solution = Editor.GenerateSolutionModel(System.IO.Directory.GetCurrentDirectory(), false);
 
             this.TextModel.Text = solution.Item1;
         }
@@ -273,7 +273,7 @@ namespace CanvasDiagramEditor
 
         private void TreeViewItem_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
-            TreeViewItem item = sender as TreeViewItem;
+            var item = sender as SolutionTreeViewItem;
             if (item != null)
             {
                 item.IsSelected = true;
@@ -291,8 +291,8 @@ namespace CanvasDiagramEditor
 
             var canvas = Editor.CurrentOptions.CurrentCanvas;
 
-            var oldItem = e.OldValue as TreeViewItem;
-            var newItem = e.NewValue as TreeViewItem;
+            var oldItem = e.OldValue as SolutionTreeViewItem;
+            var newItem = e.NewValue as SolutionTreeViewItem;
 
             bool isDiagram = Editor.SwitchItems(canvas, oldItem, newItem);
             if (isDiagram == true)
@@ -307,7 +307,7 @@ namespace CanvasDiagramEditor
 
         private void SolutionAddProject_Click(object sender, RoutedEventArgs e)
         {
-            var solution = SolutionTree.SelectedItem as TreeViewItem;
+            var solution = SolutionTree.SelectedItem as SolutionTreeViewItem;
 
             Editor.AddProject(solution);
         }
@@ -324,14 +324,14 @@ namespace CanvasDiagramEditor
 
         private void SolutionDeleteProject_Click(object sender, RoutedEventArgs e)
         {
-            var project = SolutionTree.SelectedItem as TreeViewItem;
+            var project = SolutionTree.SelectedItem as SolutionTreeViewItem;
 
             Editor.DeleteProject(project);
         }
 
         private void DiagramDeleteDiagram_Click(object sender, RoutedEventArgs e)
         {
-            var diagram = SolutionTree.SelectedItem as TreeViewItem;
+            var diagram = SolutionTree.SelectedItem as SolutionTreeViewItem;
 
             Editor.DeleteDiagram(diagram);
         }
@@ -415,6 +415,11 @@ namespace CanvasDiagramEditor
             Print();
         }
 
+        private void FilePrintHistory_Click(object sender, RoutedEventArgs e)
+        {
+            PrintHistory();
+        }
+
         private void FileExit_Click(object sender, RoutedEventArgs e)
         {
             Application.Current.Shutdown();
@@ -446,7 +451,7 @@ namespace CanvasDiagramEditor
 
         private void EditPaste_Click(object sender, RoutedEventArgs e)
         {
-            var point = new Point(0.0, 0.0);
+            var point = new PointEx(0.0, 0.0);
 
             Editor.Paste(point);
         }
@@ -489,6 +494,11 @@ namespace CanvasDiagramEditor
         private void EditClear_Click(object sender, RoutedEventArgs e)
         {
             Editor.Clear();
+        }
+
+        private void EditResetThumbTags_Click(object sender, RoutedEventArgs e)
+        {
+            Editor.ResetThumbTags();
         }
 
         private void EditOptions_Click(object sender, RoutedEventArgs e)
@@ -601,13 +611,18 @@ namespace CanvasDiagramEditor
                 Height = Editor.CurrentOptions.CurrentCanvas.Height
             };
 
-            LineEx.SetShortenStart(grid, ShortenStart.IsChecked.Value);
-            LineEx.SetShortenEnd(grid, ShortenEnd.IsChecked.Value);
-
             Editor.ParseDiagramModel(diagram, canvas, null, 0, 0, false, false, false, true);
 
             grid.Children.Add(template);
             grid.Children.Add(canvas);
+
+            // set diagram table
+            var table = TableGrid.GetData(this);
+            TableGrid.SetData(grid, table);
+
+            // set shorten flags
+            LineEx.SetShortenStart(grid, ShortenStart.IsChecked.Value);
+            LineEx.SetShortenEnd(grid, ShortenEnd.IsChecked.Value);
 
             return grid;
         }
@@ -769,9 +784,18 @@ namespace CanvasDiagramEditor
 
             Editor.UpdateSelectedDiagramModel();
 
-            var diagrams = Editor.GenerateSolutionModel(null).Item2;
+            var diagrams = Editor.GenerateSolutionModel(null, false).Item2;
 
             Print(diagrams, "solution");
+        }
+
+        public void PrintHistory()
+        {
+            Editor.UpdateSelectedDiagramModel();
+
+            var diagrams = Editor.GenerateSolutionModel(null, true).Item2;
+
+            Print(diagrams, "history");
         }
 
         #endregion
@@ -974,6 +998,13 @@ namespace CanvasDiagramEditor
                     }
                     break;
 
+                // reset tags
+                case Key.R:
+                    {
+                        Editor.ResetThumbTags();
+                    }
+                    break;
+
                 // undo
                 case Key.Z:
                     {
@@ -1028,7 +1059,7 @@ namespace CanvasDiagramEditor
                         // paste from clipboard
                         if (isControl == true)
                         {
-                            var point = new Point(0.0, 0.0);
+                            var point = new PointEx(0.0, 0.0);
                             Editor.Paste(point);
                             e.Handled = true;
                             break;
@@ -1154,7 +1185,7 @@ namespace CanvasDiagramEditor
 
         private NewItemType AddNewItem()
         {
-            var selected = SolutionTree.SelectedItem as TreeViewItem;
+            var selected = SolutionTree.SelectedItem as SolutionTreeViewItem;
 
             string uid = selected.Uid;
             bool isSelectedSolution = StringUtil.StartsWith(uid, ModelConstants.TagHeaderSolution);
@@ -1163,7 +1194,7 @@ namespace CanvasDiagramEditor
 
             if (isSelectedDiagram == true)
             {
-                var project = selected.Parent as TreeViewItem;
+                var project = selected.Parent as SolutionTreeViewItem;
 
                 Editor.AddDiagram(project, true);
                 return NewItemType.Diagram;
@@ -1187,7 +1218,7 @@ namespace CanvasDiagramEditor
             var newItemType = AddNewItem();
             if (newItemType == NewItemType.Diagram)
             {
-                var point = new Point(0.0, 0.0);
+                var point = new PointEx(0.0, 0.0);
                 Editor.Paste(point);
             }
         }
@@ -1196,9 +1227,9 @@ namespace CanvasDiagramEditor
 
         #region Insert
 
-        private Point InsertPointInput = new Point(45.0, 30.0);
-        private Point InsertPointOutput = new Point(930.0, 30.0);
-        private Point InsertPointGate = new Point(325.0, 30.0);
+        private PointEx InsertPointInput = new PointEx(45.0, 30.0);
+        private PointEx InsertPointOutput = new PointEx(930.0, 30.0);
+        private PointEx InsertPointGate = new PointEx(325.0, 30.0);
 
         private void InsertInput(DiagramCanvas canvas)
         {
@@ -1315,16 +1346,26 @@ namespace CanvasDiagramEditor
 
         public void ShowTableEditor()
         {
-            SetLogo(1);
-            SetLogo(2);
+            // SetLogo(1);
+            // SetLogo(2);
+
+            var window = new TableEditorWindow();
+
+            // display table editor window
+            window.ShowDialog();
         }
 
         public void SetLogo(int logoId)
         {
             var dlg = new Microsoft.Win32.OpenFileDialog()
             {
-                Filter = "Png (*.png)|*.png|Jpg (*.jpg;*.jpeg)|*.jpg;*.jpeg|All Files (*.*)|*.*",
-                Title = "Open Image (115x60 @ 96dpi)"
+                Filter = "Supported Images|*.png;*.jpg;*.jpeg;*.bmp;*.tif;*.tiff;*.bmp|" + 
+                        "Png (*.png)|*.png|" + 
+                        "Jpg (*.jpg;*.jpeg)|*.jpg;*.jpeg|" + 
+                        "Tif (*.tif;*.tiff)|*.tif;*.tiff|" +
+                        "Bmp (*.bmp)|*.bmp|" + 
+                        "All Files (*.*)|*.*",
+                Title = "Open Logo Image (115x60 @ 96dpi)"
             };
 
             var res = dlg.ShowDialog();

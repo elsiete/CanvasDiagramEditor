@@ -4,6 +4,46 @@
 		"selected_items":
 		[
 			[
+				"hei",
+				"height"
+			],
+			[
+				"he",
+				"height"
+			],
+			[
+				"heigh",
+				"Height"
+			],
+			[
+				"Point",
+				"PointEx"
+			],
+			[
+				"ITree",
+				"ITreeItem"
+			],
+			[
+				"sele",
+				"selectedThumbs"
+			],
+			[
+				"sel",
+				"selectedThumbs"
+			],
+			[
+				"Di",
+				"DiagramCreator"
+			],
+			[
+				"Eleme",
+				"ElementThumb"
+			],
+			[
+				"GetSee",
+				"GetSelected"
+			],
+			[
 				"ap",
 				"AppendLine"
 			],
@@ -62,10 +102,6 @@
 			[
 				"st",
 				"startRoot"
-			],
-			[
-				"sele",
-				"selectedSet"
 			],
 			[
 				"ele",
@@ -132,34 +168,34 @@
 	"buffers":
 	[
 		{
-			"file": "DxfDiagramCreator.cs",
+			"file": "Editor/DiagramCreator.cs",
 			"settings":
 			{
-				"buffer_size": 53515,
+				"buffer_size": 85488,
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"file": "Dxf/DxfBlocks.cs",
+			"file": "Core/ITree.cs",
 			"settings":
 			{
-				"buffer_size": 1622,
+				"buffer_size": 495,
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"file": "Dxf/DxfTables.cs",
+			"file": "Controls/SolutionTreeView.cs",
 			"settings":
 			{
-				"buffer_size": 8893,
+				"buffer_size": 1941,
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"file": "MainWindow.xaml",
+			"file": "Controls/SolutionTreeViewItem.cs",
 			"settings":
 			{
-				"buffer_size": 20404,
+				"buffer_size": 1846,
 				"line_ending": "Windows"
 			}
 		},
@@ -167,12 +203,12 @@
 			"file": "MainWindow.xaml.cs",
 			"settings":
 			{
-				"buffer_size": 44924,
+				"buffer_size": 50682,
 				"line_ending": "Windows"
 			}
 		}
 	],
-	"build_system": "Build - Debug",
+	"build_system": "Build - Release",
 	"command_palette":
 	{
 		"height": 0.0,
@@ -199,15 +235,42 @@
 	},
 	"file_history":
 	[
-		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/Editor/Editor.cs",
-		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/Editor/DiagramCreator.cs",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/Core/ITreeItem.cs",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/Core/ITree.cs",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/Controls/SolutionTreeView.cs",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/Controls/SolutionTreeViewItem.cs",
 		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/MainWindow.xaml",
 		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/MainWindow.xaml.cs",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/Controls/DiagramCanvas.cs",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/Core/ICanvas.cs",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/Editor/WpfDiagramCreator.cs",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/DiagramControl.xaml.cs",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/CanvasDiagramEditor.csproj",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/Controls/SolutionTreeView",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/Controls/SolutionTreeViewItem",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/Core/ITreeItem",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/Controls/ElementThumb.cs",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/TableEditorControl.xaml",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/TableEditorControl.xaml.cs",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/TagEditorControl.xaml.cs",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/TagEditorControl.xaml",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/Core/ITree",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/TableEditorWindow.xaml",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/TableEditorWindow.xaml.cs",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/TableEditorControl.cs",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/TableEditorWindow.cs",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/TagEditorWindow.xaml.cs",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/TagEditorWindow.xaml",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/Editor/Editor.cs",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/Editor/DiagramCreator.cs",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/Controls/LineEx.cs",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/Editor/DxfDiagramCreator.cs",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/DxfDiagramCreator.cs",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/Core/MarginEx.cs",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/Editor/DiagramCreatorOptions.cs",
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/Dxf/DxfBlocks.cs",
 		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/Editor/DiagramEditor.cs",
 		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/LogicDictionary.xaml",
-		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/DxfDiagramCreator.cs",
-		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/Controls/LineEx.cs",
-		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/DiagramControl.xaml.cs",
 		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor-master/CanvasDiagramEditor.sublime-project",
 		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor-master/Dxf/DxfEntities.cs",
 		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor-master/Dxf/Util/DxfLwpolylineVertex.cs",
@@ -231,12 +294,8 @@
 		"/D/DOKUMENTY/WEB/Sublime Text Build 3047/Data/Packages/User/cs.sublime-build",
 		"/D/DOKUMENTY/WEB/Sublime Text Build 3047/Data/Packages/Default/Preferences.sublime-settings",
 		"/D/DOKUMENTY/WEB/Sublime Text Build 3047/Data/Packages/User/JSON.sublime-settings",
-		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/TagEditorControl.xaml",
 		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/App.xaml",
-		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/TagEditorWindow.xaml.cs",
-		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/TagEditorControl.xaml.cs",
-		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/App.xaml.cs",
-		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/TagEditorWindow.xaml"
+		"/D/DOKUMENTY/WEB/_CANVAS/CanvasDiagramEditor/App.xaml.cs"
 	],
 	"find":
 	{
@@ -255,6 +314,50 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"TreeViewItem",
+			"Undo\\(",
+			"Undo(",
+			"CreateWireSplit",
+			"GetElementAtPoint",
+			"CreateWireSplit",
+			"ClearModel",
+			"ParseDiagramModel",
+			"controls",
+			"ToggleLineSelection",
+			"GenerateSolutionModel",
+			"GetDiagramModelHistory",
+			"GenerateSolutionModel",
+			"GetDiagramModelHistory",
+			"GetHi",
+			"GenerateSolutionModel",
+			"ClearModel",
+			"CLear",
+			"Clear",
+			"ShowTagEditor",
+			"TagEditorWindow",
+			"EditorWindow.xaml",
+			"TableEditorWindow.xaml",
+			"line.GetSelect",
+			"LineEx",
+			"GetLineExStartAndEnd",
+			"SetDiagramSize",
+			"SetElementPosition",
+			"SetDiagramSize",
+			"GenerateGrid",
+			"WpfDiagramCreator",
+			"SetThumbEvents",
+			"SetElementPosition",
+			"SetTh",
+			"SetElementPosition",
+			"shor",
+			"short",
+			"shorten",
+			"print\\(",
+			"Editor.",
+			"Print\\(",
+			"Print",
+			"Print(",
+			"table",
 			"import",
 			"FleInspectDxf_Click",
 			"selectone",
@@ -305,6 +408,7 @@
 		"regex": true,
 		"replace_history":
 		[
+			"SolutionTreeViewItem"
 		],
 		"reverse": false,
 		"show_context": true,
@@ -315,24 +419,24 @@
 	"groups":
 	[
 		{
-			"selected": 4,
+			"selected": 0,
 			"sheets":
 			[
 				{
 					"buffer": 0,
-					"file": "DxfDiagramCreator.cs",
+					"file": "Editor/DiagramCreator.cs",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 53515,
+						"buffer_size": 85488,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								9601,
-								9601
+								60104,
+								60104
 							]
 						],
 						"settings":
@@ -342,33 +446,31 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 7757.0,
+						"translation.y": 36418.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
 				},
 				{
 					"buffer": 1,
-					"file": "Dxf/DxfBlocks.cs",
+					"file": "Core/ITree.cs",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 1622,
+						"buffer_size": 495,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1342,
-								1342
+								442,
+								470
 							]
 						],
 						"settings":
 						{
-							"syntax": "Packages/C#/C#.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
+							"syntax": "Packages/C#/C#.tmLanguage"
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
@@ -378,11 +480,40 @@
 				},
 				{
 					"buffer": 2,
-					"file": "Dxf/DxfTables.cs",
-					"semi_transient": true,
+					"file": "Controls/SolutionTreeView.cs",
+					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 8893,
+						"buffer_size": 1941,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1084,
+								1084
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C#/C#.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 540.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "Controls/SolutionTreeViewItem.cs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1846,
 						"regions":
 						{
 						},
@@ -400,37 +531,7 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 5616.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 3,
-					"file": "MainWindow.xaml",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 20404,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								20279,
-								20288
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/XML/XML.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true,
-							"word_wrap": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 1117.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -441,15 +542,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 44924,
+						"buffer_size": 50682,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								44629,
-								44629
+								9683,
+								9683
 							]
 						],
 						"settings":
@@ -459,7 +560,7 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 25022.0,
+						"translation.y": 5008.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -473,7 +574,7 @@
 	},
 	"input":
 	{
-		"height": 0.0
+		"height": 34.0
 	},
 	"layout":
 	{
@@ -500,12 +601,12 @@
 	"menu_visible": true,
 	"output.exec":
 	{
-		"height": 118.0
+		"height": 140.0
 	},
 	"project": "CanvasDiagramEditor.sublime-project",
 	"replace":
 	{
-		"height": 42.0
+		"height": 62.0
 	},
 	"save_all_on_build": true,
 	"select_file":

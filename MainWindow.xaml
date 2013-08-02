@@ -66,6 +66,7 @@
                 <MenuItem x:Name="FileImport" Header="_Import Model..." Click="FileImport_Click" InputGestureText="Ctrl+I"/>
                 <Separator/>
                 <MenuItem x:Name="FilePrint" Header="_Print..." Click="FilePrint_Click" InputGestureText="Ctrl+P"/>
+                <MenuItem x:Name="FilePrintHistory" Header="Print _History..." Click="FilePrintHistory_Click"/>
                 <Separator/>
                 <MenuItem x:Name="FileExit" Header="E_xit" Click="FileExit_Click"  InputGestureText="Alt+F4"/>
             </MenuItem>
@@ -86,6 +87,8 @@
                 <MenuItem x:Name="EditSelectConnected" Header="Select Co_nnected" Click="EditSelectConnected_Click" InputGestureText="\"/>
                 <Separator/>
                 <MenuItem x:Name="EditClear" Header="C_lear" Click="EditClear_Click"/>
+                <Separator/>
+                <MenuItem x:Name="EditResetThumbTags" Header="Reset Element Ta_gs" Click="EditResetThumbTags_Click" InputGestureText="Ctrl+R"/>
                 <Separator/>
                 <MenuItem x:Name="EditOptions" Header="_Options" Click="EditOptions_Click"/>
             </MenuItem>
@@ -129,19 +132,19 @@
                                  BorderBrush="Transparent" BorderThickness="0"
                                  Text="{Binding ElementName=SolutionTree, Path=SelectedItem.Uid, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
         
-                        <TreeView x:Name="SolutionTree" 
+                        <controls:SolutionTreeView x:Name="SolutionTree" 
                                   Grid.Column="0" Grid.Row="1"
                                   ScrollViewer.VerticalScrollBarVisibility="Auto"
                                   ScrollViewer.HorizontalScrollBarVisibility="Auto"  
                                   SelectedItemChanged="SolutionTree_SelectedItemChanged">
 
-                            <TreeViewItem Header="Solution" IsExpanded="True" x:Uid="Solution|0" ContextMenu="{StaticResource SolutionContextMenuKey}" MouseRightButtonDown="TreeViewItem_MouseRightButtonDown">
-                                <TreeViewItem Header="Project" IsExpanded="True" x:Uid="Project|0" ContextMenu="{StaticResource ProjectContextMenuKey}" MouseRightButtonDown="TreeViewItem_MouseRightButtonDown">
-                                    <TreeViewItem IsSelected="True" Header="Diagram" x:Uid="Diagram|0" ContextMenu="{StaticResource DiagramContextMenuKey}" MouseRightButtonDown="TreeViewItem_MouseRightButtonDown"/>
-                                </TreeViewItem>
-                            </TreeViewItem>
+                            <controls:SolutionTreeViewItem Header="Solution" IsExpanded="True" x:Uid="Solution|0" ContextMenu="{StaticResource SolutionContextMenuKey}" MouseRightButtonDown="TreeViewItem_MouseRightButtonDown">
+                                <controls:SolutionTreeViewItem Header="Project" IsExpanded="True" x:Uid="Project|0" ContextMenu="{StaticResource ProjectContextMenuKey}" MouseRightButtonDown="TreeViewItem_MouseRightButtonDown">
+                                    <controls:SolutionTreeViewItem IsSelected="True" Header="Diagram" x:Uid="Diagram|0" ContextMenu="{StaticResource DiagramContextMenuKey}" MouseRightButtonDown="TreeViewItem_MouseRightButtonDown"/>
+                                </controls:SolutionTreeViewItem>
+                            </controls:SolutionTreeViewItem>
 
-                        </TreeView>
+                        </controls:SolutionTreeView>
 
                     </Grid>
 
