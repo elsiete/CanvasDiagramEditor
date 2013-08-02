@@ -43,11 +43,11 @@ namespace CanvasDiagramEditor.Editor
 
     #region DiagramCreator
 
-    public class DiagramCreator
+    public class DiagramEditor
     {
         #region Fields
 
-        public DiagramCreatorOptions CurrentOptions = null;
+        public DiagramEditorOptions CurrentOptions = null;
         public Action UpdateDiagramProperties { get; set; }
 
         public LinkedList<IElement> SelectedThumbList = null;
@@ -57,9 +57,9 @@ namespace CanvasDiagramEditor.Editor
 
         #endregion
 
-        #region
+        #region Constructor
 
-        public DiagramCreator()
+        public DiagramEditor()
         {
             InitializeWpfCreator();
         }

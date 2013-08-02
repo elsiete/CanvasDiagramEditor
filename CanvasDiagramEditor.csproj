@@ -124,8 +124,8 @@
     <Compile Include="Dxf\Util\DxfLwpolylineVertex.cs" />
     <Compile Include="Dxf\Util\Vector2.cs" />
     <Compile Include="Dxf\Util\Vector3.cs" />
-    <Compile Include="Editor\DiagramCreator.cs" />
-    <Compile Include="Editor\DiagramCreatorOptions.cs" />
+    <Compile Include="Editor\DiagramEditor.cs" />
+    <Compile Include="Editor\DiagramEditorOptions.cs" />
     <Compile Include="Editor\DxfDiagramCreator.cs" />
     <Compile Include="Editor\Editor.cs" />
     <Compile Include="Editor\WpfDiagramCreator.cs" />

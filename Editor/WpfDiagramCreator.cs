@@ -189,7 +189,7 @@ namespace CanvasDiagramEditor.Editor
 
             if (path != null)
             {
-                DiagramCreator.GenerateGrid(path,
+                DiagramEditor.GenerateGrid(path,
                     properties.GridOriginX,
                     properties.GridOriginY,
                     properties.GridWidth,
@@ -197,7 +197,7 @@ namespace CanvasDiagramEditor.Editor
                     properties.GridSize);
             }
 
-            DiagramCreator.SetDiagramSize(canvas, properties.PageWidth, properties.PageHeight);
+            DiagramEditor.SetDiagramSize(canvas, properties.PageWidth, properties.PageHeight);
 
             return null;
         }

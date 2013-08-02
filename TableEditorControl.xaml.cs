@@ -45,7 +45,6 @@ namespace CanvasDiagramEditor
         }
 
         #endregion
-
     } 
 
     #endregion
