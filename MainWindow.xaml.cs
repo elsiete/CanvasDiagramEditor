@@ -1226,65 +1226,74 @@ namespace CanvasDiagramEditor
         private const double PageWidth = 1260;
         private const double PageHeight = 891;
 
-        private void SetPrintStrokeSthickness(FrameworkElement element)
+        private void SetPrintStrokeSthickness(ResourceDictionary resources)
         {
-            if (element != null)
+            if (resources == null)
             {
-                var resources = element.Resources;
-
-                resources[ResourceConstants.KeyLogicStrokeThickness] = DipUtil.MmToDip(DxfDiagramCreator.LogicThicknessMm);
-                resources[ResourceConstants.KeyWireStrokeThickness] = DipUtil.MmToDip(DxfDiagramCreator.WireThicknessMm);
-                resources[ResourceConstants.KeyElementStrokeThickness] = DipUtil.MmToDip(DxfDiagramCreator.ElementThicknessMm);
-                resources[ResourceConstants.KeyIOStrokeThickness] = DipUtil.MmToDip(DxfDiagramCreator.IOThicknessMm);
-                resources[ResourceConstants.KeyPageStrokeThickness] = DipUtil.MmToDip(DxfDiagramCreator.PageThicknessMm);
+                return;
             }
+
+            resources[ResourceConstants.KeyLogicStrokeThickness] = DipUtil.MmToDip(DxfDiagramCreator.LogicThicknessMm);
+            resources[ResourceConstants.KeyWireStrokeThickness] = DipUtil.MmToDip(DxfDiagramCreator.WireThicknessMm);
+            resources[ResourceConstants.KeyElementStrokeThickness] = DipUtil.MmToDip(DxfDiagramCreator.ElementThicknessMm);
+            resources[ResourceConstants.KeyIOStrokeThickness] = DipUtil.MmToDip(DxfDiagramCreator.IOThicknessMm);
+            resources[ResourceConstants.KeyPageStrokeThickness] = DipUtil.MmToDip(DxfDiagramCreator.PageThicknessMm);
         }
 
-        private void SetPrintColors(FrameworkElement element)
+        private void SetPrintColors(ResourceDictionary resources)
         {
-            if (element == null)
-                throw new ArgumentNullException();
+            if (resources == null)
+            {
+                return;
+            }
 
-            var backgroundColor = element.Resources["LogicBackgroundColorKey"] as SolidColorBrush;
+            var backgroundColor = resources["LogicBackgroundColorKey"] as SolidColorBrush;
             backgroundColor.Color = Colors.White;
 
-            var gridColor = element.Resources["LogicGridColorKey"] as SolidColorBrush;
+            var gridColor = resources["LogicGridColorKey"] as SolidColorBrush;
             gridColor.Color = Colors.Transparent;
 
-            var pageColor = element.Resources["LogicTemplateColorKey"] as SolidColorBrush;
+            var pageColor = resources["LogicTemplateColorKey"] as SolidColorBrush;
             pageColor.Color = Colors.Black;
 
-            var logicColor = element.Resources["LogicColorKey"] as SolidColorBrush;
+            var logicColor = resources["LogicColorKey"] as SolidColorBrush;
             logicColor.Color = Colors.Black;
 
-            var logicSelectedColor = element.Resources["LogicSelectedColorKey"] as SolidColorBrush;
+            var logicSelectedColor = resources["LogicSelectedColorKey"] as SolidColorBrush;
             logicSelectedColor.Color = Colors.Black;
 
-            var helperColor = element.Resources["LogicTransparentColorKey"] as SolidColorBrush;
+            var helperColor = resources["LogicTransparentColorKey"] as SolidColorBrush;
             helperColor.Color = Colors.Transparent;
         }
 
-        public FrameworkElement CreateContextElement(string diagram, 
-            Size areaExtent, 
-            Point origin, 
-            Rect area,
-            bool fixeStrokeThickness)
+        private void SetElementResources(ResourceDictionary resources, bool fixedStrokeThickness)
         {
-            var grid = new Grid()
-            {
-                ClipToBounds = true
-            };
-
             // set print dictionary
-            grid.Resources.Source = new Uri(LogicDictionaryUri, UriKind.Relative);
+            resources.Source = new Uri(LogicDictionaryUri, UriKind.Relative);
 
-            if (fixeStrokeThickness == false)
+            if (fixedStrokeThickness == false)
             {
-                SetPrintStrokeSthickness(grid);
+                SetPrintStrokeSthickness(resources);
             }
 
             // set print colors
-            SetPrintColors(grid);
+            SetPrintColors(resources);
+        }
+
+        public FrameworkElement CreateDiagramElement(string diagram, 
+            Size areaExtent, 
+            Point origin, 
+            Rect area,
+            bool fixedStrokeThickness,
+            ResourceDictionary resources)
+        {
+            var grid = new Grid()
+            {
+                ClipToBounds = true,
+                Resources = resources
+            };
+
+            //SetElementResources(grid.Resources, fixedStrokeThickness);
 
             // set element template and content
             var template = new Control()
@@ -1326,6 +1335,8 @@ namespace CanvasDiagramEditor
             // create fixed document
             var fixedDocument = new FixedDocument() { Name = "diagrams" };
 
+            SetElementResources(fixedDocument.Resources, fixedStrokeThickness);
+
             //fixedDocument.DocumentPaginator.PageSize = new Size(areaExtent.Width, areaExtent.Height);
 
             foreach (var diagram in diagrams)
@@ -1341,11 +1352,12 @@ namespace CanvasDiagramEditor
                 fixedPage.Width = areaExtent.Width;
                 fixedPage.Height = areaExtent.Height;
 
-                var element = CreateContextElement(diagram, 
+                var element = CreateDiagramElement(diagram, 
                     areaExtent, 
                     origin, 
                     area, 
-                    fixedStrokeThickness);
+                    fixedStrokeThickness,
+                    fixedDocument.Resources);
 
                 // transform and scale for print
                 element.LayoutTransform = new ScaleTransform(scale, scale);
@@ -1565,7 +1577,11 @@ namespace CanvasDiagramEditor
                 WindowState = WindowState.Maximized
             };
 
-            window.Content = fixedDocument;
+            var viewer = new DocumentViewer();
+
+            viewer.Document = fixedDocument;
+
+            window.Content = viewer;
 
             window.Show();
         }
