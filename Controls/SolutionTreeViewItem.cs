@@ -45,6 +45,11 @@ namespace CanvasDiagramEditor.Controls
             this.Items.Clear();
         }
 
+        public ITreeItem GetParent()
+        {
+            return this.Parent as ITreeItem;
+        }
+
         #endregion
 
         #region IUid

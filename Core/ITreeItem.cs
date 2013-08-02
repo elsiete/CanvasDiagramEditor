@@ -21,6 +21,8 @@ namespace CanvasDiagramEditor.Core
     	void Add(ITreeItem item);
         void Remove(ITreeItem item);
         void Clear();
+
+        ITreeItem GetParent();
     }
 
     #endregion
