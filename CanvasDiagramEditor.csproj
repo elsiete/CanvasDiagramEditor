@@ -76,6 +76,10 @@
     <Compile Include="Core\MarginEx.cs" />
     <Compile Include="Core\PointEx.cs" />
     <Compile Include="Core\RectEx.cs" />
+    <Compile Include="Editor\Elements.cs" />
+    <Compile Include="Editor\Model.cs" />
+    <Compile Include="Editor\Tags.cs" />
+    <Compile Include="Editor\TreeItemType.cs" />
     <Compile Include="Views\DiagramControl.xaml.cs">
       <DependentUpon>DiagramControl.xaml</DependentUpon>
     </Compile>

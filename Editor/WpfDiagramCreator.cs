@@ -189,7 +189,7 @@ namespace CanvasDiagramEditor.Editor
 
             if (path != null)
             {
-                DiagramEditor.GenerateGrid(path,
+                DiagramEditor.GridGenerate(path,
                     properties.GridOriginX,
                     properties.GridOriginY,
                     properties.GridWidth,
@@ -197,7 +197,7 @@ namespace CanvasDiagramEditor.Editor
                     properties.GridSize);
             }
 
-            DiagramEditor.SetDiagramSize(canvas, properties.PageWidth, properties.PageHeight);
+            DiagramEditor.DiagramSetSize(canvas, properties.PageWidth, properties.PageHeight);
 
             return null;
         }
@@ -206,22 +206,22 @@ namespace CanvasDiagramEditor.Editor
         {
             var canvas = ParserCanvas;
 
-            Editor.InsertElements(canvas, elements.Cast<IElement>(), select);
+            Elements.Insert(canvas, elements.Cast<IElement>(), select);
         }
 
         public void UpdateCounter(IdCounter original, IdCounter counter)
         {
-            Editor.UpdateIdCounter(original, counter);
+            Editor.IdsUpdateCounter(original, counter);
         }
 
         public void UpdateConnections(IDictionary<string, MapWires> dict)
         {
-            Editor.UpdateElementConnections(dict);
+            Editor.ConnectionsUpdate(dict);
         }
 
         public void AppendIds(IEnumerable<object> elements)
         {
-            Editor.AppendElementIds(elements, this.GetCounter());
+            Editor.IdsAppend(elements, this.GetCounter());
         }
 
         #endregion

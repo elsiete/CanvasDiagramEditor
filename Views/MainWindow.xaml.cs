@@ -141,7 +141,7 @@ namespace CanvasDiagramEditor
             Editor.CurrentOptions.Counter.ProjectCount = 1;
             Editor.CurrentOptions.Counter.DiagramCount = 1;
 
-            Action action = () =>
+            Editor.UpdateDiagramProperties = () =>
             {
                 var prop = options.CurrentProperties;
 
@@ -160,8 +160,6 @@ namespace CanvasDiagramEditor
                 prop.SnapOffsetY = double.Parse(TextSnapOffsetY.Text);
             };
 
-            Editor.UpdateDiagramProperties = action;
-
             Editor.CurrentOptions.CurrentResources = this.Resources;
 
             Editor.CurrentOptions.CurrentTree = this.SolutionTree;
@@ -173,7 +171,74 @@ namespace CanvasDiagramEditor
             EnableSnap.IsChecked = options.EnableSnap;
             SnapOnRelease.IsChecked = options.SnapOnRelease;
 
-            Editor.GenerateGrid(false);
+            Editor.CreateTreeSolutionItem = () =>
+            {
+                var solution = new SolutionTreeViewItem();
+
+                solution.Header = ModelConstants.TagHeaderSolution;
+                solution.ContextMenu = Editor.CurrentOptions.CurrentResources["SolutionContextMenuKey"] as ContextMenu;
+                solution.MouseRightButtonDown += TreeViewItem_MouseRightButtonDown;
+                solution.IsExpanded = true;
+
+                return solution as ITreeItem;
+            };
+
+            Editor.CreateTreeProjectItem = () =>
+            {
+                var project = new SolutionTreeViewItem();
+
+                project.Header = ModelConstants.TagHeaderProject;
+                project.ContextMenu = Editor.CurrentOptions.CurrentResources["ProjectContextMenuKey"] as ContextMenu;
+                project.MouseRightButtonDown += TreeViewItem_MouseRightButtonDown;
+                project.IsExpanded = true;
+
+                return project as ITreeItem;
+            };
+
+            Editor.CreateTreeDiagramItem = () =>
+            {
+                var diagram = new SolutionTreeViewItem();
+
+                diagram.Header = ModelConstants.TagHeaderDiagram;
+                diagram.ContextMenu = Editor.CurrentOptions.CurrentResources["DiagramContextMenuKey"] as ContextMenu;
+                diagram.MouseRightButtonDown += TreeViewItem_MouseRightButtonDown;
+
+                return diagram as ITreeItem;
+            };
+
+            Editor.SetThumbEvents = (ithumb) =>
+            {
+                var thumb = ithumb as ElementThumb;
+
+                thumb.DragDelta += (sender, e) =>
+                {
+                    var canvas = Editor.CurrentOptions.CurrentCanvas;
+                    var element = sender as IThumb;
+
+                    double dX = e.HorizontalChange;
+                    double dY = e.VerticalChange;
+
+                    Editor.Drag(canvas, element, dX, dY);
+                };
+
+                thumb.DragStarted += (sender, e) =>
+                {
+                    var canvas = Editor.CurrentOptions.CurrentCanvas;
+                    var element = sender as IThumb;
+
+                    Editor.DragStart(canvas, element);
+                };
+
+                thumb.DragCompleted += (sender, e) =>
+                {
+                    var canvas = Editor.CurrentOptions.CurrentCanvas;
+                    var element = sender as IThumb;
+
+                    Editor.DragEnd(canvas, element);
+                };
+            };
+
+            Editor.GridGenerate(false);
         }
 
         #endregion
@@ -188,7 +253,7 @@ namespace CanvasDiagramEditor
             {
                 var canvas = Editor.CurrentOptions.CurrentCanvas;
 
-                Editor.ClearHistory(canvas);
+                Editor.HistoryClear(canvas);
             }
         }
 
@@ -239,16 +304,16 @@ namespace CanvasDiagramEditor
 
         private void GenerateModel_Click(object sender, RoutedEventArgs e)
         {
-            Editor.UpdateSelectedDiagramModel();
+            Editor.ModelUpdateSelectedDiagram();
 
-            var solution = Editor.GenerateSolutionModel(System.IO.Directory.GetCurrentDirectory(), false);
+            var solution = Editor.ModelGenerateSolution(System.IO.Directory.GetCurrentDirectory(), false);
 
             this.TextModel.Text = solution.Item1;
         }
 
         private void GenerateModelFromSelected_Click(object sender, RoutedEventArgs e)
         {
-            var diagram = Editor.GenerateModelFromSelected();
+            var diagram = Editor.ModelGenerateFromSelected();
 
             this.TextModel.Text = diagram;
         }
@@ -259,12 +324,12 @@ namespace CanvasDiagramEditor
             double offsetX = double.Parse(TextOffsetX.Text);
             double offsetY = double.Parse(TextOffsetY.Text);
 
-            Editor.Insert(diagram, offsetX, offsetY);
+            Editor.ModelInsert(diagram, offsetX, offsetY);
         }
 
         private void UpdateGrid_Click(object sender, RoutedEventArgs e)
         {
-            Editor.GenerateGrid(true);
+            Editor.GridGenerate(true);
         }
 
         #endregion
@@ -294,7 +359,7 @@ namespace CanvasDiagramEditor
             var oldItem = e.OldValue as SolutionTreeViewItem;
             var newItem = e.NewValue as SolutionTreeViewItem;
 
-            bool isDiagram = Editor.SwitchItems(canvas, oldItem, newItem);
+            bool isDiagram = Editor.TreeSwitchItems(canvas, oldItem, newItem);
             if (isDiagram == true)
             {
                 this.DiagramControl.PanScrollViewer.Visibility = Visibility.Visible;
@@ -309,36 +374,36 @@ namespace CanvasDiagramEditor
         {
             var solution = SolutionTree.SelectedItem as SolutionTreeViewItem;
 
-            Editor.AddProject(solution);
+            Editor.TreeAddProject(solution);
         }
 
         private void ProjectAddDiagram_Click(object sender, RoutedEventArgs e)
         {
-            AddNewItem();
+            Editor.TreeAddNewItem();
         }
 
         private void DiagramAddDiagram_Click(object sender, RoutedEventArgs e)
         {
-            AddNewItem();
+            Editor.TreeAddNewItem();
         }
 
         private void SolutionDeleteProject_Click(object sender, RoutedEventArgs e)
         {
             var project = SolutionTree.SelectedItem as SolutionTreeViewItem;
 
-            Editor.DeleteProject(project);
+            Editor.TreeDeleteProject(project);
         }
 
         private void DiagramDeleteDiagram_Click(object sender, RoutedEventArgs e)
         {
             var diagram = SolutionTree.SelectedItem as SolutionTreeViewItem;
 
-            Editor.DeleteDiagram(diagram);
+            Editor.TreeDeleteDiagram(diagram);
         }
 
         private void DiagramAddDiagramAndPaste_Click(object sender, RoutedEventArgs e)
         {
-            AddNewItemAndPaste();
+            Editor.TreeAddNewItemAndPaste();
         }
 
         #endregion
@@ -347,7 +412,7 @@ namespace CanvasDiagramEditor
 
         private void FileNew_Click(object sender, RoutedEventArgs e)
         {
-            Editor.NewSolution();
+            Editor.TreeCreateNewSolution();
         }
 
         private void FileOpen_Click(object sender, RoutedEventArgs e)
@@ -372,27 +437,27 @@ namespace CanvasDiagramEditor
 
         private void FileOpenTags_Click(object sender, RoutedEventArgs e)
         {
-            Editor.OpenTags();
+            Editor.TagsOpen();
         }
 
         private void FileSaveTags_Click(object sender, RoutedEventArgs e)
         {
-            Editor.SaveTags();
+            Editor.TagsSave();
         }
 
         private void FileImportTags_Click(object sender, RoutedEventArgs e)
         {
-            Editor.ImportTags();
+            Editor.TagsImport();
         }
 
         private void FileExportTags_Click(object sender, RoutedEventArgs e)
         {
-            Editor.ExportTags();
+            Editor.TagsExport();
         }
 
         private void FileExportToDxf_Click(object sender, RoutedEventArgs e)
         {
-            Editor.ExportToDxf(ShortenStart.IsChecked.Value, ShortenEnd.IsChecked.Value);
+            Editor.DxfExport(ShortenStart.IsChecked.Value, ShortenEnd.IsChecked.Value);
         }
 
         private void FileInspectDxf_Click(object sender, RoutedEventArgs e)
@@ -402,7 +467,7 @@ namespace CanvasDiagramEditor
 
         private void FileImport_Click(object sender, RoutedEventArgs e)
         {
-            var diagram = Editor.Import();
+            var diagram = Editor.ModelImport();
 
             if (diagram != null)
             {
@@ -431,34 +496,34 @@ namespace CanvasDiagramEditor
 
         private void EditUndo_Click(object sender, RoutedEventArgs e)
         {
-            Editor.Undo();
+            Editor.HistoryUndo();
         }
 
         private void EditRedo_Click(object sender, RoutedEventArgs e)
         {
-            Editor.Redo();
+            Editor.HistoryRedo();
         }
 
         private void EditCut_Click(object sender, RoutedEventArgs e)
         {
-            Editor.Cut();
+            Editor.EditCut();
         }
 
         private void EditCopy_Click(object sender, RoutedEventArgs e)
         {
-            Editor.Copy();
+            Editor.EditCopy();
         }
 
         private void EditPaste_Click(object sender, RoutedEventArgs e)
         {
             var point = new PointEx(0.0, 0.0);
 
-            Editor.Paste(point);
+            Editor.EditPaste(point);
         }
 
         private void EditDelete_Click(object sender, RoutedEventArgs e)
         {
-            Editor.Delete();
+            Editor.EditDelete();
         }
 
         private void EditSelectAll_Click(object sender, RoutedEventArgs e)
@@ -468,7 +533,7 @@ namespace CanvasDiagramEditor
 
         private void EditDeselectAll_Click(object sender, RoutedEventArgs e)
         {
-            Editor.DeselectAll();
+            Editor.SelectNone();
         }
 
         private void EditSelectPrevious_Click(object sender, RoutedEventArgs e)
@@ -493,12 +558,12 @@ namespace CanvasDiagramEditor
 
         private void EditClear_Click(object sender, RoutedEventArgs e)
         {
-            Editor.Clear();
+            Editor.ModelClear();
         }
 
         private void EditResetThumbTags_Click(object sender, RoutedEventArgs e)
         {
-            Editor.ResetThumbTags();
+            Editor.ModelResetThumbTags();
         }
 
         private void EditOptions_Click(object sender, RoutedEventArgs e)
@@ -537,22 +602,22 @@ namespace CanvasDiagramEditor
 
         private void ViewPreviousDiagramProject_Click(object sender, RoutedEventArgs e)
         {
-            Editor.SelectPreviousTreeItem(false);
+            Editor.TreeSelectPreviousItem(false);
         }
 
         private void ViewNextDiagramProjcet_Click(object sender, RoutedEventArgs e)
         {
-            Editor.SelectNextTreeItem(false);
+            Editor.TreeSelectNextItem(false);
         }
 
         private void ViewPreviousDiagramSolution_Click(object sender, RoutedEventArgs e)
         {
-            Editor.SelectPreviousTreeItem(true);
+            Editor.TreeSelectPreviousItem(true);
         }
 
         private void ViewNextDiagramSolution_Click(object sender, RoutedEventArgs e)
         {
-            Editor.SelectNextTreeItem(true);
+            Editor.TreeSelectNextItem(true);
         }
 
         #endregion
@@ -595,14 +660,14 @@ namespace CanvasDiagramEditor
                 // select previous solution tree item
                 case Key.OemComma:
                     {
-                        Editor.SelectPreviousTreeItem(isControl);
+                        Editor.TreeSelectPreviousItem(isControl);
                     }
                     break;
 
                 // select next solution tree item
                 case Key.OemPeriod:
                     {
-                        Editor.SelectNextTreeItem(isControl);
+                        Editor.TreeSelectNextItem(isControl);
                     }
                     break;
 
@@ -637,7 +702,7 @@ namespace CanvasDiagramEditor
                         // insert new item and paste from clipboard
                         if (isControl == true)
                         {
-                            AddNewItemAndPaste();
+                            Editor.TreeAddNewItemAndPaste();
                             e.Handled = true;
                             break;
                         }
@@ -648,7 +713,7 @@ namespace CanvasDiagramEditor
                         // insert new item
                         if (isControl == true)
                         {
-                            AddNewItem();
+                            Editor.TreeAddNewItem();
                             e.Handled = true;
                             break;
                         }
@@ -702,7 +767,7 @@ namespace CanvasDiagramEditor
                     {
                         if (isControl == true)
                         {
-                            Editor.NewSolution();
+                            Editor.TreeCreateNewSolution();
                             e.Handled = true;
                             break;
                         }
@@ -714,7 +779,7 @@ namespace CanvasDiagramEditor
                     {
                         if (isControl == true)
                         {
-                            Editor.OpenTags();
+                            Editor.TagsOpen();
                             e.Handled = true;
                             break;
                         }
@@ -726,7 +791,7 @@ namespace CanvasDiagramEditor
                     {
                         if (isControl == true)
                         {
-                            Editor.Import();
+                            Editor.ModelImport();
                             e.Handled = true;
                             break;
                         }
@@ -744,7 +809,7 @@ namespace CanvasDiagramEditor
                     {
                         if (isControl == true)
                         {
-                            Editor.ExportToDxf(ShortenStart.IsChecked.Value, ShortenEnd.IsChecked.Value);
+                            Editor.DxfExport(ShortenStart.IsChecked.Value, ShortenEnd.IsChecked.Value);
                             e.Handled = true;
                             break;
                         }
@@ -772,7 +837,7 @@ namespace CanvasDiagramEditor
                 // reset tags
                 case Key.R:
                     {
-                        Editor.ResetThumbTags();
+                        Editor.ModelResetThumbTags();
                     }
                     break;
 
@@ -781,7 +846,7 @@ namespace CanvasDiagramEditor
                     {
                         if (isControl == true)
                         {
-                            Editor.Undo();
+                            Editor.HistoryUndo();
                             e.Handled = true;
                             break;
                         }
@@ -793,7 +858,7 @@ namespace CanvasDiagramEditor
                     {
                         if (isControl == true)
                         {
-                            Editor.Redo();
+                            Editor.HistoryRedo();
                             e.Handled = true;
                             break;
                         }
@@ -805,7 +870,7 @@ namespace CanvasDiagramEditor
                     {
                         if (isControl == true)
                         {
-                            Editor.Cut();
+                            Editor.EditCut();
                             e.Handled = true;
                             break;
                         }
@@ -817,7 +882,7 @@ namespace CanvasDiagramEditor
                     {
                         if (isControl == true)
                         {
-                            Editor.Copy();
+                            Editor.EditCopy();
                             e.Handled = true;
                             break;
                         }
@@ -831,7 +896,7 @@ namespace CanvasDiagramEditor
                         if (isControl == true)
                         {
                             var point = new PointEx(0.0, 0.0);
-                            Editor.Paste(point);
+                            Editor.EditPaste(point);
                             e.Handled = true;
                             break;
                         }
@@ -862,7 +927,7 @@ namespace CanvasDiagramEditor
                 // delete
                 case Key.Delete:
                     {
-                        Editor.Delete();
+                        Editor.EditDelete();
                         e.Handled = true;
                     }
                     break;
@@ -961,63 +1026,10 @@ namespace CanvasDiagramEditor
                 // deselect all & reset have E key flah
                 case Key.Escape:
                     {
-                        Editor.DeselectAll();
+                        Editor.SelectNone();
                         HaveKeyE = false;
                     }
                     break;
-            }
-        }
-
-        #endregion
-
-        #region New Item
-
-        public enum NewItemType
-        {
-            None,
-            Solution,
-            Project,
-            Diagram,
-            Element
-        }
-
-        private NewItemType AddNewItem()
-        {
-            var selected = SolutionTree.SelectedItem as SolutionTreeViewItem;
-
-            string uid = selected.Uid;
-            bool isSelectedSolution = StringUtil.StartsWith(uid, ModelConstants.TagHeaderSolution);
-            bool isSelectedProject = StringUtil.StartsWith(uid, ModelConstants.TagHeaderProject);
-            bool isSelectedDiagram = StringUtil.StartsWith(uid, ModelConstants.TagHeaderDiagram);
-
-            if (isSelectedDiagram == true)
-            {
-                var project = selected.Parent as SolutionTreeViewItem;
-
-                Editor.AddDiagram(project, true);
-                return NewItemType.Diagram;
-            }
-            else if (isSelectedProject == true)
-            {
-                Editor.AddDiagram(selected, false);
-                return NewItemType.Diagram;
-            }
-            else if (isSelectedSolution == true)
-            {
-                Editor.AddProject(selected);
-                return NewItemType.Project;
-            }
-
-            return NewItemType.None;
-        }
-
-        private void AddNewItemAndPaste()
-        {
-            var newItemType = AddNewItem();
-            if (newItemType == NewItemType.Diagram)
-            {
-                var point = new PointEx(0.0, 0.0);
-                Editor.Paste(point);
             }
         }
 
@@ -1031,7 +1043,7 @@ namespace CanvasDiagramEditor
 
         private void InsertInput(ICanvas canvas)
         {
-            Editor.AddToHistory(canvas, true);
+            Editor.HistoryAdd(canvas, true);
             
             var element = Editor.InsertInput(canvas, InsertPointInput);
             Editor.SelectOneElement(element, true);
@@ -1039,7 +1051,7 @@ namespace CanvasDiagramEditor
 
         private void InsertOutput(ICanvas canvas)
         {
-            Editor.AddToHistory(canvas, true);
+            Editor.HistoryAdd(canvas, true);
 
             var element = Editor.InsertOutput(canvas, InsertPointOutput);
             Editor.SelectOneElement(element, true);
@@ -1047,7 +1059,7 @@ namespace CanvasDiagramEditor
 
         private void InsertOrGate(ICanvas canvas)
         {
-            Editor.AddToHistory(canvas, true);
+            Editor.HistoryAdd(canvas, true);
 
             var element = Editor.InsertOrGate(canvas, InsertPointGate);
             Editor.SelectOneElement(element, true);
@@ -1055,7 +1067,7 @@ namespace CanvasDiagramEditor
 
         private void InsertAndGate(ICanvas canvas)
         {
-            Editor.AddToHistory(canvas, true);
+            Editor.HistoryAdd(canvas, true);
 
             var element = Editor.InsertAndGate(canvas, InsertPointGate);
             Editor.SelectOneElement(element, true);
@@ -1116,7 +1128,7 @@ namespace CanvasDiagramEditor
 
         private List<IElement> GetAllInputOutputElements()
         {
-            var all = Editor.GetAllElements().Where(x =>
+            var all = Editor.GetElementsAll().Where(x =>
             {
                 string uid = x.GetUid();
                 return StringUtil.StartsWith(uid, ModelConstants.TagElementInput) ||
@@ -1128,7 +1140,7 @@ namespace CanvasDiagramEditor
 
         private List<IElement> GetSelectedInputOutputElements()
         {
-            var selected = Editor.GetSelectedElements().Where(x =>
+            var selected = Editor.GetElementsSelected().Where(x =>
             {
                 string uid = x.GetUid();
                 return StringUtil.StartsWith(uid, ModelConstants.TagElementInput) ||
@@ -1307,7 +1319,7 @@ namespace CanvasDiagramEditor
                 Height = Editor.CurrentOptions.CurrentCanvas.Height
             };
 
-            Editor.ParseDiagramModel(diagram, canvas, null, 0, 0, false, false, false, true);
+            Editor.ModelParseDiagram(diagram, canvas, null, 0, 0, false, false, false, true);
 
             grid.Children.Add(template);
             grid.Children.Add(canvas);
@@ -1491,18 +1503,18 @@ namespace CanvasDiagramEditor
 
         public void Print()
         {
-            Editor.UpdateSelectedDiagramModel();
+            Editor.ModelUpdateSelectedDiagram();
 
-            var diagrams = Editor.GenerateSolutionModel(null, false).Item2;
+            var diagrams = Editor.ModelGenerateSolution(null, false).Item2;
 
             Print(diagrams, "solution");
         }
 
         public void PrintHistory()
         {
-            Editor.UpdateSelectedDiagramModel();
+            Editor.ModelUpdateSelectedDiagram();
 
-            var diagrams = Editor.GenerateSolutionModel(null, true).Item2;
+            var diagrams = Editor.ModelGenerateSolution(null, true).Item2;
 
             Print(diagrams, "history");
         }
@@ -1513,7 +1525,7 @@ namespace CanvasDiagramEditor
 
         public void ShowDiagram()
         {
-            var model = Editor.UpdateSelectedDiagramModel();
+            var model = Editor.ModelUpdateSelectedDiagram();
 
             var diagrams = new List<string>();
             diagrams.Add(model);
@@ -1523,7 +1535,7 @@ namespace CanvasDiagramEditor
 
         public void ShowDiagramSelectedElements()
         {
-            var model = Editor.GenerateModelFromSelected();
+            var model = Editor.ModelGenerateFromSelected();
 
             var diagrams = new List<string>();
             diagrams.Add(model);
@@ -1533,9 +1545,9 @@ namespace CanvasDiagramEditor
 
         public void ShowProjectDiagrams()
         {
-            Editor.UpdateSelectedDiagramModel();
+            Editor.ModelUpdateSelectedDiagram();
 
-            var diagrams = Editor.GetCurrentProjectDiagrams();
+            var diagrams = Editor.ModelGetCurrentProjectDiagrams();
 
             if (diagrams != null)
             {
@@ -1545,18 +1557,18 @@ namespace CanvasDiagramEditor
 
         public void ShowSolutionDiagrams()
         {
-            Editor.UpdateSelectedDiagramModel();
+            Editor.ModelUpdateSelectedDiagram();
 
-            var diagrams = Editor.GenerateSolutionModel(null, false).Item2;
+            var diagrams = Editor.ModelGenerateSolution(null, false).Item2;
 
             ShowDiagramsWindow(diagrams, "Solution Diagrams");
         }
 
         public void ShowDiagramHistory()
         {
-            Editor.UpdateSelectedDiagramModel();
+            Editor.ModelUpdateSelectedDiagram();
 
-            var diagrams = Editor.GenerateSolutionModel(null, false).Item2;
+            var diagrams = Editor.ModelGenerateSolution(null, false).Item2;
 
             ShowDiagramsWindow(diagrams, "Diagram History");
         }

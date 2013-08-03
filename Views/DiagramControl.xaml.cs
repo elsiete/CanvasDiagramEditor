@@ -376,14 +376,14 @@ namespace CanvasDiagramEditor
 
                 if (Keyboard.Modifiers != ModifierKeys.Control)
                 {
-                    Editor.DeselectAll();
+                    Editor.SelectNone();
                 }
 
                 canvas.CaptureMouse();
             }
             else
             {
-                Editor.HandleLeftDown(canvas, new PointEx(point.X, point.Y));
+                Editor.MouseEventLeftDown(canvas, new PointEx(point.X, point.Y));
             }
         }
 
@@ -433,7 +433,7 @@ namespace CanvasDiagramEditor
             var point = e.GetPosition(canvas);
             var pin = (e.OriginalSource as FrameworkElement).TemplatedParent as IThumb;
 
-            var result = Editor.HandlePreviewLeftDown(canvas, new PointEx(point.X, point.Y), pin);
+            var result = Editor.MouseEventPreviewLeftDown(canvas, new PointEx(point.X, point.Y), pin);
             if (result == true)
                 e.Handled = true;
         }
@@ -455,7 +455,7 @@ namespace CanvasDiagramEditor
             }
             else
             {
-                Editor.HandleMove(canvas, new PointEx(point.X, point.Y));
+                Editor.MouseEventMove(canvas, new PointEx(point.X, point.Y));
             }
         }
 
@@ -466,7 +466,7 @@ namespace CanvasDiagramEditor
 
             Editor.CurrentOptions.RightClick = e.GetPosition(canvas);
 
-            var result = Editor.HandleRightDown(canvas, path);
+            var result = Editor.MouseEventRightDown(canvas, path);
             if (result == true)
             {
                 Editor.CurrentOptions.SkipContextMenu = true;
@@ -495,7 +495,7 @@ namespace CanvasDiagramEditor
         {
             var canvas = Editor.CurrentOptions.CurrentCanvas;
 
-            Editor.AddToHistory(canvas, true);
+            Editor.HistoryAdd(canvas, true);
 
             var point = new PointEx(Editor.CurrentOptions.RightClick.X, Editor.CurrentOptions.RightClick.Y);
             Editor.InsertPin(canvas, point);
@@ -508,7 +508,7 @@ namespace CanvasDiagramEditor
         {
             var canvas = Editor.CurrentOptions.CurrentCanvas;
 
-            Editor.AddToHistory(canvas, true);
+            Editor.HistoryAdd(canvas, true);
 
             var point = new PointEx(Editor.CurrentOptions.RightClick.X, Editor.CurrentOptions.RightClick.Y);
             Editor.InsertInput(canvas, point);
@@ -521,7 +521,7 @@ namespace CanvasDiagramEditor
         {
             var canvas = Editor.CurrentOptions.CurrentCanvas;
 
-            Editor.AddToHistory(canvas, true);
+            Editor.HistoryAdd(canvas, true);
 
             var point = new PointEx(Editor.CurrentOptions.RightClick.X, Editor.CurrentOptions.RightClick.Y);
             Editor.InsertOutput(canvas, point);
@@ -534,7 +534,7 @@ namespace CanvasDiagramEditor
         {
             var canvas = Editor.CurrentOptions.CurrentCanvas;
 
-            Editor.AddToHistory(canvas, true);
+            Editor.HistoryAdd(canvas, true);
 
             var point = new PointEx(Editor.CurrentOptions.RightClick.X, Editor.CurrentOptions.RightClick.Y);
             Editor.InsertAndGate(canvas, point);
@@ -547,7 +547,7 @@ namespace CanvasDiagramEditor
         {
             var canvas = Editor.CurrentOptions.CurrentCanvas;
 
-            Editor.AddToHistory(canvas, true);
+            Editor.HistoryAdd(canvas, true);
 
             var point = new PointEx(Editor.CurrentOptions.RightClick.X, Editor.CurrentOptions.RightClick.Y);
             Editor.InsertOrGate(canvas, point);
@@ -569,7 +569,7 @@ namespace CanvasDiagramEditor
             var canvas = Editor.CurrentOptions.CurrentCanvas;
             var point = new PointEx(Editor.CurrentOptions.RightClick.X, Editor.CurrentOptions.RightClick.Y);
 
-            Editor.ToggleWireStart(canvas, point);
+            Editor.WireToggleStart(canvas, point);
         }
 
         private void InvertEnd_Click(object sender, RoutedEventArgs e)
@@ -577,7 +577,7 @@ namespace CanvasDiagramEditor
             var canvas = Editor.CurrentOptions.CurrentCanvas;
             var point = new PointEx(Editor.CurrentOptions.RightClick.X, Editor.CurrentOptions.RightClick.Y);
 
-            Editor.ToggleWireEnd(canvas, point);
+            Editor.WireToggleEnd(canvas, point);
         }
 
         #endregion

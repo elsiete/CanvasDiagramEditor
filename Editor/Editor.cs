@@ -38,265 +38,25 @@ namespace CanvasDiagramEditor.Editor
 
     public static class Editor
     {
-        #region Generate Model
-
-        public static string GenerateModel(IEnumerable<IElement> elements)
-        {
-            var sb = new StringBuilder();
-
-            foreach (var element in elements)
-            {
-                double x = element.GetX();
-                double y = element.GetY();
-                string uid = element.GetUid();
-
-                if (StringUtil.StartsWith(uid, ModelConstants.TagElementWire))
-                {
-                    var line = element as ILine;
-                    var margin = line.GetMargin();
-
-                    string str = string.Format("{6}{5}{0}{5}{1}{5}{2}{5}{3}{5}{4}{5}{7}{5}{8}{5}{9}{5}{10}",
-                        uid,
-                        margin.Left, margin.Top, //line.X1, line.Y1,
-                        line.GetX2() + margin.Left, line.GetY2() + margin.Top,
-                        ModelConstants.ArgumentSeparator,
-                        ModelConstants.PrefixRoot,
-                        line.GetStartVisible(), line.GetEndVisible(),
-                        line.GetStartIO(), line.GetEndIO());
-
-                    sb.AppendLine("".PadLeft(4, ' ') + str);
-
-                    //System.Diagnostics.Debug.Print(str);
-                }
-                else if (StringUtil.StartsWith(uid, ModelConstants.TagElementInput) ||
-                    StringUtil.StartsWith(uid, ModelConstants.TagElementOutput))
-                {
-                    var data = element.GetData();
-                    Tag tag = null;
-
-                    if (data != null && data is Tag)
-                    {
-                        tag = data as Tag;
-                    }
-
-                    string str = string.Format("{4}{3}{0}{3}{1}{3}{2}{3}{5}",
-                        uid,
-                        x,
-                        y,
-                        ModelConstants.ArgumentSeparator,
-                        ModelConstants.PrefixRoot,
-                        tag != null ? tag.Id : -1);
-
-                    sb.AppendLine("".PadLeft(4, ' ') + str);
-
-                    //System.Diagnostics.Debug.Print(str);
-                }
-                else
-                {
-                    string str = string.Format("{4}{3}{0}{3}{1}{3}{2}",
-                        uid,
-                        x, y,
-                        ModelConstants.ArgumentSeparator,
-                        ModelConstants.PrefixRoot);
-
-                    sb.AppendLine("".PadLeft(4, ' ') + str);
-
-                    //System.Diagnostics.Debug.Print(str);
-                }
-
-                var elementTag = element.GetTag();
-                if (elementTag != null && !(element is ILine))
-                {
-                    var selection = elementTag as Selection;
-                    var tuples = selection.Item2;
-
-                    foreach (var tuple in tuples)
-                    {
-                        var line = tuple.Item1 as ILine;
-                        var start = tuple.Item2;
-                        var end = tuple.Item3;
-
-                        if (start != null)
-                        {
-                            // Start
-                            string str = string.Format("{3}{2}{0}{2}{1}",
-                                line.GetUid(),
-                                ModelConstants.WireStartType,
-                                ModelConstants.ArgumentSeparator,
-                                ModelConstants.PrefixChild);
-
-                            sb.AppendLine("".PadLeft(8, ' ') + str);
-
-                            //System.Diagnostics.Debug.Print(str);
-                        }
-                        else if (end != null)
-                        {
-                            // End
-                            string str = string.Format("{3}{2}{0}{2}{1}",
-                                line.GetUid(),
-                                ModelConstants.WireEndType,
-                                ModelConstants.ArgumentSeparator,
-                                ModelConstants.PrefixChild);
-
-                            sb.AppendLine("".PadLeft(8, ' ') + str);
-
-                            //System.Diagnostics.Debug.Print(str);
-                        }
-                    }
-                }
-            }
-
-            return sb.ToString();
-        }
-
-        public static string GenerateModel(ICanvas canvas, string uid, DiagramProperties properties)
-        {
-            if (canvas == null)
-            {
-                return null;
-            }
-
-            var sw = System.Diagnostics.Stopwatch.StartNew();
-
-            var sb = new StringBuilder();
-            var elements = canvas.GetElements();
-
-            string header = string.Format("{0}{1}{2}{1}{3}{1}{4}{1}{5}{1}{6}{1}{7}{1}{8}{1}{9}{1}{10}{1}{11}{1}{12}{1}{13}",
-                ModelConstants.PrefixRoot,
-                ModelConstants.ArgumentSeparator,
-                uid == null ? ModelConstants.TagHeaderDiagram : uid,
-                properties.PageWidth, properties.PageHeight,
-                properties.GridOriginX, properties.GridOriginY,
-                properties.GridWidth, properties.GridHeight,
-                properties.GridSize,
-                properties.SnapX, properties.SnapY,
-                properties.SnapOffsetX, properties.SnapOffsetY);
-
-            sb.AppendLine(header);
-            //System.Diagnostics.Debug.Print(header);
-
-            string model = GenerateModel(elements);
-
-            sb.Append(model);
-
-            var result = sb.ToString();
-
-            sw.Stop();
-            System.Diagnostics.Debug.Print("GenerateDiagramModel() in {0}ms", sw.Elapsed.TotalMilliseconds);
-
-            return result;
-        }
-
-        #endregion
-
-        #region Get Elements
-
-        public static IEnumerable<IElement> GetSelectedElements(ICanvas canvas)
-        {
-            var elements = new List<IElement>();
-
-            // get selected thumbs
-            var thumbs = canvas.GetElements().OfType<IThumb>();
-
-            foreach (var thumb in thumbs)
-            {
-                if (thumb.GetSelected() == true)
-                {
-                    elements.Add(thumb);
-                }
-            }
-
-            // get selected lines
-            var lines = canvas.GetElements().OfType<ILine>();
-
-            foreach (var line in lines)
-            {
-                if (line.GetSelected() == true)
-                {
-                    elements.Add(line);
-                }
-            }
-
-            return elements;
-        }
-
-        public static IEnumerable<IElement> GetSelectedThumbElements(ICanvas canvas)
-        {
-            var elements = new List<IElement>();
-
-            // get selected thumbs
-            var thumbs = canvas.GetElements().OfType<IThumb>();
-
-            foreach (var thumb in thumbs)
-            {
-                if (thumb.GetSelected() == true)
-                {
-                    elements.Add(thumb);
-                }
-            }
-
-            return elements;
-        }
-
-        public static IEnumerable<IElement> GetAllElements(ICanvas canvas)
-        {
-            var elements = new List<IElement>();
-
-            // get all thumbs
-            var thumbs = canvas.GetElements().OfType<IThumb>();
-
-            foreach (var thumb in thumbs)
-            {
-
-                elements.Add(thumb);
-            }
-
-            // get all lines
-            var lines = canvas.GetElements().OfType<ILine>();
-
-            foreach (var line in lines)
-            {
-                elements.Add(line);
-            }
-
-            return elements;
-        }
-
-        public static IEnumerable<IElement> GetThumbElements(ICanvas canvas)
-        {
-            var elements = new List<IElement>();
-
-            // get all thumbs
-            var thumbs = canvas.GetElements().OfType<IThumb>();
-
-            foreach (var thumb in thumbs)
-            {
-                elements.Add(thumb);
-            }
-
-            return elements;
-        }
-
-        #endregion
-
-        #region Insert Elements
-
-        public static void InsertElements(ICanvas canvas, IEnumerable<IElement> elements, bool select)
-        {
-            foreach (var element in elements)
-            {
-                canvas.Add(element);
-
-                if (select == true)
-                {
-                    element.SetSelected(true);
-                }
-            }
-        }
-
-        #endregion
-
         #region Selection
+
+        public static void SelectionToggleWire(IElement element)
+        {
+            string uid = element.GetUid();
+
+            //System.Diagnostics.Debug.Print("ToggleLineSelection: {0}, uid: {1}, parent: {2}",
+            //    element.GetType(), element.Uid, element.Parent.GetType());
+
+            if (element is ILine && uid != null &&
+                StringUtil.StartsWith(uid, ModelConstants.TagElementWire))
+            {
+                var line = element as ILine;
+
+                // select/deselect line
+                bool isSelected = line.GetSelected();
+                line.SetSelected(isSelected ? false : true);
+            }
+        }
 
         public static void SetThumbsSelection(ICanvas canvas, bool isSelected)
         {
@@ -320,31 +80,13 @@ namespace CanvasDiagramEditor.Editor
             }
         }
 
-        public static void ToggleLineSelection(IElement element)
-        {
-            string uid = element.GetUid();
-
-            //System.Diagnostics.Debug.Print("ToggleLineSelection: {0}, uid: {1}, parent: {2}",
-            //    element.GetType(), element.Uid, element.Parent.GetType());
-
-            if (element is ILine && uid != null &&
-                StringUtil.StartsWith(uid, ModelConstants.TagElementWire))
-            {
-                var line = element as ILine;
-
-                // select/deselect line
-                bool isSelected = line.GetSelected();
-                line.SetSelected(isSelected ? false : true);
-            }
-        }
-
         public static void SelectAll(ICanvas canvas)
         {
             SetThumbsSelection(canvas, true);
             SetLinesSelection(canvas, true);
         }
 
-        public static void DeselectAll(ICanvas canvas)
+        public static void SelectNone(ICanvas canvas)
         {
             SetThumbsSelection(canvas, false);
             SetLinesSelection(canvas, false);
@@ -356,7 +98,7 @@ namespace CanvasDiagramEditor.Editor
 
         public static void SelectConnected(ICanvas canvas)
         {
-            var elements = GetSelectedThumbElements(canvas);
+            var elements = Elements.GetSelectedThumbs(canvas);
 
             if (elements != null)
             {
@@ -364,7 +106,7 @@ namespace CanvasDiagramEditor.Editor
 
                 if (element != null)
                 {
-                    DeselectAll(canvas);
+                    SelectNone(canvas);
 
                     var visited = new HashSet<string>();
 
@@ -433,7 +175,7 @@ namespace CanvasDiagramEditor.Editor
 
         #region IDs
 
-        public static void AppendElementIds(IEnumerable<object> elements, IdCounter counter)
+        public static void IdsAppend(IEnumerable<object> elements, IdCounter counter)
         {
             // append ids to the existing elements in canvas
             //System.Diagnostics.Debug.Print("Appending Ids:");
@@ -445,7 +187,7 @@ namespace CanvasDiagramEditor.Editor
                 string type = uid[0];
                 int id = int.Parse(uid[1]);
 
-                int appendedId = GetUpdatedElementId(counter, type);
+                int appendedId = IdsGetUpdatedElement(counter, type);
 
                 //System.Diagnostics.Debug.Print("+{0}, id: {1} -> {2} ", type, id, appendedId);
 
@@ -463,7 +205,7 @@ namespace CanvasDiagramEditor.Editor
             }
         }
 
-        public static int GetUpdatedElementId(IdCounter counter, string type)
+        public static int IdsGetUpdatedElement(IdCounter counter, string type)
         {
             int appendedId = -1;
 
@@ -500,7 +242,7 @@ namespace CanvasDiagramEditor.Editor
             return appendedId;
         }
 
-        public static void UpdateIdCounter(IdCounter original, IdCounter counter)
+        public static void IdsUpdateCounter(IdCounter original, IdCounter counter)
         {
             original.PinCount = Math.Max(original.PinCount, counter.PinCount);
             original.WireCount = Math.Max(original.WireCount, counter.WireCount);
@@ -514,7 +256,7 @@ namespace CanvasDiagramEditor.Editor
 
         #region Connections
 
-        public static void UpdateElementConnections(IDictionary<string, MapWires> dict)
+        public static void ConnectionsUpdate(IDictionary<string, MapWires> dict)
         {
             // update wire to element connections
             foreach (var item in dict)
@@ -610,133 +352,6 @@ namespace CanvasDiagramEditor.Editor
                     }
                 }
             }
-        }
-
-        #endregion
-
-        #region Open/Save Model
-
-        public static string OpenModel(string fileName)
-        {
-            string model = null;
-
-            using (var reader = new System.IO.StreamReader(fileName))
-            {
-                model = reader.ReadToEnd();
-            }
-
-            return model;
-        }
-
-        public static void SaveModel(string fileName, string model)
-        {
-            using (var writer = new System.IO.StreamWriter(fileName))
-            {
-                writer.Write(model);
-            }
-        }
-
-        #endregion
-
-        #region Tags
-
-        public static string GenerateTags(List<object> tags)
-        {
-            string line = null;
-
-            var sb = new StringBuilder();
-
-            if (tags != null)
-            {
-                foreach (var tag in tags.Cast<Tag>())
-                {
-                    line = string.Format("{1}{0}{2}{0}{3}{0}{4}{0}{5}",
-                        ModelConstants.ArgumentSeparator,
-                        tag.Id,
-                        tag.Designation,
-                        tag.Signal,
-                        tag.Condition,
-                        tag.Description);
-
-                    sb.AppendLine(line);
-                }
-            }
-
-            return sb.ToString();
-        }
-
-        public static List<object> OpenTags(string fileName)
-        {
-            var tags = new List<object>();
-
-            ImportTags(fileName, tags, false);
-
-            return tags;
-        }
-
-        public static void SaveTags(string fileName, string model)
-        {
-            using (var writer = new System.IO.StreamWriter(fileName))
-            {
-                writer.Write(model);
-            }
-        }
-
-        public static void ImportTags(string fileName, List<object> tags, bool appedIds)
-        {
-            int count = 0;
-            if (appedIds == true)
-            {
-                count = tags.Count > 0 ? tags.Cast<Tag>().Max(x => x.Id) + 1 : 0;
-            }
-
-            using (var reader = new System.IO.StreamReader(fileName))
-            {
-                string data = reader.ReadToEnd();
-
-                var lines = data.Split(Environment.NewLine.ToCharArray(),
-                    StringSplitOptions.RemoveEmptyEntries);
-
-                foreach (var line in lines)
-                {
-                    var args = line.Split(new char[] { ModelConstants.ArgumentSeparator, '\t' },
-                        StringSplitOptions.RemoveEmptyEntries);
-
-                    int length = args.Length;
-
-                    if (length == 5)
-                    {
-                        int id = -1;
-
-                        if (appedIds == true)
-                        {
-                            id = count;
-                            count = count + 1;
-                        }
-                        else
-                        {
-                            id = int.Parse(args[0]);
-                        }
-
-                        var tag = new Tag()
-                        {
-                            Id = id,
-                            Designation = args[1],
-                            Signal = args[2],
-                            Condition = args[3],
-                            Description = args[4]
-                        };
-
-                        tags.Add(tag);
-                    }
-                }
-            }
-        }
-
-        public static void ExportTags(string fileName, List<object> tags)
-        {
-            var model = GenerateTags(tags);
-            SaveTags(fileName, model);
         }
 
         #endregion

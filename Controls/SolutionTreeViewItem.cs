@@ -97,11 +97,12 @@ namespace CanvasDiagramEditor.Controls
 
         public bool GetSelected()
         {
-            return false;
+            return this.IsSelected;
         }
 
         public void SetSelected(bool selected)
         {
+            this.IsSelected = selected;
         }
 
         #endregion
