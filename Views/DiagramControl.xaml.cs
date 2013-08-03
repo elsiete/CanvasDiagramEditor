@@ -431,7 +431,7 @@ namespace CanvasDiagramEditor
 
             var canvas = Editor.CurrentOptions.CurrentCanvas;
             var point = e.GetPosition(canvas);
-            var pin = (e.OriginalSource as FrameworkElement).TemplatedParent as FrameworkElement;
+            var pin = (e.OriginalSource as FrameworkElement).TemplatedParent as IThumb;
 
             var result = Editor.HandlePreviewLeftDown(canvas, new PointEx(point.X, point.Y), pin);
             if (result == true)

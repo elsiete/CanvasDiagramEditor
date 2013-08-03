@@ -61,9 +61,9 @@
 
         </Canvas>
 
-        <Thumb x:Name="LeftPin" Canvas.Left="0" Canvas.Top="15" 
-               Template="{StaticResource PinThumbControlTemplateKey}"
-               Style="{StaticResource PinhumbStyleKey}"/>
+        <controls:PinThumb x:Name="LeftPin" Uid="LeftPin" Canvas.Left="0" Canvas.Top="15" 
+                           Template="{StaticResource PinThumbControlTemplateKey}"
+                           Style="{StaticResource PinThumbStyleKey}"/>
 
     </Canvas>
     

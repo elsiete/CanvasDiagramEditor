@@ -100,6 +100,11 @@ namespace CanvasDiagramEditor.Controls
             Canvas.SetTop(this, y);
         }
 
+        public object GetParent()
+        {
+            return this.Parent;
+        }
+
         #endregion
 
         #region IUid

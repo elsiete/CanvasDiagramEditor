@@ -56,6 +56,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Controls\DiagramCanvas.cs" />
+    <Compile Include="Controls\PinThumb.cs" />
     <Compile Include="Controls\TableGrid.cs" />
     <Compile Include="Controls\SolutionTreeView.cs" />
     <Compile Include="Controls\SolutionTreeViewItem.cs" />

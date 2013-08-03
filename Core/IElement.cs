@@ -20,6 +20,8 @@ namespace CanvasDiagramEditor.Core
         double GetY();
         void SetX(double x);
         void SetY(double y);
+
+        object GetParent();
     }
 
     #endregion

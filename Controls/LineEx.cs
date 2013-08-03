@@ -276,6 +276,11 @@ namespace CanvasDiagramEditor.Controls
             Canvas.SetTop(this, y);
         }
 
+        public object GetParent()
+        {
+            return this.Parent;
+        }
+
         #endregion
 
         #region IUid
@@ -416,8 +421,6 @@ namespace CanvasDiagramEditor.Controls
             this.Y2 = y2;
         }
 
-        #endregion
-
         public IMargin GetMargin()
         {
             var margin = this.Margin;
@@ -435,6 +438,8 @@ namespace CanvasDiagramEditor.Controls
         {
             this.Margin = new Thickness(margin.Left, margin.Top, margin.Right, margin.Bottom);
         }
+
+        #endregion
     }
 
     #endregion

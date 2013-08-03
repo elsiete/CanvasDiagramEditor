@@ -177,15 +177,15 @@ namespace CanvasDiagramEditor.Editor
 
         #region Wire Connections
 
-        private static Tuple<double, double> GetPinPosition(IElement root, FrameworkElement pin)
+        private static Tuple<double, double> GetPinPosition(IElement root, IThumb pin)
         {
             // get root position in canvas
             double rx = root.GetX();
             double ry = root.GetY();
 
             // get pin position in canvas (relative to root)
-            double px = Canvas.GetLeft(pin);
-            double py = Canvas.GetTop(pin);
+            double px = pin.GetX();
+            double py = pin.GetY();
 
             // calculate real pin position
             double x = rx + px;
@@ -194,22 +194,12 @@ namespace CanvasDiagramEditor.Editor
             return new Tuple<double, double>(x, y);
         }
 
-        private static FrameworkElement GetPinParent(FrameworkElement pin)
-        {
-            return (pin.Parent as FrameworkElement).Parent as FrameworkElement;
-        }
-
-        private static FrameworkElement GetPinTemplatedParent(FrameworkElement pin)
-        {
-            return GetPinParent(pin).TemplatedParent as FrameworkElement;
-        }
-
-        private void CreateConnection(ICanvas canvas, FrameworkElement pin)
+        private void CreateConnection(ICanvas canvas, IThumb pin)
         {
             if (pin == null)
                 return;
 
-            CurrentOptions.CurrentRoot = GetPinTemplatedParent(pin) as IElement;
+            CurrentOptions.CurrentRoot = pin.GetParent() as IThumb;
 
             //System.Diagnostics.Debug.Print("ConnectPins, pin: {0}, {1}", pin.GetType(), pin.Name);
 
@@ -1854,7 +1844,7 @@ namespace CanvasDiagramEditor.Editor
                    CurrentOptions.CurrentLine != null;
         }
 
-        public bool HandlePreviewLeftDown(ICanvas canvas, IPoint point, FrameworkElement pin)
+        public bool HandlePreviewLeftDown(ICanvas canvas, IPoint point, IThumb pin)
         {
             if (IsPinConnectable(pin))
             {
@@ -1943,11 +1933,11 @@ namespace CanvasDiagramEditor.Editor
             return element;
         }
 
-        private static bool IsPinConnectable(FrameworkElement pin)
+        private static bool IsPinConnectable(IThumb pin)
         {
             return pin != null &&
             (
-                !StringUtil.Compare(pin.Name, ResourceConstants.StandalonePinName)
+                !StringUtil.Compare(pin.GetUid(), ResourceConstants.StandalonePinName)
                 || Keyboard.Modifiers == ModifierKeys.Control
             );
         }

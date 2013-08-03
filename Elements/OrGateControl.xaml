@@ -6,6 +6,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:controls="clr-namespace:CanvasDiagramEditor.Controls"
              mc:Ignorable="d" 
              d:DesignHeight="30" d:DesignWidth="30">
     
@@ -18,21 +19,21 @@
             </Grid>
         </Canvas>
 
-        <Thumb x:Name="LeftPin" Canvas.Left="0" Canvas.Top="15"
-               Template="{StaticResource PinThumbControlTemplateKey}"
-               Style="{StaticResource PinhumbStyleKey}"/>
+        <controls:PinThumb x:Name="LeftPin" Uid="LeftPin" Canvas.Left="0" Canvas.Top="15"
+                           Template="{StaticResource PinThumbControlTemplateKey}"
+                           Style="{StaticResource PinThumbStyleKey}"/>
 
-        <Thumb x:Name="RightPin" Canvas.Left="30" Canvas.Top="15" 
-               Template="{StaticResource PinThumbControlTemplateKey}"
-               Style="{StaticResource PinhumbStyleKey}"/>
+        <controls:PinThumb x:Name="RightPin" Uid="RightPin" Canvas.Left="30" Canvas.Top="15" 
+                           Template="{StaticResource PinThumbControlTemplateKey}"
+                           Style="{StaticResource PinThumbStyleKey}"/>
 
-        <Thumb x:Name="TopPin" Canvas.Left="15" Canvas.Top="0" 
-               Template="{StaticResource PinThumbControlTemplateKey}"
-               Style="{StaticResource PinhumbStyleKey}"/>
+        <controls:PinThumb x:Name="TopPin" Uid="TopPin" Canvas.Left="15" Canvas.Top="0" 
+                           Template="{StaticResource PinThumbControlTemplateKey}"
+                           Style="{StaticResource PinThumbStyleKey}"/>
 
-        <Thumb x:Name="BottomPin" Canvas.Left="15" Canvas.Top="30" 
-               Template="{StaticResource PinThumbControlTemplateKey}"
-               Style="{StaticResource PinhumbStyleKey}"/>
+        <controls:PinThumb x:Name="BottomPin" Uid="BottomPin" Canvas.Left="15" Canvas.Top="30" 
+                           Template="{StaticResource PinThumbControlTemplateKey}"
+                           Style="{StaticResource PinThumbStyleKey}"/>
 
     </Canvas>
     
