@@ -1534,19 +1534,39 @@ namespace CanvasDiagramEditor.Editor
 
         #region Clipboard
 
-        private static string GetClipboardText()
+        private string ClipboardText = null;
+
+        private string GetClipboardText()
         {
-            if (Clipboard.ContainsText())
+            try
             {
-                return Clipboard.GetText();
+                if (Clipboard.ContainsText())
+                {
+                    return Clipboard.GetText();
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.Print(ex.Message);
+
+                return ClipboardText;
             }
 
-            return null;
+            return ClipboardText;
         }
 
-        private static void SetClipboardText(string model)
+        private void SetClipboardText(string model)
         {
-            Clipboard.SetText(model);
+            try
+            {
+                ClipboardText = model;
+
+                Clipboard.SetText(model);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.Print(ex.Message);
+            }
         }
 
         #endregion
@@ -2425,30 +2445,36 @@ namespace CanvasDiagramEditor.Editor
             }
         }
 
+        public static string GetRelativeTagFileName(string fileName, string tagFileName)
+        {
+            string relativePath = MakeRelativePath(tagFileName, fileName);
+            string onlyFileName = System.IO.Path.GetFileName(tagFileName);
+
+            if (relativePath != null)
+            {
+                tagFileName = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(relativePath),
+                    onlyFileName);
+            }
+
+            return tagFileName;
+        }
+
         public static Tuple<string, IEnumerable<string>> GenerateSolutionModel(ITree tree, 
             string fileName, 
             string tagFileName,
             bool includeHistory)
         {
             var models = new List<string>();
-
             var solution = tree.GetItems().First();
             var projects = solution.GetItems();
-            string line = null;
 
+            string line = null;
             var sb = new StringBuilder();
 
             // tags file path is relative to solution file path
             if (tagFileName != null && fileName != null)
             {
-                string relativePath = MakeRelativePath(tagFileName, fileName);
-                string onlyFileName = System.IO.Path.GetFileName(tagFileName);
-
-                if (relativePath != null)
-                {
-                    tagFileName = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(relativePath), 
-                        onlyFileName);
-                }
+                tagFileName = GetRelativeTagFileName(fileName, tagFileName);
             }
 
             // Solution
@@ -2464,58 +2490,68 @@ namespace CanvasDiagramEditor.Editor
 
             foreach (var project in projects)
             {
-                var diagrams = project.GetItems();
+                var model = GenerateProjectModel(project, models, includeHistory);
+                sb.Append(model);
+            }
 
-                // Project
-                line = string.Format("{0}{1}{2}",
-                    ModelConstants.PrefixRoot,
-                    ModelConstants.ArgumentSeparator,
-                    project.GetUid());
+            var tuple = new Tuple<string, IEnumerable<string>>(sb.ToString(), models);
+            return tuple;
+        }
 
-                sb.AppendLine(line);
+        public static string GenerateProjectModel(ITreeItem project, List<string> models, bool includeHistory)
+        {
+            var diagrams = project.GetItems();
 
+            string line = null;
+            var sb = new StringBuilder();
+
+            // Project
+            line = string.Format("{0}{1}{2}",
+                ModelConstants.PrefixRoot,
+                ModelConstants.ArgumentSeparator,
+                project.GetUid());
+
+            sb.AppendLine(line);
+
+            //System.Diagnostics.Debug.Print(line);
+
+            foreach (var diagram in diagrams)
+            {
+                // Diagram
+
+                //line = string.Format("{0}{1}{2}",
+                //    ModelConstants.PrefixRootElement,
+                //    ModelConstants.ArgumentSeparator,
+                //    diagram.Uid);
+                //sb.AppendLine(line);
                 //System.Diagnostics.Debug.Print(line);
 
-                foreach (var diagram in diagrams)
+                // Diagram Elements
+                if (diagram.GetTag() != null)
                 {
-                    // Diagram
+                    var _diagram = diagram.GetTag() as Diagram;
 
-                    //line = string.Format("{0}{1}{2}",
-                    //    ModelConstants.PrefixRootElement,
-                    //    ModelConstants.ArgumentSeparator,
-                    //    diagram.Uid);
-                    //sb.AppendLine(line);
-                    //System.Diagnostics.Debug.Print(line);
+                    var model = _diagram.Item1;
+                    var history = _diagram.Item2;
 
-                    // Diagram Elements
-                    if (diagram.GetTag() != null)
+                    models.Add(model);
+                    sb.Append(model);
+
+                    if (includeHistory == true)
                     {
-                        var _diagram = diagram.GetTag() as Diagram;
+                        var undoHistory = history.Item1;
+                        var redoHistory = history.Item2;
 
-                        var model = _diagram.Item1;
-                        var history = _diagram.Item2;
-
-                        models.Add(model);
-                        sb.Append(model);
-
-                        if (includeHistory == true)
+                        foreach (var m in undoHistory)
                         {
-                            var undoHistory = history.Item1;
-                            var redoHistory = history.Item2;
-
-                            foreach(var m in undoHistory)
-                            {
-                                models.Add(m);
-                                sb.Append(m);
-                            }
-                        }     
+                            models.Add(m);
+                            sb.Append(m);
+                        }
                     }
                 }
             }
 
-            var tuple = new Tuple<string, IEnumerable<string>>(sb.ToString(), models);
-
-            return tuple;
+            return sb.ToString();
         }
 
         public Tuple<string, IEnumerable<string>> GenerateSolutionModel(string fileName, 
@@ -2525,6 +2561,60 @@ namespace CanvasDiagramEditor.Editor
             var tagFileName = CurrentOptions.TagFileName;
 
             return GenerateSolutionModel(tree, fileName, tagFileName, includeHistory);
+        }
+
+        public IEnumerable<string> GetCurrentProjectDiagrams()
+        {
+            var tree = CurrentOptions.CurrentTree;
+            var selected = tree.GetSelectedItem() as ITreeItem;
+            if (selected == null)
+            {
+                return null;
+            }
+
+            string uid = selected.GetUid();
+            bool isSelectedSolution = StringUtil.StartsWith(uid, ModelConstants.TagHeaderSolution);
+            bool isSelectedProject = StringUtil.StartsWith(uid, ModelConstants.TagHeaderProject);
+            bool isSelectedDiagram = StringUtil.StartsWith(uid, ModelConstants.TagHeaderDiagram);
+
+            if (isSelectedDiagram == true)
+            {
+                var project = selected.GetParent() as ITreeItem;
+
+                var models = new List<string>();
+
+                DiagramEditor.GenerateProjectModel(project, models, false);
+
+                return models;
+
+            }
+            else if (isSelectedProject == true)
+            {
+                var models = new List<string>();
+
+                DiagramEditor.GenerateProjectModel(selected, models, false);
+
+                return models;
+            }
+            else if (isSelectedSolution == true)
+            {
+                var solution = tree.GetItems().FirstOrDefault();
+
+                if (solution != null)
+                {
+                    var models = new List<string>();
+                    var project = solution.GetItems().FirstOrDefault();
+
+                    if (project != null)
+                    {
+                        DiagramEditor.GenerateProjectModel(project, models, false);
+
+                        return models;
+                    }
+                }
+            }
+
+            return null;
         }
 
         private void OpenSolution(ITree tree, TreeSolution solution)
