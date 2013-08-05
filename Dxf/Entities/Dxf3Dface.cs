@@ -3,6 +3,7 @@
 
 #region References
 
+using CanvasDiagramEditor.Dxf.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +15,7 @@ namespace CanvasDiagramEditor.Dxf.Entities
 {
     #region Dxf3Dface
 
-    public class Dxf3Dface : DxfObject
+    public class Dxf3Dface : DxfEntity
     {
         public Dxf3Dface()
             : base()

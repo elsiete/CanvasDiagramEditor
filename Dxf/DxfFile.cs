@@ -1,0 +1,66 @@
+﻿// Copyright (C) Wiesław Šoltés 2013. 
+// All Rights Reserved
+
+#region References
+
+using CanvasDiagramEditor.Dxf.Blocks;
+using CanvasDiagramEditor.Dxf.Core;
+using CanvasDiagramEditor.Dxf.Entities;
+using CanvasDiagramEditor.Dxf.Tables;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+#endregion
+
+namespace CanvasDiagramEditor.Dxf
+{
+    #region DxfFile
+
+    public class DxfFile : DxfObject
+    {
+        public DxfFile()
+            : base()
+        {
+        }
+
+        public DxfFile Comment(string comment)
+        {
+            Add("999", comment);
+            return this;
+        }
+
+        public DxfFile Header(DxfHeader header)
+        {
+            Append(header.ToString());
+            return this;
+        }
+
+        public DxfFile Tables(DxfTables tables)
+        {
+            Append(tables.ToString());
+            return this;
+        }
+
+        public DxfFile Blocks(DxfBlocks blocks)
+        {
+            Append(blocks.ToString());
+            return this;
+        }
+
+        public DxfFile Entities(DxfEntities entities)
+        {
+            Append(entities.ToString());
+            return this;
+        }
+
+        public DxfFile Eof()
+        {
+            Add("0", "EOF");
+            return this;
+        }
+    }
+
+    #endregion
+}

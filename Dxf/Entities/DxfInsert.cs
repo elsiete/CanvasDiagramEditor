@@ -3,8 +3,8 @@
 
 #region References
 
+using CanvasDiagramEditor.Dxf.Core;
 using CanvasDiagramEditor.Dxf.Enums;
-using CanvasDiagramEditor.Dxf.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +16,7 @@ namespace CanvasDiagramEditor.Dxf.Entities
 {
     #region DxfInsert
 
-    public class DxfInsert : DxfObject
+    public class DxfInsert : DxfEntity
     {
         public DxfInsert()
             : base()

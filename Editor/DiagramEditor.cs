@@ -1774,7 +1774,7 @@ namespace CanvasDiagramEditor.Editor
                 Tags = CurrentOptions.Tags
             };
 
-            return dxf.GenerateDxfFromModel(model);
+            return dxf.GenerateDxf(model);
         }
 
         private void DxfSave(string fileName, string model)

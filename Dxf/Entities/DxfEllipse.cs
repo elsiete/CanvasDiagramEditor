@@ -3,6 +3,7 @@
 
 #region References
 
+using CanvasDiagramEditor.Dxf.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +15,7 @@ namespace CanvasDiagramEditor.Dxf.Entities
 {
     #region DxfEllipse
 
-    public class DxfEllipse : DxfObject
+    public class DxfEllipse : DxfEntity
     {
         public DxfEllipse()
             : base()

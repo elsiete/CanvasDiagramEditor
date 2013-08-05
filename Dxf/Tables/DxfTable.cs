@@ -3,6 +3,7 @@
 
 #region References
 
+using CanvasDiagramEditor.Dxf.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,18 +11,17 @@ using System.Text;
 
 #endregion
 
-namespace CanvasDiagramEditor.Dxf.Entities
+namespace CanvasDiagramEditor.Dxf.Tables
 {
-    #region DxfEof
+    #region DxfTable
 
-    public class DxfEof : DxfObject
+    public abstract class DxfTable : DxfObject
     {
-        public DxfEof()
+        public DxfTable()
             : base()
         {
-            Add("0", "EOF");
         }
-    } 
+    }
 
     #endregion
 }

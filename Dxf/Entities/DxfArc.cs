@@ -3,6 +3,7 @@
 
 #region References
 
+using CanvasDiagramEditor.Dxf.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +15,7 @@ namespace CanvasDiagramEditor.Dxf.Entities
 {
     #region DxfArc
 
-    public class DxfArc : DxfObject
+    public class DxfArc : DxfEntity
     {
         public DxfArc()
             : base()

@@ -10,19 +10,21 @@ using System.Text;
 
 #endregion
 
-namespace CanvasDiagramEditor.Dxf.Util
+namespace CanvasDiagramEditor.Dxf.Core
 {
-    #region Vector2
+    #region Vector3
 
-    public class Vector2
+    public class Vector3
     {
         public double X { get; private set; }
         public double Y { get; private set; }
+        public double Z { get; private set; }
 
-        internal Vector2(double x, double y)
+        public Vector3(double x, double y, double z)
         {
             X = x;
             Y = y;
+            Z = z;
         }
     }
 

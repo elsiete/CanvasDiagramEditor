@@ -11,31 +11,31 @@ using System.Text;
 
 #endregion
 
-namespace CanvasDiagramEditor.Dxf.Blocks
+namespace CanvasDiagramEditor.Dxf.Entities
 {
-    #region DxfBlocks
+    #region DxfEntities
 
-    public class DxfBlocks : DxfObject
+    public class DxfEntities : DxfObject
     {
-        public DxfBlocks()
+        public DxfEntities()
             : base()
         {
         }
 
-        public DxfBlocks Begin()
+        public DxfEntities Begin()
         {
             Add("0", "SECTION");
-            Add("2", "BLOCKS");
+            Add("2", "ENTITIES");
             return this;
         }
 
-        public DxfBlocks Add(DxfBlock block)
+        public DxfEntities Add(DxfEntity entity)
         {
-            Append(block.ToString());
+            Append(entity.ToString());
             return this;
         }
 
-        public DxfBlocks End()
+        public DxfEntities End()
         {
             Add("0", "ENDSEC");
             return this;

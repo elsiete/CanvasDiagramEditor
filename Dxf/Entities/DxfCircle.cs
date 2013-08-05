@@ -3,7 +3,7 @@
 
 #region References
 
-using CanvasDiagramEditor.Dxf.Util;
+using CanvasDiagramEditor.Dxf.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +15,7 @@ namespace CanvasDiagramEditor.Dxf.Entities
 {
     #region DxfCircle
 
-    public class DxfCircle : DxfObject
+    public class DxfCircle : DxfEntity
     {
         public DxfCircle()
             : base()

@@ -77,6 +77,14 @@
     <Compile Include="Core\PointEx.cs" />
     <Compile Include="Core\RectEx.cs" />
     <Compile Include="Dxf\Blocks\DxfBlocks.cs" />
+    <Compile Include="Dxf\DxfFile.cs" />
+    <Compile Include="Dxf\DxfHeader.cs" />
+    <Compile Include="Dxf\Entities\DxfEntities.cs" />
+    <Compile Include="Dxf\Entities\DxfEntity.cs" />
+    <Compile Include="Dxf\Enums\DxfAppidStandardFlags.cs" />
+    <Compile Include="Dxf\Enums\DxfViewStandardFlags.cs" />
+    <Compile Include="Dxf\Tables\DxfTable.cs" />
+    <Compile Include="Dxf\Tables\DxfTables.cs" />
     <Compile Include="Editor\Elements.cs" />
     <Compile Include="Editor\Model.cs" />
     <Compile Include="Editor\Tags.cs" />
@@ -85,16 +93,14 @@
       <DependentUpon>DiagramControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Dxf\Blocks\DxfBlock.cs" />
-    <Compile Include="Dxf\DxfTables.cs" />
     <Compile Include="Dxf\Entities\Dxf3Dface.cs" />
     <Compile Include="Dxf\Entities\DxfArc.cs" />
     <Compile Include="Dxf\Entities\DxfAttdef.cs" />
     <Compile Include="Dxf\Entities\DxfAttrib.cs" />
     <Compile Include="Dxf\Entities\DxfCircle.cs" />
-    <Compile Include="Dxf\DxfObject.cs" />
+    <Compile Include="Dxf\Core\DxfObject.cs" />
     <Compile Include="Dxf\Entities\DxfDimension.cs" />
     <Compile Include="Dxf\Entities\DxfEllipse.cs" />
-    <Compile Include="Dxf\Entities\DxfEof.cs" />
     <Compile Include="Dxf\Entities\DxfInsert.cs" />
     <Compile Include="Dxf\Entities\DxfLine.cs" />
     <Compile Include="Dxf\Entities\DxfLwpolyline.cs" />
@@ -107,7 +113,6 @@
     <Compile Include="Dxf\Entities\DxfVertex.cs" />
     <Compile Include="Dxf\Entities\DxfViewport.cs" />
     <Compile Include="Dxf\Enums\DxfAttributeFlags.cs" />
-    <Compile Include="Dxf\DxfEntities.cs" />
     <Compile Include="Dxf\Enums\DxfBlockTypeFlags.cs" />
     <Compile Include="Dxf\Enums\DxfHorizontalTextJustification.cs" />
     <Compile Include="Dxf\Enums\DxfLayerFlags.cs" />
@@ -124,11 +129,8 @@
     <Compile Include="Dxf\Tables\DxfUcs.cs" />
     <Compile Include="Dxf\Tables\DxfView.cs" />
     <Compile Include="Dxf\Tables\DxfVport.cs" />
-    <Compile Include="Dxf\Util\DxfBuilder.cs" />
-    <Compile Include="Dxf\Util\DxfDoubleExtensions.cs" />
-    <Compile Include="Dxf\Util\DxfLwpolylineVertex.cs" />
-    <Compile Include="Dxf\Util\Vector2.cs" />
-    <Compile Include="Dxf\Util\Vector3.cs" />
+    <Compile Include="Dxf\Core\Vector2.cs" />
+    <Compile Include="Dxf\Core\Vector3.cs" />
     <Compile Include="Editor\DiagramEditor.cs" />
     <Compile Include="Editor\DiagramEditorOptions.cs" />
     <Compile Include="Editor\DxfDiagramCreator.cs" />

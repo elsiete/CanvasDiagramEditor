@@ -10,7 +10,7 @@ using System.Text;
 
 #endregion
 
-namespace CanvasDiagramEditor.Dxf
+namespace CanvasDiagramEditor.Dxf.Core
 {
     #region DxfObject
 

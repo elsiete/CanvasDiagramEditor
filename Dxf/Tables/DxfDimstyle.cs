@@ -3,6 +3,7 @@
 
 #region References
 
+using CanvasDiagramEditor.Dxf.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ using System.Text;
 
 #endregion
 
-namespace CanvasDiagramEditor.Dxf.Entities
+namespace CanvasDiagramEditor.Dxf.Tables
 {
     #region DxfDimstyle
 

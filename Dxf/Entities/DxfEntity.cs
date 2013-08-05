@@ -13,11 +13,11 @@ using System.Text;
 
 namespace CanvasDiagramEditor.Dxf.Entities
 {
-    #region DxfTrace
+    #region DxfEntity
 
-    public class DxfTrace : DxfEntity
+    public abstract class DxfEntity : DxfObject
     {
-        public DxfTrace()
+        public DxfEntity()
             : base()
         {
         }
