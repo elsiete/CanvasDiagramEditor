@@ -48,6 +48,12 @@ namespace CanvasDiagramEditor.Dxf
             this.sb.AppendLine(data.ToString(System.Globalization.CultureInfo.GetCultureInfo("en-GB")));
             return this;
         }
+
+        protected virtual DxfObject Append(string str)
+        {
+            this.sb.Append(str);
+            return this;
+        }
     } 
 
     #endregion

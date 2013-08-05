@@ -32,6 +32,7 @@ namespace CanvasDiagramEditor.Editor
     using TreeProjects = Stack<Tuple<string, Stack<Stack<string>>>>;
     using TreeSolution = Tuple<string, string, Stack<Tuple<string, Stack<Stack<string>>>>>;
     using CanvasDiagramEditor.Dxf.Entities;
+    using CanvasDiagramEditor.Dxf.Blocks;
 
     #endregion
 
@@ -112,7 +113,7 @@ namespace CanvasDiagramEditor.Editor
 
         #region Dxf Wrappers
 
-        public string DxfLine(double x1, double y1,
+        public DxfLine Line(double x1, double y1,
             double x2, double y2,
             double offsetX, double offsetY,
             string layer, int color,
@@ -134,7 +135,7 @@ namespace CanvasDiagramEditor.Editor
                 .Start(new Vector3(_x1, _y1, 0.0))
                 .End(new Vector3(_x2, _y2, 0.0));
 
-            return line.ToString();
+            return line;
 
             /*
             double lineWeight = 0.0;
@@ -158,7 +159,7 @@ namespace CanvasDiagramEditor.Editor
             */
         }
 
-        public string DxfCircle(double x, double y,
+        public DxfCircle DxfCircle(double x, double y,
             double radius,
             double offsetX, double offsetY,
             string layer, int color,
@@ -178,10 +179,10 @@ namespace CanvasDiagramEditor.Editor
                 .Radius(radius)
                 .Center(new Vector3(_x, _y, 0.0));
 
-            return circle.ToString();
+            return circle;
         }
 
-        private string DxfAttdefIO(string tag, double x, double y, bool isVisible)
+        private DxfAttdef DxfAttdefIO(string tag, double x, double y, bool isVisible)
         {
             var attdef = new DxfAttdef()
                 .FirstAlignment(new Vector3(x, y, 0.0))
@@ -196,10 +197,10 @@ namespace CanvasDiagramEditor.Editor
                 .HorizontalTextJustification(DxfHorizontalTextJustification.Left)
                 .VerticalTextJustification(DxfVerticalTextJustification.Middle);
 
-            return attdef.ToString();
+            return attdef;
         }
 
-        private string DxfAttribIO(string tag, string text,
+        private DxfAttrib AttribIO(string tag, string text,
             double x, double y,
             bool isVisible)
         {
@@ -215,10 +216,10 @@ namespace CanvasDiagramEditor.Editor
                 .HorizontalTextJustification(DxfHorizontalTextJustification.Left)
                 .VerticalTextJustification(DxfVerticalTextJustification.Middle);
 
-            return attrib.ToString();
+            return attrib;
         }
 
-        private string DxfAttdefGate(string tag, double x, double y, bool isVisible)
+        private DxfAttdef AttdefGate(string tag, double x, double y, bool isVisible)
         {
             var attdef = new DxfAttdef()
                 .FirstAlignment(new Vector3(x, y, 0.0))
@@ -233,10 +234,10 @@ namespace CanvasDiagramEditor.Editor
                 .HorizontalTextJustification(DxfHorizontalTextJustification.Center)
                 .VerticalTextJustification(DxfVerticalTextJustification.Middle);
 
-            return attdef.ToString();
+            return attdef;
         }
 
-        private string DxfAttribGate(string tag, string text,
+        private DxfAttrib AttribGate(string tag, string text,
             double x, double y,
             bool isVisible)
         {
@@ -252,10 +253,10 @@ namespace CanvasDiagramEditor.Editor
                 .HorizontalTextJustification(DxfHorizontalTextJustification.Center)
                 .VerticalTextJustification(DxfVerticalTextJustification.Middle);
 
-            return attrib.ToString();
+            return attrib;
         }
 
-        private string DxfTextGate(string text, 
+        private DxfText DxfTextGate(string text, 
             double x1, double y1,
             double x2, double y2)
         {
@@ -269,7 +270,7 @@ namespace CanvasDiagramEditor.Editor
                 .HorizontalTextJustification(DxfHorizontalTextJustification.Center)
                 .VerticalTextJustification(DxfVerticalTextJustification.Middle);
 
-            return txt.ToString();
+            return txt;
         }
 
         #endregion
@@ -631,13 +632,9 @@ namespace CanvasDiagramEditor.Editor
             sb.Append(DxfTables.DxfTablesBegin());
 
             sb.Append(DxfTableAppid());
-
             sb.Append(DxfTableLineStyles());
-
             sb.Append(DxfTableLayers());
-
             sb.Append(DxfTableTextStyles());
-
             sb.Append(DxfTableViews());
 
             sb.Append(DxfTables.DxfTablesEnd());
@@ -645,652 +642,193 @@ namespace CanvasDiagramEditor.Editor
             return sb.ToString();
         }
 
-        public string DxfBlockFrame()
+        public DxfBlock DxfBlockFrame()
         {
-            string str = null;
-            var sb = new StringBuilder();
-
-            sb.Append(DxfBlocks.DxfBlockBegin());
-
-            // name: FRAME
-            sb.AppendLine("2");
-            sb.AppendLine("FRAME");
-
-            // block type
-            sb.AppendLine("70");
-            sb.AppendLine("0");
-
-            // base point: X
-            sb.AppendLine("10");
-            sb.AppendLine("0");
-
-            // base point: Y
-            sb.AppendLine("20");
-            sb.AppendLine("0");
-
-            // base point: Z
-            sb.AppendLine("30");
-            sb.AppendLine("0");
+            var block = new DxfBlock()
+                .Begin()
+                .Name("FRAME")
+                .BlockTypeFlags(DxfBlockTypeFlags.NonConstantAttributes)
+                .Base(new Vector3(0, 0, 0));
 
             double pageOffsetX = 0.0;
             double pageOffsetY = 891.0;
 
-            // page frame
+            block.Add(Line(0.0, 20.0, 600.0, 20.0, 330.0, -15.0, LayerFrame, 0, pageOffsetX, pageOffsetY));
+            block.Add(Line(600.0, 770.0, 0.0, 770.0, 330.0, -15.0, LayerFrame, 0, pageOffsetX, pageOffsetY));
+            block.Add(Line(0.0, 770.0, 0.0, 0.0, 330.0, -15.0, LayerFrame, 0, pageOffsetX, pageOffsetY));
+            block.Add(Line(600.0, 0.0, 600.0, 770.0, 330.0, -15.0, LayerFrame, 0, pageOffsetX, pageOffsetY));
+            block.Add(Line(15.0, 15.0, 1245.0, 15.0, 0.0, 0.0, LayerFrame, 0, pageOffsetX, pageOffsetY));
+            block.Add(Line(1245.0, 816.0, 15.0, 816.0, 0.0, 0.0, LayerFrame, 0, pageOffsetX, pageOffsetY));
+            block.Add(Line(15.0, 876.0, 1245.0, 876.0, 0.0, 0.0, LayerFrame, 0, pageOffsetX, pageOffsetY));
+            block.Add(Line(1245.0, 876.0, 1245.0, 15.0, 0.0, 0.0, LayerFrame, 0, pageOffsetX, pageOffsetY));
+            block.Add(Line(15.0, 15.0, 15.0, 876.0, 0.0, 0.0, LayerFrame, 0, pageOffsetX, pageOffsetY));
+            block.Add(Line(1.0, 1.0, 1259.0, 1.0, 0.0, 0.0, LayerFrame, 0, pageOffsetX, pageOffsetY));
+            block.Add(Line(1259.0, 890.0, 1.0, 890.0, 0.0, 0.0, LayerFrame, 0, pageOffsetX, pageOffsetY));
+            block.Add(Line(1.0, 890.0, 1.0, 1.0, 0.0, 0.0, LayerFrame, 0, pageOffsetX, pageOffsetY));
+            block.Add(Line(1259.0, 1.0, 1259.0, 890.0, 0.0, 0.0, LayerFrame, 0, pageOffsetX, pageOffsetY));
 
-            // M 0,20 L 600,20 
-            str = DxfLine(0.0, 20.0, 600.0, 20.0, 330.0, -15.0, LayerFrame, 0, pageOffsetX, pageOffsetY);
-            sb.Append(str);
+            block.Add(Line(30.0, 0.0, 30.0, 750.0, 15.0, -35.0, LayerFrame, 0, pageOffsetX, pageOffsetY));
+            block.Add(Line(240.0, 750.0, 240.0, 0.0, 15.0, -35.0, LayerFrame, 0, pageOffsetX, pageOffsetY));
+            block.Add(Line(315.0, 0.0, 0.0, 0.0, 15.0, -35.0, LayerFrame, 0, pageOffsetX, pageOffsetY));
+            block.Add(Line(0.0, 750.0, 315.0, 750.0, 15.0, -35.0, LayerFrame, 0, pageOffsetX, pageOffsetY));
 
-            // M 600,770 L 0,770 
-            str = DxfLine(600.0, 770.0, 0.0, 770.0, 330.0, -15.0, LayerFrame, 0, pageOffsetX, pageOffsetY);
-            sb.Append(str);
-
-            // M 0,770 L 0,0 
-            str = DxfLine(0.0, 770.0, 0.0, 0.0, 330.0, -15.0, LayerFrame, 0, pageOffsetX, pageOffsetY);
-            sb.Append(str);
-
-            // M 600,0 L 600,770
-            str = DxfLine(600.0, 0.0, 600.0, 770.0, 330.0, -15.0, LayerFrame, 0, pageOffsetX, pageOffsetY);
-            sb.Append(str);
-
-            // M 15,15 L 1245,15 
-            str = DxfLine(15.0, 15.0, 1245.0, 15.0, 0.0, 0.0, LayerFrame, 0, pageOffsetX, pageOffsetY);
-            sb.Append(str);
-
-            // M 1245,816 L 15,816
-            str = DxfLine(1245.0, 816.0, 15.0, 816.0, 0.0, 0.0, LayerFrame, 0, pageOffsetX, pageOffsetY);
-            sb.Append(str);
-
-            // M 15,876 L 1245,876
-            str = DxfLine(15.0, 876.0, 1245.0, 876.0, 0.0, 0.0, LayerFrame, 0, pageOffsetX, pageOffsetY);
-            sb.Append(str);
-
-            // M 1245,876 L 1245,15
-            str = DxfLine(1245.0, 876.0, 1245.0, 15.0, 0.0, 0.0, LayerFrame, 0, pageOffsetX, pageOffsetY);
-            sb.Append(str);
-
-            // M 15,15 L 15,876
-            str = DxfLine(15.0, 15.0, 15.0, 876.0, 0.0, 0.0, LayerFrame, 0, pageOffsetX, pageOffsetY);
-            sb.Append(str);
-
-            // M 1,1 L 1259,1 
-            str = DxfLine(1.0, 1.0, 1259.0, 1.0, 0.0, 0.0, LayerFrame, 0, pageOffsetX, pageOffsetY);
-            sb.Append(str);
-
-            // M 1259,890 L 1,890 
-            str = DxfLine(1259.0, 890.0, 1.0, 890.0, 0.0, 0.0, LayerFrame, 0, pageOffsetX, pageOffsetY);
-            sb.Append(str);
-
-            // M 1,890 L 1,1 
-            str = DxfLine(1.0, 890.0, 1.0, 1.0, 0.0, 0.0, LayerFrame, 0, pageOffsetX, pageOffsetY);
-            sb.Append(str);
-
-            // M 1259,1 L 1259,890
-            str = DxfLine(1259.0, 1.0, 1259.0, 890.0, 0.0, 0.0, LayerFrame, 0, pageOffsetX, pageOffsetY);
-            sb.Append(str);
-
-            // inputs
-
-            // M 30,0 L 30,750 
-            str = DxfLine(30.0, 0.0, 30.0, 750.0, 15.0, -35.0, LayerFrame, 0, pageOffsetX, pageOffsetY);
-            sb.Append(str);
-
-            // M 240,750 L 240,0
-            str = DxfLine(240.0, 750.0, 240.0, 0.0, 15.0, -35.0, LayerFrame, 0, pageOffsetX, pageOffsetY);
-            sb.Append(str);
-
-            // M 315,0 L 0,0
-            str = DxfLine(315.0, 0.0, 0.0, 0.0, 15.0, -35.0, LayerFrame, 0, pageOffsetX, pageOffsetY);
-            sb.Append(str);
-
-            // M 0,750 L 315,750
-            str = DxfLine(0.0, 750.0, 315.0, 750.0, 15.0, -35.0, LayerFrame, 0, pageOffsetX, pageOffsetY);
-            sb.Append(str);
-         
-            // M 0,30 L 315,30 
-            // M 315,60 L 0,60 
-            // M 0,90 L 315,90 
-            // M 315,120 L 0,120 
-            // M 0,150 L 315,150 
-            // M 315,180 L 0,180 
-            // M 0,210 L 315,210 
-            // M 315,240 L 0,240
-            // M 0,270 L 315,270 
-            // M 315,300 L 0,300 
-            // M 0,330 L 315,330 
-            // M 315,360 L 0,360
-            // M 0,390 L 315,390 
-            // M 315,420 L 0,420 
-            // M 0,450 L 315,450 
-            // M 315,480 L 0,480 
-            // M 0,510 L 315,510 
-            // M 315,540 L 0,540
-            // M 0,570 L 315,570 
-            // M 315,600 L 0,600 
-            // M 0,630 L 315,630 
-            // M 315,660 L 0,660 
-            // M 0,690 L 315,690
-            // M 315,720 L 0,720
             for (double y = 30.0; y <= 720.0; y += 30.0)
             {
-                str = DxfLine(0.0, y, 315.0, y, 15.0, -35.0, LayerFrame, 0, pageOffsetX, pageOffsetY);
-                sb.Append(str);
+                block.Add(Line(0.0, y, 315.0, y, 15.0, -35.0, LayerFrame, 0, pageOffsetX, pageOffsetY));
             }
 
-            // outputs
+            block.Add(Line(210.0, 0.0, 210.0, 750.0, 930.0, -35.0, LayerFrame, 0, pageOffsetX, pageOffsetY));
+            block.Add(Line(285.0, 750.0, 285.0, 0.0, 930.0, -35.0, LayerFrame, 0, pageOffsetX, pageOffsetY));
+            block.Add(Line(315.0, 0.0, 0.0, 0.0, 930.0, -35.0, LayerFrame, 0, pageOffsetX, pageOffsetY));
+            block.Add(Line(0.0, 750.0, 315.0, 750.0, 930.0, -35.0, LayerFrame, 0, pageOffsetX, pageOffsetY));
 
-            // M 210,0 L 210,750
-            str = DxfLine(210.0, 0.0, 210.0, 750.0, 930.0, -35.0, LayerFrame, 0, pageOffsetX, pageOffsetY);
-            sb.Append(str);
-
-            // M 285,750 L 285,0
-            str = DxfLine(285.0, 750.0, 285.0, 0.0, 930.0, -35.0, LayerFrame, 0, pageOffsetX, pageOffsetY);
-            sb.Append(str);
-
-            // M 315,0 L 0,0 
-            str = DxfLine(315.0, 0.0, 0.0, 0.0, 930.0, -35.0, LayerFrame, 0, pageOffsetX, pageOffsetY);
-            sb.Append(str);
-
-            // M 0,750 L 315,750
-            str = DxfLine(0.0, 750.0, 315.0, 750.0, 930.0, -35.0, LayerFrame, 0, pageOffsetX, pageOffsetY);
-            sb.Append(str);
-
-            // M 0,30 L 315,30 
-            // M 315,60 L 0,60 
-            // M 0,90 L 315,90 
-            // M 315,120 L 0,120 
-            // M 0,150 L 315,150 
-            // M 315,180 L 0,180
-            // M 0,210 L 315,210 
-            // M 315,240 L 0,240 
-            // M 0,270 L 315,270 
-            // M 315,300 L 0,300 
-            // M 0,330 L 315,330 
-            // M 315,360 L 0,360 
-            // M 0,390 L 315,390 
-            // M 315,420 L 0,420 
-            // M 0,450 L 315,450 
-            // M 315,480 L 0,480 
-            // M 0,510 L 315,510 
-            // M 315,540 L 0,540 
-            // M 0,570 L 315,570 
-            // M 315,600 L 0,600 
-            // M 0,630 L 315,630 
-            // M 315,660 L 0,660 
-            // M 0,690 L 315,690 
-            // M 315,720 L 0,720
             for (double y = 30.0; y <= 720.0; y += 30.0)
             {
-                str = DxfLine(0.0, y, 315.0, y, 930.0, -35.0, LayerFrame, 0, pageOffsetX, pageOffsetY);
-                sb.Append(str);
+                block.Add(Line(0.0, y, 315.0, y, 930.0, -35.0, LayerFrame, 0, pageOffsetX, pageOffsetY));
             }
-
-
-
 
             // TODO: text
 
-
-
-
-
-            sb.Append(DxfBlocks.DxfBlockEnd());
-
-            return sb.ToString();
+            return block.End();
         }
 
-        public string DxfBlockTable()
+        public DxfBlock DxfBlockTable()
         {
-            string str = null;
-            var sb = new StringBuilder();
-
-            sb.Append(DxfBlocks.DxfBlockBegin());
-
-            // name: TABLE
-            sb.AppendLine("2");
-            sb.AppendLine("TABLE");
-
-            // block type
-            sb.AppendLine("70");
-            sb.AppendLine("0");
-
-            // base point: X
-            sb.AppendLine("10");
-            sb.AppendLine("0");
-
-            // base point: Y
-            sb.AppendLine("20");
-            sb.AppendLine("0");
-
-            // base point: Z
-            sb.AppendLine("30");
-            sb.AppendLine("0");
+            var block = new DxfBlock()
+                .Begin()
+                .Name("TABLE")
+                .BlockTypeFlags(DxfBlockTypeFlags.Default)
+                .Base(new Vector3(0, 0, 0));
 
             double pageOffsetX = 0.0;
             double pageOffsetY = 891.0;
 
-            // page table
-
-            // M 0,15 L 175,15 
-            str = DxfLine(0.0, 15.0, 175.0, 15.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY);
-            sb.Append(str);
-
-            // M 405,15 L 1230,15 
-            str = DxfLine(405.0, 15.0, 1230.0, 15.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY);
-            sb.Append(str);
-
-            // M 1230,30 L 965,30 
-            str = DxfLine(1230.0, 30.0, 965.0, 30.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY);
-            sb.Append(str);
-
-            // M 695,30 L 405,30 
-            str = DxfLine(695.0, 30.0, 405.0, 30.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY);
-            sb.Append(str);
-
-            // M 175,30, 0,30 
-            str = DxfLine(175.0, 30.0, 0.0, 30.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY);
-            sb.Append(str);
-
-            // M 0,45 L 175,45 
-            str = DxfLine(0.0, 45.0, 175.0, 45.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY);
-            sb.Append(str);
-
-            // M 405,45 L 695,45
-            str = DxfLine(405.0, 45.0, 695.0, 45.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY);
-            sb.Append(str);
-
-            // M 965,45 L 1230,45
-            str = DxfLine(965.0, 45.0, 1230.0, 45.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY);
-            sb.Append(str);
-
-            // M 30,0 L 30,60 
-            str = DxfLine(30.0, 0.0, 30.0, 60.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY);
-            sb.Append(str);
-
-            // M 75,0 L 75,60 
-            str = DxfLine(75.0, 0.0, 75.0, 60.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY);
-            sb.Append(str);
-
-            // M 175,60 L 175,0 
-            str = DxfLine(175.0, 60.0, 175.0, 0.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY);
-            sb.Append(str);
-
-            // M 290,0 L 290,60 
-            str = DxfLine(290.0, 0.0, 290.0, 60.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY);
-            sb.Append(str);
-
-            // M 405,60 L 405,0 
-            str = DxfLine(405.0, 60.0, 405.0, 0.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY);
-            sb.Append(str);
-
-            // M 465,0 L 465,60 
-            str = DxfLine(465.0, 0.0, 465.0, 60.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY);
-            sb.Append(str);
-
-            // M 595,60 L 595,0
-            str = DxfLine(595.0, 60.0, 595.0, 0.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY);
-            sb.Append(str);
-
-            // M 640,0 L 640,60 
-            str = DxfLine(640.0, 0.0, 640.0, 60.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY);
-            sb.Append(str);
-
-            // M 695,60 L 695,0 
-            str = DxfLine(695.0, 60.0, 695.0, 0.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY);
-            sb.Append(str);
-
-            // M 965,0 L 965,60 
-            str = DxfLine(965.0, 0.0, 965.0, 60.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY);
-            sb.Append(str);
-
-            // M 1005,60 L 1005,0 
-            str = DxfLine(1005.0, 60.0, 1005.0, 0.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY);
-            sb.Append(str);
-
-            // M 1045,0 L 1045,60 
-            str = DxfLine(1045.0, 0.0, 1045.0, 60.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY);
-            sb.Append(str);
-
-            // M 1100,60 L 1100,0
-            str = DxfLine(1100.0, 60.0, 1100.0, 0.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY);
-            sb.Append(str);
-
+            block.Add(Line(0.0, 15.0, 175.0, 15.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY));
+            block.Add(Line(405.0, 15.0, 1230.0, 15.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY));
+            block.Add(Line(1230.0, 30.0, 965.0, 30.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY));
+            block.Add(Line(695.0, 30.0, 405.0, 30.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY));
+            block.Add(Line(175.0, 30.0, 0.0, 30.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY));
+            block.Add(Line(0.0, 45.0, 175.0, 45.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY));
+            block.Add(Line(405.0, 45.0, 695.0, 45.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY));
+            block.Add(Line(965.0, 45.0, 1230.0, 45.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY));
+            block.Add(Line(30.0, 0.0, 30.0, 60.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY));
+            block.Add(Line(75.0, 0.0, 75.0, 60.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY));
+            block.Add(Line(175.0, 60.0, 175.0, 0.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY)); 
+            block.Add(Line(290.0, 0.0, 290.0, 60.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY));
+            block.Add(Line(405.0, 60.0, 405.0, 0.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY));
+            block.Add(Line(465.0, 0.0, 465.0, 60.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY));
+            block.Add(Line(595.0, 60.0, 595.0, 0.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY));
+            block.Add(Line(640.0, 0.0, 640.0, 60.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY));
+            block.Add(Line(695.0, 60.0, 695.0, 0.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY));
+            block.Add(Line(965.0, 0.0, 965.0, 60.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY)); 
+            block.Add(Line(1005.0, 60.0, 1005.0, 0.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY));
+            block.Add(Line(1045.0, 0.0, 1045.0, 60.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY));
+            block.Add(Line(1100.0, 60.0, 1100.0, 0.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY));
 
             // TODO: text
-
 
             // TODO: attributes
 
-
-            sb.Append(DxfBlocks.DxfBlockEnd());
-
-            return sb.ToString();
+            return block.End();
         }
 
-        public string DxfBlockGrid()
+        public DxfBlock DxfBlockGrid()
         {
-            //string str = null;
-            var sb = new StringBuilder();
-
-            sb.Append(DxfBlocks.DxfBlockBegin());
-
-            // name: GRID
-            sb.AppendLine("2");
-            sb.AppendLine("GRID");
-
-            // block type
-            sb.AppendLine("70");
-            sb.AppendLine("0");
-
-            // base point: X
-            sb.AppendLine("10");
-            sb.AppendLine("0");
-
-            // base point: Y
-            sb.AppendLine("20");
-            sb.AppendLine("0");
-
-            // base point: Z
-            sb.AppendLine("30");
-            sb.AppendLine("0");
-
-
+            var block = new DxfBlock()
+                .Begin()
+                .Name("GRID")
+                .BlockTypeFlags(DxfBlockTypeFlags.Default)
+                .Base(new Vector3(0, 0, 0));
 
             // TODO: lines
 
-
-
-            sb.Append(DxfBlocks.DxfBlockEnd());
-
-            return sb.ToString();
+            return block.End();
         }
 
-        public string DxfBlockInput()
+        public DxfBlock DxfBlockInput()
         {
-            string str = null;
-            var sb = new StringBuilder();
+            var block = new DxfBlock()
+                .Begin()
+                .Name("INPUT")
+                .BlockTypeFlags(DxfBlockTypeFlags.NonConstantAttributes)
+                .Base(new Vector3(0, 0, 0));
 
-            sb.Append(DxfBlocks.DxfBlockBegin());
+            block.Add(Line(0.0, 0.0, 285.0, 0.0, 0.0, 0.0, LayerIO, 0, 0.0, 30.0));
+            block.Add(Line(285.0, 30.0, 0.0, 30.0, 0.0, 0.0, LayerIO, 0, 0.0, 30.0));
+            block.Add(Line(0.0, 30.0, 0.0, 0.0, 0.0, 0.0, LayerIO, 0, 0.0, 30.0));
+            block.Add(Line(210.0, 0.0, 210.0, 30.0, 0.0, 0.0, LayerIO, 0, 0.0, 30.0));
+            block.Add(Line(285.0, 30.0, 285.0, 0.0, 0.0, 0.0, LayerIO, 0, 0.0, 30.0));
 
-            // name: INPUT
-            sb.AppendLine("2");
-            sb.AppendLine("INPUT");
+            block.Add(DxfAttdefIO("ID", 288, 30, false));
+            block.Add(DxfAttdefIO("TAGID", 288, 0, false));
+            block.Add(DxfAttdefIO("DESIGNATION", 3, 21.5, true));
+            block.Add(DxfAttdefIO("DESCRIPTION", 3, 7.5, true));
+            block.Add(DxfAttdefIO("SIGNAL", 213, 21.5, true));
+            block.Add(DxfAttdefIO("CONDITION", 213, 7.5, true));
 
-            sb.AppendLine("3");
-            sb.AppendLine("INPUT");
-
-            // block type
-            sb.AppendLine("70");
-            sb.AppendLine(((int)DxfBlockTypeFlags.NonConstantAttributes).ToString());
-
-            // base point: X
-            sb.AppendLine("10");
-            sb.AppendLine("0");
-
-            // base point: Y
-            sb.AppendLine("20");
-            sb.AppendLine("0");
-
-            // base point: Z
-            sb.AppendLine("30");
-            sb.AppendLine("0");
-
-            // M 0,0 L 285,0 
-            str = DxfLine(0.0, 0.0, 285.0, 0.0, 0.0, 0.0, LayerIO, 0, 0.0, 30.0);
-            sb.Append(str);
-
-            // M 285,30 L 0,30
-            str = DxfLine(285.0, 30.0, 0.0, 30.0, 0.0, 0.0, LayerIO, 0, 0.0, 30.0);
-            sb.Append(str);
-
-            // M 0,30  L 0,0 
-            str = DxfLine(0.0, 30.0, 0.0, 0.0, 0.0, 0.0, LayerIO, 0, 0.0, 30.0);
-            sb.Append(str);
-
-            // M 210,0 L 210,30 
-            str = DxfLine(210.0, 0.0, 210.0, 30.0, 0.0, 0.0, LayerIO, 0, 0.0, 30.0);
-            sb.Append(str);
-
-            // M 285,30 L 285,0
-            str = DxfLine(285.0, 30.0, 285.0, 0.0, 0.0, 0.0, LayerIO, 0, 0.0, 30.0);
-            sb.Append(str);
-
-            // tag text
-            str = DxfAttdefIO("ID", 288, 30, false);
-            sb.Append(str);
-
-            str = DxfAttdefIO("TAGID", 288, 0, false);
-            sb.Append(str);
-
-            str = DxfAttdefIO("DESIGNATION", 3, 21.5, true);
-            sb.Append(str);
-
-            str = DxfAttdefIO("DESCRIPTION", 3, 7.5, true);
-            sb.Append(str);
-
-            str = DxfAttdefIO("SIGNAL", 213, 21.5, true);
-            sb.Append(str);
-
-            str = DxfAttdefIO("CONDITION", 213, 7.5, true);
-            sb.Append(str);
-
-            sb.Append(DxfBlocks.DxfBlockEnd());
-
-            return sb.ToString();
+            return block.End();
         }
 
-        public string DxfBlockOutput()
+        public DxfBlock DxfBlockOutput()
         {
-            string str = null;
-            var sb = new StringBuilder();
+            var block = new DxfBlock()
+                .Begin()
+                .Name("OUTPUT")
+                .BlockTypeFlags(DxfBlockTypeFlags.NonConstantAttributes)
+                .Base(new Vector3(0, 0, 0));
+ 
+            block.Add(Line(0.0, 0.0, 285.0, 0.0, 0.0, 0.0, LayerIO, 0, 0.0, 30.0));
+            block.Add(Line(285.0, 30.0, 0.0, 30.0, 0.0, 0.0, LayerIO, 0, 0.0, 30.0));
+            block.Add(Line(0.0, 30.0, 0.0, 0.0, 0.0, 0.0, LayerIO, 0, 0.0, 30.0));
+            block.Add(Line(210.0, 0.0, 210.0, 30.0, 0.0, 0.0, LayerIO, 0, 0.0, 30.0));
+            block.Add(Line(285.0, 30.0, 285.0, 0.0, 0.0, 0.0, LayerIO, 0, 0.0, 30.0));
 
-            sb.Append(DxfBlocks.DxfBlockBegin());
+            block.Add(DxfAttdefIO("ID", 288, 30, false));
+            block.Add(DxfAttdefIO("TAGID", 288, 0, false));
+            block.Add(DxfAttdefIO("DESIGNATION", 3, 21.5, true));
+            block.Add(DxfAttdefIO("DESCRIPTION", 3, 7.5, true));
+            block.Add(DxfAttdefIO("SIGNAL", 213, 21.5, true));
+            block.Add(DxfAttdefIO("CONDITION", 213, 7.5, true));
 
-            // name: OUTPUT
-            sb.AppendLine("2");
-            sb.AppendLine("OUTPUT");
-
-            sb.AppendLine("3");
-            sb.AppendLine("OUTPUT");
-
-            // block type
-            sb.AppendLine("70");
-            sb.AppendLine(((int)DxfBlockTypeFlags.NonConstantAttributes).ToString());
-
-            // base point: X
-            sb.AppendLine("10");
-            sb.AppendLine("0");
-
-            // base point: Y
-            sb.AppendLine("20");
-            sb.AppendLine("0");
-
-            // base point: Z
-            sb.AppendLine("30");
-            sb.AppendLine("0");
-
-            // M 0,0 L 285,0 
-            str = DxfLine(0.0, 0.0, 285.0, 0.0, 0.0, 0.0, LayerIO, 0, 0.0, 30.0);
-            sb.Append(str);
-
-            // M 285,30 L 0,30
-            str = DxfLine(285.0, 30.0, 0.0, 30.0, 0.0, 0.0, LayerIO, 0, 0.0, 30.0);
-            sb.Append(str);
-
-            // M 0,30  L 0,0 
-            str = DxfLine(0.0, 30.0, 0.0, 0.0, 0.0, 0.0, LayerIO, 0, 0.0, 30.0);
-            sb.Append(str);
-
-            // M 210,0 L 210,30 
-            str = DxfLine(210.0, 0.0, 210.0, 30.0, 0.0, 0.0, LayerIO, 0, 0.0, 30.0);
-            sb.Append(str);
-
-            // M 285,30 L 285,0
-            str = DxfLine(285.0, 30.0, 285.0, 0.0, 0.0, 0.0, LayerIO, 0, 0.0, 30.0);
-            sb.Append(str);
-
-            // tag text
-            str = DxfAttdefIO("ID", 288, 30, false);
-            sb.Append(str);
-
-            str = DxfAttdefIO("TAGID", 288, 0, false);
-            sb.Append(str);
-
-            str = DxfAttdefIO("DESIGNATION", 3, 21.5, true);
-            sb.Append(str);
-
-            str = DxfAttdefIO("DESCRIPTION", 3, 7.5, true);
-            sb.Append(str);
-
-            str = DxfAttdefIO("SIGNAL", 213, 21.5, true);
-            sb.Append(str);
-
-            str = DxfAttdefIO("CONDITION", 213, 7.5, true);
-            sb.Append(str);
-
-            // end block
-            sb.AppendLine("0");
-            sb.AppendLine("ENDBLK");
-
-            return sb.ToString();
+            return block.End();
         }
 
-        public string DxfBlockAndGate()
+        public DxfBlock DxfBlockAndGate()
         {
-            string str = null;
-            var sb = new StringBuilder();
+            var block = new DxfBlock()
+                .Begin()
+                .Name("ANDGATE")
+                .BlockTypeFlags(DxfBlockTypeFlags.NonConstantAttributes)
+                .Base(new Vector3(0, 0, 0));
 
-            sb.Append(DxfBlocks.DxfBlockBegin());
+            block.Add(Line(0.0, 0.0, 30.0, 0.0, 0.0, 0.0, LayerElements, 0, 0.0, 30.0));
+            block.Add(Line(0.0, 30.0, 30.0, 30.0, 0.0, 0.0, LayerElements, 0, 0.0, 30.0));
+            block.Add(Line(0.0, 0.0, 0.0, 30.0, 0.0, 0.0, LayerElements, 0, 0.0, 30.0));
+            block.Add(Line(30.0, 0.0, 30.0, 30.0, 0.0, 0.0, LayerElements, 0, 0.0, 30.0));
 
-            // name: ANDGATE
-            sb.AppendLine("2");
-            sb.AppendLine("ANDGATE");
+            block.Add(AttdefGate("ID", 30.0, 30.0, false));
+            block.Add(AttdefGate("TEXT", 15.0, 15.0, true));
 
-            sb.AppendLine("3");
-            sb.AppendLine("ANDGATE");
-
-            // block type
-            sb.AppendLine("70");
-            sb.AppendLine(((int)DxfBlockTypeFlags.NonConstantAttributes).ToString());
-
-            // base point: X
-            sb.AppendLine("10");
-            sb.AppendLine("0");
-
-            // base point: Y
-            sb.AppendLine("20");
-            sb.AppendLine("0");
-
-            // base point: Z
-            sb.AppendLine("30");
-            sb.AppendLine("0");
-
-            // M 0,0 L 30,0
-            str = DxfLine(0.0, 0.0, 30.0, 0.0, 0.0, 0.0, LayerElements, 0, 0.0, 30.0);
-            sb.Append(str);
-
-            // M 0,30 L 30,30
-            str = DxfLine(0.0, 30.0, 30.0, 30.0, 0.0, 0.0, LayerElements, 0, 0.0, 30.0);
-            sb.Append(str);
-
-            // M 0,0 L 0,30
-            str = DxfLine(0.0, 0.0, 0.0, 30.0, 0.0, 0.0, LayerElements, 0, 0.0, 30.0);
-            sb.Append(str);
-
-            // M 30,0 L 30,30
-            str = DxfLine(30.0, 0.0, 30.0, 30.0, 0.0, 0.0, LayerElements, 0, 0.0, 30.0);
-            sb.Append(str);
-
-            // tag text
-            str = DxfAttdefGate("ID", 30.0, 30.0, false);
-            sb.Append(str);
-
-            str = DxfAttdefGate("TEXT", 15.0, 15.0, true);
-            sb.Append(str);
-
-            sb.Append(DxfBlocks.DxfBlockEnd());
-
-            return sb.ToString();
+            return block.End();
         }
 
-        public string DxfBlockOrGate()
+        public DxfBlock DxfBlockOrGate()
         {
-            string str = null;
-            var sb = new StringBuilder();
+            var block = new DxfBlock()
+                .Begin()
+                .Name("ORGATE")
+                .BlockTypeFlags(DxfBlockTypeFlags.NonConstantAttributes)
+                .Base(new Vector3(0, 0, 0));
 
-            sb.Append(DxfBlocks.DxfBlockBegin());
+            block.Add(Line(0.0, 0.0, 30.0, 0.0, 0.0, 0.0, LayerElements, 0, 0.0, 30.0));
+            block.Add(Line(0.0, 30.0, 30.0, 30.0, 0.0, 0.0, LayerElements, 0, 0.0, 30.0));
+            block.Add(Line(0.0, 0.0, 0.0, 30.0, 0.0, 0.0, LayerElements, 0, 0.0, 30.0));
+            block.Add(Line(30.0, 0.0, 30.0, 30.0, 0.0, 0.0, LayerElements, 0, 0.0, 30.0));
 
-            // name: ORGATE
-            sb.AppendLine("2");
-            sb.AppendLine("ORGATE");
+            block.Add(AttdefGate("ID", 30.0, 30.0, false));
+            block.Add(AttdefGate("TEXT", 15.0, 15.0, true));
 
-            sb.AppendLine("3");
-            sb.AppendLine("ORGATE");
-
-            // block type
-            sb.AppendLine("70");
-            sb.AppendLine(((int)DxfBlockTypeFlags.NonConstantAttributes).ToString());
-
-            // base point: X
-            sb.AppendLine("10");
-            sb.AppendLine("0");
-
-            // base point: Y
-            sb.AppendLine("20");
-            sb.AppendLine("0");
-
-            // base point: Z
-            sb.AppendLine("30");
-            sb.AppendLine("0");
-
-            // M 0,0 L 30,0
-            str = DxfLine(0.0, 0.0, 30.0, 0.0, 0.0, 0.0, LayerElements, 0, 0.0, 30.0);
-            sb.Append(str);
-
-            // M 0,30 L 30,30
-            str = DxfLine(0.0, 30.0, 30.0, 30.0, 0.0, 0.0, LayerElements, 0, 0.0, 30.0);
-            sb.Append(str);
-
-            // M 0,0 L 0,30
-            str = DxfLine(0.0, 0.0, 0.0, 30.0, 0.0, 0.0, LayerElements, 0, 0.0, 30.0);
-            sb.Append(str);
-
-            // M 30,0 L 30,30
-            str = DxfLine(30.0, 0.0, 30.0, 30.0, 0.0, 0.0, LayerElements, 0, 0.0, 30.0);
-            sb.Append(str);
-
-            // tag text
-            str = DxfAttdefGate("ID", 30.0, 30.0, false);
-            sb.Append(str);
-
-            str = DxfAttdefGate("TEXT", 15.0, 15.0, true);
-            sb.Append(str);
-
-            sb.Append(DxfBlocks.DxfBlockEnd());
-
-            return sb.ToString();
-        }
-
-        public string DxfBlocksAll()
-        {
-            var sb = new StringBuilder();
-
-            // begin blocks
-            sb.Append(DxfBlocks.DxfBlocksBegin());
-
-            // blocks
-            sb.Append(DxfBlockFrame());
-            sb.Append(DxfBlockTable());
-            sb.Append(DxfBlockGrid());
-            sb.Append(DxfBlockInput());
-            sb.Append(DxfBlockOutput());
-            sb.Append(DxfBlockAndGate());
-            sb.Append(DxfBlockOrGate());
-
-            // end blocks
-            sb.Append(DxfBlocks.DxfBlocksEnd());
-
-            return sb.ToString();
+            return block.End();
         }
 
         #endregion
@@ -1439,21 +977,21 @@ namespace CanvasDiagramEditor.Editor
             bool isEndIO = endIsIO;
 
             // shorten start
-            if (isStartIO == true && isEndIO == false && shortenStart == true)
+            if (isStartIO == true && 
+                isEndIO == false && 
+                shortenStart == true &&
+                (Math.Round(startY, 1) == Math.Round(endY, 1)))
             {
-                if (Math.Round(startY, 1) == Math.Round(endY, 1))
-                {
-                    startX = endX - ShortenLineSize;
-                }
+                startX = endX - ShortenLineSize;
             }
 
             // shorten end
-            if (isStartIO == false && isEndIO == true && shortenEnd == true)
+            if (isStartIO == false && 
+                isEndIO == true && 
+                shortenEnd == true &&
+                 (Math.Round(startY, 1) == Math.Round(endY, 1)))
             {
-                if (Math.Round(startY, 1) == Math.Round(endY, 1))
-                {
-                    endX = startX + ShortenLineSize;
-                }
+                endX = startX + ShortenLineSize;
             }
 
             // get start and end ellipse position
@@ -1471,7 +1009,7 @@ namespace CanvasDiagramEditor.Editor
                     0.0, 0.0, 
                     LayerWires, 
                     0, 
-                    0.0, 891.0);
+                    0.0, 891.0).ToString();
 
                 DxfString.Append(str);
             }
@@ -1483,17 +1021,17 @@ namespace CanvasDiagramEditor.Editor
                     0.0, 0.0,
                     LayerWires,
                     0,
-                    0.0, 891.0);
+                    0.0, 891.0).ToString();
 
                 DxfString.Append(str);
             }
 
-            str = DxfLine(lineStart.X, lineStart.Y,
+            str = Line(lineStart.X, lineStart.Y,
                 lineEnd.X, lineEnd.Y,
                 0.0, 0.0,
                 LayerWires,
                 0,
-                0.0, 891.0);
+                0.0, 891.0).ToString();
 
             DxfString.Append(str);
 
@@ -1502,230 +1040,84 @@ namespace CanvasDiagramEditor.Editor
 
         public object CreateInput(double x, double y, int id, int tagId, bool snap)
         {
-            var sb = new StringBuilder();
+            var insert = new DxfInsert()
+                .Block("INPUT")
+                .Layer(LayerIO)
+                .Insertion(new Vector3(x, PageHeight - 30.0 - y, 0));
 
-            // insert block
-            sb.AppendLine("0");
-            sb.AppendLine("INSERT");
-
-            // block name
-            sb.AppendLine("2");
-            sb.AppendLine("INPUT");
-
-            // layer
-            sb.AppendLine("8");
-            sb.AppendLine(LayerIO);
-
-            // insertion point: X
-            sb.AppendLine("10");
-            sb.AppendLine(x.ToDxfString());
-
-            // insertion point: Y
-            sb.AppendLine("20");
-            sb.AppendLine((PageHeight - 30.0 - y).ToDxfString());
-
-            // insertion point: Z (not used)
-            sb.AppendLine("30");
-            sb.Append("0");
-
-            // attributes
             var tag = GetTagById(tagId);
             if (tag != null)
             {
-                string str = null;
-
-                // attributes follow: 0 - no, 1 - yes
-                sb.AppendLine("");
-                sb.AppendLine("66");
-                sb.AppendLine("1");
-
-                str = DxfAttribIO("ID", id.ToString(), x + 288.0, (PageHeight - y - 30), false);
-                sb.Append(str);
-
-                str = DxfAttribIO("TAGID", tag.Id.ToString(), x + 288.0, (PageHeight - y), false);
-                sb.Append(str);
-
-                str = DxfAttribIO("DESIGNATION", tag.Designation, x + 3.0, (PageHeight - y - 7.5), true);
-                sb.Append(str);
-
-                str = DxfAttribIO("DESCRIPTION", tag.Description, x + 3.0, (PageHeight - y - 21.5), true);
-                sb.Append(str);
-
-                str = DxfAttribIO("SIGNAL", tag.Signal, x + 213.0, (PageHeight - y - 7.5), true);
-                sb.Append(str);
-
-                str = DxfAttribIO("CONDITION", tag.Condition, x + 213.0, (PageHeight - y - 21.5), true);
-                sb.Append(str);
-
-                sb.AppendLine("0");
-                sb.Append("SEQEND");
+                insert.AttributesBegin()
+                    .AddAttribute(AttribIO("ID", id.ToString(), x + 288.0, (PageHeight - y - 30), false))
+                    .AddAttribute(AttribIO("TAGID", tag.Id.ToString(), x + 288.0, (PageHeight - y), false))
+                    .AddAttribute(AttribIO("DESIGNATION", tag.Designation, x + 3.0, (PageHeight - y - 7.5), true))
+                    .AddAttribute(AttribIO("DESCRIPTION", tag.Description, x + 3.0, (PageHeight - y - 21.5), true))
+                    .AddAttribute(AttribIO("SIGNAL", tag.Signal, x + 213.0, (PageHeight - y - 7.5), true))
+                    .AddAttribute(AttribIO("CONDITION", tag.Condition, x + 213.0, (PageHeight - y - 21.5), true))
+                    .AttributesEnd();
             }
 
-            DxfString.AppendLine(sb.ToString());
+            DxfString.Append(insert.ToString());
 
             return null;
         }
 
         public object CreateOutput(double x, double y, int id, int tagId, bool snap)
         {
-            var sb = new StringBuilder();
+            var insert = new DxfInsert()
+                .Block("OUTPUT")
+                .Layer(LayerIO)
+                .Insertion(new Vector3(x, PageHeight - 30.0 - y, 0));
 
-            // insert block
-            sb.AppendLine("0");
-            sb.AppendLine("INSERT");
-
-            // block name
-            sb.AppendLine("2");
-            sb.AppendLine("OUTPUT");
-
-            // layer
-            sb.AppendLine("8");
-            sb.AppendLine(LayerIO);
-
-            // insertion point: X
-            sb.AppendLine("10");
-            sb.AppendLine(x.ToDxfString());
-
-            // insertion point: Y
-            sb.AppendLine("20");
-            sb.AppendLine((PageHeight - 30.0 - y).ToDxfString());
-
-            // insertion point: Z (not used)
-            sb.AppendLine("30");
-            sb.Append("0");
-
-            // attributes
             var tag = GetTagById(tagId);
             if (tag != null)
             {
-                string str = null;
-
-                // attributes follow: 0 - no, 1 - yes
-                sb.AppendLine("");
-                sb.AppendLine("66");
-                sb.AppendLine("1");
-
-                str = DxfAttribIO("ID", id.ToString(), x + 288.0, (PageHeight - y - 30), false);
-                sb.Append(str);
-
-                str = DxfAttribIO("TAGID", tag.Id.ToString(), x + 288.0, (PageHeight - y), false);
-                sb.Append(str);
-
-                str = DxfAttribIO("DESIGNATION", tag.Designation, x + 3.0, (PageHeight - y - 7.5), true);
-                sb.Append(str);
-
-                str = DxfAttribIO("DESCRIPTION", tag.Description, x + 3.0, (PageHeight - y - 21.5), true);
-                sb.Append(str);
-
-                str = DxfAttribIO("SIGNAL", tag.Signal, x + 213.0, (PageHeight - y - 7.5), true);
-                sb.Append(str);
-
-                str = DxfAttribIO("CONDITION", tag.Condition, x + 213.0, (PageHeight - y - 21.5), true);
-                sb.Append(str);
-
-                sb.AppendLine("0");
-                sb.Append("SEQEND");
+                insert.AttributesBegin()
+                    .AddAttribute(AttribIO("ID", id.ToString(), x + 288.0, (PageHeight - y - 30), false))
+                    .AddAttribute(AttribIO("TAGID", tag.Id.ToString(), x + 288.0, (PageHeight - y), false))
+                    .AddAttribute(AttribIO("DESIGNATION", tag.Designation, x + 3.0, (PageHeight - y - 7.5), true))
+                    .AddAttribute(AttribIO("DESCRIPTION", tag.Description, x + 3.0, (PageHeight - y - 21.5), true))
+                    .AddAttribute(AttribIO("SIGNAL", tag.Signal, x + 213.0, (PageHeight - y - 7.5), true))
+                    .AddAttribute(AttribIO("CONDITION", tag.Condition, x + 213.0, (PageHeight - y - 21.5), true))
+                    .AttributesEnd();
             }
 
-            DxfString.AppendLine(sb.ToString());
+            DxfString.Append(insert.ToString());
 
             return null;
         }
 
         public object CreateAndGate(double x, double y, int id, bool snap)
         {
-            var sb = new StringBuilder();
+            var insert = new DxfInsert()
+                .Block("ANDGATE")
+                .Layer(LayerElements)
+                .Insertion(new Vector3(x, PageHeight - 30.0 - y, 0));
 
-            // insert block
-            sb.AppendLine("0");
-            sb.AppendLine("INSERT");
+            insert.AttributesBegin()
+                .AddAttribute(AttribGate("ID", id.ToString(), x + 30, (PageHeight - y - 30), false))
+                .AddAttribute(AttribGate("TEXT", "&", x + 15.0, (PageHeight - y - 15.0), true))
+                .AttributesEnd();
 
-            // block name
-            sb.AppendLine("2");
-            sb.AppendLine("ANDGATE");
-
-            // layer
-            sb.AppendLine("8");
-            sb.AppendLine(LayerElements);
-
-            // insertion point: X
-            sb.AppendLine("10");
-            sb.AppendLine(x.ToString());
-
-            // insertion point: Y
-            sb.AppendLine("20");
-            sb.AppendLine((PageHeight - 30.0 - y).ToDxfString());
-
-            // insertion point: Z (not used)
-            sb.AppendLine("30");
-            sb.Append("0");
-
-            // attributes follow: 0 - no, 1 - yes
-            sb.AppendLine("");
-            sb.AppendLine("66");
-            sb.AppendLine("1");
-
-            string str = null;
-
-            str = DxfAttribGate("ID", id.ToString(), x + 30, (PageHeight - y - 30), false);
-            sb.Append(str);
-
-            str = DxfAttribGate("TEXT", "&", x + 15.0, (PageHeight - y - 15.0), true);
-            sb.Append(str);
-
-            sb.AppendLine("0");
-            sb.Append("SEQEND");
-
-            DxfString.AppendLine(sb.ToString());
+            DxfString.Append(insert.ToString());
 
             return null;
         }
 
         public object CreateOrGate(double x, double y, int id, bool snap)
         {
-            var sb = new StringBuilder();
+            var insert = new DxfInsert()
+                .Block("ORGATE")
+                .Layer(LayerElements)
+                .Insertion(new Vector3(x, PageHeight - 30.0 - y, 0));
 
-            // insert block
-            sb.AppendLine("0");
-            sb.AppendLine("INSERT");
+            insert.AttributesBegin()
+                .AddAttribute(AttribGate("ID", id.ToString(), x + 30, (PageHeight - y - 30), false))
+                .AddAttribute(AttribGate("TEXT", "\\U+22651", x + 15.0, (PageHeight - y - 15.0), true))
+                .AttributesEnd();
 
-            // block name
-            sb.AppendLine("2");
-            sb.AppendLine("ORGATE");
-
-            // layer
-            sb.AppendLine("8");
-            sb.AppendLine(LayerElements);
-
-            // insertion point: X
-            sb.AppendLine("10");
-            sb.AppendLine(x.ToDxfString());
-
-            // insertion point: Y
-            sb.AppendLine("20");
-            sb.AppendLine((PageHeight - 30.0 - y).ToDxfString());
-
-            // insertion point: Z (not used)
-            sb.AppendLine("30");
-            sb.Append("0");
-
-            // attributes follow: 0 - no, 1 - yes
-            sb.AppendLine("");
-            sb.AppendLine("66");
-            sb.AppendLine("1");
-
-            string str = null;
-
-            str = DxfAttribGate("ID", id.ToString(), x + 30, (PageHeight - y - 30), false);
-            sb.Append(str);
-
-            str = DxfAttribGate("TEXT", "\\U+22651", x + 15.0, (PageHeight - y - 15.0), true);
-            sb.Append(str);
-
-            sb.AppendLine("0");
-            sb.Append("SEQEND");
-
-            DxfString.AppendLine(sb.ToString());
+            DxfString.Append(insert.ToString());
 
             return null;
         }
@@ -1784,7 +1176,17 @@ namespace CanvasDiagramEditor.Editor
             DxfString.Append(DxfTablesAll());
 
             // blocks
-            DxfString.Append(DxfBlocksAll());
+            var blocks = new DxfBlocks().Begin();
+
+            blocks.Add(DxfBlockFrame());
+            blocks.Add(DxfBlockTable());
+            blocks.Add(DxfBlockGrid());
+            blocks.Add(DxfBlockInput());
+            blocks.Add(DxfBlockOutput());
+            blocks.Add(DxfBlockAndGate());
+            blocks.Add(DxfBlockOrGate());
+
+            DxfString.Append(blocks.End().ToString());
 
             // begin entities
             DxfString.Append(DxfEntities.DxfEntitiesBegin());

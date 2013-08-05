@@ -76,6 +76,7 @@
     <Compile Include="Core\MarginEx.cs" />
     <Compile Include="Core\PointEx.cs" />
     <Compile Include="Core\RectEx.cs" />
+    <Compile Include="Dxf\Blocks\DxfBlocks.cs" />
     <Compile Include="Editor\Elements.cs" />
     <Compile Include="Editor\Model.cs" />
     <Compile Include="Editor\Tags.cs" />
@@ -84,7 +85,6 @@
       <DependentUpon>DiagramControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Dxf\Blocks\DxfBlock.cs" />
-    <Compile Include="Dxf\DxfBlocks.cs" />
     <Compile Include="Dxf\DxfTables.cs" />
     <Compile Include="Dxf\Entities\Dxf3Dface.cs" />
     <Compile Include="Dxf\Entities\DxfArc.cs" />
