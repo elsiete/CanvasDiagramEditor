@@ -15,10 +15,10 @@ namespace CanvasDiagramEditor.Dxf.Entities
 {
     #region DxfTrace
 
-    public class DxfTrace : DxfEntity
+    public class DxfTrace : DxfObject<DxfTrace>
     {
-        public DxfTrace()
-            : base()
+        public DxfTrace(DxfAcadVer version, int id)
+            : base(version, id)
         {
         }
     }

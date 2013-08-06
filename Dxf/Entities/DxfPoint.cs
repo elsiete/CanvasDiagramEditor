@@ -15,10 +15,10 @@ namespace CanvasDiagramEditor.Dxf.Entities
 {
     #region DxfPoint
 
-    public class DxfPoint : DxfEntity
+    public class DxfPoint : DxfObject<DxfPoint>
     {
-        public DxfPoint()
-            : base()
+        public DxfPoint(DxfAcadVer version, int id)
+            : base(version, id)
         {
         }
     }

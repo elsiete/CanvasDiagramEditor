@@ -13,12 +13,12 @@ using System.Text;
 
 namespace CanvasDiagramEditor.Dxf.Tables
 {
-    #region DxfTable
+    #region DxfBlockRecord
 
-    public abstract class DxfTable : DxfObject
+    public class DxfBlockRecord : DxfObject<DxfBlockRecord>
     {
-        public DxfTable()
-            : base()
+        public DxfBlockRecord(DxfAcadVer version, int id)
+            : base(version, id)
         {
         }
     }

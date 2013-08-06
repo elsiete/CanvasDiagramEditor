@@ -15,10 +15,10 @@ namespace CanvasDiagramEditor.Dxf.Entities
 {
     #region DxfEntities
 
-    public class DxfEntities : DxfObject
+    public class DxfEntities : DxfObject<DxfEntities>
     {
-        public DxfEntities()
-            : base()
+        public DxfEntities(DxfAcadVer version, int id)
+            : base(version, id)
         {
         }
 
@@ -29,9 +29,19 @@ namespace CanvasDiagramEditor.Dxf.Entities
             return this;
         }
 
-        public DxfEntities Add(DxfEntity entity)
+        public DxfEntities Add<T>(T entity)
         {
             Append(entity.ToString());
+            return this;
+        }
+
+        public DxfEntities Add<T>(IEnumerable<T> entities)
+        {
+            foreach (var entity in entities)
+            {
+                Add(entity);
+            }
+
             return this;
         }
 

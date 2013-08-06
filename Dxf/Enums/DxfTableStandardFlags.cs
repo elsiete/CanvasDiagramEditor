@@ -12,10 +12,10 @@ using System.Text;
 
 namespace CanvasDiagramEditor.Dxf.Enums
 {
-    #region DxfLtypeFlags
+    #region DxfTableStandardFlags
 
     // Group code: 70
-    public enum DxfLtypeFlags : int
+    public enum DxfTableStandardFlags : int
     {
         Default = 0,
         Xref = 16,

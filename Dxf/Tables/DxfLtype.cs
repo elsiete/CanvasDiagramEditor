@@ -16,55 +16,73 @@ namespace CanvasDiagramEditor.Dxf.Tables
 {
     #region DxfLtype
 
-    public class DxfLtype : DxfObject
+    public class DxfLtype : DxfObject<DxfLtype>
     {
-        public DxfLtype()
-            : base()
+        public string Name { get; set; }
+        public DxfLtypeStandardFlags LtypeStandardFlags { get; set; }
+        public string Description { get; set; }
+        public int DashLengthItems { get; set; }
+        public double TotalPatternLenght { get; set; }
+        public double[] DashLenghts { get; set; }
+
+        public DxfLtype(DxfAcadVer version, int id)
+            : base(version, id)
         {
-            Add("0", "LTYPE");
-            Add("72", "65"); // alignment code; value is always 65, the ASCII code for A
         }
 
-        public DxfLtype Name(string name)
+        public DxfLtype Defaults()
         {
-            Add("2", name);
+            Name = string.Empty;
+            LtypeStandardFlags = DxfLtypeStandardFlags.Default;
+            Description = string.Empty;
+            DashLengthItems = 0;
+            TotalPatternLenght = 0.0;
+            DashLenghts = null;
+
             return this;
         }
 
-        public DxfLtype Description(string description)
+        public DxfLtype Create()
         {
-            Add("3", description);
-            return this;
-        }
+            Add(0, CodeName.Ltype);
 
-        public DxfLtype StandardFlags(DxfLtypeFlags flags)
-        {
-            Add("70", (int)flags);
-            return this;
-        }
+            if (Version > DxfAcadVer.AC1009)
+            {
+                Handle(Id);
+                Subclass("AcDbSymbolTableRecord");
+                Subclass("AcDbLinetypeTableRecord");
+            }
 
-        public DxfLtype DashLengthItems(int items)
-        {
-            Add("73", items);
-            return this;
-        }
+            Add(2, Name);
+            Add(70, (int)LtypeStandardFlags);
+            Add(3, Description);
+            Add(72, 65); // alignment code; value is always 65, the ASCII code for A
 
-        public DxfLtype TotalPatternLenght(double lenght)
-        {
-            Add("40", lenght);
-            return this;
-        }
+            Add(73, DashLengthItems);
+            Add(40, TotalPatternLenght);
 
-        public DxfLtype DashLenghts(double[] lenghts)
-        {
-            if (lenghts != null)
+            if (DashLenghts != null)
             {
                 // dash length 0,1,2...n-1 = DashLengthItems
-                foreach (var lenght in lenghts)
+                foreach (var lenght in DashLenghts)
                 {
-                    Add("49", lenght);
+                    Add(49, lenght);
                 }
             }
+
+            if (Version > DxfAcadVer.AC1009)
+            {
+                // TODO: multiple complex linetype elements
+                // 74
+                // 75
+                // 340
+                // 46
+                // 50
+                // 44
+                // 45
+                // 9
+            }
+
             return this;
         }
     }

@@ -15,10 +15,10 @@ namespace CanvasDiagramEditor.Dxf.Entities
 {
     #region Dxf3Dface
 
-    public class Dxf3Dface : DxfEntity
+    public class Dxf3Dface : DxfObject<Dxf3Dface>
     {
-        public Dxf3Dface()
-            : base()
+        public Dxf3Dface(DxfAcadVer version, int id)
+            : base(version, id)
         {
         }
     }

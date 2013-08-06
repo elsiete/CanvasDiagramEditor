@@ -16,12 +16,19 @@ namespace CanvasDiagramEditor.Dxf.Tables
 {
     #region DxfStyle
 
-    public class DxfStyle : DxfObject
+    public class DxfStyle : DxfObject<DxfStyle>
     {
-        public DxfStyle()
-            : base()
+        public DxfStyle(DxfAcadVer version, int id)
+            : base(version, id)
         {
             Add("0", "STYLE");
+
+            if (version > DxfAcadVer.AC1009)
+            {
+                Handle(id);
+                Subclass("AcDbSymbolTableRecord");
+                Subclass("AcDbTextStyleTableRecord");
+            }
         }
 
         public DxfStyle Name(string name)

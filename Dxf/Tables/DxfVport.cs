@@ -15,10 +15,10 @@ namespace CanvasDiagramEditor.Dxf.Tables
 {
     #region DxfVport
 
-    public class DxfVport : DxfObject
+    public class DxfVport : DxfObject<DxfVport>
     {
-        public DxfVport()
-            : base()
+        public DxfVport(DxfAcadVer version, int id)
+            : base(version, id)
         {
         }
     }

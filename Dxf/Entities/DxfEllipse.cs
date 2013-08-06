@@ -15,10 +15,10 @@ namespace CanvasDiagramEditor.Dxf.Entities
 {
     #region DxfEllipse
 
-    public class DxfEllipse : DxfEntity
+    public class DxfEllipse : DxfObject<DxfEllipse>
     {
-        public DxfEllipse()
-            : base()
+        public DxfEllipse(DxfAcadVer version, int id)
+            : base(version, id)
         {
         }
     }

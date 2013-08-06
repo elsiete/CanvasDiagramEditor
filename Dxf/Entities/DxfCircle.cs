@@ -15,12 +15,17 @@ namespace CanvasDiagramEditor.Dxf.Entities
 {
     #region DxfCircle
 
-    public class DxfCircle : DxfEntity
+    public class DxfCircle : DxfObject<DxfCircle>
     {
-        public DxfCircle()
-            : base()
+        public DxfCircle(DxfAcadVer version, int id)
+            : base(version, id)
         {
             Add("0", "CIRCLE");
+
+            if (Version > DxfAcadVer.AC1009)
+            {
+                Subclass("AcDbCircle");
+            }
         }
 
         public DxfCircle Layer(string layer)

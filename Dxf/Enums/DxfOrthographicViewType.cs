@@ -12,19 +12,18 @@ using System.Text;
 
 namespace CanvasDiagramEditor.Dxf.Enums
 {
-    #region DxfLayerFlags
+    #region DxfOrthographicViewType
 
-    // Group code: 70
-    public enum DxfLayerFlags : int
+    public enum DxfOrthographicViewType : int
     {
-        Default = 0,
-        Frozen = 1,
-        FrozenByDefault = 2,
-        Locked = 4,
-        Xref = 16,
-        XrefSuccess = 32,
-        References = 64
-    }
+        NotOrthographic = 0,
+        Top = 1,
+        Bottom = 2,
+        Front = 3,
+        Back = 4,
+        Left = 5,
+        Right = 6
+    } 
 
     #endregion
 }

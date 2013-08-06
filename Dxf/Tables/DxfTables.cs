@@ -15,10 +15,10 @@ namespace CanvasDiagramEditor.Dxf.Tables
 {
     #region DxfTables
 
-    public class DxfTables : DxfObject
+    public class DxfTables : DxfObject<DxfTables>
     {
-        public DxfTables()
-            : base()
+        public DxfTables(DxfAcadVer version, int id)
+            : base(version, id)
         {
         }
 
@@ -29,72 +29,90 @@ namespace CanvasDiagramEditor.Dxf.Tables
             return this;
         }
 
-        public DxfTables Add(DxfTable table)
+        public DxfTables Add<T>(T table)
         {
             Append(table.ToString());
             return this;
         }
 
-        public DxfTables AddDimstyleTable(IEnumerable<DxfDimstyle> dimstyles)
+        public DxfTables Add<T>(IEnumerable<T> tables)
         {
-            BeginDimstyles(dimstyles.Count());
-            Add(dimstyles.Cast<DxfObject>());
+            foreach (var table in tables)
+            {
+                Add(table);
+            }
+
+            return this;
+        }
+
+        public DxfTables AddDimstyleTable(IEnumerable<DxfDimstyle> dimstyles, int id)
+        {
+            BeginDimstyles(dimstyles.Count(), id);
+            Add(dimstyles);
             EndDimstyles();
             return this;
         }
 
-        public DxfTables AddAppidTable(IEnumerable<DxfAppid> appids)
+        public DxfTables AddAppidTable(IEnumerable<DxfAppid> appids, int id)
         {
-            BeginAppids(appids.Count());
-            Add(appids.Cast<DxfObject>());
+            BeginAppids(appids.Count(), id);
+            Add(appids);
             EndAppids();
             return this;
         }
 
-        public DxfTables AddLtypeTable(IEnumerable<DxfLtype> ltypes)
+        public DxfTables AddBlockRecordTable(IEnumerable<DxfBlockRecord> records, int id)
         {
-            BeginLtypes(ltypes.Count());
-            Add(ltypes.Cast<DxfObject>());
+            BeginBlockRecords(records.Count(), id);
+            Add(records);
+            EndBlockRecords();
+            return this;
+        }
+
+        public DxfTables AddLtypeTable(IEnumerable<DxfLtype> ltypes, int id)
+        {
+            BeginLtypes(ltypes.Count(), id);
+            Add(ltypes);
             EndLtypes();
             return this;
         }
 
-        public DxfTables AddLayerTable(IEnumerable<DxfLayer> layers)
+        public DxfTables AddLayerTable(IEnumerable<DxfLayer> layers, int id)
         {
-            BeginLayers(layers.Count());
-            Add(layers.Cast<DxfObject>());
+            BeginLayers(layers.Count(), id);
+            Add(layers);
             EndLayers();
             return this;
         }
 
-        public DxfTables AddStyleTable(IEnumerable<DxfStyle> styles)
+        public DxfTables AddStyleTable(IEnumerable<DxfStyle> styles, int id)
         {
-            BeginStyles(styles.Count());
-            Add(styles.Cast<DxfObject>());
+            BeginStyles(styles.Count(), id);
+            Add(styles);
             EndStyles();
             return this;
         }
 
-        public DxfTables AddUcsTable(IEnumerable<DxfUcs> ucss)
+        public DxfTables AddUcsTable(IEnumerable<DxfUcs> ucss, int id)
         {
-            BeginUcss(ucss.Count());
-            Add(ucss.Cast<DxfObject>());
+            BeginUcss(ucss.Count(), id);
+            Add(ucss);
             EndUcss();
             return this;
         }
 
-        public DxfTables AddViewTable(IEnumerable<DxfView> views)
+        public DxfTables AddViewTable(IEnumerable<DxfView> views, int id)
         {
-            BeginViews(views.Count());
-            Add(views.Cast<DxfObject>());
+            BeginViews(views.Count(), id);
+            Add(views);
             EndViews();
             return this;
         }
 
-        public DxfTables AddVportTable(IEnumerable<DxfVport> vports)
+        public DxfTables AddVportTable(IEnumerable<DxfVport> vports, int id)
         {
-            BeginVports(vports.Count());
-            Add(vports.Cast<DxfObject>());
+            BeginVports(vports.Count(), id);
+            Add(vports);
             EndVports();
             return this;
         }
@@ -105,9 +123,15 @@ namespace CanvasDiagramEditor.Dxf.Tables
             return this;
         }
 
-        private void BeginDimstyles(int count)
+        private void BeginDimstyles(int count, int id)
         {
-            BeginTable("DIMSTYLE", count);
+            BeginTable("DIMSTYLE", count, id);
+
+            if (Version > DxfAcadVer.AC1009)
+            {
+                Subclass("AcDbDimStyleTable");
+                Add("71", count);
+            }
         }
 
         private void EndDimstyles()
@@ -115,9 +139,9 @@ namespace CanvasDiagramEditor.Dxf.Tables
             EndTable();
         }
 
-        private void BeginAppids(int count)
+        private void BeginAppids(int count, int id)
         {
-            BeginTable("APPID", count);
+            BeginTable("APPID", count, id);
         }
 
         private void EndAppids()
@@ -125,9 +149,19 @@ namespace CanvasDiagramEditor.Dxf.Tables
             EndTable();
         }
 
-        private void BeginLtypes(int count)
+        private void BeginBlockRecords(int count, int id)
         {
-            BeginTable("LTYPE", count);
+            BeginTable("BLOCK_RECORD", count, id);
+        }
+
+        private void EndBlockRecords()
+        {
+            EndTable();
+        }
+
+        private void BeginLtypes(int count, int id)
+        {
+            BeginTable("LTYPE", count, id);
         }
 
         private void EndLtypes()
@@ -135,9 +169,9 @@ namespace CanvasDiagramEditor.Dxf.Tables
             EndTable();
         }
 
-        private void BeginLayers(int count)
+        private void BeginLayers(int count, int id)
         {
-            BeginTable("LAYER", count);
+            BeginTable("LAYER", count, id);
         }
 
         private void EndLayers()
@@ -145,9 +179,9 @@ namespace CanvasDiagramEditor.Dxf.Tables
             EndTable();
         }
 
-        private void BeginStyles(int count)
+        private void BeginStyles(int count, int id)
         {
-            BeginTable("STYLE", count);
+            BeginTable("STYLE", count, id);
         }
 
         private void EndStyles()
@@ -155,9 +189,9 @@ namespace CanvasDiagramEditor.Dxf.Tables
             EndTable();
         }
 
-        private void BeginUcss(int count)
+        private void BeginUcss(int count, int id)
         {
-            BeginTable("UCS", count);
+            BeginTable("UCS", count, id);
         }
 
         private void EndUcss()
@@ -165,9 +199,9 @@ namespace CanvasDiagramEditor.Dxf.Tables
             EndTable();
         }
 
-        private void BeginViews(int count)
+        private void BeginViews(int count, int id)
         {
-            BeginTable("VIEW", count);
+            BeginTable("VIEW", count, id);
         }
 
         private void EndViews()
@@ -175,9 +209,9 @@ namespace CanvasDiagramEditor.Dxf.Tables
             EndTable();
         }
 
-        private void BeginVports(int count)
+        private void BeginVports(int count, int id)
         {
-            BeginTable("VPORT", count);
+            BeginTable("VPORT", count, id);
         }
 
         private void EndVports()
@@ -185,23 +219,17 @@ namespace CanvasDiagramEditor.Dxf.Tables
             EndTable();
         }
 
-        private void Add(DxfObject obj)
-        {
-            Append(obj.ToString());
-        }
-
-        private void Add(IEnumerable<DxfObject> objects)
-        {
-            foreach (var obj in objects)
-            {
-                Add(obj);
-            }
-        }
-
-        private void BeginTable(string name, int count)
+        private void BeginTable(string name, int count, int id)
         {
             Add("0", "TABLE");
             Add("2", name);
+
+            if (Version > DxfAcadVer.AC1009)
+            {
+                Handle(id);
+                Subclass("AcDbSymbolTable");
+            }
+
             Add("70", count);
         }
 

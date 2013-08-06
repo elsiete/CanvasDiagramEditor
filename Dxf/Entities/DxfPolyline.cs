@@ -15,10 +15,10 @@ namespace CanvasDiagramEditor.Dxf.Entities
 {
     #region DxfPolyline
 
-    public class DxfPolyline : DxfEntity
+    public class DxfPolyline : DxfObject<DxfPolyline>
     {
-        public DxfPolyline()
-            : base()
+        public DxfPolyline(DxfAcadVer version, int id)
+            : base(version, id)
         {
         }
     }

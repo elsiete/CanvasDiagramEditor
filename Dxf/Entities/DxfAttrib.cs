@@ -16,12 +16,17 @@ namespace CanvasDiagramEditor.Dxf.Entities
 {
     #region DxfAttrib
 
-    public class DxfAttrib : DxfEntity
+    public class DxfAttrib : DxfObject<DxfAttrib>
     {
-        public DxfAttrib()
-            : base()
+        public DxfAttrib(DxfAcadVer version, int id)
+            : base(version, id)
         {
             Add("0", "ATTRIB");
+
+            if (Version > DxfAcadVer.AC1009)
+            {
+                Subclass("AcDbText");
+            }
         }
 
         public DxfAttrib Layer(string layer)
@@ -44,6 +49,11 @@ namespace CanvasDiagramEditor.Dxf.Entities
 
         public DxfAttrib Tag(string tag)
         {
+            if (Version > DxfAcadVer.AC1009)
+            {
+                Subclass("AcDbAttribute");
+            }
+
             Add("2", tag);
             return this;
         }

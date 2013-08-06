@@ -18,17 +18,11 @@ namespace CanvasDiagramEditor.Dxf
 {
     #region DxfFile
 
-    public class DxfFile : DxfObject
+    public class DxfFile : DxfObject<DxfFile>
     {
-        public DxfFile()
-            : base()
+        public DxfFile(DxfAcadVer version, int id)
+            : base(version, id)
         {
-        }
-
-        public DxfFile Comment(string comment)
-        {
-            Add("999", comment);
-            return this;
         }
 
         public DxfFile Header(DxfHeader header)

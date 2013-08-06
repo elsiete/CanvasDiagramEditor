@@ -16,12 +16,19 @@ namespace CanvasDiagramEditor.Dxf.Tables
 {
     #region DxfView
 
-    public class DxfView : DxfObject
+    public class DxfView : DxfObject<DxfView>
     {
-        public DxfView()
-            : base()
+        public DxfView(DxfAcadVer version, int id)
+            : base(version, id)
         {
             Add("0", "VIEW");
+
+            if (version > DxfAcadVer.AC1009)
+            {
+                Handle(id);
+                Subclass("AcDbSymbolTableRecord");
+                Subclass("AcDbViewTableRecord");
+            }
         }
 
         public DxfView Name(string name)

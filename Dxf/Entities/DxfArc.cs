@@ -15,10 +15,10 @@ namespace CanvasDiagramEditor.Dxf.Entities
 {
     #region DxfArc
 
-    public class DxfArc : DxfEntity
+    public class DxfArc : DxfObject<DxfArc>
     {
-        public DxfArc()
-            : base()
+        public DxfArc(DxfAcadVer version, int id)
+            : base(version, id)
         {
         }
     }

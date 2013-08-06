@@ -15,10 +15,10 @@ namespace CanvasDiagramEditor.Dxf.Entities
 {
     #region DxfViewport
 
-    public class DxfViewport : DxfEntity
+    public class DxfViewport : DxfObject<DxfViewport>
     {
-        public DxfViewport()
-            : base()
+        public DxfViewport(DxfAcadVer version, int id)
+            : base(version, id	)
         {
         }
     }

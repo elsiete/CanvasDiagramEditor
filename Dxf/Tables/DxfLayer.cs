@@ -16,35 +16,57 @@ namespace CanvasDiagramEditor.Dxf.Tables
 {
     #region DxfLayer
 
-    public class DxfLayer : DxfObject
+    public class DxfLayer : DxfObject<DxfLayer>
     {
-        public DxfLayer()
-            : base()
+        public string Name { get; set; }
+        public DxfLayerStandardFlags LayerStandardFlags { get; set; }
+        public int Color { get; set; }
+        public string LineType { get; set; }
+        public bool PlottingFlag { get; set; }
+        public LineWeight LineWeight { get; set; }
+        public string PlotStyleNameHandle { get; set; }
+
+        public DxfLayer(DxfAcadVer version, int id)
+            : base(version, id)
         {
-            Add("0", "LAYER");
         }
 
-        public DxfLayer Name(string name)
+        public DxfLayer Defaults()
         {
-            Add("2", name);
+            Name = string.Empty;
+            LayerStandardFlags = DxfLayerStandardFlags.Default;
+            Color = 0;
+            LineType = string.Empty;
+            PlottingFlag = true;
+            LineWeight = LineWeight.LnWtByLwDefault;
+            PlotStyleNameHandle = "0";
+
             return this;
         }
 
-        public DxfLayer StandardFlags(DxfLayerFlags flags)
+        public DxfLayer Create()
         {
-            Add("70", (int)flags);
-            return this;
-        }
+            Add(0, CodeName.Layer);
 
-        public DxfLayer Color(int number)
-        {
-            Add("62", number);
-            return this;
-        }
+            if (Version > DxfAcadVer.AC1009)
+            {
+                Handle(Id);
+                Subclass(SubclassMarker.SymbolTableRecord);
+                Subclass(SubclassMarker.LayerTableRecord);
+            }
 
-        public DxfLayer LineType(string name)
-        {
-            Add("6", name);
+            Add(2, Name);
+            Add(70, (int)LayerStandardFlags);
+            Add(62, Color);
+            Add(6, LineType);
+
+            if (Version > DxfAcadVer.AC1009)
+            {
+                Add(290, PlottingFlag);
+                Add(370, (int)LineWeight);
+                Add(390, PlotStyleNameHandle);
+            }
+
             return this;
         }
     }

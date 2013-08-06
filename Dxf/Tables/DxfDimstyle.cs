@@ -15,10 +15,10 @@ namespace CanvasDiagramEditor.Dxf.Tables
 {
     #region DxfDimstyle
 
-    public class DxfDimstyle : DxfObject
+    public class DxfDimstyle : DxfObject<DxfDimstyle>
     {
-        public DxfDimstyle()
-            : base()
+        public DxfDimstyle(DxfAcadVer version, int id)
+            : base(version, id)
         {
         }
     }

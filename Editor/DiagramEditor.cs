@@ -3,6 +3,8 @@
 
 #region References
 
+using CanvasDiagramEditor.Dxf;
+using CanvasDiagramEditor.Dxf.Core;
 using CanvasDiagramEditor.Core;
 using CanvasDiagramEditor.Controls;
 using CanvasDiagramEditor.Parser;
@@ -1774,7 +1776,7 @@ namespace CanvasDiagramEditor.Editor
                 Tags = CurrentOptions.Tags
             };
 
-            return dxf.GenerateDxf(model);
+            return dxf.GenerateDxf(model, DxfAcadVer.AC1009);
         }
 
         private void DxfSave(string fileName, string model)

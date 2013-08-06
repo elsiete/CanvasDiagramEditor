@@ -13,6 +13,18 @@ using System.Text;
 
 namespace CanvasDiagramEditor.Dxf.Entities
 {
+    #region DxfLwpolyline
+
+    public class DxfLwpolyline : DxfObject<DxfLwpolyline>
+    {
+        public DxfLwpolyline(DxfAcadVer version, int id)
+            : base(version, id)
+        {
+        }
+    }
+
+    #endregion
+
     /*
     #region DxfLwpolylineVertex
 
@@ -147,15 +159,4 @@ namespace CanvasDiagramEditor.Dxf.Entities
     #endregion
     */
 
-    #region DxfLwpolyline
-
-    public class DxfLwpolyline : DxfEntity
-    {
-        public DxfLwpolyline()
-            : base()
-        {
-        }
-    }
-
-    #endregion
 }

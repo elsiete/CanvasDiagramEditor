@@ -16,12 +16,17 @@ namespace CanvasDiagramEditor.Dxf.Entities
 {
     #region DxfText
 
-    public class DxfText : DxfEntity
+    public class DxfText : DxfObject<DxfText>
     {
-        public DxfText()
-            : base()
+        public DxfText(DxfAcadVer version, int id)
+            : base(version, id)
         {
             Add("0", "TEXT");
+
+            if (Version > DxfAcadVer.AC1009)
+            {
+                Subclass("AcDbText");
+            }
         }
 
         public DxfText Layer(string layer)
@@ -110,11 +115,14 @@ namespace CanvasDiagramEditor.Dxf.Entities
 
         public DxfText VerticalTextJustification(DxfVerticalTextJustification justification)
         {
+            if (Version > DxfAcadVer.AC1009)
+            {
+                Subclass("AcDbText");
+            }
+            
             Add("73", (int)justification);
             return this;
         }
-
-
     } 
     
     #endregion

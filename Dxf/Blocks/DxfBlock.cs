@@ -16,29 +16,39 @@ namespace CanvasDiagramEditor.Dxf.Blocks
 {
     #region DxfBlock
 
-    public class DxfBlock : DxfObject
+    public class DxfBlock : DxfObject<DxfBlock>
     {
-        public DxfBlock()
-            : base()
+        public DxfBlock(DxfAcadVer version, int id)
+            : base(version, id)
         {
         }
 
-        public DxfBlock Begin()
+        public DxfBlock Begin(string name, string layer)
         {
             Add("0", "BLOCK");
+
+            if (Version > DxfAcadVer.AC1009)
+            {
+                Handle(Id);
+                Subclass("AcDbEntity");
+            }
+
+            Add("8", layer);
+
+            if (Version > DxfAcadVer.AC1009)
+            {
+                Subclass("AcDbBlockBegin");
+            }
+
+            Add("2", name);
+            Add("3", name);
+
             return this;
         }
 
         public DxfBlock XrefPath(string name)
         {
             Add("1", name);
-            return this;
-        }
-
-        public DxfBlock Name(string name)
-        {
-            Add("2", name);
-            Add("3", name);
             return this;
         }
 
@@ -56,15 +66,24 @@ namespace CanvasDiagramEditor.Dxf.Blocks
             return this;
         }
 
-        public DxfBlock Add(DxfObject obj)
+        public DxfBlock Add<T>(T entity)
         {
-            Append(obj.ToString());
+            Append(entity.ToString());
             return this;
         }
 
-        public DxfBlock End()
+        public DxfBlock End(int id, string layer)
         {
             Add("0", "ENDBLK");
+
+            if (Version > DxfAcadVer.AC1009)
+            {
+                Handle(id);
+                Subclass("AcDbEntity");
+                Add("8", layer);
+                Subclass("AcDbBlockEnd");
+            }
+
             return this;
         }
     }

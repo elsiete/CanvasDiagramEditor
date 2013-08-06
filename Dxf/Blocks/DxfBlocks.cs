@@ -15,10 +15,10 @@ namespace CanvasDiagramEditor.Dxf.Blocks
 {
     #region DxfBlocks
 
-    public class DxfBlocks : DxfObject
+    public class DxfBlocks : DxfObject<DxfBlocks>
     {
-        public DxfBlocks()
-            : base()
+        public DxfBlocks(DxfAcadVer version, int id)
+            : base(version, id)
         {
         }
 
@@ -32,6 +32,16 @@ namespace CanvasDiagramEditor.Dxf.Blocks
         public DxfBlocks Add(DxfBlock block)
         {
             Append(block.ToString());
+            return this;
+        }
+
+        public DxfBlocks Add(IEnumerable<DxfBlock> blocks)
+        {
+            foreach (var block in blocks)
+            {
+                Add(block);
+            }
+
             return this;
         }
 

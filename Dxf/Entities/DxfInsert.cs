@@ -16,12 +16,17 @@ namespace CanvasDiagramEditor.Dxf.Entities
 {
     #region DxfInsert
 
-    public class DxfInsert : DxfEntity
+    public class DxfInsert : DxfObject<DxfInsert>
     {
-        public DxfInsert()
-            : base()
+        public DxfInsert(DxfAcadVer version, int id)
+            : base(version, id)
         {
             Add("0", "INSERT");
+
+            if (Version > DxfAcadVer.AC1009)
+            {
+                Subclass("AcDbLine");
+            }
         }
 
         public DxfInsert Block(string name)

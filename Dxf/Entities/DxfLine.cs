@@ -15,53 +15,55 @@ namespace CanvasDiagramEditor.Dxf.Entities
 {
     #region DxfLine
 
-    public class DxfLine : DxfEntity
+    public class DxfLine : DxfObject<DxfLine>
     {
-        public DxfLine()
-            : base()
+        public string Layer { get; set; }
+        public string Color { get; set; }
+        public double Thickness { get; set; }
+        public Vector3 StartPoint { get; set; }
+        public Vector3 EndPoint { get; set; }
+        public Vector3 ExtrusionDirection { get; set; }
+
+        public DxfLine(DxfAcadVer version, int id)
+            : base(version, id)
         {
-            Add("0", "LINE");
         }
 
-        public DxfLine Layer(string layer)
+        public DxfLine Defaults()
         {
-            Add("8", layer);
+            Layer = "0";
+            Color = "0";
+            Thickness = 0.0;
+            StartPoint = new Vector3(0.0, 0.0, 0.0);
+            EndPoint = new Vector3(0.0, 0.0, 0.0);
+            ExtrusionDirection = new Vector3(0.0, 0.0, 1.0);
+
             return this;
         }
 
-        public DxfLine Color(string color)
+        public DxfLine Create()
         {
-            Add("62", color);
-            return this;
-        }
+            Add(0, CodeName.Line);
 
-        public DxfLine Thickness(double thickness)
-        {
-            Add("39", thickness);
-            return this;
-        }
+            if (Version > DxfAcadVer.AC1009)
+                Subclass(SubclassMarker.Line);
 
-        public DxfLine Start(Vector3 point)
-        {
-            Add("10", point.X);
-            Add("20", point.Y);
-            Add("30", point.Z);
-            return this;
-        }
+            Add(8, Layer);
+            Add(62, Color);
+            Add(39, Thickness);
 
-        public DxfLine End(Vector3 point)
-        {
-            Add("11", point.X);
-            Add("21", point.Y);
-            Add("31", point.Z);
-            return this;
-        }
+            Add(10, StartPoint.X);
+            Add(20, StartPoint.Y);
+            Add(30, StartPoint.Z);
 
-        public DxfLine Extrusion(Vector3 direction)
-        {
-            Add("210", direction.X);
-            Add("220", direction.Y);
-            Add("230", direction.Z);
+            Add(11, EndPoint.X);
+            Add(21, EndPoint.Y);
+            Add(31, EndPoint.Z);
+            
+            Add(210, ExtrusionDirection.X);
+            Add(220, ExtrusionDirection.Y);
+            Add(230, ExtrusionDirection.Z);
+
             return this;
         }
     } 

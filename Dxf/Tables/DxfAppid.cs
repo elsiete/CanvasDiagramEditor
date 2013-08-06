@@ -16,12 +16,19 @@ namespace CanvasDiagramEditor.Dxf.Tables
 {
     #region DxfAppid
 
-    public class DxfAppid : DxfObject
+    public class DxfAppid : DxfObject<DxfAppid>
     {
-        public DxfAppid()
-            : base()
+        public DxfAppid(DxfAcadVer version, int id)
+            : base(version, id  )
         {
             Add("0", "APPID");
+
+            if (version > DxfAcadVer.AC1009)
+            {
+                Handle(id);
+                Subclass("AcDbSymbolTableRecord");
+                Subclass("AcDbRegAppTableRecord");
+            }
         }
 
         public DxfAppid Application(string name)
