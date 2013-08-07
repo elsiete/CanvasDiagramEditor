@@ -7,6 +7,10 @@ $ACADVER
 1
 AC1015
 9
+$DWGCODEPAGE
+3
+ANSI_1250
+9
 $EXTMAX
 10
 1260
@@ -520,6 +524,12 @@ Standard
 arial.ttf
 4
 
+1001
+ACAD
+1000
+Arial
+1071
+0
 0
 STYLE
 5
@@ -546,6 +556,12 @@ TextFrameHeaderSmall
 arial.ttf
 4
 
+1001
+ACAD
+1000
+Arial
+1071
+0
 0
 STYLE
 5
@@ -572,6 +588,12 @@ TextFrameHeaderLarge
 arial.ttf
 4
 
+1001
+ACAD
+1000
+Arial
+1071
+0
 0
 STYLE
 5
@@ -598,6 +620,12 @@ TextFrameNumber
 arial.ttf
 4
 
+1001
+ACAD
+1000
+Arial
+1071
+0
 0
 STYLE
 5
@@ -624,6 +652,12 @@ TextTableHeader
 arial.ttf
 4
 
+1001
+ACAD
+1000
+Arial
+1071
+0
 0
 STYLE
 5
@@ -650,6 +684,12 @@ TextTableTag
 arial.ttf
 4
 
+1001
+ACAD
+1000
+Arial
+1071
+0
 0
 STYLE
 5
@@ -676,6 +716,12 @@ TextElementGate
 arial.ttf
 4
 
+1001
+ACAD
+1000
+Arial
+1071
+0
 0
 STYLE
 5
@@ -702,6 +748,12 @@ TextElementIO
 arial.ttf
 4
 
+1001
+ACAD
+1000
+Arial
+1071
+0
 0
 ENDTAB
 0
