@@ -6,7 +6,6 @@
 using CanvasDiagramEditor.Core;
 using CanvasDiagramEditor.Controls;
 using CanvasDiagramEditor.Editor;
-using CanvasDiagramEditor.Parser;
 using CanvasDiagramEditor.Util;
 using System;
 using System.Collections.Generic;
@@ -1613,7 +1612,7 @@ namespace CanvasDiagramEditor
 
             window.Html.NavigateToString(html);
 
-            window.ShowDialog();
+            window.Show();
         }
 
         public void InspectDxf()
@@ -1658,21 +1657,51 @@ namespace CanvasDiagramEditor
             DxfTag tag = null;
             bool previousName = false;
             //bool haveCodeEntityType = false;
+            bool haveSection = false;
 
-            sb.AppendLine(@"<html><head>");
-            sb.AppendLine(@"<style>");
-            sb.AppendLine(@"body { background-color:#DDDDDD; }");
-            sb.AppendLine(@"dl,dt,dd { font-family: Arial; font-size:10pt; width:100%; }");
-            sb.AppendLine(@"dl { font-weight:normal; margin:0.0cm 0.0cm 0.0cm 0.0cm; background-color:#DDDDDD; }");
-            sb.AppendLine(@"dt { font-weight:bold; }");
-            sb.AppendLine(@"dt.section { margin:0.0cm 0.0cm 0.0cm 0.0cm; background-color:rgb(255,242,102); }");
-            sb.AppendLine(@"dt.other { margin:0.0cm 0.0cm 0.0cm 1.5cm; background-color:rgb(191,191,191); }");
-            sb.AppendLine(@"dd { font-weight:normal; margin:0.0cm 0.0cm 0.0cm 1.5cm; background-color:#DDDDDD; }");
-            sb.AppendLine(@"code.code{ width:1.2cm; text-align:right; color:#747474; }");
-            sb.AppendLine(@"code.data{ margin:0.0cm 0.0cm 0.0cm 0.3cm; text-align:left; color:#000000; }");
-            sb.AppendLine(@"</style>");
-            sb.AppendLine(@"</head><body>");
-            sb.AppendLine(@"<dl>");
+            sb.AppendLine("<html><head>");
+
+            sb.AppendFormat("<title>{0}</title>{1}", System.IO.Path.GetFileName(fileName), Environment.NewLine);
+            sb.AppendFormat("<meta charset=\"utf-8\"/>");
+
+            sb.AppendLine("<style>");
+            sb.AppendLine("body { background-color:rgb(221,221,221); }");
+            sb.AppendLine("dl,dt,dd { font-family: Arial; font-size:10pt; width:100%; }");
+            sb.AppendLine("dl { font-weight:normal; margin:0.0cm 0.0cm 0.0cm 0.0cm; background-color:rgb(221,221,221); }");
+            
+            sb.AppendLine("dt { font-weight:bold; }");
+            sb.AppendLine("dt.header { margin:0.0cm 0.0cm 0.0cm 0.0cm; background-color:rgb(255,30,102); }");
+            sb.AppendLine("dt.section { margin:0.0cm 0.0cm 0.0cm 0.0cm; background-color:rgb(255,242,102); }");
+            sb.AppendLine("dt.other { margin:0.0cm 0.0cm 0.0cm 0.0cm; background-color:rgb(191,191,191); }");
+            
+            sb.AppendLine("dd { font-weight:normal; margin:0.0cm 0.0cm 0.0cm 0.0cm; background-color:rgb(221,221,221); }");
+
+            sb.AppendLine("code.lineHeader { width:2.0cm; text-align:Left; color:rgb(0,0,0); }");
+            sb.AppendLine("code.codeHeader { width:1.2cm; text-align:right; color:rgb(0,0,0); }");
+            sb.AppendLine("code.dataHeader { margin:0.0cm 0.0cm 0.0cm 0.5cm; text-align:left; color:rgb(0,0,0); }");
+
+            sb.AppendLine("code.line { width:2.0cm; text-align:Left; color:rgb(84,84,84); }");
+            sb.AppendLine("code.code { width:1.2cm; text-align:right; color:rgb(116,116,116); }");
+            sb.AppendLine("code.data { margin:0.0cm 0.0cm 0.0cm 0.5cm; text-align:left; color:rgb(0,0,0); }");
+
+
+            sb.AppendLine("div.container { clear:both; width:auto; display:inline-block; zoom: 1;*display: inline; height:0.0cm; vertical-align:top; overflow:auto; }");
+            sb.AppendLine("div.header { margin:0.2cm; }");
+            sb.AppendLine("div.content { margin:0.2cm; width:10.0cm; float:left; }");
+            sb.AppendLine("div.footer { margin:0.2cm;clear:both;text-align:center; }");
+
+            sb.AppendLine("h1.header { margin-bottom:0; }");
+
+            sb.AppendLine("</style>");
+            sb.AppendLine("</head><body>");
+
+            sb.AppendLine("<div class=\"container\">");
+            sb.AppendLine("<div class=\"header\">");
+            sb.AppendFormat("<h1 class=\"header\">{0}</h1></div>{1}", 
+                System.IO.Path.GetFileName(fileName), 
+                Environment.NewLine);
+
+            sb.AppendLine("<dl>");
 
             using (var reader = new System.IO.StreamReader(fileName))
             {
@@ -1685,6 +1714,11 @@ namespace CanvasDiagramEditor
                     StringSplitOptions.RemoveEmptyEntries);
 
                 string[] entity = new string[2] { null, null };
+                int lineNumber = 0;
+
+                // header
+                //sb.AppendFormat("<dt class=\"header\"><code class=\"lineHeader\">LINE</code><code class=\"codeHeader\">CODE</code><code class=\"dataHeader\">DATA</code></dt>{0}",
+                //   Environment.NewLine);
 
                 foreach (var line in lines)
                 {
@@ -1696,13 +1730,28 @@ namespace CanvasDiagramEditor
                         tag.Data = str;
                         tags.Add(tag);
 
-                        string entityClass = str == HeaderSection ? "section" : "other";
+                        bool isHeaderSection = str == HeaderSection;
+                        string entityClass = isHeaderSection == true ? "section" : "other";
 
-                        sb.AppendFormat("<dt class=\"{3}\"><code class=\"code\">{0}:</code><code class=\"data\">{1}</code></dt>{2}",
+                        if (haveSection == true && isHeaderSection == true)
+                        {
+                            sb.AppendFormat("</div>");
+                            haveSection = false;
+                        }
+
+                        if (haveSection == false &&  isHeaderSection == true)
+                        {
+                            haveSection = true;
+                            sb.AppendFormat("<div class=\"content\">");
+                            sb.AppendFormat("<dt class=\"header\"><code class=\"lineHeader\">LINE</code><code class=\"codeHeader\">CODE</code><code class=\"dataHeader\">DATA</code></dt>{0}", Environment.NewLine);
+                        }
+
+                        sb.AppendFormat("<dt class=\"{3}\"><code class=\"line\">{4}</code><code class=\"code\">{0}:</code><code class=\"data\">{1}</code></dt>{2}",
                             tag.Code,
                             tag.Data,
                             Environment.NewLine,
-                            entityClass);
+                            entityClass,
+                            lineNumber);
 
                         //haveCodeEntityType = true;
 
@@ -1726,10 +1775,10 @@ namespace CanvasDiagramEditor
                             {
                                 entity[1] = str;
 
-                                sb.AppendFormat("<dd><code class=\"code\">{0}:</code><code class=\"data\">{1}</code></dd>{2}",
+                                sb.AppendFormat("<dd><code class=\"line\">{3}</code><code class=\"code\">{0}:</code><code class=\"data\">{1}</code></dd>{2}",
                                     entity[0],
                                     entity[1],
-                                    Environment.NewLine);
+                                    Environment.NewLine,lineNumber);
 
                                 // entity Name
                                 previousName = entity[0] == CodeName;
@@ -1741,10 +1790,22 @@ namespace CanvasDiagramEditor
                             }
                         }
                     }
+
+                    lineNumber++;
                 }
             }
 
-            sb.AppendLine(@"</dl></body></html>");
+            if (haveSection == true)
+            {
+                sb.AppendFormat("</div>");
+            }
+
+            sb.AppendLine(@"</dl>");
+
+            sb.AppendLine("<div class=\"footer\">Copyright (C) Wiesław Šoltés 2013. All Rights Reserved</div>");
+            sb.AppendLine("</div>");
+
+            sb.AppendLine("</body></html>");
 
             return sb.ToString();
         } 

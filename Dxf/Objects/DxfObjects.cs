@@ -1,4 +1,4 @@
-﻿// Copyright (C) Wiesław Šoltés 2013. 
+// Copyright (C) Wiesław Šoltés 2013. 
 // All Rights Reserved
 
 #region References
@@ -12,41 +12,41 @@ using System.Text;
 
 #endregion
 
-namespace CanvasDiagramEditor.Dxf.Entities
+namespace CanvasDiagramEditor.Dxf.Objects
 {
-    #region DxfEntities
+    #region DxfObjects
 
-    public class DxfEntities : DxfObject<DxfEntities>
+    public class DxfObjects : DxfObject<DxfObjects>
     {
-        public DxfEntities(DxfAcadVer version, int id)
+        public DxfObjects(DxfAcadVer version, int id)
             : base(version, id)
         {
         }
 
-        public DxfEntities Begin()
+        public DxfObjects Begin()
         {
             Add("0", "SECTION");
-            Add("2", "ENTITIES");
+            Add("2", "OBJECTS");
             return this;
         }
 
-        public DxfEntities Add<T>(T entity)
+        public DxfObjects Add<T>(T obj)
         {
-            Append(entity.ToString());
+            Append(obj.ToString());
             return this;
         }
 
-        public DxfEntities Add<T>(IEnumerable<T> entities)
+        public DxfObjects Add<T>(IEnumerable<T> objects)
         {
-            foreach (var entity in entities)
+            foreach (var obj in objects)
             {
-                Add(entity);
+                Add(obj);
             }
 
             return this;
         }
 
-        public DxfEntities End()
+        public DxfObjects End()
         {
             Add("0", "ENDSEC");
             return this;

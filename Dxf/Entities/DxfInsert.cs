@@ -23,9 +23,11 @@ namespace CanvasDiagramEditor.Dxf.Entities
         {
             Add("0", "INSERT");
 
+            Entity();
+
             if (Version > DxfAcadVer.AC1009)
             {
-                Subclass("AcDbLine");
+                Subclass(SubclassMarker.BlockReference);
             }
         }
 
@@ -99,9 +101,18 @@ namespace CanvasDiagramEditor.Dxf.Entities
             return this;
         }
 
-        public DxfInsert AttributesEnd()
+        public DxfInsert AttributesEnd(int id, string layer)
         {
             Add("0", "SEQEND");
+
+            if (Version > DxfAcadVer.AC1009)
+            {
+                Handle(id);
+                Subclass(SubclassMarker.Entity);
+                Add("8", layer);
+            }
+
+
             return this;
         }
     }

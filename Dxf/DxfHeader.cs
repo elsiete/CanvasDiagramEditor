@@ -4,6 +4,7 @@
 #region References
 
 using CanvasDiagramEditor.Dxf.Core;
+using CanvasDiagramEditor.Dxf.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -718,9 +719,16 @@ Add(70, 0);
             return this;
         }
 
-        public DxfHeader End()
+        public DxfHeader End(int nextAvailableHandle)
         {
+            if (Version > DxfAcadVer.AC1009)
+            {
+                VarName("$HANDSEED");
+                Add(5, nextAvailableHandle.ToDxfHandle());
+            }
+
             Add("0", "ENDSEC");
+
             return this;
         }
     }

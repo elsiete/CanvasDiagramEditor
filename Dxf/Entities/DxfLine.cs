@@ -4,6 +4,7 @@
 #region References
 
 using CanvasDiagramEditor.Dxf.Core;
+using CanvasDiagramEditor.Dxf.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,6 +45,8 @@ namespace CanvasDiagramEditor.Dxf.Entities
         public DxfLine Create()
         {
             Add(0, CodeName.Line);
+
+            Entity();
 
             if (Version > DxfAcadVer.AC1009)
                 Subclass(SubclassMarker.Line);

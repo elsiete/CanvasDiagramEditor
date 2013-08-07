@@ -10,7 +10,7 @@ using System.Text;
 
 #endregion
 
-namespace CanvasDiagramEditor.Parser
+namespace CanvasDiagramEditor.Core
 {
     #region DiagramProperties
 

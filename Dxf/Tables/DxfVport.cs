@@ -4,6 +4,7 @@
 #region References
 
 using CanvasDiagramEditor.Dxf.Core;
+using CanvasDiagramEditor.Dxf.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,9 +18,36 @@ namespace CanvasDiagramEditor.Dxf.Tables
 
     public class DxfVport : DxfObject<DxfVport>
     {
+        public string Name { get; set; }
+        public DxfVportStandardFlags VportStandardFlags { get; set; }
+
         public DxfVport(DxfAcadVer version, int id)
             : base(version, id)
         {
+        }
+
+        public DxfVport Defaults()
+        {
+            Name = string.Empty;
+            VportStandardFlags = DxfVportStandardFlags.Default;
+            return this;
+        }
+
+        public DxfVport Create()
+        {
+            Add(0, CodeName.Vport);
+
+            if (Version > DxfAcadVer.AC1009)
+            {
+                Handle(Id);
+                Subclass(SubclassMarker.SymbolTableRecord);
+                Subclass(SubclassMarker.ViewportTableRecord);
+            }
+
+            Add(2, Name);
+            Add(70, (int)VportStandardFlags);
+
+            return this;
         }
     }
 

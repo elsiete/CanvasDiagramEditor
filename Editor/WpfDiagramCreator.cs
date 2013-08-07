@@ -5,7 +5,6 @@
 
 using CanvasDiagramEditor.Core;
 using CanvasDiagramEditor.Controls;
-using CanvasDiagramEditor.Parser;
 using CanvasDiagramEditor.Util;
 using System;
 using System.Collections.Generic;

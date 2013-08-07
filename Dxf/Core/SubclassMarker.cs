@@ -19,10 +19,22 @@ namespace CanvasDiagramEditor.Dxf.Core
         public const string Line = "AcDbLine";
         public const string BlockTableRecord = "AcDbBlockTableRecord";
         public const string LayerTableRecord = "AcDbLayerTableRecord";
+
+        public const string ViewportTableRecord = "AcDbViewportTableRecord";
+        public const string DimStyleTableRecord = "AcDbDimStyleTableRecord";
+
         public const string UCSTableRecord = "AcDbUCSTableRecord";
         public const string SymbolTableRecord = "AcDbSymbolTableRecord";
 
-    } 
+        public const string Dictionary = "AcDbDictionary";
+
+        public const string Entity = "AcDbEntity";
+
+
+        public const string BlockEnd = "AcDbBlockEnd";
+
+        public const string BlockReference = "AcDbBlockReference";
+    }
 
     #endregion
 }

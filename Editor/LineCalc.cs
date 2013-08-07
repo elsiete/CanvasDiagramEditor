@@ -11,7 +11,7 @@ using System.Windows;
 
 #endregion
 
-namespace CanvasDiagramEditor.Parser
+namespace CanvasDiagramEditor.Editor
 {
     #region LineCalc
 

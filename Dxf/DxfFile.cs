@@ -5,8 +5,11 @@
 
 using CanvasDiagramEditor.Dxf.Blocks;
 using CanvasDiagramEditor.Dxf.Core;
+using CanvasDiagramEditor.Dxf.Enums;
+using CanvasDiagramEditor.Dxf.Classes;
 using CanvasDiagramEditor.Dxf.Entities;
 using CanvasDiagramEditor.Dxf.Tables;
+using CanvasDiagramEditor.Dxf.Objects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,6 +34,12 @@ namespace CanvasDiagramEditor.Dxf
             return this;
         }
 
+        public DxfFile Classes(DxfClasses classes)
+        {
+            Append(classes.ToString());
+            return this;
+        }
+
         public DxfFile Tables(DxfTables tables)
         {
             Append(tables.ToString());
@@ -46,6 +55,12 @@ namespace CanvasDiagramEditor.Dxf
         public DxfFile Entities(DxfEntities entities)
         {
             Append(entities.ToString());
+            return this;
+        }
+
+        public DxfFile Objects(DxfObjects objects)
+        {
+            Append(objects.ToString());
             return this;
         }
 

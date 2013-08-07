@@ -12,9 +12,9 @@ using System.Text;
 
 namespace CanvasDiagramEditor.Dxf.Enums
 {
-    #region LineWeight
+    #region DxfLineWeight
 
-    public enum LineWeight : short
+    public enum DxfLineWeight : short
     {
         LnWt000 = 0,
         LnWt005 = 5,

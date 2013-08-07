@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 
 #endregion
 
-namespace CanvasDiagramEditor.Parser
+namespace CanvasDiagramEditor.Editor
 {
     #region Table
 

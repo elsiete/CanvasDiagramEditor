@@ -4,6 +4,7 @@
 #region References
 
 using CanvasDiagramEditor.Dxf.Core;
+using CanvasDiagramEditor.Dxf.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -4,7 +4,6 @@
 #region References
 
 using CanvasDiagramEditor.Core;
-using CanvasDiagramEditor.Parser;
 using CanvasDiagramEditor.Util;
 using System;
 using System.Collections.Generic;
@@ -149,7 +148,6 @@ namespace CanvasDiagramEditor.Editor
 
             if (tag == null)
             {
-                // MessageBox.Show("Tag is null.");
                 return;
             }
 

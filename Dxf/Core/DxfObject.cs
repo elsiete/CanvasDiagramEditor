@@ -3,6 +3,7 @@
 
 #region References
 
+using CanvasDiagramEditor.Dxf.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,34 +13,6 @@ using System.Text;
 
 namespace CanvasDiagramEditor.Dxf.Core
 {
-    #region DxfAcadVer
-
-    // DXF support status: 
-    // AC1006 - supported
-    // AC1009 - supported
-    // AC1012 - not supported
-    // AC1014 - not supported
-    // AC1015 - ?
-
-    // AutoCAD drawing database version number: 
-    // AC1006 = R10
-    // AC1009 = R11 and R12, 
-    // AC1012 = R13
-    // AC1014 = R14
-    // AC1015 = AutoCAD 2000
-
-    public enum DxfAcadVer : int
-    {
-        AC1006 = 0, // R10
-        AC1009 = 1, // R11 and R12
-        AC1012 = 2, // R13
-        AC1014 = 3, // R14
-        AC1015 = 4, // AutoCAD 2000
-        Default = AC1015
-    }
-
-    #endregion
-
     #region DxfObject
 
     public abstract class DxfObject<T> 
@@ -147,13 +120,32 @@ namespace CanvasDiagramEditor.Dxf.Core
 
         public virtual T Handle(int handle)
         {
-            Add("5", handle.ToString("X"));
+            Add("5", handle.ToDxfHandle());
             return this as T;
         }
 
         public virtual T Subclass(string subclass)
         {
             Add("100", subclass);
+            return this as T;
+        }
+
+        public virtual T Entity()
+        {
+            if (Version > DxfAcadVer.AC1009)
+            {
+                Add(5, Id.ToDxfHandle());
+                Add(100, SubclassMarker.Entity);
+            }
+
+            // TODO: unify common Entity codes for all Entities
+            //Add(8, layer);
+            //Add(62, color);
+            //Add(6, lineType);
+            //Add(370, lineweight);
+            //Add(78, lineTypeScale);
+            //Add(60, isVisible);
+
             return this as T;
         }
     } 

@@ -4,6 +4,7 @@
 #region References
 
 using CanvasDiagramEditor.Dxf.Core;
+using CanvasDiagramEditor.Dxf.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +22,8 @@ namespace CanvasDiagramEditor.Dxf.Entities
             : base(version, id)
         {
             Add("0", "CIRCLE");
+
+            Entity();
 
             if (Version > DxfAcadVer.AC1009)
             {

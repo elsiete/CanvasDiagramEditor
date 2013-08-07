@@ -7,10 +7,12 @@ using CanvasDiagramEditor.Dxf;
 using CanvasDiagramEditor.Dxf.Blocks;
 using CanvasDiagramEditor.Dxf.Core;
 using CanvasDiagramEditor.Dxf.Entities;
+using CanvasDiagramEditor.Dxf.Classes;
+using CanvasDiagramEditor.Dxf.Objects;
 using CanvasDiagramEditor.Dxf.Enums;
 using CanvasDiagramEditor.Dxf.Tables;
-using CanvasDiagramEditor.Parser;
 using CanvasDiagramEditor.Util;
+using CanvasDiagramEditor.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,9 +43,6 @@ namespace CanvasDiagramEditor.Editor
 
     public class DxfDiagramCreator : IDiagramCreator
     {
-        private DxfAcadVer Version = DxfAcadVer.Default;
-        private int HandleCounter = 0;
-
         #region Lineweights in Millimeters
 
         public static double LogicThicknessMm = 0.18;
@@ -66,6 +65,9 @@ namespace CanvasDiagramEditor.Editor
 
         #region Fields
 
+        private DxfAcadVer Version = DxfAcadVer.AC1015;
+        private int HandleCounter = 0;
+
         private DxfEntities Entities = null;
 
         private const double PageWidth = 1260.0;
@@ -84,16 +86,6 @@ namespace CanvasDiagramEditor.Editor
         private double ShortenLineSize = 15.0;
         private double InvertedCircleRadius = 4.0;
         private double InvertedCircleThickness = 0.0;
-
-        //private Dictionary<string, double> LineWeights = new Dictionary<string, double>()
-        //{
-        //    { LayerFrame, PageThicknessMm },
-        //    { LayerGrid, PageThicknessMm },
-        //    { LayerTable, PageThicknessMm },
-        //    { LayerIO, IOThicknessMm },
-        //    { LayerWires, WireThicknessMm },
-        //    { LayerElements, ElementThicknessMm }
-        //};
 
         #endregion
 
@@ -135,7 +127,7 @@ namespace CanvasDiagramEditor.Editor
 
             //LineWeights.TryGetValue(layer, out thickness);
 
-            var line = new DxfLine(Version, HandleCounter++)
+            var line = new DxfLine(Version, GetNextHandle())
             {
                 Layer = layer,
                 Color = color.ToString(),
@@ -182,7 +174,7 @@ namespace CanvasDiagramEditor.Editor
 
             //LineWeights.TryGetValue(layer, out thickness);
 
-            var circle = new DxfCircle(Version, HandleCounter++)
+            var circle = new DxfCircle(Version, GetNextHandle())
                 .Layer(layer)
                 .Color(color.ToString())
                 .Thickness(thickness)
@@ -194,18 +186,18 @@ namespace CanvasDiagramEditor.Editor
 
         private DxfAttdef AttdefIO(string tag, double x, double y, bool isVisible)
         {
-            var attdef = new DxfAttdef(Version, HandleCounter++)
-                .FirstAlignment(new Vector3(x, y, 0.0))
-                .SecondAlignment(new Vector3(x, y, 0.0))
-                .DefaultValue(tag)
-                .Prompt(tag)
-                .Tag(tag)
-                .AttributeFlags(isVisible ? DxfAttributeFlags.Default : DxfAttributeFlags.Invisible)
-                .TextHeight(6.0)
-                .TextStyle("TextElementIO")
-                .Layer(LayerIO)
-                .HorizontalTextJustification(DxfHorizontalTextJustification.Left)
-                .VerticalTextJustification(DxfVerticalTextJustification.Middle);
+            var attdef = new DxfAttdef(Version, GetNextHandle())
+                 .Layer(LayerIO)
+                 .FirstAlignment(new Vector3(x, y, 0.0))
+                 .TextHeight(6.0)
+                 .DefaultValue(tag)
+                 .TextStyle("TextElementIO")
+                 .HorizontalTextJustification(DxfHorizontalTextJustification.Left)
+                 .SecondAlignment(new Vector3(x, y, 0.0))
+                 .Prompt(tag)
+                 .Tag(tag)
+                 .AttributeFlags(isVisible ? DxfAttributeFlags.Default : DxfAttributeFlags.Invisible)
+                 .VerticalTextJustification(DxfVerticalTextJustification.Middle);
 
             return attdef;
         }
@@ -214,35 +206,35 @@ namespace CanvasDiagramEditor.Editor
             double x, double y,
             bool isVisible)
         {
-            var attrib = new DxfAttrib(Version, HandleCounter++)
-                .FirstAlignment(new Vector3(x, y, 0.0))
-                .SecondAlignment(new Vector3(x, y, 0.0))
+            var attrib = new DxfAttrib(Version, GetNextHandle())
+                .Layer(LayerIO)
+                .StartPoint(new Vector3(x, y, 0.0))
+                .TextHeight(6.0)
                 .DefaultValue(text)
+                .TextStyle("TextElementIO")
+                .HorizontalTextJustification(DxfHorizontalTextJustification.Left)
+                .AlignmentPoint(new Vector3(x, y, 0.0))
                 .Tag(tag)
                 .AttributeFlags(isVisible ? DxfAttributeFlags.Default : DxfAttributeFlags.Invisible)
-                .TextHeight(6.0)
-                .TextStyle("TextElementIO")
-                .Layer(LayerIO)
-                .HorizontalTextJustification(DxfHorizontalTextJustification.Left)
                 .VerticalTextJustification(DxfVerticalTextJustification.Middle);
-
+       
             return attrib;
         }
 
         private DxfAttdef AttdefGate(string tag, double x, double y, bool isVisible)
         {
-            var attdef = new DxfAttdef(Version, HandleCounter++)
-                .FirstAlignment(new Vector3(x, y, 0.0))
-                .SecondAlignment(new Vector3(x, y, 0.0))
-                .DefaultValue(tag)
-                .Prompt(tag)
-                .Tag(tag)
-                .AttributeFlags(isVisible ? DxfAttributeFlags.Default : DxfAttributeFlags.Invisible)
-                .TextHeight(10.0)
-                .TextStyle("TextElementGate")
-                .Layer(LayerElements)
-                .HorizontalTextJustification(DxfHorizontalTextJustification.Center)
-                .VerticalTextJustification(DxfVerticalTextJustification.Middle);
+            var attdef = new DxfAttdef(Version, GetNextHandle())
+                 .Layer(LayerElements)
+                 .FirstAlignment(new Vector3(x, y, 0.0))
+                 .TextHeight(10.0)
+                 .DefaultValue(tag)
+                 .TextStyle("TextElementGate")
+                 .HorizontalTextJustification(DxfHorizontalTextJustification.Center)
+                 .SecondAlignment(new Vector3(x, y, 0.0))
+                 .Prompt(tag)
+                 .Tag(tag)
+                 .AttributeFlags(isVisible ? DxfAttributeFlags.Default : DxfAttributeFlags.Invisible)
+                 .VerticalTextJustification(DxfVerticalTextJustification.Middle);
 
             return attdef;
         }
@@ -251,18 +243,18 @@ namespace CanvasDiagramEditor.Editor
             double x, double y,
             bool isVisible)
         {
-            var attrib = new DxfAttrib(Version, HandleCounter++)
-                .FirstAlignment(new Vector3(x, y, 0.0))
-                .SecondAlignment(new Vector3(x, y, 0.0))
+            var attrib = new DxfAttrib(Version, GetNextHandle())
+                .Layer(LayerElements)
+                .StartPoint(new Vector3(x, y, 0.0))
+                .TextHeight(10.0)
                 .DefaultValue(text)
+                .TextStyle("TextElementGate")
+                .HorizontalTextJustification(DxfHorizontalTextJustification.Center)
+                .AlignmentPoint(new Vector3(x, y, 0.0))
                 .Tag(tag)
                 .AttributeFlags(isVisible ? DxfAttributeFlags.Default : DxfAttributeFlags.Invisible)
-                .TextHeight(10.0)
-                .TextStyle("TextElementGate")
-                .Layer(LayerElements)
-                .HorizontalTextJustification(DxfHorizontalTextJustification.Center)
                 .VerticalTextJustification(DxfVerticalTextJustification.Middle);
-
+        
             return attrib;
         }
 
@@ -275,7 +267,7 @@ namespace CanvasDiagramEditor.Editor
             DxfHorizontalTextJustification horizontalJustification,
             DxfVerticalTextJustification verticalJustification)
         {
-            var txt = new DxfText(Version, HandleCounter++)
+            var txt = new DxfText(Version, GetNextHandle())
                 .Layer(layer)
                 .Text(text)
                 .TextStyle(style)
@@ -292,6 +284,16 @@ namespace CanvasDiagramEditor.Editor
 
         #region Tables
 
+        private DxfBlockRecord CreateBlockRecordForBlock(string name)
+        {
+            var blockRecord = new DxfBlockRecord(Version, GetNextHandle())
+            {
+                Name = name
+            };
+
+            return blockRecord.Create();
+        }
+
         private IEnumerable<DxfAppid> TableAppids()
         {
             var appids = new List<DxfAppid>();
@@ -299,7 +301,7 @@ namespace CanvasDiagramEditor.Editor
             // ACAD - default must be present
             if (Version > DxfAcadVer.AC1009)
             {
-                var acad = new DxfAppid(Version, HandleCounter++)
+                var acad = new DxfAppid(Version, GetNextHandle())
                     .Application("ACAD")
                     .StandardFlags(DxfAppidStandardFlags.Default);
 
@@ -307,7 +309,7 @@ namespace CanvasDiagramEditor.Editor
             }
 
             // CADE - CAnvasDiagramEditor
-            var cade = new DxfAppid(Version, HandleCounter++)
+            var cade = new DxfAppid(Version, GetNextHandle())
                 .Application("CADE")
                 .StandardFlags(DxfAppidStandardFlags.Default);
 
@@ -318,12 +320,19 @@ namespace CanvasDiagramEditor.Editor
 
         private IEnumerable<DxfDimstyle> TableDimstyles()
         {
-            return Enumerable.Empty<DxfDimstyle>();
-        }
+            var dimstyles = new List<DxfDimstyle>();
 
-        private IEnumerable<DxfBlockRecord> TableBlockRecords()
-        {
-            return Enumerable.Empty<DxfBlockRecord>();
+            if (Version > DxfAcadVer.AC1009)
+            {
+                dimstyles.Add(new DxfDimstyle(Version, GetNextHandle())
+                {
+                    Name = "Standard"
+                }.Create()); 
+            }
+
+            return dimstyles;
+
+            //return Enumerable.Empty<DxfDimstyle>();
         }
 
         private IEnumerable<DxfLayer> TableLayers()
@@ -333,88 +342,88 @@ namespace CanvasDiagramEditor.Editor
             // default layer 0 - must be present
             if (Version > DxfAcadVer.AC1009)
             {
-                layers.Add(new DxfLayer(Version, HandleCounter++)
+                layers.Add(new DxfLayer(Version, GetNextHandle())
                 {
                     Name = "0",
                     LayerStandardFlags = DxfLayerStandardFlags.Default,
-                    Color = 0,
+                    Color = 1,
                     LineType = "Continuous",
                     PlottingFlag = true,
-                    LineWeight = LineWeight.LnWtByLwDefault,
+                    LineWeight = DxfLineWeight.LnWtByLwDefault,
                     PlotStyleNameHandle = "0"
                 }.Create());
             }
 
             // layer: FRAME
-            layers.Add(new DxfLayer(Version, HandleCounter++)
+            layers.Add(new DxfLayer(Version, GetNextHandle())
             {
                 Name = LayerFrame,
                 LayerStandardFlags = DxfLayerStandardFlags.Default,
                 Color = 8,
                 LineType = "Continuous",
                 PlottingFlag = true,
-                LineWeight = LineWeight.LnWt013,
+                LineWeight = DxfLineWeight.LnWt013,
                 PlotStyleNameHandle = "0"
             }.Create());
 
             // layer: GRID
-            layers.Add(new DxfLayer(Version, HandleCounter++)
+            layers.Add(new DxfLayer(Version, GetNextHandle())
             {
                 Name = LayerGrid,
                 LayerStandardFlags = DxfLayerStandardFlags.Default,
                 Color = 9,
                 LineType = "Continuous",
                 PlottingFlag = true,
-                LineWeight = LineWeight.LnWt013,
+                LineWeight = DxfLineWeight.LnWt013,
                 PlotStyleNameHandle = "0"
             }.Create());
 
 
             // layer: TABLE
-            layers.Add(new DxfLayer(Version, HandleCounter++)
+            layers.Add(new DxfLayer(Version, GetNextHandle())
             {
                 Name = LayerTable,
                 LayerStandardFlags = DxfLayerStandardFlags.Default,
                 Color = 8,
                 LineType = "Continuous",
                 PlottingFlag = true,
-                LineWeight = LineWeight.LnWt013,
+                LineWeight = DxfLineWeight.LnWt013,
                 PlotStyleNameHandle = "0"
             }.Create());
 
             // layer: IO
-            layers.Add(new DxfLayer(Version, HandleCounter++)
+            layers.Add(new DxfLayer(Version, GetNextHandle())
             {
                 Name = LayerIO,
                 LayerStandardFlags = DxfLayerStandardFlags.Default,
                 Color = 6,
                 LineType = "Continuous",
                 PlottingFlag = true,
-                LineWeight = LineWeight.LnWt025,
+                LineWeight = DxfLineWeight.LnWt025,
                 PlotStyleNameHandle = "0"
             }.Create());
 
             // layer: WIRES
-            layers.Add(new DxfLayer(Version, HandleCounter++)
+            layers.Add(new DxfLayer(Version, GetNextHandle())
             {
                 Name = LayerWires,
                 LayerStandardFlags = DxfLayerStandardFlags.Default,
                 Color = 5,
                 LineType = "Continuous",
                 PlottingFlag = true,
-                LineWeight = LineWeight.LnWt018,
+                LineWeight = DxfLineWeight.LnWt018,
                 PlotStyleNameHandle = "0"
             }.Create());
 
             // layer: ELEMENTS
-            layers.Add(new DxfLayer(Version, HandleCounter++)
+            layers.Add(new DxfLayer(Version, GetNextHandle())
             {
                 Name = LayerElements,
                 LayerStandardFlags = DxfLayerStandardFlags.Default,
                 Color = 5,
                 LineType = "Continuous",
                 PlottingFlag = true,
-                LineWeight = LineWeight.LnWt035,
+                LineWeight = DxfLineWeight.LnWt035,
                 PlotStyleNameHandle = "0"
             }.Create());
 
@@ -428,7 +437,7 @@ namespace CanvasDiagramEditor.Editor
             // default ltypes ByLayer, ByBlock and Continuous - must be present
 
             // ByLayer
-            ltypes.Add(new DxfLtype(Version, HandleCounter++)
+            ltypes.Add(new DxfLtype(Version, GetNextHandle())
             {
                 Name = "ByLayer",
                 LtypeStandardFlags = DxfLtypeStandardFlags.Default,
@@ -439,7 +448,7 @@ namespace CanvasDiagramEditor.Editor
             }.Create());
 
             // ByBlock
-            ltypes.Add(new DxfLtype(Version, HandleCounter++)
+            ltypes.Add(new DxfLtype(Version, GetNextHandle())
             {
                 Name = "ByBlock",
                 LtypeStandardFlags = DxfLtypeStandardFlags.Default,
@@ -450,7 +459,7 @@ namespace CanvasDiagramEditor.Editor
             }.Create());
 
             // Continuous
-            ltypes.Add(new DxfLtype(Version, HandleCounter++)
+            ltypes.Add(new DxfLtype(Version, GetNextHandle())
             {
                 Name = "Continuous",
                 LtypeStandardFlags = DxfLtypeStandardFlags.Default,
@@ -467,8 +476,20 @@ namespace CanvasDiagramEditor.Editor
         {
             var styles = new List<DxfStyle>();
 
+            // style: Standard
+            styles.Add(new DxfStyle(Version, GetNextHandle())
+                .Name("Standard")
+                .StandardFlags(DxfStyleFlags.Default)
+                .FixedTextHeight(0.0)
+                .WidthFactor(1.0)
+                .ObliqueAngle(0.0)
+                .TextGenerationFlags(DxfTextGenerationFlags.Default)
+                .LastHeightUsed(0.0)
+                .PrimaryFontFile(StylePrimatyFont)
+                .BifFontFile(StyleBigFont));
+
             // style: TextFrameHeaderSmall
-            styles.Add(new DxfStyle(Version, HandleCounter++)
+            styles.Add(new DxfStyle(Version, GetNextHandle())
                 .Name("TextFrameHeaderSmall")
                 .StandardFlags(DxfStyleFlags.Default)
                 .FixedTextHeight(0.0)
@@ -480,7 +501,7 @@ namespace CanvasDiagramEditor.Editor
                 .BifFontFile(StyleBigFont));
 
             // style: TextFrameHeaderLarge
-            styles.Add(new DxfStyle(Version, HandleCounter++)
+            styles.Add(new DxfStyle(Version, GetNextHandle())
                 .Name("TextFrameHeaderLarge")
                 .StandardFlags(DxfStyleFlags.Default)
                 .FixedTextHeight(0.0)
@@ -492,7 +513,7 @@ namespace CanvasDiagramEditor.Editor
                 .BifFontFile(StyleBigFont));
 
             // style: TextFrameNumber
-            styles.Add(new DxfStyle(Version, HandleCounter++)
+            styles.Add(new DxfStyle(Version, GetNextHandle())
                 .Name("TextFrameNumber")
                 .StandardFlags(DxfStyleFlags.Default)
                 .FixedTextHeight(0.0)
@@ -504,7 +525,7 @@ namespace CanvasDiagramEditor.Editor
                 .BifFontFile(StyleBigFont));
 
             // style: TextTableHeader
-            styles.Add(new DxfStyle(Version, HandleCounter++)
+            styles.Add(new DxfStyle(Version, GetNextHandle())
                 .Name("TextTableHeader")
                 .StandardFlags(DxfStyleFlags.Default)
                 .FixedTextHeight(0.0)
@@ -516,7 +537,7 @@ namespace CanvasDiagramEditor.Editor
                 .BifFontFile(StyleBigFont));
 
             // style: TextTableTag
-            styles.Add(new DxfStyle(Version, HandleCounter++)
+            styles.Add(new DxfStyle(Version, GetNextHandle())
                 .Name("TextTableTag")
                 .StandardFlags(DxfStyleFlags.Default)
                 .FixedTextHeight(0.0)
@@ -528,7 +549,7 @@ namespace CanvasDiagramEditor.Editor
                 .BifFontFile(StyleBigFont));
 
             // style: TextElementGate
-            styles.Add(new DxfStyle(Version, HandleCounter++)
+            styles.Add(new DxfStyle(Version, GetNextHandle())
                 .Name("TextElementGate")
                 .StandardFlags(DxfStyleFlags.Default)
                 .FixedTextHeight(0.0)
@@ -540,7 +561,7 @@ namespace CanvasDiagramEditor.Editor
                 .BifFontFile(StyleBigFont));
 
             // style: TextElementIO
-            styles.Add(new DxfStyle(Version, HandleCounter++)
+            styles.Add(new DxfStyle(Version, GetNextHandle())
                 .Name("TextElementIO")
                 .StandardFlags(DxfStyleFlags.Default)
                 .FixedTextHeight(0.0)
@@ -561,7 +582,7 @@ namespace CanvasDiagramEditor.Editor
 
         private IEnumerable<DxfView> TableViews()
         {
-            var view = new DxfView(Version, HandleCounter++)
+            var view = new DxfView(Version, GetNextHandle())
                 .Name("DIAGRAM")
                 .StandardFlags(DxfViewStandardFlags.Default)
                 .Height(PageHeight)
@@ -578,7 +599,19 @@ namespace CanvasDiagramEditor.Editor
 
         private IEnumerable<DxfVport> TableVports()
         {
-            return Enumerable.Empty<DxfVport>();
+            var vports = new List<DxfVport>();
+
+            if (Version > DxfAcadVer.AC1009)
+            {
+                vports.Add(new DxfVport(Version, GetNextHandle())
+                {
+                    Name = "*Active"
+                }.Create()); 
+            }
+
+            return vports;
+
+            //return Enumerable.Empty<DxfVport>();
         }
 
         #endregion
@@ -591,23 +624,23 @@ namespace CanvasDiagramEditor.Editor
             {
                 var blocks = new List<DxfBlock>();
 
-                blocks.Add(new DxfBlock(Version, HandleCounter++)
+                blocks.Add(new DxfBlock(Version, GetNextHandle())
                     .Begin("*Model_Space", "0")
                     .BlockTypeFlags(DxfBlockTypeFlags.Default)
                     .Base(new Vector3(0, 0, 0))
-                    .End(HandleCounter++, LayerTable));
+                    .End(GetNextHandle(), LayerTable));
 
-                blocks.Add(new DxfBlock(Version, HandleCounter++)
+                blocks.Add(new DxfBlock(Version, GetNextHandle())
                     .Begin("*Paper_Space", "0")
                     .BlockTypeFlags(DxfBlockTypeFlags.Default)
                     .Base(new Vector3(0, 0, 0))
-                    .End(HandleCounter++, LayerTable));
+                    .End(GetNextHandle(), LayerTable));
 
-                blocks.Add(new DxfBlock(Version, HandleCounter++)
+                blocks.Add(new DxfBlock(Version, GetNextHandle())
                     .Begin("*Paper_Space0", "0")
                     .BlockTypeFlags(DxfBlockTypeFlags.Default)
                     .Base(new Vector3(0, 0, 0))
-                    .End(HandleCounter++, LayerTable));
+                    .End(GetNextHandle(), LayerTable));
 
                 return blocks;
             }
@@ -617,7 +650,7 @@ namespace CanvasDiagramEditor.Editor
 
         public DxfBlock BlockFrame()
         {
-            var block = new DxfBlock(Version, HandleCounter++)
+            var block = new DxfBlock(Version, GetNextHandle())
                 .Begin("FRAME", LayerFrame)
                 .BlockTypeFlags(DxfBlockTypeFlags.NonConstantAttributes)
                 .Base(new Vector3(0, 0, 0));
@@ -661,12 +694,12 @@ namespace CanvasDiagramEditor.Editor
 
             // TODO: text
 
-            return block.End(HandleCounter++, LayerFrame);
+            return block.End(GetNextHandle(), LayerFrame);
         }
 
         public DxfBlock BlockTable()
         {
-            var block = new DxfBlock(Version, HandleCounter++)
+            var block = new DxfBlock(Version, GetNextHandle())
                 .Begin("TABLE", LayerTable)
                 .BlockTypeFlags(DxfBlockTypeFlags.Default)
                 .Base(new Vector3(0, 0, 0));
@@ -700,24 +733,24 @@ namespace CanvasDiagramEditor.Editor
 
             // TODO: attributes
 
-            return block.End(HandleCounter++, LayerTable);
+            return block.End(GetNextHandle(), LayerTable);
         }
 
         public DxfBlock BlockGrid()
         {
-            var block = new DxfBlock(Version, HandleCounter++)
+            var block = new DxfBlock(Version, GetNextHandle())
                 .Begin("GRID", LayerGrid)
                 .BlockTypeFlags(DxfBlockTypeFlags.Default)
                 .Base(new Vector3(0, 0, 0));
 
             // TODO: lines
 
-            return block.End(HandleCounter++, LayerGrid);
+            return block.End(GetNextHandle(), LayerGrid);
         }
 
         public DxfBlock BlockInput()
         {
-            var block = new DxfBlock(Version, HandleCounter++)
+            var block = new DxfBlock(Version, GetNextHandle())
                 .Begin("INPUT", LayerIO)
                 .BlockTypeFlags(DxfBlockTypeFlags.NonConstantAttributes)
                 .Base(new Vector3(0, 0, 0));
@@ -735,12 +768,12 @@ namespace CanvasDiagramEditor.Editor
             block.Add(AttdefIO("SIGNAL", 213, 21.5, true));
             block.Add(AttdefIO("CONDITION", 213, 7.5, true));
 
-            return block.End(HandleCounter++, LayerIO);
+            return block.End(GetNextHandle(), LayerIO);
         }
 
         public DxfBlock BlockOutput()
         {
-            var block = new DxfBlock(Version, HandleCounter++)
+            var block = new DxfBlock(Version, GetNextHandle())
                 .Begin("OUTPUT", LayerIO)
                 .BlockTypeFlags(DxfBlockTypeFlags.NonConstantAttributes)
                 .Base(new Vector3(0, 0, 0));
@@ -758,12 +791,12 @@ namespace CanvasDiagramEditor.Editor
             block.Add(AttdefIO("SIGNAL", 213, 21.5, true));
             block.Add(AttdefIO("CONDITION", 213, 7.5, true));
 
-            return block.End(HandleCounter++, LayerIO);
+            return block.End(GetNextHandle(), LayerIO);
         }
 
         public DxfBlock BlockAndGate()
         {
-            var block = new DxfBlock(Version, HandleCounter++)
+            var block = new DxfBlock(Version, GetNextHandle())
                 .Begin("ANDGATE", LayerElements)
                 .BlockTypeFlags(DxfBlockTypeFlags.NonConstantAttributes)
                 .Base(new Vector3(0, 0, 0));
@@ -776,12 +809,12 @@ namespace CanvasDiagramEditor.Editor
             block.Add(AttdefGate("ID", 30.0, 30.0, false));
             block.Add(AttdefGate("TEXT", 15.0, 15.0, true));
 
-            return block.End(HandleCounter++, LayerElements);
+            return block.End(GetNextHandle(), LayerElements);
         }
 
         public DxfBlock BlockOrGate()
         {
-            var block = new DxfBlock(Version, HandleCounter++)
+            var block = new DxfBlock(Version, GetNextHandle())
                 .Begin("ORGATE", LayerElements)
                 .BlockTypeFlags(DxfBlockTypeFlags.NonConstantAttributes)
                 .Base(new Vector3(0, 0, 0));
@@ -794,7 +827,7 @@ namespace CanvasDiagramEditor.Editor
             block.Add(AttdefGate("ID", 30.0, 30.0, false));
             block.Add(AttdefGate("TEXT", 15.0, 15.0, true));
 
-            return block.End(HandleCounter++, LayerElements);
+            return block.End(GetNextHandle(), LayerElements);
         }
 
         #endregion
@@ -803,7 +836,7 @@ namespace CanvasDiagramEditor.Editor
 
         public DxfInsert CreateFrame(double x, double y)
         {
-            var frame = new DxfInsert(Version, HandleCounter++)
+            var frame = new DxfInsert(Version, GetNextHandle())
                 .Block("FRAME")
                 .Layer(LayerFrame)
                 .Insertion(new Vector3(x, PageHeight - 891.0 - y, 0));
@@ -813,7 +846,7 @@ namespace CanvasDiagramEditor.Editor
 
         public DxfInsert CreateTable(double x, double y)
         {
-            var table = new DxfInsert(Version, HandleCounter++)
+            var table = new DxfInsert(Version, GetNextHandle())
                 .Block("TABLE")
                 .Layer(LayerTable)
                 .Insertion(new Vector3(x, PageHeight - 60.0 - y, 0));
@@ -825,7 +858,7 @@ namespace CanvasDiagramEditor.Editor
 
         public DxfInsert CreateGrid(double x, double y)
         {
-            var frame = new DxfInsert(Version, HandleCounter++)
+            var frame = new DxfInsert(Version, GetNextHandle())
                 .Block("GRID")
                 .Layer(LayerGrid)
                 .Insertion(new Vector3(x, PageHeight - 60.0 - y, 0));
@@ -926,7 +959,7 @@ namespace CanvasDiagramEditor.Editor
 
         public object CreateInput(double x, double y, int id, int tagId, bool snap)
         {
-            var insert = new DxfInsert(Version, HandleCounter++)
+            var insert = new DxfInsert(Version, GetNextHandle())
                 .Block("INPUT")
                 .Layer(LayerIO)
                 .Insertion(new Vector3(x, PageHeight - 30.0 - y, 0));
@@ -941,7 +974,7 @@ namespace CanvasDiagramEditor.Editor
                     .AddAttribute(AttribIO("DESCRIPTION", tag.Description, x + 3.0, (PageHeight - y - 21.5), true))
                     .AddAttribute(AttribIO("SIGNAL", tag.Signal, x + 213.0, (PageHeight - y - 7.5), true))
                     .AddAttribute(AttribIO("CONDITION", tag.Condition, x + 213.0, (PageHeight - y - 21.5), true))
-                    .AttributesEnd();
+                    .AttributesEnd(GetNextHandle(), LayerIO);
             }
 
             Entities.Add(insert);
@@ -951,7 +984,7 @@ namespace CanvasDiagramEditor.Editor
 
         public object CreateOutput(double x, double y, int id, int tagId, bool snap)
         {
-            var insert = new DxfInsert(Version, HandleCounter++)
+            var insert = new DxfInsert(Version, GetNextHandle())
                 .Block("OUTPUT")
                 .Layer(LayerIO)
                 .Insertion(new Vector3(x, PageHeight - 30.0 - y, 0));
@@ -966,7 +999,7 @@ namespace CanvasDiagramEditor.Editor
                     .AddAttribute(AttribIO("DESCRIPTION", tag.Description, x + 3.0, (PageHeight - y - 21.5), true))
                     .AddAttribute(AttribIO("SIGNAL", tag.Signal, x + 213.0, (PageHeight - y - 7.5), true))
                     .AddAttribute(AttribIO("CONDITION", tag.Condition, x + 213.0, (PageHeight - y - 21.5), true))
-                    .AttributesEnd();
+                    .AttributesEnd(GetNextHandle(), LayerIO);
             }
 
             Entities.Add(insert);
@@ -976,7 +1009,7 @@ namespace CanvasDiagramEditor.Editor
 
         public object CreateAndGate(double x, double y, int id, bool snap)
         {
-            var insert = new DxfInsert(Version, HandleCounter++)
+            var insert = new DxfInsert(Version, GetNextHandle())
                 .Block("ANDGATE")
                 .Layer(LayerElements)
                 .Insertion(new Vector3(x, PageHeight - 30.0 - y, 0));
@@ -984,7 +1017,7 @@ namespace CanvasDiagramEditor.Editor
             insert.AttributesBegin()
                 .AddAttribute(AttribGate("ID", id.ToString(), x + 30, (PageHeight - y - 30), false))
                 .AddAttribute(AttribGate("TEXT", "&", x + 15.0, (PageHeight - y - 15.0), true))
-                .AttributesEnd();
+                .AttributesEnd(GetNextHandle(), LayerElements);
 
             Entities.Add(insert);
 
@@ -993,7 +1026,7 @@ namespace CanvasDiagramEditor.Editor
 
         public object CreateOrGate(double x, double y, int id, bool snap)
         {
-            var insert = new DxfInsert(Version, HandleCounter++)
+            var insert = new DxfInsert(Version, GetNextHandle())
                 .Block("ORGATE")
                 .Layer(LayerElements)
                 .Insertion(new Vector3(x, PageHeight - 30.0 - y, 0));
@@ -1001,7 +1034,7 @@ namespace CanvasDiagramEditor.Editor
             insert.AttributesBegin()
                 .AddAttribute(AttribGate("ID", id.ToString(), x + 30, (PageHeight - y - 30), false))
                 .AddAttribute(AttribGate("TEXT", "\\U+22651", x + 15.0, (PageHeight - y - 15.0), true))
-                .AttributesEnd();
+                .AttributesEnd(GetNextHandle(), LayerElements);
 
             Entities.Add(insert);
 
@@ -1035,68 +1068,7 @@ namespace CanvasDiagramEditor.Editor
 
         #endregion
 
-        #region Generate Dxf
-
-        public string GenerateDxf(string model, DxfAcadVer version)
-        {
-            this.Version = version;
-            this.HandleCounter = 0;
-
-            // initialize parser
-            var parser = new DiagramParser();
-            var parseOptions = DefaultParseOptions();
-
-            // create dxf file
-            var dxf = new DxfFile(Version, HandleCounter++)
-                .Comment("Diagram")
-                .Header(new DxfHeader(Version, HandleCounter++).Begin().Default().End());
-
-            // create tables
-            var tables = new DxfTables(Version, HandleCounter++)
-                .Begin()
-                .AddAppidTable(TableAppids(), HandleCounter++)
-                .AddDimstyleTable(TableDimstyles(), HandleCounter++)
-                .AddBlockRecordTable(TableBlockRecords(), HandleCounter++)
-                .AddLtypeTable(TableLtypes(), HandleCounter++)
-                .AddLayerTable(TableLayers(), HandleCounter++)
-                .AddStyleTable(TableStyles(), HandleCounter++)
-                .AddUcsTable(TableUcss(), HandleCounter++)
-                .AddViewTable(TableViews(), HandleCounter++)
-                .AddVportTable(TableVports(), HandleCounter++)
-                .End();
-
-            dxf.Tables(tables);
-
-            // create blocks
-            var blocks = new DxfBlocks(Version, HandleCounter++)
-                .Begin()
-                .Add(DefaultBlocks())
-                .Add(BlockFrame())
-                .Add(BlockTable())
-                .Add(BlockGrid())
-                .Add(BlockInput())
-                .Add(BlockOutput())
-                .Add(BlockAndGate())
-                .Add(BlockOrGate())
-                .End();
-
-            dxf.Blocks(blocks);
-
-            // create entities
-            Entities = new DxfEntities(Version, HandleCounter++)
-                .Begin()
-                .Add(CreateFrame(0.0, 0.0))
-                .Add(CreateGrid(0.0, 0.0))
-                .Add(CreateTable(0.0, 0.0));
-
-            parser.Parse(model, this, parseOptions);
-
-            Entities.End();
-            dxf.Entities(Entities);
-
-            // end of dxf file
-            return dxf.Eof().ToString();
-        }
+        #region Parse Options
 
         private ParseOptions DefaultParseOptions()
         {
@@ -1113,6 +1085,180 @@ namespace CanvasDiagramEditor.Editor
             };
 
             return parseOptions;
+        }
+
+        #endregion
+
+        #region Handle Counter
+
+        private int GetNextHandle()
+        {
+            this.HandleCounter += 1;
+            return this.HandleCounter;
+        }
+
+        private void ResetHandleCounter()
+        {
+            this.HandleCounter = 0;
+        }
+
+        #endregion
+
+        #region Generate Dxf
+
+        public string GenerateDxf(string model, DxfAcadVer version)
+        {
+            this.Version = version;
+            ResetHandleCounter();
+
+            // initialize parser
+            var parser = new DiagramParser();
+            var parseOptions = DefaultParseOptions();
+
+            // dxf file sections
+            DxfHeader header = null;
+            DxfClasses classes = null;
+            DxfTables tables = null;
+            DxfBlocks blocks = null;
+            DxfObjects objects = null;
+
+            // create dxf file
+            var dxf = new DxfFile(Version, GetNextHandle());
+            
+            // create header
+            header = new DxfHeader(Version, GetNextHandle()).Begin().Default();
+
+            // create classes
+            if (Version > DxfAcadVer.AC1009)
+            {
+                classes = new DxfClasses(Version, GetNextHandle())
+                    .Begin();
+
+                // classes.Add(new DxfClass(...));
+
+                classes.End();
+            }
+
+            // create tables
+            tables = new DxfTables(Version, GetNextHandle());
+
+            tables.Begin();
+            tables.AddAppidTable(TableAppids(), GetNextHandle());
+            tables.AddDimstyleTable(TableDimstyles(), GetNextHandle());
+
+            if (Version > DxfAcadVer.AC1009)
+            {
+                var records = new List<DxfBlockRecord>();
+
+                // TODO: each BLOCK must have BLOCK_RECORD entry
+
+                // required block records by dxf format
+                records.Add(CreateBlockRecordForBlock("*Model_Space"));
+                records.Add(CreateBlockRecordForBlock("*Paper_Space"));
+                records.Add(CreateBlockRecordForBlock("*Paper_Space0"));
+
+                // canvas Diagram block records
+                records.Add(CreateBlockRecordForBlock("FRAME"));
+                records.Add(CreateBlockRecordForBlock("TABLE"));
+                records.Add(CreateBlockRecordForBlock("GRID"));
+                records.Add(CreateBlockRecordForBlock("INPUT"));
+                records.Add(CreateBlockRecordForBlock("OUTPUT"));
+                records.Add(CreateBlockRecordForBlock("ANDGATE"));
+                records.Add(CreateBlockRecordForBlock("ORGATE"));
+
+                tables.AddBlockRecordTable(records, GetNextHandle());
+            }
+
+            tables.AddLtypeTable(TableLtypes(), GetNextHandle());
+            tables.AddLayerTable(TableLayers(), GetNextHandle());
+            tables.AddStyleTable(TableStyles(), GetNextHandle());
+            tables.AddUcsTable(TableUcss(), GetNextHandle());
+            tables.AddViewTable(TableViews(), GetNextHandle());
+            tables.AddVportTable(TableVports(), GetNextHandle());
+            tables.End();
+
+            // create blocks
+            blocks = new DxfBlocks(Version, GetNextHandle())
+                .Begin()
+                .Add(DefaultBlocks())
+                .Add(BlockFrame())
+                .Add(BlockTable())
+                .Add(BlockGrid())
+                .Add(BlockInput())
+                .Add(BlockOutput())
+                .Add(BlockAndGate())
+                .Add(BlockOrGate())
+                .End();
+
+            // create entities
+            Entities = new DxfEntities(Version, GetNextHandle())
+                .Begin()
+                .Add(CreateFrame(0.0, 0.0))
+                .Add(CreateGrid(0.0, 0.0))
+                .Add(CreateTable(0.0, 0.0));
+
+            parser.Parse(model, this, parseOptions);
+
+            Entities.End();
+
+            // create objects
+            if (Version > DxfAcadVer.AC1009)
+            {
+                objects = new DxfObjects(Version, GetNextHandle()).Begin();
+
+                // mamed dictionary
+                var namedDict = new DxfDictionary(Version, GetNextHandle())
+                {
+                    OwnerDictionaryHandle = 0.ToDxfHandle(),
+                    HardOwnerFlag = false,
+                    DuplicateRecordCloningFlags = DxfDuplicateRecordCloningFlags.KeepExisting,
+                    Entries = new Dictionary<string, string>()
+                };
+
+                // base dictionary
+                var baseDict = new DxfDictionary(Version, GetNextHandle())
+                {
+                    OwnerDictionaryHandle = namedDict.Id.ToDxfHandle(),
+                    HardOwnerFlag = false,
+                    DuplicateRecordCloningFlags = DxfDuplicateRecordCloningFlags.KeepExisting,
+                    Entries = new Dictionary<string, string>()
+                };
+
+                // add baseDict to namedDict
+                namedDict.Entries.Add(baseDict.Id.ToDxfHandle(), "ACAD_GROUP");
+
+                // TODO: add more named object dictionaries
+
+                // finalize dictionaries
+                objects.Add(namedDict.Create());
+                objects.Add(baseDict.Create());
+
+                // finalize objects
+                objects.End();
+            }
+
+            // finalize dxf file
+
+            dxf.Header(header.End(GetNextHandle()));
+
+            if (Version > DxfAcadVer.AC1009)
+            {
+                dxf.Classes(classes);
+            }
+
+            dxf.Tables(tables);
+            dxf.Blocks(blocks);
+            dxf.Entities(Entities);
+
+            if (Version > DxfAcadVer.AC1009)
+            {
+                dxf.Objects(objects);
+            }
+
+            dxf.Eof();
+
+            // return dxf file contents
+            return dxf.ToString();
         }
 
         #endregion

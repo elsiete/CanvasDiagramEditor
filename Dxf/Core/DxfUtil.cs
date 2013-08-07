@@ -3,7 +3,6 @@
 
 #region References
 
-using CanvasDiagramEditor.Dxf.Core;
 using CanvasDiagramEditor.Dxf.Enums;
 using System;
 using System.Collections.Generic;
@@ -12,15 +11,15 @@ using System.Text;
 
 #endregion
 
-namespace CanvasDiagramEditor.Dxf.Entities
+namespace CanvasDiagramEditor.Dxf.Core
 {
-    #region DxfSolid
+    #region DxfUtil
 
-    public class DxfSolid : DxfObject<DxfSolid>
+    public static class DxfUtil
     {
-        public DxfSolid(DxfAcadVer version, int id)
-            : base(version, id)
+        public static string ToDxfHandle(this int handle)
         {
+            return handle.ToString("X");
         }
     }
 

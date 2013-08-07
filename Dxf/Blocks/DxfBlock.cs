@@ -74,14 +74,14 @@ namespace CanvasDiagramEditor.Dxf.Blocks
 
         public DxfBlock End(int id, string layer)
         {
-            Add("0", "ENDBLK");
+            Add(0, "ENDBLK");
 
             if (Version > DxfAcadVer.AC1009)
             {
                 Handle(id);
-                Subclass("AcDbEntity");
-                Add("8", layer);
-                Subclass("AcDbBlockEnd");
+                Subclass(SubclassMarker.Entity);
+                Add(8, layer);
+                Subclass(SubclassMarker.BlockEnd);
             }
 
             return this;

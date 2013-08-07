@@ -4,7 +4,6 @@
 #region References
 
 using CanvasDiagramEditor.Core;
-using CanvasDiagramEditor.Parser;
 using CanvasDiagramEditor.Util;
 using System;
 using System.Collections.Generic;

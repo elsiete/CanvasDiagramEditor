@@ -10,7 +10,7 @@ using System.Text;
 
 #endregion
 
-namespace CanvasDiagramEditor.Editor
+namespace CanvasDiagramEditor.Core
 {
     #region TreeItemType
 

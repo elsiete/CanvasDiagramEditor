@@ -10,7 +10,7 @@ using System.Text;
 
 #endregion
 
-namespace CanvasDiagramEditor.Parser
+namespace CanvasDiagramEditor.Editor
 {
     #region ModelConstants
 

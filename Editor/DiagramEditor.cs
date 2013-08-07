@@ -5,9 +5,9 @@
 
 using CanvasDiagramEditor.Dxf;
 using CanvasDiagramEditor.Dxf.Core;
+using CanvasDiagramEditor.Dxf.Enums;
 using CanvasDiagramEditor.Core;
 using CanvasDiagramEditor.Controls;
-using CanvasDiagramEditor.Parser;
 using CanvasDiagramEditor.Util;
 using System;
 using System.Collections.Generic;
@@ -1766,7 +1766,10 @@ namespace CanvasDiagramEditor.Editor
 
         #region Dxf
 
-        public string DxfGenerate(string model, bool shortenStart, bool shortenEnd)
+        public string DxfGenerate(string model, 
+            bool shortenStart, 
+            bool shortenEnd,
+            DxfAcadVer version)
         {
             var dxf = new DxfDiagramCreator()
             {
@@ -1776,7 +1779,7 @@ namespace CanvasDiagramEditor.Editor
                 Tags = CurrentOptions.Tags
             };
 
-            return dxf.GenerateDxf(model, DxfAcadVer.AC1009);
+            return dxf.GenerateDxf(model, version);
         }
 
         private void DxfSave(string fileName, string model)
@@ -1787,11 +1790,15 @@ namespace CanvasDiagramEditor.Editor
             }
         }
 
-        private void DxfExportDiagram(string fileName, ICanvas canvas, bool shortenStart, bool shortenEnd)
+        private void DxfExportDiagram(string fileName, 
+            ICanvas canvas, 
+            bool shortenStart, 
+            bool shortenEnd,
+            DxfAcadVer version)
         {
             string model = Model.Generate(canvas, null, CurrentOptions.CurrentProperties);
 
-            string dxf = DxfGenerate(model, shortenStart, shortenEnd);
+            string dxf = DxfGenerate(model, shortenStart, shortenEnd, version);
 
             DxfSave(fileName, dxf);
         }
@@ -1800,7 +1807,8 @@ namespace CanvasDiagramEditor.Editor
         {
             var dlg = new Microsoft.Win32.SaveFileDialog()
             {
-                Filter = "Dxf (*.dxf)|*.dxf|All Files (*.*)|*.*",
+                Filter = "Dxf R12 (*.dxf)|*.dxf|Dxf AutoCAD 2000 (*.dxf)|*.dxf|All Files (*.*)|*.*",
+                FilterIndex = 2,
                 Title = "Export Diagram to Dxf",
                 FileName = "diagram"
             };
@@ -1810,7 +1818,26 @@ namespace CanvasDiagramEditor.Editor
             {
                 var canvas = CurrentOptions.CurrentCanvas;
 
-                this.DxfExportDiagram(dlg.FileName, canvas, shortenStart, shortenEnd);
+                DxfAcadVer version;
+                switch(dlg.FilterIndex)
+                {
+                    case 1: 
+                        version = DxfAcadVer.AC1009; 
+                        break;
+                    case 2: 
+                        version = DxfAcadVer.AC1015; 
+                        break;
+                    case 3:
+                    default: 
+                        version = DxfAcadVer.AC1015; 
+                        break;
+                }
+
+                this.DxfExportDiagram(dlg.FileName, 
+                    canvas, 
+                    shortenStart, 
+                    shortenEnd, 
+                    version);
             }
         }
 

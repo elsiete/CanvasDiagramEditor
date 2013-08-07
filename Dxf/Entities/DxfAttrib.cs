@@ -23,6 +23,8 @@ namespace CanvasDiagramEditor.Dxf.Entities
         {
             Add("0", "ATTRIB");
 
+            Entity();
+
             if (Version > DxfAcadVer.AC1009)
             {
                 Subclass("AcDbText");
@@ -88,7 +90,7 @@ namespace CanvasDiagramEditor.Dxf.Entities
             return this;
         }
 
-        public DxfAttrib FirstAlignment(Vector3 point)
+        public DxfAttrib StartPoint(Vector3 point)
         {
             Add("10", point.X);
             Add("20", point.Y);
@@ -96,7 +98,7 @@ namespace CanvasDiagramEditor.Dxf.Entities
             return this;
         }
 
-        public DxfAttrib SecondAlignment(Vector3 point)
+        public DxfAttrib AlignmentPoint(Vector3 point)
         {
             Add("11", point.X);
             Add("21", point.Y);

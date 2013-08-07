@@ -23,6 +23,8 @@ namespace CanvasDiagramEditor.Dxf.Entities
         {
             Add("0", "ATTDEF");
 
+            Entity();
+
             if (Version > DxfAcadVer.AC1009)
             {
                 Subclass("AcDbText");
