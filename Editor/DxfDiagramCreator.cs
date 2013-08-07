@@ -80,7 +80,9 @@ namespace CanvasDiagramEditor.Editor
         private const string LayerWires = "WIRES";
         private const string LayerElements = "ELEMENTS";
 
-        private string StylePrimatyFont = "arial.ttf";
+        private string StylePrimatyFont = "arial.ttf"; // arialuni.ttf
+        private string StylePrimatyFontDescription = "Arial"; // Arial Unicode MS
+
         private string StyleBigFont = "";
 
         private double ShortenLineSize = 15.0;
@@ -477,7 +479,7 @@ namespace CanvasDiagramEditor.Editor
             var styles = new List<DxfStyle>();
 
             // style: Standard
-            styles.Add(new DxfStyle(Version, GetNextHandle())
+            var standard = new DxfStyle(Version, GetNextHandle())
                 .Name("Standard")
                 .StandardFlags(DxfStyleFlags.Default)
                 .FixedTextHeight(0.0)
@@ -486,10 +488,20 @@ namespace CanvasDiagramEditor.Editor
                 .TextGenerationFlags(DxfTextGenerationFlags.Default)
                 .LastHeightUsed(0.0)
                 .PrimaryFontFile(StylePrimatyFont)
-                .BifFontFile(StyleBigFont));
+                .BifFontFile(StyleBigFont);
+
+            if (Version > DxfAcadVer.AC1009)
+            {
+                // extended STYLE data
+                standard.Add(1001, "ACAD");
+                standard.Add(1000, StylePrimatyFontDescription);
+                standard.Add(1071, 0);
+            }
+
+            styles.Add(standard);
 
             // style: TextFrameHeaderSmall
-            styles.Add(new DxfStyle(Version, GetNextHandle())
+            var textFrameHeaderSmall = new DxfStyle(Version, GetNextHandle())
                 .Name("TextFrameHeaderSmall")
                 .StandardFlags(DxfStyleFlags.Default)
                 .FixedTextHeight(0.0)
@@ -498,10 +510,20 @@ namespace CanvasDiagramEditor.Editor
                 .TextGenerationFlags(DxfTextGenerationFlags.Default)
                 .LastHeightUsed(0.0)
                 .PrimaryFontFile(StylePrimatyFont)
-                .BifFontFile(StyleBigFont));
+                .BifFontFile(StyleBigFont);
+
+            if (Version > DxfAcadVer.AC1009)
+            {
+                // extended STYLE data
+                textFrameHeaderSmall.Add(1001, "ACAD");
+                textFrameHeaderSmall.Add(1000, StylePrimatyFontDescription);
+                textFrameHeaderSmall.Add(1071, 0);
+            }
+
+            styles.Add(textFrameHeaderSmall);
 
             // style: TextFrameHeaderLarge
-            styles.Add(new DxfStyle(Version, GetNextHandle())
+            var textFrameHeaderLarge = new DxfStyle(Version, GetNextHandle())
                 .Name("TextFrameHeaderLarge")
                 .StandardFlags(DxfStyleFlags.Default)
                 .FixedTextHeight(0.0)
@@ -510,10 +532,20 @@ namespace CanvasDiagramEditor.Editor
                 .TextGenerationFlags(DxfTextGenerationFlags.Default)
                 .LastHeightUsed(0.0)
                 .PrimaryFontFile(StylePrimatyFont)
-                .BifFontFile(StyleBigFont));
+                .BifFontFile(StyleBigFont);
+
+            if (Version > DxfAcadVer.AC1009)
+            {
+                // extended STYLE data
+                textFrameHeaderLarge.Add(1001, "ACAD");
+                textFrameHeaderLarge.Add(1000, StylePrimatyFontDescription);
+                textFrameHeaderLarge.Add(1071, 0);
+            }
+
+            styles.Add(textFrameHeaderLarge);
 
             // style: TextFrameNumber
-            styles.Add(new DxfStyle(Version, GetNextHandle())
+            var textFrameNumber = new DxfStyle(Version, GetNextHandle())
                 .Name("TextFrameNumber")
                 .StandardFlags(DxfStyleFlags.Default)
                 .FixedTextHeight(0.0)
@@ -522,10 +554,20 @@ namespace CanvasDiagramEditor.Editor
                 .TextGenerationFlags(DxfTextGenerationFlags.Default)
                 .LastHeightUsed(0.0)
                 .PrimaryFontFile(StylePrimatyFont)
-                .BifFontFile(StyleBigFont));
+                .BifFontFile(StyleBigFont);
+
+            if (Version > DxfAcadVer.AC1009)
+            {
+                // extended STYLE data
+                textFrameNumber.Add(1001, "ACAD");
+                textFrameNumber.Add(1000, StylePrimatyFontDescription);
+                textFrameNumber.Add(1071, 0);
+            }
+
+            styles.Add(textFrameNumber);
 
             // style: TextTableHeader
-            styles.Add(new DxfStyle(Version, GetNextHandle())
+            var textTableHeader = new DxfStyle(Version, GetNextHandle())
                 .Name("TextTableHeader")
                 .StandardFlags(DxfStyleFlags.Default)
                 .FixedTextHeight(0.0)
@@ -534,10 +576,20 @@ namespace CanvasDiagramEditor.Editor
                 .TextGenerationFlags(DxfTextGenerationFlags.Default)
                 .LastHeightUsed(0.0)
                 .PrimaryFontFile(StylePrimatyFont)
-                .BifFontFile(StyleBigFont));
+                .BifFontFile(StyleBigFont);
+
+            if (Version > DxfAcadVer.AC1009)
+            {
+                // extended STYLE data
+                textTableHeader.Add(1001, "ACAD");
+                textTableHeader.Add(1000, StylePrimatyFontDescription);
+                textTableHeader.Add(1071, 0);
+            }
+
+            styles.Add(textTableHeader);
 
             // style: TextTableTag
-            styles.Add(new DxfStyle(Version, GetNextHandle())
+            var textTableTag = new DxfStyle(Version, GetNextHandle())
                 .Name("TextTableTag")
                 .StandardFlags(DxfStyleFlags.Default)
                 .FixedTextHeight(0.0)
@@ -546,10 +598,20 @@ namespace CanvasDiagramEditor.Editor
                 .TextGenerationFlags(DxfTextGenerationFlags.Default)
                 .LastHeightUsed(0.0)
                 .PrimaryFontFile(StylePrimatyFont)
-                .BifFontFile(StyleBigFont));
+                .BifFontFile(StyleBigFont);
+
+            if (Version > DxfAcadVer.AC1009)
+            {
+                // extended STYLE data
+                textTableTag.Add(1001, "ACAD");
+                textTableTag.Add(1000, StylePrimatyFontDescription);
+                textTableTag.Add(1071, 0);
+            }
+
+            styles.Add(textTableTag);
 
             // style: TextElementGate
-            styles.Add(new DxfStyle(Version, GetNextHandle())
+            var textElementGate = new DxfStyle(Version, GetNextHandle())
                 .Name("TextElementGate")
                 .StandardFlags(DxfStyleFlags.Default)
                 .FixedTextHeight(0.0)
@@ -558,10 +620,20 @@ namespace CanvasDiagramEditor.Editor
                 .TextGenerationFlags(DxfTextGenerationFlags.Default)
                 .LastHeightUsed(0.0)
                 .PrimaryFontFile(StylePrimatyFont)
-                .BifFontFile(StyleBigFont));
+                .BifFontFile(StyleBigFont);
+
+            if (Version > DxfAcadVer.AC1009)
+            {
+                // extended STYLE data
+                textElementGate.Add(1001, "ACAD");
+                textElementGate.Add(1000, StylePrimatyFontDescription);
+                textElementGate.Add(1071, 0);
+            }
+
+            styles.Add(textElementGate);
 
             // style: TextElementIO
-            styles.Add(new DxfStyle(Version, GetNextHandle())
+            var textElementIO = new DxfStyle(Version, GetNextHandle())
                 .Name("TextElementIO")
                 .StandardFlags(DxfStyleFlags.Default)
                 .FixedTextHeight(0.0)
@@ -570,7 +642,17 @@ namespace CanvasDiagramEditor.Editor
                 .TextGenerationFlags(DxfTextGenerationFlags.Default)
                 .LastHeightUsed(0.0)
                 .PrimaryFontFile(StylePrimatyFont)
-                .BifFontFile(StyleBigFont));
+                .BifFontFile(StyleBigFont);
+
+            if (Version > DxfAcadVer.AC1009)
+            {
+                // extended STYLE data
+                textElementIO.Add(1001, "ACAD");
+                textElementIO.Add(1000, StylePrimatyFontDescription);
+                textElementIO.Add(1071, 0);
+            }
+
+            styles.Add(textElementIO);
 
             return styles;
         }
@@ -1030,6 +1112,9 @@ namespace CanvasDiagramEditor.Editor
                 .Block("ORGATE")
                 .Layer(LayerElements)
                 .Insertion(new Vector3(x, PageHeight - 30.0 - y, 0));
+
+            // Arial, arial.ttf, ≥, \U+2265
+            // Arial Unicode MS, arialuni.ttf ≥, \U+2265
 
             insert.AttributesBegin()
                 .AddAttribute(AttribGate("ID", id.ToString(), x + 30, (PageHeight - y - 30), false))
