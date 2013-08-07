@@ -46,6 +46,8 @@ namespace CanvasDiagramEditor.Dxf
         {
             AcadVer(Version);
 
+            VarName("$DWGCODEPAGE");
+            Add(3, "ANSI_" + Encoding.Default.WindowsCodePage);
 
 /*
 // Angle 0 direction
