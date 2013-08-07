@@ -18,129 +18,100 @@ namespace CanvasDiagramEditor.Dxf.Entities
 
     public class DxfAttdef : DxfObject<DxfAttdef>
     {
+        public double Thickness { get; set; }
+        public string Layer { get; set; }
+        public string Color { get; set; }
+        public Vector3 FirstAlignment { get; set; }
+        public double TextHeight { get; set; }
+        public string DefaultValue { get; set; }
+        public double TextRotation { get; set; }
+        public double ScaleFactorX { get; set; }
+        public double ObliqueAngle { get; set; }
+        public string TextStyle { get; set; }
+        public DxfTextGenerationFlags TextGenerationFlags { get; set; }
+        public DxfHorizontalTextJustification HorizontalTextJustification { get; set; }
+        public Vector3 SecondAlignment { get; set; }
+        public Vector3 ExtrusionDirection { get; set; }
+        public string Prompt { get; set; }
+        public string Tag { get; set; }
+        public DxfAttributeFlags AttributeFlags { get; set; }
+        public int FieldLength { get; set; }
+        public DxfVerticalTextJustification VerticalTextJustification { get; set; }
+
         public DxfAttdef(DxfAcadVer version, int id)
             : base(version, id)
         {
-            Add("0", "ATTDEF");
+        }
+
+        public DxfAttdef Defaults()
+        {
+            Thickness = 0.0;
+            Layer = "0";
+            Color = DxfDefaultColors.ByLayer.ColorToString();
+            FirstAlignment = new Vector3(0.0, 0.0, 0.0);
+            TextHeight = 1.0;
+            DefaultValue = string.Empty;
+            TextRotation = 0.0;
+            ScaleFactorX = 1.0;
+            ObliqueAngle = 0.0;
+            TextStyle = "Standard";
+            TextGenerationFlags = DxfTextGenerationFlags.Default;
+            HorizontalTextJustification = DxfHorizontalTextJustification.Default;
+            SecondAlignment = new Vector3(0.0, 0.0, 0.0);;
+            ExtrusionDirection = new Vector3(0.0, 0.0, 1.0);
+            Prompt = string.Empty;
+            Tag = string.Empty;
+            AttributeFlags = DxfAttributeFlags.Default;
+            FieldLength = 0;
+            VerticalTextJustification = DxfVerticalTextJustification.Default;
+
+            return this;
+        }
+
+        public DxfAttdef Create()
+        {
+            Add(0, CodeName.Attdef);
 
             Entity();
 
             if (Version > DxfAcadVer.AC1009)
-            {
-                Subclass("AcDbText");
-            }
-        }
+                Subclass(SubclassMarker.Text);
 
-        public DxfAttdef Layer(string layer)
-        {
-            Add("8", layer);
-            return this;
-        }
+            Add(8, Layer);
+            Add(62, Color);
+            Add(39, Thickness);
 
-        public DxfAttdef Thickness(double thickness)
-        {
-            Add("39", thickness);
-            return this;
-        }
+            Add(10, FirstAlignment.X);
+            Add(20, FirstAlignment.Y);
+            Add(30, FirstAlignment.Z);
 
-        public DxfAttdef DefaultValue(string value)
-        {
-            Add("1", value);
-            return this;
-        }
+            Add(40, TextHeight);
+            Add(1, DefaultValue);
+            Add(50, TextRotation);
+            Add(41, ScaleFactorX);
+            Add(51, ObliqueAngle);
+            Add(7, TextStyle);
+            Add(71, (int)TextGenerationFlags);
+            Add(72, (int)HorizontalTextJustification);
 
-        public DxfAttdef Tag(string tag)
-        {
-            Add("2", tag);
-            return this;
-        }
+            Add(11, SecondAlignment.X);
+            Add(21, SecondAlignment.Y);
+            Add(31, SecondAlignment.Z);
 
-        public DxfAttdef Prompt(string prompt)
-        {
+            Add(210, ExtrusionDirection.X);
+            Add(220, ExtrusionDirection.Y);
+            Add(230, ExtrusionDirection.Z);
+
             if (Version > DxfAcadVer.AC1009)
-            {
-                Subclass("AcDbAttributeDefinition");
-            }
+                Subclass(SubclassMarker.AttributeDefinition);
 
-            Add("3", prompt);
-            return this;
-        }
+            Add(3, Prompt);
+            Add(2, Tag);
 
-        public DxfAttdef TextStyle(string style)
-        {
-            Add("7", style);
-            return this;
-        }
+            Add(70, (int)AttributeFlags);
+            Add(73, FieldLength);
+            Add(74, (int)VerticalTextJustification);
 
-        public DxfAttdef TextHeight(double height)
-        {
-            Add("40", height);
-            return this;
-        }
-
-        public DxfAttdef TextRotation(double rotation)
-        {
-            Add("50", rotation);
-            return this;
-        }
-
-        public DxfAttdef ObliqueAngle(double angle)
-        {
-            Add("51", angle);
-            return this;
-        }
-
-        public DxfAttdef ScaleFactorX(double factor)
-        {
-            Add("41", factor);
-            return this;
-        }
-
-        public DxfAttdef FirstAlignment(Vector3 point)
-        {
-            Add("10", point.X);
-            Add("20", point.Y);
-            Add("30", point.Z);
-            return this;
-        }
-
-        public DxfAttdef SecondAlignment(Vector3 point)
-        {
-            Add("11", point.X);
-            Add("21", point.Y);
-            Add("31", point.Z);
-            return this;
-        }
-
-        public DxfAttdef Extrusion(Vector3 direction)
-        {
-            Add("210", direction.X);
-            Add("220", direction.Y);
-            Add("230", direction.Z);
-            return this;
-        }
-
-        public DxfAttdef AttributeFlags(DxfAttributeFlags flags)
-        {
-            Add("70", (int)flags);
-            return this;
-        }
-
-        public DxfAttdef TextGenerationFlags(DxfTextGenerationFlags flags)
-        {
-            Add("71", (int)flags);
-            return this;
-        }
-
-        public DxfAttdef HorizontalTextJustification(DxfHorizontalTextJustification justification)
-        {
-            Add("72", (int)justification);
-            return this;
-        }
-
-        public DxfAttdef VerticalTextJustification(DxfVerticalTextJustification justification)
-        {
-            Add("74", (int)justification);
             return this;
         }
     } 

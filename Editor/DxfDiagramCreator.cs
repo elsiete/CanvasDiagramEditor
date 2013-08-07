@@ -114,11 +114,13 @@ namespace CanvasDiagramEditor.Editor
 
         #region Dxf Wrappers
 
+
+
+
         private DxfLine Line(double x1, double y1,
             double x2, double y2,
             double offsetX, double offsetY,
-            string layer, int color,
-            double pageOffsetX, double pageOffsetY)
+            string layer,  double pageOffsetX, double pageOffsetY)
         {
             double _x1 = pageOffsetX > 0.0 ? pageOffsetX - x1 + offsetX : x1 + offsetX;
             double _y1 = pageOffsetY > 0.0 ? pageOffsetY - y1 + offsetY : y1 + offsetY;
@@ -132,7 +134,7 @@ namespace CanvasDiagramEditor.Editor
             var line = new DxfLine(Version, GetNextHandle())
             {
                 Layer = layer,
-                Color = color.ToString(),
+                Color = DxfDefaultColors.ByLayer.ColorToString(),
                 Thickness = thickness,
                 StartPoint = new Vector3(_x1, _y1, 0.0),
                 EndPoint = new Vector3(_x2, _y2, 0.0),
@@ -166,7 +168,7 @@ namespace CanvasDiagramEditor.Editor
         private DxfCircle Circle(double x, double y,
             double radius,
             double offsetX, double offsetY,
-            string layer, int color,
+            string layer,
             double pageOffsetX, double pageOffsetY)
         {
             double _x = pageOffsetX > 0.0 ? pageOffsetX - x + offsetX : x + offsetX;
@@ -178,7 +180,7 @@ namespace CanvasDiagramEditor.Editor
 
             var circle = new DxfCircle(Version, GetNextHandle())
                 .Layer(layer)
-                .Color(color.ToString())
+                .Color(DxfDefaultColors.ByLayer.ColorToString())
                 .Thickness(thickness)
                 .Radius(radius)
                 .Center(new Vector3(_x, _y, 0.0));
@@ -189,19 +191,29 @@ namespace CanvasDiagramEditor.Editor
         private DxfAttdef AttdefIO(string tag, double x, double y, bool isVisible)
         {
             var attdef = new DxfAttdef(Version, GetNextHandle())
-                 .Layer(LayerIO)
-                 .FirstAlignment(new Vector3(x, y, 0.0))
-                 .TextHeight(6.0)
-                 .DefaultValue(tag)
-                 .TextStyle("TextElementIO")
-                 .HorizontalTextJustification(DxfHorizontalTextJustification.Left)
-                 .SecondAlignment(new Vector3(x, y, 0.0))
-                 .Prompt(tag)
-                 .Tag(tag)
-                 .AttributeFlags(isVisible ? DxfAttributeFlags.Default : DxfAttributeFlags.Invisible)
-                 .VerticalTextJustification(DxfVerticalTextJustification.Middle);
+            {
+                Thickness = 0.0,
+                Layer = LayerIO,
+                Color = DxfDefaultColors.ByLayer.ColorToString(),
+                FirstAlignment = new Vector3(x, y, 0.0),
+                TextHeight = 6.0,
+                DefaultValue = tag,
+                TextRotation = 0.0,
+                ScaleFactorX = 1.0,
+                ObliqueAngle = 0.0,
+                TextStyle = "TextElementIO",
+                TextGenerationFlags = DxfTextGenerationFlags.Default,
+                HorizontalTextJustification = DxfHorizontalTextJustification.Left,
+                SecondAlignment = new Vector3(x, y, 0.0),
+                ExtrusionDirection = new Vector3(0.0, 0.0, 1.0),
+                Prompt = tag,
+                Tag = tag,
+                AttributeFlags = isVisible ? DxfAttributeFlags.Default : DxfAttributeFlags.Invisible,
+                FieldLength = 0,
+                VerticalTextJustification = DxfVerticalTextJustification.Middle
+            };
 
-            return attdef;
+            return attdef.Create();
         }
 
         private DxfAttrib AttribIO(string tag, string text,
@@ -226,19 +238,29 @@ namespace CanvasDiagramEditor.Editor
         private DxfAttdef AttdefGate(string tag, double x, double y, bool isVisible)
         {
             var attdef = new DxfAttdef(Version, GetNextHandle())
-                 .Layer(LayerElements)
-                 .FirstAlignment(new Vector3(x, y, 0.0))
-                 .TextHeight(10.0)
-                 .DefaultValue(tag)
-                 .TextStyle("TextElementGate")
-                 .HorizontalTextJustification(DxfHorizontalTextJustification.Center)
-                 .SecondAlignment(new Vector3(x, y, 0.0))
-                 .Prompt(tag)
-                 .Tag(tag)
-                 .AttributeFlags(isVisible ? DxfAttributeFlags.Default : DxfAttributeFlags.Invisible)
-                 .VerticalTextJustification(DxfVerticalTextJustification.Middle);
+            {
+                Thickness = 0.0,
+                Layer = LayerElements,
+                Color = DxfDefaultColors.ByLayer.ColorToString(),
+                FirstAlignment = new Vector3(x, y, 0.0),
+                TextHeight = 10.0,
+                DefaultValue = tag,
+                TextRotation = 0.0,
+                ScaleFactorX = 1.0,
+                ObliqueAngle = 0.0,
+                TextStyle = "TextElementGate",
+                TextGenerationFlags = DxfTextGenerationFlags.Default,
+                HorizontalTextJustification = DxfHorizontalTextJustification.Center,
+                SecondAlignment = new Vector3(x, y, 0.0),
+                ExtrusionDirection = new Vector3(0.0, 0.0, 1.0),
+                Prompt = tag,
+                Tag = tag,
+                AttributeFlags = isVisible ? DxfAttributeFlags.Default : DxfAttributeFlags.Invisible,
+                FieldLength = 0,
+                VerticalTextJustification = DxfVerticalTextJustification.Middle
+            };
 
-            return attdef;
+            return attdef.Create();
         }
 
         private DxfAttrib AttribGate(string tag, string text,
@@ -336,7 +358,7 @@ namespace CanvasDiagramEditor.Editor
 
             //return Enumerable.Empty<DxfDimstyle>();
         }
-
+        
         private IEnumerable<DxfLayer> TableLayers()
         {
             var layers = new List<DxfLayer>();
@@ -348,7 +370,7 @@ namespace CanvasDiagramEditor.Editor
                 {
                     Name = "0",
                     LayerStandardFlags = DxfLayerStandardFlags.Default,
-                    Color = 1,
+                    Color = DxfDefaultColors.Default.ColorToString(),
                     LineType = "Continuous",
                     PlottingFlag = true,
                     LineWeight = DxfLineWeight.LnWtByLwDefault,
@@ -361,7 +383,7 @@ namespace CanvasDiagramEditor.Editor
             {
                 Name = LayerFrame,
                 LayerStandardFlags = DxfLayerStandardFlags.Default,
-                Color = 8,
+                Color = DxfDefaultColors.DarkGrey.ColorToString(),
                 LineType = "Continuous",
                 PlottingFlag = true,
                 LineWeight = DxfLineWeight.LnWt013,
@@ -373,7 +395,7 @@ namespace CanvasDiagramEditor.Editor
             {
                 Name = LayerGrid,
                 LayerStandardFlags = DxfLayerStandardFlags.Default,
-                Color = 9,
+                Color = DxfDefaultColors.LightGrey.ColorToString(),
                 LineType = "Continuous",
                 PlottingFlag = true,
                 LineWeight = DxfLineWeight.LnWt013,
@@ -386,7 +408,7 @@ namespace CanvasDiagramEditor.Editor
             {
                 Name = LayerTable,
                 LayerStandardFlags = DxfLayerStandardFlags.Default,
-                Color = 8,
+                Color = DxfDefaultColors.DarkGrey.ColorToString(),
                 LineType = "Continuous",
                 PlottingFlag = true,
                 LineWeight = DxfLineWeight.LnWt013,
@@ -398,7 +420,7 @@ namespace CanvasDiagramEditor.Editor
             {
                 Name = LayerIO,
                 LayerStandardFlags = DxfLayerStandardFlags.Default,
-                Color = 6,
+                Color = DxfDefaultColors.Magenta.ColorToString(),
                 LineType = "Continuous",
                 PlottingFlag = true,
                 LineWeight = DxfLineWeight.LnWt025,
@@ -410,7 +432,7 @@ namespace CanvasDiagramEditor.Editor
             {
                 Name = LayerWires,
                 LayerStandardFlags = DxfLayerStandardFlags.Default,
-                Color = 5,
+                Color = DxfDefaultColors.Default.ColorToString(),
                 LineType = "Continuous",
                 PlottingFlag = true,
                 LineWeight = DxfLineWeight.LnWt018,
@@ -422,7 +444,7 @@ namespace CanvasDiagramEditor.Editor
             {
                 Name = LayerElements,
                 LayerStandardFlags = DxfLayerStandardFlags.Default,
-                Color = 5,
+                Color = DxfDefaultColors.Blue.ColorToString(),
                 LineType = "Continuous",
                 PlottingFlag = true,
                 LineWeight = DxfLineWeight.LnWt035,
@@ -740,38 +762,38 @@ namespace CanvasDiagramEditor.Editor
             double pageOffsetX = 0.0;
             double pageOffsetY = 891.0;
 
-            block.Add(Line(0.0, 20.0, 600.0, 20.0, 330.0, -15.0, LayerFrame, 0, pageOffsetX, pageOffsetY));
-            block.Add(Line(600.0, 770.0, 0.0, 770.0, 330.0, -15.0, LayerFrame, 0, pageOffsetX, pageOffsetY));
-            block.Add(Line(0.0, 770.0, 0.0, 0.0, 330.0, -15.0, LayerFrame, 0, pageOffsetX, pageOffsetY));
-            block.Add(Line(600.0, 0.0, 600.0, 770.0, 330.0, -15.0, LayerFrame, 0, pageOffsetX, pageOffsetY));
-            block.Add(Line(15.0, 15.0, 1245.0, 15.0, 0.0, 0.0, LayerFrame, 0, pageOffsetX, pageOffsetY));
-            block.Add(Line(1245.0, 816.0, 15.0, 816.0, 0.0, 0.0, LayerFrame, 0, pageOffsetX, pageOffsetY));
-            block.Add(Line(15.0, 876.0, 1245.0, 876.0, 0.0, 0.0, LayerFrame, 0, pageOffsetX, pageOffsetY));
-            block.Add(Line(1245.0, 876.0, 1245.0, 15.0, 0.0, 0.0, LayerFrame, 0, pageOffsetX, pageOffsetY));
-            block.Add(Line(15.0, 15.0, 15.0, 876.0, 0.0, 0.0, LayerFrame, 0, pageOffsetX, pageOffsetY));
-            block.Add(Line(1.0, 1.0, 1259.0, 1.0, 0.0, 0.0, LayerFrame, 0, pageOffsetX, pageOffsetY));
-            block.Add(Line(1259.0, 890.0, 1.0, 890.0, 0.0, 0.0, LayerFrame, 0, pageOffsetX, pageOffsetY));
-            block.Add(Line(1.0, 890.0, 1.0, 1.0, 0.0, 0.0, LayerFrame, 0, pageOffsetX, pageOffsetY));
-            block.Add(Line(1259.0, 1.0, 1259.0, 890.0, 0.0, 0.0, LayerFrame, 0, pageOffsetX, pageOffsetY));
+            block.Add(Line(0.0, 20.0, 600.0, 20.0, 330.0, -15.0, LayerFrame, pageOffsetX, pageOffsetY));
+            block.Add(Line(600.0, 770.0, 0.0, 770.0, 330.0, -15.0, LayerFrame, pageOffsetX, pageOffsetY));
+            block.Add(Line(0.0, 770.0, 0.0, 0.0, 330.0, -15.0, LayerFrame, pageOffsetX, pageOffsetY));
+            block.Add(Line(600.0, 0.0, 600.0, 770.0, 330.0, -15.0, LayerFrame, pageOffsetX, pageOffsetY));
+            block.Add(Line(15.0, 15.0, 1245.0, 15.0, 0.0, 0.0, LayerFrame, pageOffsetX, pageOffsetY));
+            block.Add(Line(1245.0, 816.0, 15.0, 816.0, 0.0, 0.0, LayerFrame, pageOffsetX, pageOffsetY));
+            block.Add(Line(15.0, 876.0, 1245.0, 876.0, 0.0, 0.0, LayerFrame, pageOffsetX, pageOffsetY));
+            block.Add(Line(1245.0, 876.0, 1245.0, 15.0, 0.0, 0.0, LayerFrame, pageOffsetX, pageOffsetY));
+            block.Add(Line(15.0, 15.0, 15.0, 876.0, 0.0, 0.0, LayerFrame, pageOffsetX, pageOffsetY));
+            block.Add(Line(1.0, 1.0, 1259.0, 1.0, 0.0, 0.0, LayerFrame, pageOffsetX, pageOffsetY));
+            block.Add(Line(1259.0, 890.0, 1.0, 890.0, 0.0, 0.0, LayerFrame, pageOffsetX, pageOffsetY));
+            block.Add(Line(1.0, 890.0, 1.0, 1.0, 0.0, 0.0, LayerFrame, pageOffsetX, pageOffsetY));
+            block.Add(Line(1259.0, 1.0, 1259.0, 890.0, 0.0, 0.0, LayerFrame, pageOffsetX, pageOffsetY));
 
-            block.Add(Line(30.0, 0.0, 30.0, 750.0, 15.0, -35.0, LayerFrame, 0, pageOffsetX, pageOffsetY));
-            block.Add(Line(240.0, 750.0, 240.0, 0.0, 15.0, -35.0, LayerFrame, 0, pageOffsetX, pageOffsetY));
-            block.Add(Line(315.0, 0.0, 0.0, 0.0, 15.0, -35.0, LayerFrame, 0, pageOffsetX, pageOffsetY));
-            block.Add(Line(0.0, 750.0, 315.0, 750.0, 15.0, -35.0, LayerFrame, 0, pageOffsetX, pageOffsetY));
+            block.Add(Line(30.0, 0.0, 30.0, 750.0, 15.0, -35.0, LayerFrame, pageOffsetX, pageOffsetY));
+            block.Add(Line(240.0, 750.0, 240.0, 0.0, 15.0, -35.0, LayerFrame, pageOffsetX, pageOffsetY));
+            block.Add(Line(315.0, 0.0, 0.0, 0.0, 15.0, -35.0, LayerFrame, pageOffsetX, pageOffsetY));
+            block.Add(Line(0.0, 750.0, 315.0, 750.0, 15.0, -35.0, LayerFrame, pageOffsetX, pageOffsetY));
 
             for (double y = 30.0; y <= 720.0; y += 30.0)
             {
-                block.Add(Line(0.0, y, 315.0, y, 15.0, -35.0, LayerFrame, 0, pageOffsetX, pageOffsetY));
+                block.Add(Line(0.0, y, 315.0, y, 15.0, -35.0, LayerFrame, pageOffsetX, pageOffsetY));
             }
 
-            block.Add(Line(210.0, 0.0, 210.0, 750.0, 930.0, -35.0, LayerFrame, 0, pageOffsetX, pageOffsetY));
-            block.Add(Line(285.0, 750.0, 285.0, 0.0, 930.0, -35.0, LayerFrame, 0, pageOffsetX, pageOffsetY));
-            block.Add(Line(315.0, 0.0, 0.0, 0.0, 930.0, -35.0, LayerFrame, 0, pageOffsetX, pageOffsetY));
-            block.Add(Line(0.0, 750.0, 315.0, 750.0, 930.0, -35.0, LayerFrame, 0, pageOffsetX, pageOffsetY));
+            block.Add(Line(210.0, 0.0, 210.0, 750.0, 930.0, -35.0, LayerFrame, pageOffsetX, pageOffsetY));
+            block.Add(Line(285.0, 750.0, 285.0, 0.0, 930.0, -35.0, LayerFrame, pageOffsetX, pageOffsetY));
+            block.Add(Line(315.0, 0.0, 0.0, 0.0, 930.0, -35.0, LayerFrame, pageOffsetX, pageOffsetY));
+            block.Add(Line(0.0, 750.0, 315.0, 750.0, 930.0, -35.0, LayerFrame, pageOffsetX, pageOffsetY));
 
             for (double y = 30.0; y <= 720.0; y += 30.0)
             {
-                block.Add(Line(0.0, y, 315.0, y, 930.0, -35.0, LayerFrame, 0, pageOffsetX, pageOffsetY));
+                block.Add(Line(0.0, y, 315.0, y, 930.0, -35.0, LayerFrame, pageOffsetX, pageOffsetY));
             }
 
             // TODO: text
@@ -789,27 +811,27 @@ namespace CanvasDiagramEditor.Editor
             double pageOffsetX = 0.0;
             double pageOffsetY = 891.0;
 
-            block.Add(Line(0.0, 15.0, 175.0, 15.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY));
-            block.Add(Line(405.0, 15.0, 1230.0, 15.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY));
-            block.Add(Line(1230.0, 30.0, 965.0, 30.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY));
-            block.Add(Line(695.0, 30.0, 405.0, 30.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY));
-            block.Add(Line(175.0, 30.0, 0.0, 30.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY));
-            block.Add(Line(0.0, 45.0, 175.0, 45.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY));
-            block.Add(Line(405.0, 45.0, 695.0, 45.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY));
-            block.Add(Line(965.0, 45.0, 1230.0, 45.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY));
-            block.Add(Line(30.0, 0.0, 30.0, 60.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY));
-            block.Add(Line(75.0, 0.0, 75.0, 60.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY));
-            block.Add(Line(175.0, 60.0, 175.0, 0.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY)); 
-            block.Add(Line(290.0, 0.0, 290.0, 60.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY));
-            block.Add(Line(405.0, 60.0, 405.0, 0.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY));
-            block.Add(Line(465.0, 0.0, 465.0, 60.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY));
-            block.Add(Line(595.0, 60.0, 595.0, 0.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY));
-            block.Add(Line(640.0, 0.0, 640.0, 60.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY));
-            block.Add(Line(695.0, 60.0, 695.0, 0.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY));
-            block.Add(Line(965.0, 0.0, 965.0, 60.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY)); 
-            block.Add(Line(1005.0, 60.0, 1005.0, 0.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY));
-            block.Add(Line(1045.0, 0.0, 1045.0, 60.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY));
-            block.Add(Line(1100.0, 60.0, 1100.0, 0.0, 15.0, -1647.0, LayerTable, 0, pageOffsetX, pageOffsetY));
+            block.Add(Line(0.0, 15.0, 175.0, 15.0, 15.0, -1647.0, LayerTable, pageOffsetX, pageOffsetY));
+            block.Add(Line(405.0, 15.0, 1230.0, 15.0, 15.0, -1647.0, LayerTable, pageOffsetX, pageOffsetY));
+            block.Add(Line(1230.0, 30.0, 965.0, 30.0, 15.0, -1647.0, LayerTable, pageOffsetX, pageOffsetY));
+            block.Add(Line(695.0, 30.0, 405.0, 30.0, 15.0, -1647.0, LayerTable, pageOffsetX, pageOffsetY));
+            block.Add(Line(175.0, 30.0, 0.0, 30.0, 15.0, -1647.0, LayerTable, pageOffsetX, pageOffsetY));
+            block.Add(Line(0.0, 45.0, 175.0, 45.0, 15.0, -1647.0, LayerTable, pageOffsetX, pageOffsetY));
+            block.Add(Line(405.0, 45.0, 695.0, 45.0, 15.0, -1647.0, LayerTable, pageOffsetX, pageOffsetY));
+            block.Add(Line(965.0, 45.0, 1230.0, 45.0, 15.0, -1647.0, LayerTable, pageOffsetX, pageOffsetY));
+            block.Add(Line(30.0, 0.0, 30.0, 60.0, 15.0, -1647.0, LayerTable, pageOffsetX, pageOffsetY));
+            block.Add(Line(75.0, 0.0, 75.0, 60.0, 15.0, -1647.0, LayerTable, pageOffsetX, pageOffsetY));
+            block.Add(Line(175.0, 60.0, 175.0, 0.0, 15.0, -1647.0, LayerTable, pageOffsetX, pageOffsetY)); 
+            block.Add(Line(290.0, 0.0, 290.0, 60.0, 15.0, -1647.0, LayerTable, pageOffsetX, pageOffsetY));
+            block.Add(Line(405.0, 60.0, 405.0, 0.0, 15.0, -1647.0, LayerTable, pageOffsetX, pageOffsetY));
+            block.Add(Line(465.0, 0.0, 465.0, 60.0, 15.0, -1647.0, LayerTable, pageOffsetX, pageOffsetY));
+            block.Add(Line(595.0, 60.0, 595.0, 0.0, 15.0, -1647.0, LayerTable, pageOffsetX, pageOffsetY));
+            block.Add(Line(640.0, 0.0, 640.0, 60.0, 15.0, -1647.0, LayerTable, pageOffsetX, pageOffsetY));
+            block.Add(Line(695.0, 60.0, 695.0, 0.0, 15.0, -1647.0, LayerTable, pageOffsetX, pageOffsetY));
+            block.Add(Line(965.0, 0.0, 965.0, 60.0, 15.0, -1647.0, LayerTable, pageOffsetX, pageOffsetY)); 
+            block.Add(Line(1005.0, 60.0, 1005.0, 0.0, 15.0, -1647.0, LayerTable, pageOffsetX, pageOffsetY));
+            block.Add(Line(1045.0, 0.0, 1045.0, 60.0, 15.0, -1647.0, LayerTable, pageOffsetX, pageOffsetY));
+            block.Add(Line(1100.0, 60.0, 1100.0, 0.0, 15.0, -1647.0, LayerTable, pageOffsetX, pageOffsetY));
 
             // TODO: text
 
@@ -837,11 +859,11 @@ namespace CanvasDiagramEditor.Editor
                 .BlockTypeFlags(DxfBlockTypeFlags.NonConstantAttributes)
                 .Base(new Vector3(0, 0, 0));
 
-            block.Add(Line(0.0, 0.0, 285.0, 0.0, 0.0, 0.0, LayerIO, 0, 0.0, 30.0));
-            block.Add(Line(285.0, 30.0, 0.0, 30.0, 0.0, 0.0, LayerIO, 0, 0.0, 30.0));
-            block.Add(Line(0.0, 30.0, 0.0, 0.0, 0.0, 0.0, LayerIO, 0, 0.0, 30.0));
-            block.Add(Line(210.0, 0.0, 210.0, 30.0, 0.0, 0.0, LayerIO, 0, 0.0, 30.0));
-            block.Add(Line(285.0, 30.0, 285.0, 0.0, 0.0, 0.0, LayerIO, 0, 0.0, 30.0));
+            block.Add(Line(0.0, 0.0, 285.0, 0.0, 0.0, 0.0, LayerIO, 0.0, 30.0));
+            block.Add(Line(285.0, 30.0, 0.0, 30.0, 0.0, 0.0, LayerIO, 0.0, 30.0));
+            block.Add(Line(0.0, 30.0, 0.0, 0.0, 0.0, 0.0, LayerIO, 0.0, 30.0));
+            block.Add(Line(210.0, 0.0, 210.0, 30.0, 0.0, 0.0, LayerIO, 0.0, 30.0));
+            block.Add(Line(285.0, 30.0, 285.0, 0.0, 0.0, 0.0, LayerIO, 0.0, 30.0));
 
             block.Add(AttdefIO("ID", 288, 30, false));
             block.Add(AttdefIO("TAGID", 288, 0, false));
@@ -860,11 +882,11 @@ namespace CanvasDiagramEditor.Editor
                 .BlockTypeFlags(DxfBlockTypeFlags.NonConstantAttributes)
                 .Base(new Vector3(0, 0, 0));
  
-            block.Add(Line(0.0, 0.0, 285.0, 0.0, 0.0, 0.0, LayerIO, 0, 0.0, 30.0));
-            block.Add(Line(285.0, 30.0, 0.0, 30.0, 0.0, 0.0, LayerIO, 0, 0.0, 30.0));
-            block.Add(Line(0.0, 30.0, 0.0, 0.0, 0.0, 0.0, LayerIO, 0, 0.0, 30.0));
-            block.Add(Line(210.0, 0.0, 210.0, 30.0, 0.0, 0.0, LayerIO, 0, 0.0, 30.0));
-            block.Add(Line(285.0, 30.0, 285.0, 0.0, 0.0, 0.0, LayerIO, 0, 0.0, 30.0));
+            block.Add(Line(0.0, 0.0, 285.0, 0.0, 0.0, 0.0, LayerIO, 0.0, 30.0));
+            block.Add(Line(285.0, 30.0, 0.0, 30.0, 0.0, 0.0, LayerIO, 0.0, 30.0));
+            block.Add(Line(0.0, 30.0, 0.0, 0.0, 0.0, 0.0, LayerIO, 0.0, 30.0));
+            block.Add(Line(210.0, 0.0, 210.0, 30.0, 0.0, 0.0, LayerIO, 0.0, 30.0));
+            block.Add(Line(285.0, 30.0, 285.0, 0.0, 0.0, 0.0, LayerIO, 0.0, 30.0));
 
             block.Add(AttdefIO("ID", 288, 30, false));
             block.Add(AttdefIO("TAGID", 288, 0, false));
@@ -883,10 +905,10 @@ namespace CanvasDiagramEditor.Editor
                 .BlockTypeFlags(DxfBlockTypeFlags.NonConstantAttributes)
                 .Base(new Vector3(0, 0, 0));
 
-            block.Add(Line(0.0, 0.0, 30.0, 0.0, 0.0, 0.0, LayerElements, 0, 0.0, 30.0));
-            block.Add(Line(0.0, 30.0, 30.0, 30.0, 0.0, 0.0, LayerElements, 0, 0.0, 30.0));
-            block.Add(Line(0.0, 0.0, 0.0, 30.0, 0.0, 0.0, LayerElements, 0, 0.0, 30.0));
-            block.Add(Line(30.0, 0.0, 30.0, 30.0, 0.0, 0.0, LayerElements, 0, 0.0, 30.0));
+            block.Add(Line(0.0, 0.0, 30.0, 0.0, 0.0, 0.0, LayerElements, 0.0, 30.0));
+            block.Add(Line(0.0, 30.0, 30.0, 30.0, 0.0, 0.0, LayerElements,0.0, 30.0));
+            block.Add(Line(0.0, 0.0, 0.0, 30.0, 0.0, 0.0, LayerElements, 0.0, 30.0));
+            block.Add(Line(30.0, 0.0, 30.0, 30.0, 0.0, 0.0, LayerElements, 0.0, 30.0));
 
             block.Add(AttdefGate("ID", 30.0, 30.0, false));
             block.Add(AttdefGate("TEXT", 15.0, 15.0, true));
@@ -901,10 +923,10 @@ namespace CanvasDiagramEditor.Editor
                 .BlockTypeFlags(DxfBlockTypeFlags.NonConstantAttributes)
                 .Base(new Vector3(0, 0, 0));
 
-            block.Add(Line(0.0, 0.0, 30.0, 0.0, 0.0, 0.0, LayerElements, 0, 0.0, 30.0));
-            block.Add(Line(0.0, 30.0, 30.0, 30.0, 0.0, 0.0, LayerElements, 0, 0.0, 30.0));
-            block.Add(Line(0.0, 0.0, 0.0, 30.0, 0.0, 0.0, LayerElements, 0, 0.0, 30.0));
-            block.Add(Line(30.0, 0.0, 30.0, 30.0, 0.0, 0.0, LayerElements, 0, 0.0, 30.0));
+            block.Add(Line(0.0, 0.0, 30.0, 0.0, 0.0, 0.0, LayerElements, 0.0, 30.0));
+            block.Add(Line(0.0, 30.0, 30.0, 30.0, 0.0, 0.0, LayerElements, 0.0, 30.0));
+            block.Add(Line(0.0, 0.0, 0.0, 30.0, 0.0, 0.0, LayerElements, 0.0, 30.0));
+            block.Add(Line(30.0, 0.0, 30.0, 30.0, 0.0, 0.0, LayerElements,0.0, 30.0));
 
             block.Add(AttdefGate("ID", 30.0, 30.0, false));
             block.Add(AttdefGate("TEXT", 15.0, 15.0, true));
@@ -1009,7 +1031,6 @@ namespace CanvasDiagramEditor.Editor
                     InvertedCircleRadius,
                     0.0, 0.0, 
                     LayerWires, 
-                    0, 
                     0.0, 891.0);
 
                 Entities.Add(circle);
@@ -1021,7 +1042,6 @@ namespace CanvasDiagramEditor.Editor
                     InvertedCircleRadius,
                     0.0, 0.0,
                     LayerWires,
-                    0,
                     0.0, 891.0);
 
                 Entities.Add(circle);
@@ -1031,7 +1051,6 @@ namespace CanvasDiagramEditor.Editor
                 lineEnd.X, lineEnd.Y,
                 0.0, 0.0,
                 LayerWires,
-                0,
                 0.0, 891.0);
 
             Entities.Add(line);

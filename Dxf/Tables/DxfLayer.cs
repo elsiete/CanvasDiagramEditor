@@ -20,7 +20,7 @@ namespace CanvasDiagramEditor.Dxf.Tables
     {
         public string Name { get; set; }
         public DxfLayerStandardFlags LayerStandardFlags { get; set; }
-        public int Color { get; set; }
+        public string Color { get; set; }
         public string LineType { get; set; }
         public bool PlottingFlag { get; set; }
         public DxfLineWeight LineWeight { get; set; }
@@ -35,7 +35,7 @@ namespace CanvasDiagramEditor.Dxf.Tables
         {
             Name = string.Empty;
             LayerStandardFlags = DxfLayerStandardFlags.Default;
-            Color = 1;
+            Color = DxfDefaultColors.Default.ColorToString();
             LineType = string.Empty;
             PlottingFlag = true;
             LineWeight = DxfLineWeight.LnWtByLwDefault;

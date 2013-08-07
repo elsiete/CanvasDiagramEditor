@@ -83,6 +83,7 @@
     <Compile Include="Core\DiagramProperties.cs" />
     <Compile Include="Core\ParseOptions.cs" />
     <Compile Include="Dxf\Core\DxfUtil.cs" />
+    <Compile Include="Dxf\Enums\DxfDefaultColors.cs" />
     <Compile Include="Dxf\Enums\DxfDimstyleStandardFlags.cs" />
     <Compile Include="Dxf\Enums\DxfVportStandardFlags.cs" />
     <Compile Include="Editor\ModelConstants.cs" />

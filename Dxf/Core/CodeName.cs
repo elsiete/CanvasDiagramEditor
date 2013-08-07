@@ -17,6 +17,7 @@ namespace CanvasDiagramEditor.Dxf.Core
     public static class CodeName
     {
         public const string Line = "LINE";
+        public const string Attdef = "ATTDEF";
         public const string Ltype = "LTYPE";
         public const string BlockRecord = "BLOCK_RECORD";
         public const string Vport = "VPORT";

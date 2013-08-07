@@ -17,6 +17,9 @@ namespace CanvasDiagramEditor.Dxf.Core
     public static class SubclassMarker
     {
         public const string Line = "AcDbLine";
+        public const string Text = "AcDbText";
+        public const string AttributeDefinition = "AcDbAttributeDefinition";
+
         public const string BlockTableRecord = "AcDbBlockTableRecord";
         public const string LayerTableRecord = "AcDbLayerTableRecord";
 

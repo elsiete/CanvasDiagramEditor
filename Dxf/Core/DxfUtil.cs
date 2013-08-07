@@ -21,6 +21,11 @@ namespace CanvasDiagramEditor.Dxf.Core
         {
             return handle.ToString("X");
         }
+
+        public static string ColorToString(this DxfDefaultColors color)
+        {
+            return ((int)color).ToString();
+        }
     }
 
     #endregion
