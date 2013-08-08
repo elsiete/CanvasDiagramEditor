@@ -1769,7 +1769,8 @@ namespace CanvasDiagramEditor.Editor
         public string DxfGenerate(string model, 
             bool shortenStart, 
             bool shortenEnd,
-            DxfAcadVer version)
+            DxfAcadVer version,
+            DiagramTable table)
         {
             var dxf = new DxfDiagramCreator()
             {
@@ -1779,7 +1780,7 @@ namespace CanvasDiagramEditor.Editor
                 Tags = CurrentOptions.Tags
             };
 
-            return dxf.GenerateDxf(model, version);
+            return dxf.GenerateDxf(model, version, table);
         }
 
         private void DxfSave(string fileName, string model)
@@ -1794,16 +1795,17 @@ namespace CanvasDiagramEditor.Editor
             ICanvas canvas, 
             bool shortenStart, 
             bool shortenEnd,
-            DxfAcadVer version)
+            DxfAcadVer version,
+            DiagramTable table)
         {
             string model = Model.Generate(canvas, null, CurrentOptions.CurrentProperties);
 
-            string dxf = DxfGenerate(model, shortenStart, shortenEnd, version);
+            string dxf = DxfGenerate(model, shortenStart, shortenEnd, version, table);
 
             DxfSave(fileName, dxf);
         }
 
-        public void DxfExport(bool shortenStart, bool shortenEnd)
+        public void DxfExport(bool shortenStart, bool shortenEnd, DiagramTable table)
         {
             var dlg = new Microsoft.Win32.SaveFileDialog()
             {
@@ -1837,7 +1839,8 @@ namespace CanvasDiagramEditor.Editor
                     canvas, 
                     shortenStart, 
                     shortenEnd, 
-                    version);
+                    version,
+                    table);
             }
         }
 

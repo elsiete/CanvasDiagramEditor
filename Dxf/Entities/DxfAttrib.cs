@@ -18,123 +18,94 @@ namespace CanvasDiagramEditor.Dxf.Entities
 
     public class DxfAttrib : DxfObject<DxfAttrib>
     {
+        public double Thickness { get; set; }
+        public string Layer { get; set; }
+        public Vector3 StartPoint { get; set; }
+        public double TextHeight { get; set; }
+        public string DefaultValue { get; set; }
+        public double TextRotation { get; set; }
+        public double ScaleFactorX { get; set; }
+        public double ObliqueAngle { get; set; }
+        public string TextStyle { get; set; }
+        public DxfTextGenerationFlags TextGenerationFlags { get; set; }
+        public DxfHorizontalTextJustification HorizontalTextJustification { get; set; }
+        public Vector3 AlignmentPoint { get; set; }
+        public Vector3 ExtrusionDirection { get; set; }
+        public string Tag { get; set; }
+        public DxfAttributeFlags AttributeFlags { get; set; }
+        public int FieldLength { get; set; }
+        public DxfVerticalTextJustification VerticalTextJustification { get; set; }
+
         public DxfAttrib(DxfAcadVer version, int id)
             : base(version, id)
         {
-            Add("0", "ATTRIB");
+        }
+
+        public DxfAttrib Defaults()
+        {
+            Thickness = 0.0;
+            Layer = "0";
+            StartPoint = new Vector3(0.0, 0.0, 0.0);
+            TextHeight = 1.0;
+            DefaultValue = string.Empty;
+            TextRotation = 0.0;
+            ScaleFactorX = 1.0;
+            ObliqueAngle = 0.0;
+            TextStyle = "Standard";
+            TextGenerationFlags = DxfTextGenerationFlags.Default;
+            HorizontalTextJustification = DxfHorizontalTextJustification.Default;
+            AlignmentPoint = new Vector3(0.0, 0.0, 0.0);;
+            ExtrusionDirection = new Vector3(0.0, 0.0, 1.0);
+            Tag = string.Empty;
+            AttributeFlags = DxfAttributeFlags.Default;
+            FieldLength = 0;
+            VerticalTextJustification = DxfVerticalTextJustification.Default;
+
+            return this;
+        }
+
+        public DxfAttrib Create()
+        {
+            Add(0, CodeName.Attrib);
 
             Entity();
 
             if (Version > DxfAcadVer.AC1009)
-            {
-                Subclass("AcDbText");
-            }
-        }
+                Subclass(SubclassMarker.Text);
 
-        public DxfAttrib Layer(string layer)
-        {
-            Add("8", layer);
-            return this;
-        }
+            Add(8, Layer);
+            Add(39, Thickness);
 
-        public DxfAttrib Thickness(double thickness)
-        {
-            Add("39", thickness);
-            return this;
-        }
+            Add(10, StartPoint.X);
+            Add(20, StartPoint.Y);
+            Add(30, StartPoint.Z);
 
-        public DxfAttrib DefaultValue(string value)
-        {
-            Add("1", value);
-            return this;
-        }
+            Add(40, TextHeight);
+            Add(1, DefaultValue);
+            Add(50, TextRotation);
+            Add(41, ScaleFactorX);
+            Add(51, ObliqueAngle);
+            Add(7, TextStyle);
+            Add(71, (int)TextGenerationFlags);
+            Add(72, (int)HorizontalTextJustification);
 
-        public DxfAttrib Tag(string tag)
-        {
+            Add(11, AlignmentPoint.X);
+            Add(21, AlignmentPoint.Y);
+            Add(31, AlignmentPoint.Z);
+
+            Add(210, ExtrusionDirection.X);
+            Add(220, ExtrusionDirection.Y);
+            Add(230, ExtrusionDirection.Z);
+
             if (Version > DxfAcadVer.AC1009)
-            {
-                Subclass("AcDbAttribute");
-            }
+                Subclass(SubclassMarker.Attribute);
 
-            Add("2", tag);
-            return this;
-        }
+            Add(2, Tag);
 
-        public DxfAttrib TextStyle(string style)
-        {
-            Add("7", style);
-            return this;
-        }
+            Add(70, (int)AttributeFlags);
+            Add(73, FieldLength);
+            Add(74, (int)VerticalTextJustification);
 
-        public DxfAttrib TextHeight(double height)
-        {
-            Add("40", height);
-            return this;
-        }
-
-        public DxfAttrib TextRotation(double rotation)
-        {
-            Add("50", rotation);
-            return this;
-        }
-
-        public DxfAttrib ObliqueAngle(double angle)
-        {
-            Add("51", angle);
-            return this;
-        }
-
-        public DxfAttrib ScaleFactorX(double factor)
-        {
-            Add("41", factor);
-            return this;
-        }
-
-        public DxfAttrib StartPoint(Vector3 point)
-        {
-            Add("10", point.X);
-            Add("20", point.Y);
-            Add("30", point.Z);
-            return this;
-        }
-
-        public DxfAttrib AlignmentPoint(Vector3 point)
-        {
-            Add("11", point.X);
-            Add("21", point.Y);
-            Add("31", point.Z);
-            return this;
-        }
-
-        public DxfAttrib Extrusion(Vector3 direction)
-        {
-            Add("210", direction.X);
-            Add("220", direction.Y);
-            Add("230", direction.Z);
-            return this;
-        }
-
-        public DxfAttrib AttributeFlags(DxfAttributeFlags flags)
-        {
-            Add("70", (int)flags);
-            return this;
-        }
-
-        public DxfAttrib TextGenerationFlags(DxfTextGenerationFlags flags)
-        {
-            Add("71", (int)flags);
-            return this;
-        }
-
-        public DxfAttrib HorizontalTextJustification(DxfHorizontalTextJustification justification)
-        {
-            Add("72", (int)justification);
-            return this;
-        }
-
-        public DxfAttrib VerticalTextJustification(DxfVerticalTextJustification justification)
-        {
-            Add("74", (int)justification);
             return this;
         }
     } 

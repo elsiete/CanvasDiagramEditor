@@ -34,6 +34,7 @@ namespace CanvasDiagramEditor.Dxf.Objects
             HardOwnerFlag = false;
             DuplicateRecordCloningFlags = DxfDuplicateRecordCloningFlags.KeepExisting;
             Entries = null;
+            
             return this;
         }
 

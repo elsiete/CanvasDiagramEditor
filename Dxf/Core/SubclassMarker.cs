@@ -18,7 +18,9 @@ namespace CanvasDiagramEditor.Dxf.Core
     {
         public const string Line = "AcDbLine";
         public const string Text = "AcDbText";
+        
         public const string AttributeDefinition = "AcDbAttributeDefinition";
+        public const string Attribute = "AcDbAttribute";
 
         public const string BlockTableRecord = "AcDbBlockTableRecord";
         public const string LayerTableRecord = "AcDbLayerTableRecord";
@@ -33,7 +35,7 @@ namespace CanvasDiagramEditor.Dxf.Core
 
         public const string Entity = "AcDbEntity";
 
-
+        public const string BlockBegin = "AcDbBlockBegin";
         public const string BlockEnd = "AcDbBlockEnd";
 
         public const string BlockReference = "AcDbBlockReference";

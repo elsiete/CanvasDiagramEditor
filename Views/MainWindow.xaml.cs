@@ -456,7 +456,9 @@ namespace CanvasDiagramEditor
 
         private void FileExportToDxf_Click(object sender, RoutedEventArgs e)
         {
-            Editor.DxfExport(ShortenStart.IsChecked.Value, ShortenEnd.IsChecked.Value);
+            var table = TableGrid.GetData(this) as DiagramTable;
+
+            Editor.DxfExport(ShortenStart.IsChecked.Value, ShortenEnd.IsChecked.Value, table);
         }
 
         private void FileInspectDxf_Click(object sender, RoutedEventArgs e)
@@ -808,7 +810,8 @@ namespace CanvasDiagramEditor
                     {
                         if (isControl == true)
                         {
-                            Editor.DxfExport(ShortenStart.IsChecked.Value, ShortenEnd.IsChecked.Value);
+                            var table = TableGrid.GetData(this) as DiagramTable;
+                            Editor.DxfExport(ShortenStart.IsChecked.Value, ShortenEnd.IsChecked.Value, table);
                             e.Handled = true;
                             break;
                         }

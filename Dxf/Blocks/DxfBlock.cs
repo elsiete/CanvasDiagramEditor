@@ -18,69 +18,87 @@ namespace CanvasDiagramEditor.Dxf.Blocks
 
     public class DxfBlock : DxfObject<DxfBlock>
     {
+        public string Name { get; set; }
+        public string Layer { get; set; }
+        public DxfBlockTypeFlags BlockTypeFlags { get; set; }
+        public Vector3 BasePoint { get; set; }
+        public string XrefPathName { get; set; }
+        public string Description { get; set; }
+        public int EndId { get; set; }
+        public string EndLayer { get; set; }
+        public List<object> Entities { get; set; }
+
         public DxfBlock(DxfAcadVer version, int id)
             : base(version, id)
         {
         }
 
-        public DxfBlock Begin(string name, string layer)
+        public DxfBlock Defaults()
         {
-            Add("0", "BLOCK");
+            Name = string.Empty;
+            Layer = "0";
+            BlockTypeFlags = DxfBlockTypeFlags.Default;
+            BasePoint = new Vector3(0.0, 0.0, 0.0);
+            XrefPathName = null;
+            Description = null;
+            EndId = 0;
+            EndLayer = "0";
+            Entities = null;
+
+            return this;
+        }
+
+        public DxfBlock Create()
+        {
+            Add(0, CodeName.Block);
 
             if (Version > DxfAcadVer.AC1009)
             {
                 Handle(Id);
-                Subclass("AcDbEntity");
-            }
-
-            Add("8", layer);
-
-            if (Version > DxfAcadVer.AC1009)
-            {
-                Subclass("AcDbBlockBegin");
-            }
-
-            Add("2", name);
-            Add("3", name);
-
-            return this;
-        }
-
-        public DxfBlock XrefPath(string name)
-        {
-            Add("1", name);
-            return this;
-        }
-
-        public DxfBlock BlockTypeFlags(DxfBlockTypeFlags flags)
-        {
-            Add("70", (int)flags);
-            return this;
-        }
-
-        public DxfBlock Base(Vector3 point)
-        {
-            Add("10", point.X);
-            Add("20", point.Y);
-            Add("30", point.Z);
-            return this;
-        }
-
-        public DxfBlock Add<T>(T entity)
-        {
-            Append(entity.ToString());
-            return this;
-        }
-
-        public DxfBlock End(int id, string layer)
-        {
-            Add(0, "ENDBLK");
-
-            if (Version > DxfAcadVer.AC1009)
-            {
-                Handle(id);
                 Subclass(SubclassMarker.Entity);
-                Add(8, layer);
+            }
+
+            Add(8, Layer);
+
+            if (Version > DxfAcadVer.AC1009)
+            {
+                Subclass(SubclassMarker.BlockBegin);
+            }
+
+            Add(2, Name);
+            Add(70, (int)BlockTypeFlags);
+
+            Add(10, BasePoint.X);
+            Add(20, BasePoint.Y);
+            Add(30, BasePoint.Z);
+
+            Add(3, Name);
+
+            if (XrefPathName != null)
+            {
+                Add(1, XrefPathName);
+            }
+
+            if (Version > DxfAcadVer.AC1014 && Description != null)
+            {
+                Add(4, Description);
+            }
+
+            if (Entities != null)
+            {
+                foreach (var entity in Entities)
+                {
+                    Append(entity.ToString());
+                }
+            }
+
+            Add(0, CodeName.Endblk);
+
+            if (Version > DxfAcadVer.AC1009)
+            {
+                Handle(EndId);
+                Subclass(SubclassMarker.Entity);
+                Add(8, EndLayer);
                 Subclass(SubclassMarker.BlockEnd);
             }
 
