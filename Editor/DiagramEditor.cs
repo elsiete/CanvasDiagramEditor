@@ -1927,7 +1927,7 @@ namespace CanvasDiagramEditor.Editor
         {
             var model = ClipboardGetText();
 
-            if (model != null || model.Length > 0)
+            if (model != null && model.Length > 0)
             {
                 ModelInsert(model, point.X, point.Y);
             }
