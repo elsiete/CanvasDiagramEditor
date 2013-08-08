@@ -65,6 +65,8 @@ namespace CanvasDiagramEditor.Editor
 
         public WpfDiagramCreator WpfCreator { get; set; }
 
+        private string ClipboardText = null;
+
         #endregion
 
         #region Constructor
@@ -1848,8 +1850,6 @@ namespace CanvasDiagramEditor.Editor
 
         #region Clipboard
 
-        private string ClipboardText = null;
-
         public string ClipboardGetText()
         {
             try
@@ -1890,7 +1890,6 @@ namespace CanvasDiagramEditor.Editor
         public void EditCut()
         {
             var canvas = CurrentOptions.CurrentCanvas;
-
             string model = ModelGenerateFromSelected(canvas);
 
             if (model.Length == 0)
@@ -1912,7 +1911,6 @@ namespace CanvasDiagramEditor.Editor
         public void EditCopy()
         {
             var canvas = CurrentOptions.CurrentCanvas;
-
             string model = ModelGenerateFromSelected(canvas);
 
             if (model.Length == 0)
@@ -1950,7 +1948,6 @@ namespace CanvasDiagramEditor.Editor
 
         private void EditDeleteThumbsAndLines(ICanvas canvas, IEnumerable<IElement> elements)
         {
-            // delete thumbs & lines
             foreach (var element in elements)
             {
                 DeleteElement(canvas, element);
