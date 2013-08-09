@@ -1156,6 +1156,85 @@ namespace CanvasDiagramEditor
 
         #endregion
 
+        #region Table Logo
+
+        public void SetLogo(int logoId)
+        {
+            var dlg = new Microsoft.Win32.OpenFileDialog()
+            {
+                Filter = "Supported Images|*.png;*.jpg;*.jpeg;*.bmp;*.tif;*.tiff;*.bmp|" +
+                        "Png (*.png)|*.png|" +
+                        "Jpg (*.jpg;*.jpeg)|*.jpg;*.jpeg|" +
+                        "Tif (*.tif;*.tiff)|*.tif;*.tiff|" +
+                        "Bmp (*.bmp)|*.bmp|" +
+                        "All Files (*.*)|*.*",
+                Title = "Open Logo Image (115x80 @ 96dpi)"
+            };
+
+            var res = dlg.ShowDialog();
+            if (res == true)
+            {
+                try
+                {
+                    var fileName = dlg.FileName;
+                    SetTableLogo(logoId, fileName);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
+                }
+            }
+        }
+
+        private void SetTableLogo(int logoId, string fileName)
+        {
+            var table = GetCurrentTable();
+            if (table != null)
+            {
+                BitmapImage src = CreateBitmapImage(fileName);
+
+                if (logoId == 1)
+                {
+                    table.Logo1 = src;
+
+                    UpdateCurrentTable(table);
+                }
+                else if (logoId == 2)
+                {
+                    table.Logo2 = src;
+
+                    UpdateCurrentTable(table);
+                }
+            }
+        }
+
+        private void UpdateCurrentTable(DiagramTable table)
+        {
+            TableGrid.SetData(this, null);
+            TableGrid.SetData(this, table);
+        }
+
+        private DiagramTable GetCurrentTable()
+        {
+            var table = TableGrid.GetData(this) as DiagramTable;
+
+            return table;
+        }
+
+        private BitmapImage CreateBitmapImage(string fileName)
+        {
+            BitmapImage src = new BitmapImage();
+
+            src.BeginInit();
+            src.UriSource = new Uri(fileName, UriKind.RelativeOrAbsolute);
+            src.CacheOption = BitmapCacheOption.OnLoad;
+            src.EndInit();
+
+            return src;
+        }
+
+        #endregion
+
         #region Table Editor
 
         public void ShowTableEditor()
@@ -1167,56 +1246,6 @@ namespace CanvasDiagramEditor
 
             // display table editor window
             window.ShowDialog();
-        }
-
-        public void SetLogo(int logoId)
-        {
-            var dlg = new Microsoft.Win32.OpenFileDialog()
-            {
-                Filter = "Supported Images|*.png;*.jpg;*.jpeg;*.bmp;*.tif;*.tiff;*.bmp|" + 
-                        "Png (*.png)|*.png|" + 
-                        "Jpg (*.jpg;*.jpeg)|*.jpg;*.jpeg|" + 
-                        "Tif (*.tif;*.tiff)|*.tif;*.tiff|" +
-                        "Bmp (*.bmp)|*.bmp|" + 
-                        "All Files (*.*)|*.*",
-                Title = "Open Logo Image (115x80 @ 96dpi)"
-            };
-
-            var res = dlg.ShowDialog();
-            if (res == true)
-            {
-                try
-                {
-                    var fileName = dlg.FileName;
-
-                    var table = TableGrid.GetData(this) as DiagramTable;
-                    if (table != null)
-                    {
-                        BitmapImage src = new BitmapImage();
-                        src.BeginInit();
-                        src.UriSource = new Uri(fileName, UriKind.RelativeOrAbsolute);
-                        src.CacheOption = BitmapCacheOption.OnLoad;
-                        src.EndInit();
-
-                        if (logoId == 1)
-                        {
-                            table.Logo1 = src;
-                            TableGrid.SetData(this, null);
-                            TableGrid.SetData(this, table);
-                        }
-                        else if (logoId == 2)
-                        {
-                            table.Logo2 = src;
-                            TableGrid.SetData(this, null);
-                            TableGrid.SetData(this, table);
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
-                }
-            }
         }
 
         #endregion
