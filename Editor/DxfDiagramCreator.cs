@@ -91,7 +91,12 @@ namespace CanvasDiagramEditor.Editor
 
         #endregion
 
-        #region Dxf Insert Y-Coordinate Translate
+        #region Dxf Insert X/Y-Coordinate Translate
+
+        private double X(double x)
+        {
+            return x;
+        }
 
         private double Y(double y)
         {
