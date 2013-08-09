@@ -82,6 +82,7 @@
     <Compile Include="Core\IdCounter.cs" />
     <Compile Include="Core\DiagramProperties.cs" />
     <Compile Include="Core\ParseOptions.cs" />
+    <Compile Include="Dxf\Core\DxfRawTag.cs" />
     <Compile Include="Dxf\Core\DxfUtil.cs" />
     <Compile Include="Dxf\Enums\DxfDefaultColors.cs" />
     <Compile Include="Dxf\Enums\DxfDimstyleStandardFlags.cs" />

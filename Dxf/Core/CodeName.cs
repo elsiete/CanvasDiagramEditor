@@ -16,6 +16,8 @@ namespace CanvasDiagramEditor.Dxf.Core
 
     public static class CodeName
     {
+        public const string Section = "SECTION";
+
         public const string Line = "LINE";
         public const string Attdef = "ATTDEF";
         public const string Attrib = "ATTRIB";
