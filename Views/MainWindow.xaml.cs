@@ -298,6 +298,8 @@ namespace CanvasDiagramEditor
 
         private void ResetZoom_Click(object sender, RoutedEventArgs e)
         {
+            LogBaseSlider.Value = 1.9;
+            ExpFactorSlider.Value = 1.3;
             ZoomSlider.Value = 1.0;
         }
 
@@ -1177,7 +1179,7 @@ namespace CanvasDiagramEditor
                         "Tif (*.tif;*.tiff)|*.tif;*.tiff|" +
                         "Bmp (*.bmp)|*.bmp|" + 
                         "All Files (*.*)|*.*",
-                Title = "Open Logo Image (115x60 @ 96dpi)"
+                Title = "Open Logo Image (115x80 @ 96dpi)"
             };
 
             var res = dlg.ShowDialog();
@@ -1223,6 +1225,12 @@ namespace CanvasDiagramEditor
 
         private void ZoomSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
+            if (this.IsLoaded == false)
+                return;
+
+            Editor.CurrentOptions.ZoomLogBase = LogBaseSlider.Value;
+            Editor.CurrentOptions.ZoomExpFactor = ExpFactorSlider.Value;
+
             double zoom = ZoomSlider.Value;
 
             zoom = Math.Round(zoom, 1);

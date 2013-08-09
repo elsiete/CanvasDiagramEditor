@@ -34,7 +34,7 @@
                   MouseDown="PanScrollViewer_MouseDown" 
                   MouseUp="PanScrollViewer_MouseUp"
                   FocusVisualStyle="{x:Null}"
-                  VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                  VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Hidden">
 
         <Border Background="Transparent" BorderThickness="0" BorderBrush="Transparent" ClipToBounds="True" PreviewMouseWheel="Border_PreviewMouseWheel">
 

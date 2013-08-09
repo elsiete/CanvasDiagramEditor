@@ -64,7 +64,7 @@ namespace CanvasDiagramEditor.Editor
         public double ZoomInFactor = 0.1;
         public double ZoomOutFactor = 0.1;
 
-        public double ZoomLogBase = 1.8;
+        public double ZoomLogBase = 1.9;
         public double ZoomExpFactor = 1.3;
 
         public Point ZoomPoint;

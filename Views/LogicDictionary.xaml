@@ -260,7 +260,7 @@
 
     <Style x:Key="LargeHeaderTextBlockStyleKey" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="Arial"/>
-        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontSize" Value="16"/>
         <Setter Property="FontWeight" Value="Thin"/>
         <Setter Property="Foreground" Value="{DynamicResource LogicTemplateColorKey}"/>
         <Setter Property="RenderOptions.EdgeMode" Value="Aliased"/>
@@ -325,15 +325,15 @@
                 ClipToBounds="False"
                 Background="{DynamicResource LogicTransparentColorKey}">
             <!-- inputs -->
-            <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="15" Canvas.Top="35" Data="M 30,0 L 30,750 M 240,750 L 240,0"/>
-            <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="15" Canvas.Top="35" Data="M 315,0 L 0,0 M 0,750 L 315,750"/>
-            <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="15" Canvas.Top="35" Data="M 0,30 L 315,30 M 315,60 L 0,60 M 0,90 L 315,90 M 315,120 L 0,120 M 0,150 L 315,150 M 315,180 L 0,180 M 0,210 L 315,210 M 315,240 L 0,240 M 0,270 L 315,270 M 315,300 L 0,300 M 0,330 L 315,330 M 315,360 L 0,360 M 0,390 L 315,390 M 315,420 L 0,420 M 0,450 L 315,450 M 315,480 L 0,480 M 0,510 L 315,510 M 315,540 L 0,540 M 0,570 L 315,570 M 315,600 L 0,600 M 0,630 L 315,630 M 315,660 L 0,660 M 0,690 L 315,690 M 315,720 L 0,720"/>
+            <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="1" Canvas.Top="31" Data="M 30,0 L 30,750 M 240,750 L 240,0"/>
+            <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="1" Canvas.Top="31" Data="M 315,0 L 0,0 M 0,750 L 315,750"/>
+            <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="1" Canvas.Top="31" Data="M 0,30 L 315,30 M 315,60 L 0,60 M 0,90 L 315,90 M 315,120 L 0,120 M 0,150 L 315,150 M 315,180 L 0,180 M 0,210 L 315,210 M 315,240 L 0,240 M 0,270 L 315,270 M 315,300 L 0,300 M 0,330 L 315,330 M 315,360 L 0,360 M 0,390 L 315,390 M 315,420 L 0,420 M 0,450 L 315,450 M 315,480 L 0,480 M 0,510 L 315,510 M 315,540 L 0,540 M 0,570 L 315,570 M 315,600 L 0,600 M 0,630 L 315,630 M 315,660 L 0,660 M 0,690 L 315,690 M 315,720 L 0,720"/>
             <!-- outputs -->
-            <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="930" Canvas.Top="35" Data="M 210,0 L 210,750 M 285,750 L 285,0"/>
-            <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="930" Canvas.Top="35" Data="M 315,0 L 0,0 M 0,750 L 315,750"/>
-            <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="930" Canvas.Top="35" Data="M 0,30 L 315,30 M 315,60 L 0,60 M 0,90 L 315,90 M 315,120 L 0,120 M 0,150 L 315,150 M 315,180 L 0,180 M 0,210 L 315,210 M 315,240 L 0,240 M 0,270 L 315,270 M 315,300 L 0,300 M 0,330 L 315,330 M 315,360 L 0,360 M 0,390 L 315,390 M 315,420 L 0,420 M 0,450 L 315,450 M 315,480 L 0,480 M 0,510 L 315,510 M 315,540 L 0,540 M 0,570 L 315,570 M 315,600 L 0,600 M 0,630 L 315,630 M 315,660 L 0,660 M 0,690 L 315,690 M 315,720 L 0,720"/>
+            <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="916" Canvas.Top="31" Data="M 210,0 L 210,750 M 285,750 L 285,0"/>
+            <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="916" Canvas.Top="31" Data="M 315,0 L 0,0 M 0,750 L 315,750"/>
+            <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="916" Canvas.Top="31" Data="M 0,30 L 315,30 M 315,60 L 0,60 M 0,90 L 315,90 M 315,120 L 0,120 M 0,150 L 315,150 M 315,180 L 0,180 M 0,210 L 315,210 M 315,240 L 0,240 M 0,270 L 315,270 M 315,300 L 0,300 M 0,330 L 315,330 M 315,360 L 0,360 M 0,390 L 315,390 M 315,420 L 0,420 M 0,450 L 315,450 M 315,480 L 0,480 M 0,510 L 315,510 M 315,540 L 0,540 M 0,570 L 315,570 M 315,600 L 0,600 M 0,630 L 315,630 M 315,660 L 0,660 M 0,690 L 315,690 M 315,720 L 0,720"/>
             <!-- page headers -->
-            <Grid Canvas.Left="15" Canvas.Top="15" Width="1230" Height="20">
+            <Grid Canvas.Left="1" Canvas.Top="1" Width="1258" Height="30">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="315"/>
                     <ColumnDefinition Width="600"/>
@@ -344,7 +344,7 @@
                 <TextBlock Grid.Column="2" Text="O U T P U T S" VerticalAlignment="Center" HorizontalAlignment="Center" Style="{DynamicResource LargeHeaderTextBlockStyleKey}"/>
             </Grid>
             <!-- inputs header -->
-            <Grid Canvas.Left="45" Canvas.Top="35" Width="285" Height="30">
+            <Grid Canvas.Left="31" Canvas.Top="31" Width="285" Height="30">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="210"/>
                     <ColumnDefinition Width="75"/>
@@ -363,7 +363,7 @@
                 <TextBlock Text="Condition" VerticalAlignment="Center" Margin="3,-1,3,0" Grid.Column="1" Grid.Row="1" Style="{DynamicResource SmallHeaderTextBlockStyleKey}"/>
             </Grid>
             <!-- outputs header -->
-            <Grid Canvas.Left="930" Canvas.Top="35" Width="285" Height="30">
+            <Grid Canvas.Left="916" Canvas.Top="31" Width="285" Height="30">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="210"/>
                     <ColumnDefinition Width="75"/>
@@ -382,7 +382,7 @@
                 <TextBlock Text="Condition" VerticalAlignment="Center" Margin="3,-1,3,0" Grid.Column="1" Grid.Row="1" Style="{DynamicResource SmallHeaderTextBlockStyleKey}"/>
             </Grid>
             <!-- inputs line numbers -->
-            <Grid Canvas.Left="15" Canvas.Top="35">
+            <Grid Canvas.Left="1" Canvas.Top="31">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="30"/>
                 </Grid.ColumnDefinitions>
@@ -440,7 +440,7 @@
                 <TextBlock Grid.Row="24" Grid.Column="0" Text="24" Style="{DynamicResource NumberTextBlockStyleKey}"/>
             </Grid>
             <!-- outputs line numbers -->
-            <Grid Canvas.Left="1215" Canvas.Top="35">
+            <Grid Canvas.Left="1201" Canvas.Top="31">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="30"/>
                 </Grid.ColumnDefinitions>
@@ -498,7 +498,7 @@
                 <TextBlock Grid.Row="24" Grid.Column="0" Text="24" Style="{DynamicResource NumberTextBlockStyleKey}"/>
             </Grid>
             <!-- page table text -->
-            <controls:TableGrid Canvas.Left="15" Canvas.Top="816" ShowGridLines="False">
+            <controls:TableGrid Canvas.Left="1" Canvas.Top="810" ShowGridLines="False">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="30"/>
                     <ColumnDefinition Width="45"/>
@@ -513,13 +513,13 @@
                     <ColumnDefinition Width="40"/>
                     <ColumnDefinition Width="40"/>
                     <ColumnDefinition Width="55"/>
-                    <ColumnDefinition Width="130"/>
+                    <ColumnDefinition Width="158"/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="15"/>
-                    <RowDefinition Height="15"/>
-                    <RowDefinition Height="15"/>
-                    <RowDefinition Height="15"/>
+                    <RowDefinition Height="20"/>
+                    <RowDefinition Height="20"/>
+                    <RowDefinition Height="20"/>
+                    <RowDefinition Height="20"/>
                 </Grid.RowDefinitions>
                 <!-- Rev. -->
                 <TextBlock Grid.Row="0" Grid.Column="0" Text="Rev." Style="{DynamicResource TableHeaderTextBlockStyleKey}"/>
@@ -557,11 +557,11 @@
                 <!-- Logo No. 1 -->
                 <Image Grid.Row="0" 
                        Source="{Binding Path=(controls:TableGrid.Data).Logo1, RelativeSource={RelativeSource Self}, TargetNullValue={x:Static DependencyProperty.UnsetValue}, FallbackValue={StaticResource TransparentImageSourceKey}}" 
-                       Grid.RowSpan="4" Grid.Column="3" Width="115" Height="60"/>
+                       Grid.RowSpan="4" Grid.Column="3" Width="115" Height="80"/>
                 <!-- Logo No. 2 -->
                 <Image Grid.Row="0" 
                        Source="{Binding Path=(controls:TableGrid.Data).Logo2, RelativeSource={RelativeSource Self}, TargetNullValue={x:Static DependencyProperty.UnsetValue}, FallbackValue={StaticResource TransparentImageSourceKey}}" 
-                       Grid.RowSpan="4" Grid.Column="4" Width="115" Height="60"/>
+                       Grid.RowSpan="4" Grid.Column="4" Width="115" Height="80"/>
                 <!-- Drawn, Checked, etc. -->
                 <TextBlock Grid.Row="0" Grid.Column="5" Text="Drawn" Style="{DynamicResource TableHeaderTextBlockStyleKey}"/>
                 <TextBlock Grid.Row="1" Grid.Column="5" Text="Checked" Style="{DynamicResource TableHeaderTextBlockStyleKey}"/>
@@ -644,12 +644,11 @@
                            Style="{DynamicResource TableTextBlockStyleKey}" HorizontalAlignment="Left" Margin="4,0,0,0"/>
             </controls:TableGrid>
             <!-- frame -->
-            <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="330" Canvas.Top="15" Data="M 0,20 L 600,20 M 600,770 L 0,770 M 0,770 L 0,0 M 600,0 L 600,770"/>
-            <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="0" Canvas.Top="0" Data="M 15,15 L 1245,15 M 1245,816 L 15,816 M 15,876 L 1245,876 M 1245,876 L 1245,15 M 15,15 L 15,876"/>
-            <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="0" Canvas.Top="0" Data="M 1,1 L 1259,1 M 1259,890 L 1,890 M 1,890 L 1,1 M 1259,1 L 1259,890"/>
+            <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="316" Canvas.Top="1" Data="M 0,30 L 600,30 M 600,780 L 0,780 M 0,780 L 0,0 M 600,0 L 600,780"/>
+            <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="1" Canvas.Top="1" Data="M 0,0 L 1258,0 M 1258,809 L 0,809 M 0,889 L 1258,889 M 1258,889 L 1258,0 M 0,0 L 0,889"/>
             <!-- page table -->
-            <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="15" Canvas.Top="816" Data="M 0,15 L 175,15 M 405,15 L 1230,15 M 1230,30 L 965,30 M 695,30 L 405,30 M 175,30, 0,30 M 0,45 L 175,45 M 405,45 L 695,45 M 965,45 L 1230,45"/>
-            <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="15" Canvas.Top="816" Data="M 30,0 L 30,60 M 75,0 L 75,60 M 175,60 L 175,0 M 290,0 L 290,60 M 405,60 L 405,0 M 465,0 L 465,60 M 595,60 L 595,0 M 640,0 L 640,60 M 695,60 L 695,0 M 965,0 L 965,60 M 1005,60 L 1005,0 M 1045,0 L 1045,60 M 1100,60 L 1100,0"/>
+            <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="1" Canvas.Top="810" Data="M 0,20 L 175,20 M 405,20 L 1258,20 M 1258,40 L 965,40 M 695,40 L 405,40 M 175,40, 0,40 M 0,60 L 175,60 M 405,60 L 695,60 M 965,60 L 1258,60"/>
+            <Path Style="{DynamicResource TemplatePathStyleKey}" Canvas.Left="1" Canvas.Top="810" Data="M 30,0 L 30,80 M 75,0 L 75,80 M 175,80 L 175,0 M 290,0 L 290,80 M 405,80 L 405,0 M 465,0 L 465,80 M 595,80 L 595,0 M 640,0 L 640,80 M 695,80 L 695,0 M 965,0 L 965,80 M 1005,80 L 1005,0 M 1045,0 L 1045,80 M 1100,80 L 1100,0"/>
         </Canvas>
     </ControlTemplate>
 

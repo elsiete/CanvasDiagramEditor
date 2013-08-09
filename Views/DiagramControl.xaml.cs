@@ -109,6 +109,18 @@ namespace CanvasDiagramEditor
 
         private void PanToPoint(Point point)
         {
+            /*
+            double dX = point.X - Editor.CurrentOptions.PanStart.X;
+            double dY = point.Y - Editor.CurrentOptions.PanStart.Y;
+
+            var st = GetZoomTranslateTransform();
+
+            st.X += dX;
+            st.Y += dY;
+
+            Editor.CurrentOptions.PanStart = point;
+            */
+
             double scrollOffsetX = point.X - Editor.CurrentOptions.PanStart.X;
             double scrollOffsetY = point.Y - Editor.CurrentOptions.PanStart.Y;
 
@@ -186,8 +198,10 @@ namespace CanvasDiagramEditor
 
         public double CalculateZoom(double x)
         {
-            double l = Math.Log(x, Editor.CurrentOptions.ZoomLogBase);
-            double e = Math.Exp(l / Editor.CurrentOptions.ZoomExpFactor);
+            double lb = Editor.CurrentOptions.ZoomLogBase;
+            double ef = Editor.CurrentOptions.ZoomExpFactor;
+            double l = (lb == 1.0 || lb == 0.0) ? 1.0 : Math.Log(x, lb);
+            double e = (ef == 0.0) ? 1.0 : Math.Exp(l / ef);
             double y = x + x * l * e;
             return y;
         }
@@ -219,6 +233,15 @@ namespace CanvasDiagramEditor
             //var tg = RootGrid.RenderTransform as TransformGroup;
             var tg = RootGrid.LayoutTransform as TransformGroup;
             var st = tg.Children.First(t => t is ScaleTransform) as ScaleTransform;
+
+            return st;
+        }
+
+        private TranslateTransform GetZoomTranslateTransform()
+        {
+            var tg = RootGrid.RenderTransform as TransformGroup;
+            //var tg = RootGrid.LayoutTransform as TransformGroup;
+            var st = tg.Children.First(t => t is TranslateTransform) as TranslateTransform;
 
             return st;
         }
