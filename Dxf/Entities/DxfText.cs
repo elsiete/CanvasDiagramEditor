@@ -31,6 +31,16 @@ namespace CanvasDiagramEditor.Dxf.Entities
             }
         }
 
+        public DxfText Defaults()
+        {
+            return this;
+        }
+
+        public DxfText Create()
+        {
+            return this;
+        }
+
         public DxfText Layer(string layer)
         {
             Add("8", layer);
