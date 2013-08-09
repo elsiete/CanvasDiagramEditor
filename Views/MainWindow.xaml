@@ -234,7 +234,7 @@
                                 <TextBlock Text="Page Height:" Grid.Column="0" Grid.Row="1" Margin="2" HorizontalAlignment="Right"/>
                                 <TextBox x:Name="TextPageHeight" Text="891" Grid.Column="1" Grid.Row="1" Margin="2"/>
                                 <TextBlock Text="Grid Origin X:" Grid.Column="0" Grid.Row="2" Margin="2" HorizontalAlignment="Right"/>
-                                <TextBox x:Name="TextGridOriginX" Text="316" Grid.Column="1" Grid.Row="2" Margin="2"/>
+                                <TextBox x:Name="TextGridOriginX" Text="330" Grid.Column="1" Grid.Row="2" Margin="2"/>
                                 <TextBlock Text="Grid Origin Y:" Grid.Column="0" Grid.Row="3" Margin="2" HorizontalAlignment="Right"/>
                                 <TextBox x:Name="TextGridOriginY" Text="31" Grid.Column="1" Grid.Row="3" Margin="2"/>
                                 <TextBlock Text="Grid Width:" Grid.Column="0" Grid.Row="4" Margin="2" HorizontalAlignment="Right"/>
@@ -248,7 +248,7 @@
                                 <TextBlock Text="SnapY:" Grid.Column="0" Grid.Row="8" Margin="2" HorizontalAlignment="Right"/>
                                 <TextBox x:Name="TextSnapY" Text="15" Grid.Column="1" Grid.Row="8" Margin="2"/>
                                 <TextBlock Text="SnapOffsetX:" Grid.Column="0" Grid.Row="9" Margin="2" HorizontalAlignment="Right"/>
-                                <TextBox x:Name="TextSnapOffsetX" Text="1" Grid.Column="1" Grid.Row="9" Margin="2"/>
+                                <TextBox x:Name="TextSnapOffsetX" Text="0" Grid.Column="1" Grid.Row="9" Margin="2"/>
                                 <TextBlock Text="SnapOffsetY:" Grid.Column="0" Grid.Row="10" Margin="2" HorizontalAlignment="Right"/>
                                 <TextBox x:Name="TextSnapOffsetY" Text="1" Grid.Column="1" Grid.Row="10" Margin="2"/>
                                 <Button x:Name="UpdateGrid" Content="_Update Properties" Grid.Column="1" Grid.Row="11" Margin="2" Click="UpdateGrid_Click"/>
