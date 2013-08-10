@@ -1032,18 +1032,20 @@ namespace CanvasDiagramEditor.Editor
 
             var entities = block.Entities;
 
-            entities.Add(Line(0.0, 0.0, 285.0, 0.0, 0.0, 0.0, LayerIO));
-            entities.Add(Line(285.0, 30.0, 0.0, 30.0, 0.0, 0.0, LayerIO));
+            entities.Add(Line(0.0, 0.0, 300.0, 0.0, 0.0, 0.0, LayerIO));
+            entities.Add(Line(300.0, 30.0, 0.0, 30.0, 0.0, 0.0, LayerIO));
             entities.Add(Line(0.0, 30.0, 0.0, 0.0, 0.0, 0.0, LayerIO));
             entities.Add(Line(210.0, 0.0, 210.0, 30.0, 0.0, 0.0, LayerIO));
-            entities.Add(Line(285.0, 30.0, 285.0, 0.0, 0.0, 0.0, LayerIO));
+            entities.Add(Line(300.0, 30.0, 300.0, 0.0, 0.0, 0.0, LayerIO));
 
-            entities.Add(AttdefIO("ID", 288, 30, "ID", false));
-            entities.Add(AttdefIO("TAGID", 288, 0, "TAGID", false));
-            entities.Add(AttdefIO("DESIGNATION", 3, 7.5, "DESIGNATION", true));
-            entities.Add(AttdefIO("DESCRIPTION", 3, 22.5, "DESCRIPTION", true));
-            entities.Add(AttdefIO("SIGNAL", 213, 7.5, "SIGNAL", true));
-            entities.Add(AttdefIO("CONDITION", 213, 22.5, "CONDITION", true));
+            double offsetX = 3.0;
+
+            entities.Add(AttdefIO("ID", 300 + offsetX, 30, "ID", false));
+            entities.Add(AttdefIO("TAGID", 300 + offsetX, 0, "TAGID", false));
+            entities.Add(AttdefIO("DESIGNATION", offsetX, 7.5, "DESIGNATION", true));
+            entities.Add(AttdefIO("DESCRIPTION", offsetX, 22.5, "DESCRIPTION", true));
+            entities.Add(AttdefIO("SIGNAL", 210 + offsetX, 7.5, "SIGNAL", true));
+            entities.Add(AttdefIO("CONDITION", 210 + offsetX, 22.5, "CONDITION", true));
 
             return block.Create();
         }
@@ -1065,18 +1067,20 @@ namespace CanvasDiagramEditor.Editor
 
             var entities = block.Entities;
 
-            entities.Add(Line(0.0, 0.0, 285.0, 0.0, 0.0, 0.0, LayerIO));
-            entities.Add(Line(285.0, 30.0, 0.0, 30.0, 0.0, 0.0, LayerIO));
+            entities.Add(Line(0.0, 0.0, 300.0, 0.0, 0.0, 0.0, LayerIO));
+            entities.Add(Line(300.0, 30.0, 0.0, 30.0, 0.0, 0.0, LayerIO));
             entities.Add(Line(0.0, 30.0, 0.0, 0.0, 0.0, 0.0, LayerIO));
             entities.Add(Line(210.0, 0.0, 210.0, 30.0, 0.0, 0.0, LayerIO));
-            entities.Add(Line(285.0, 30.0, 285.0, 0.0, 0.0, 0.0, LayerIO));
+            entities.Add(Line(300.0, 30.0, 300.0, 0.0, 0.0, 0.0, LayerIO));
 
-            entities.Add(AttdefIO("ID", 288, 30, "ID", false));
-            entities.Add(AttdefIO("TAGID", 288, 0, "TAGID", false));
-            entities.Add(AttdefIO("DESIGNATION", 3, 7.5, "DESIGNATION", true));
-            entities.Add(AttdefIO("DESCRIPTION", 3, 22.5, "DESCRIPTION", true));
-            entities.Add(AttdefIO("SIGNAL", 213, 7.5, "SIGNAL", true));
-            entities.Add(AttdefIO("CONDITION", 213, 22.5, "CONDITION", true));
+            double offsetX = 3.0;
+
+            entities.Add(AttdefIO("ID", 300 + offsetX, 30, "ID", false));
+            entities.Add(AttdefIO("TAGID", 300 + offsetX, 0, "TAGID", false));
+            entities.Add(AttdefIO("DESIGNATION", offsetX, 7.5, "DESIGNATION", true));
+            entities.Add(AttdefIO("DESCRIPTION", offsetX, 22.5, "DESCRIPTION", true));
+            entities.Add(AttdefIO("SIGNAL", 210 + offsetX, 7.5, "SIGNAL", true));
+            entities.Add(AttdefIO("CONDITION", 210 + offsetX, 22.5, "CONDITION", true));
 
             return block.Create();
         }
