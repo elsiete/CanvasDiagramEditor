@@ -353,26 +353,30 @@ namespace CanvasDiagramEditor.Editor
             string style,
             string layer,
             double height,
-            double x1, double y1,
-            double x2, double y2,
+            double x, double y,
             DxfHorizontalTextJustification horizontalJustification,
             DxfVerticalTextJustification verticalJustification)
         {
-            /*
             var txt = new DxfText(Version, GetNextHandle())
-                .Layer(layer)
-                .Text(text)
-                .TextStyle(style)
-                .TextHeight(height)
-                .FirstAlignment(new Vector3(X(x1), Y(y1), 0))
-                .SecondAlignment(new Vector3(X(x2), Y(y2), 0))
-                .HorizontalTextJustification(horizontalJustification)
-                .VerticalTextJustification(verticalJustification);
+            {
+                Thickness = 0,
+                Layer = layer,
+                Color = DxfDefaultColors.ByLayer.ColorToString(),
+                FirstAlignment = new Vector3(X(x), Y(y), 0),
+                TextHeight = height,
+                DefaultValue = text,
+                TextRotation = 0,
+                ScaleFactorX = 1,
+                ObliqueAngle = 0,
+                TextStyle = style,
+                TextGenerationFlags = DxfTextGenerationFlags.Default,
+                HorizontalTextJustification = horizontalJustification,
+                SecondAlignment = new Vector3(X(x), Y(y), 0),
+                ExtrusionDirection = new Vector3(0, 0, 1),
+                VerticalTextJustification = verticalJustification
+            };
 
-            return txt;
-            */
-
-            return null;
+            return txt.Create();
         }
 
         #endregion
@@ -913,9 +917,151 @@ namespace CanvasDiagramEditor.Editor
 
             // TODO: text headers
 
-            // TODO: text inputs
+            left = 1.0;
+            top = 1.0;
 
-            // TODO: text outputs
+            entities.Add(Text("I N P U T S",
+                "TextFrameHeaderLarge",
+                layer,
+                10,
+                left + (329.0 / 2.0),
+                top + 15.0,
+                DxfHorizontalTextJustification.Center,
+                DxfVerticalTextJustification.Middle));
+
+            entities.Add(Text("F U N C T I O N",
+                "TextFrameHeaderLarge",
+                layer,
+                10,
+                left + (329.0 + (600.0 / 2.0)),
+                top + 15.0,
+                DxfHorizontalTextJustification.Center,
+                DxfVerticalTextJustification.Middle));
+
+            entities.Add(Text("O U T P U T S",
+                "TextFrameHeaderLarge",
+                layer,
+                10,
+                left + (329.0 + 600.0 + (329.0 / 2.0)),
+                top + 15.0,
+                DxfHorizontalTextJustification.Center,
+                DxfVerticalTextJustification.Middle));
+
+            //  text inputs
+
+            left = 30.0 + 3.0;
+            top = 31.0;
+
+            entities.Add(Text("Designation", 
+                "TextFrameHeaderSmall", 
+                layer, 
+                6, 
+                left, 
+                top + 7.5, 
+                DxfHorizontalTextJustification.Left, 
+                DxfVerticalTextJustification.Middle));
+
+            entities.Add(Text("Description", 
+                "TextFrameHeaderSmall", 
+                layer, 
+                6, 
+                left, 
+                top + 22.5, 
+                DxfHorizontalTextJustification.Left, 
+                DxfVerticalTextJustification.Middle));
+
+            entities.Add(Text("Signal",
+                "TextFrameHeaderSmall",
+                layer,
+                6,
+                210.0 + left,
+                top + 7.5,
+                DxfHorizontalTextJustification.Left,
+                DxfVerticalTextJustification.Middle));
+
+            entities.Add(Text("Condition",
+                "TextFrameHeaderSmall",
+                layer,
+                6,
+                210.0 + left,
+                top + 22.5,
+                DxfHorizontalTextJustification.Left,
+                DxfVerticalTextJustification.Middle));
+
+            //  text inputs line numbers
+
+            left = 1.0 + (29.0 / 2.0);
+            top = 31.0 + 15.0;
+
+            for (int n = 1; n <= 24; n++)
+            {
+                entities.Add(Text(n.ToString("D2"),
+                    "TextFrameNumber",
+                    layer,
+                    8,
+                    left,
+                    top + ((double)n * 30.0),
+                    DxfHorizontalTextJustification.Center,
+                    DxfVerticalTextJustification.Middle));
+            }
+
+            // text outputs
+
+            left = 930 + 3;
+            top = 31.0;
+
+            entities.Add(Text("Designation",
+                "TextFrameHeaderSmall",
+                layer,
+                6,
+                left,
+                top + 7.5,
+                DxfHorizontalTextJustification.Left,
+                DxfVerticalTextJustification.Middle));
+
+            entities.Add(Text("Description",
+                "TextFrameHeaderSmall",
+                layer,
+                6,
+                left,
+                top + 22.5,
+                DxfHorizontalTextJustification.Left,
+                DxfVerticalTextJustification.Middle));
+
+            entities.Add(Text("Signal",
+                "TextFrameHeaderSmall",
+                layer,
+                6,
+                210.0 + left,
+                top + 7.5,
+                DxfHorizontalTextJustification.Left,
+                DxfVerticalTextJustification.Middle));
+
+            entities.Add(Text("Condition",
+                "TextFrameHeaderSmall",
+                layer,
+                6,
+                210.0 + left,
+                top + 22.5,
+                DxfHorizontalTextJustification.Left,
+                DxfVerticalTextJustification.Middle));
+
+            //  text inputs line numbers
+
+            left = 1230.0 + (29.0 / 2.0);
+            top = 31.0 + 15.0;
+
+            for (int n = 1; n <= 24; n++)
+            {
+                entities.Add(Text(n.ToString("D2"),
+                    "TextFrameNumber",
+                    layer,
+                    8,
+                    left,
+                    top + ((double)n * 30.0),
+                    DxfHorizontalTextJustification.Center,
+                    DxfVerticalTextJustification.Middle));
+            }
 
             return block.Create();
         }
