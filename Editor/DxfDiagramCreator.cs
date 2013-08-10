@@ -456,7 +456,7 @@ namespace CanvasDiagramEditor.Editor
             {
                 Name = LayerFrame,
                 LayerStandardFlags = DxfLayerStandardFlags.Default,
-                Color = DxfDefaultColors.DarkGrey.ColorToString(),
+                Color = 250.ToString(),
                 LineType = "Continuous",
                 PlottingFlag = true,
                 LineWeight = DxfLineWeight.LnWt013,
@@ -468,7 +468,7 @@ namespace CanvasDiagramEditor.Editor
             {
                 Name = LayerGrid,
                 LayerStandardFlags = DxfLayerStandardFlags.Default,
-                Color = DxfDefaultColors.LightGrey.ColorToString(),
+                Color = 251.ToString(),
                 LineType = "Continuous",
                 PlottingFlag = true,
                 LineWeight = DxfLineWeight.LnWt013,
@@ -480,7 +480,7 @@ namespace CanvasDiagramEditor.Editor
             {
                 Name = LayerTable,
                 LayerStandardFlags = DxfLayerStandardFlags.Default,
-                Color = DxfDefaultColors.DarkGrey.ColorToString(),
+                Color = 250.ToString(),
                 LineType = "Continuous",
                 PlottingFlag = true,
                 LineWeight = DxfLineWeight.LnWt013,
@@ -492,7 +492,7 @@ namespace CanvasDiagramEditor.Editor
             {
                 Name = LayerIO,
                 LayerStandardFlags = DxfLayerStandardFlags.Default,
-                Color = DxfDefaultColors.Magenta.ColorToString(),
+                Color = DxfDefaultColors.Default.ColorToString(),
                 LineType = "Continuous",
                 PlottingFlag = true,
                 LineWeight = DxfLineWeight.LnWt025,
@@ -516,7 +516,7 @@ namespace CanvasDiagramEditor.Editor
             {
                 Name = LayerElements,
                 LayerStandardFlags = DxfLayerStandardFlags.Default,
-                Color = DxfDefaultColors.Blue.ColorToString(),
+                Color = DxfDefaultColors.Default.ColorToString(),
                 LineType = "Continuous",
                 PlottingFlag = true,
                 LineWeight = DxfLineWeight.LnWt035,
