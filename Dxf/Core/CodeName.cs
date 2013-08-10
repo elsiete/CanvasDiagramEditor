@@ -19,6 +19,7 @@ namespace CanvasDiagramEditor.Dxf.Core
         public const string Section = "SECTION";
 
         public const string Line = "LINE";
+        public const string Text = "TEXT";
         public const string Attdef = "ATTDEF";
         public const string Attrib = "ATTRIB";
         public const string Ltype = "LTYPE";
