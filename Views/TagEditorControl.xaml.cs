@@ -124,6 +124,14 @@ namespace CanvasDiagramEditor
             TagList.ScrollIntoView(TagList.SelectedItem);
         }
 
+        private void ButtonResetFilter_Click(object sender, RoutedEventArgs e)
+        {
+            FilterByDesignation.Text = "";
+            FilterBySignal.Text = "";
+            FilterByCondition.Text = "";
+            FilterByDescription.Text = "";
+        }
+
         #endregion
 
         #region ListView Events
