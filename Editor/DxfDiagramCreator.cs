@@ -133,9 +133,9 @@ namespace CanvasDiagramEditor.Editor
             double offsetX, double offsetY,
             string layer)
         {
-            double _x1 = x1 + offsetX;
+            double _x1 = X(x1 + offsetX);
             double _y1 = Y(y1 + offsetY);
-            double _x2 = x2 + offsetX;
+            double _x2 = X(x2 + offsetX);
             double _y2 = Y(y2 + offsetY);
 
             double thickness = 0.0;
@@ -158,7 +158,7 @@ namespace CanvasDiagramEditor.Editor
             double offsetX, double offsetY,
             string layer)
         {
-            double _x = x + offsetX;
+            double _x = X(x + offsetX);
             double _y = Y(y + offsetY);
 
             double thickness = 0.0;
@@ -186,7 +186,7 @@ namespace CanvasDiagramEditor.Editor
                 Thickness = 0.0,
                 Layer = LayerTable,
                 Color = DxfDefaultColors.ByLayer.ColorToString(),
-                FirstAlignment = new Vector3(x, Y(y), 0.0),
+                FirstAlignment = new Vector3(X(x), Y(y), 0.0),
                 TextHeight = 6.0,
                 DefaultValue = defaultValue,
                 TextRotation = 0.0,
@@ -195,7 +195,7 @@ namespace CanvasDiagramEditor.Editor
                 TextStyle = "TextTableTag",
                 TextGenerationFlags = DxfTextGenerationFlags.Default,
                 HorizontalTextJustification = horizontalTextJustification,
-                SecondAlignment = new Vector3(x, Y(y), 0.0),
+                SecondAlignment = new Vector3(X(x), Y(y), 0.0),
                 ExtrusionDirection = new Vector3(0.0, 0.0, 1.0),
                 Prompt = tag,
                 Tag = tag,
@@ -217,7 +217,7 @@ namespace CanvasDiagramEditor.Editor
             {
                 Thickness = 0.0,
                 Layer = LayerTable,
-                StartPoint = new Vector3(x, Y(y), 0.0),
+                StartPoint = new Vector3(X(x), Y(y), 0.0),
                 TextHeight = 6.0,
                 DefaultValue = text,
                 TextRotation = 0.0,
@@ -226,7 +226,7 @@ namespace CanvasDiagramEditor.Editor
                 TextStyle = "TextTableTag",
                 TextGenerationFlags = DxfTextGenerationFlags.Default,
                 HorizontalTextJustification = horizontalTextJustification,
-                AlignmentPoint = new Vector3(x, Y(y), 0.0),
+                AlignmentPoint = new Vector3(X(x), Y(y), 0.0),
                 ExtrusionDirection = new Vector3(0.0, 0.0, 1.0),
                 Tag = tag,
                 AttributeFlags = isVisible ? DxfAttributeFlags.Default : DxfAttributeFlags.Invisible,
@@ -245,7 +245,7 @@ namespace CanvasDiagramEditor.Editor
                 Thickness = 0.0,
                 Layer = LayerIO,
                 Color = DxfDefaultColors.ByLayer.ColorToString(),
-                FirstAlignment = new Vector3(x, Y(y), 0.0),
+                FirstAlignment = new Vector3(X(x), Y(y), 0.0),
                 TextHeight = 6.0,
                 DefaultValue = defaultValue,
                 TextRotation = 0.0,
@@ -254,7 +254,7 @@ namespace CanvasDiagramEditor.Editor
                 TextStyle = "TextElementIO",
                 TextGenerationFlags = DxfTextGenerationFlags.Default,
                 HorizontalTextJustification = DxfHorizontalTextJustification.Left,
-                SecondAlignment = new Vector3(x, Y(y), 0.0),
+                SecondAlignment = new Vector3(X(x), Y(y), 0.0),
                 ExtrusionDirection = new Vector3(0.0, 0.0, 1.0),
                 Prompt = tag,
                 Tag = tag,
@@ -274,7 +274,7 @@ namespace CanvasDiagramEditor.Editor
             {
                 Thickness = 0.0,
                 Layer = LayerIO,
-                StartPoint = new Vector3(x, Y(y), 0.0),
+                StartPoint = new Vector3(X(x), Y(y), 0.0),
                 TextHeight = 6.0,
                 DefaultValue = text,
                 TextRotation = 0.0,
@@ -283,7 +283,7 @@ namespace CanvasDiagramEditor.Editor
                 TextStyle = "TextElementIO",
                 TextGenerationFlags = DxfTextGenerationFlags.Default,
                 HorizontalTextJustification = DxfHorizontalTextJustification.Left,
-                AlignmentPoint = new Vector3(x, Y(y), 0.0),
+                AlignmentPoint = new Vector3(X(x), Y(y), 0.0),
                 ExtrusionDirection = new Vector3(0.0, 0.0, 1.0),
                 Tag = tag,
                 AttributeFlags = isVisible ? DxfAttributeFlags.Default : DxfAttributeFlags.Invisible,
@@ -302,7 +302,7 @@ namespace CanvasDiagramEditor.Editor
                 Thickness = 0.0,
                 Layer = LayerElements,
                 Color = DxfDefaultColors.ByLayer.ColorToString(),
-                FirstAlignment = new Vector3(x, Y(y), 0.0),
+                FirstAlignment = new Vector3(X(x), Y(y), 0.0),
                 TextHeight = 10.0,
                 DefaultValue = defaultValue,
                 TextRotation = 0.0,
@@ -311,7 +311,7 @@ namespace CanvasDiagramEditor.Editor
                 TextStyle = "TextElementGate",
                 TextGenerationFlags = DxfTextGenerationFlags.Default,
                 HorizontalTextJustification = DxfHorizontalTextJustification.Center,
-                SecondAlignment = new Vector3(x, Y(y), 0.0),
+                SecondAlignment = new Vector3(X(x), Y(y), 0.0),
                 ExtrusionDirection = new Vector3(0.0, 0.0, 1.0),
                 Prompt = tag,
                 Tag = tag,
@@ -331,7 +331,7 @@ namespace CanvasDiagramEditor.Editor
             {
                 Thickness = 0.0,
                 Layer = LayerElements,
-                StartPoint = new Vector3(x, Y(y), 0.0),
+                StartPoint = new Vector3(X(x), Y(y), 0.0),
                 TextHeight = 10.0,
                 DefaultValue = text,
                 TextRotation = 0.0,
@@ -340,7 +340,7 @@ namespace CanvasDiagramEditor.Editor
                 TextStyle = "TextElementGate",
                 TextGenerationFlags = DxfTextGenerationFlags.Default,
                 HorizontalTextJustification = DxfHorizontalTextJustification.Center,
-                AlignmentPoint = new Vector3(x, Y(y), 0.0),
+                AlignmentPoint = new Vector3(X(x), Y(y), 0.0),
                 ExtrusionDirection = new Vector3(0.0, 0.0, 1.0),
                 Tag = tag,
                 AttributeFlags = isVisible ? DxfAttributeFlags.Default : DxfAttributeFlags.Invisible,
@@ -1146,7 +1146,7 @@ namespace CanvasDiagramEditor.Editor
             var frame = new DxfInsert(Version, GetNextHandle())
                 .Block("FRAME")
                 .Layer(LayerFrame)
-                .Insertion(new Vector3(x, Y(y), 0));
+                .Insertion(new Vector3(X(x), Y(y), 0));
 
             return frame;
         }
@@ -1156,7 +1156,7 @@ namespace CanvasDiagramEditor.Editor
             var insert = new DxfInsert(Version, GetNextHandle())
                 .Block("TABLE")
                 .Layer(LayerTable)
-                .Insertion(new Vector3(x, Y(y), 0));
+                .Insertion(new Vector3(X(x), Y(y), 0));
 
             if (table != null)
             {
@@ -1201,7 +1201,7 @@ namespace CanvasDiagramEditor.Editor
             var frame = new DxfInsert(Version, GetNextHandle())
                 .Block("GRID")
                 .Layer(LayerGrid)
-                .Insertion(new Vector3(x, Y(y), 0));
+                .Insertion(new Vector3(X(x), Y(y), 0));
 
             return frame;
         }
@@ -1296,7 +1296,7 @@ namespace CanvasDiagramEditor.Editor
             var insert = new DxfInsert(Version, GetNextHandle())
                 .Block("INPUT")
                 .Layer(LayerIO)
-                .Insertion(new Vector3(x, Y(y), 0));
+                .Insertion(new Vector3(X(x), Y(y), 0));
 
             var tag = GetTagById(tagId);
             if (tag != null)
@@ -1321,7 +1321,7 @@ namespace CanvasDiagramEditor.Editor
             var insert = new DxfInsert(Version, GetNextHandle())
                 .Block("OUTPUT")
                 .Layer(LayerIO)
-                .Insertion(new Vector3(x, Y(y), 0));
+                .Insertion(new Vector3(X(x), Y(y), 0));
 
             var tag = GetTagById(tagId);
             if (tag != null)
@@ -1346,7 +1346,7 @@ namespace CanvasDiagramEditor.Editor
             var insert = new DxfInsert(Version, GetNextHandle())
                 .Block("ANDGATE")
                 .Layer(LayerElements)
-                .Insertion(new Vector3(x, Y(y), 0));
+                .Insertion(new Vector3(X(x), Y(y), 0));
 
             insert.AttributesBegin()
                 .AddAttribute(AttribGate("ID", id.ToString(), x + 30, y + 30, false))
@@ -1363,7 +1363,7 @@ namespace CanvasDiagramEditor.Editor
             var insert = new DxfInsert(Version, GetNextHandle())
                 .Block("ORGATE")
                 .Layer(LayerElements)
-                .Insertion(new Vector3(x, Y(y), 0));
+                .Insertion(new Vector3(X(x), Y(y), 0));
 
             // Arial, arial.ttf, ≥, \U+2265
             // Arial Unicode MS, arialuni.ttf ≥, \U+2265
