@@ -45,7 +45,7 @@ namespace CanvasDiagramEditor.Editor
 
     #endregion
 
-    #region DiagramCreator
+    #region DiagramEditor
 
     public class DiagramEditor
     {
@@ -113,7 +113,7 @@ namespace CanvasDiagramEditor.Editor
             bool select,
             bool createElements)
         {
-            var parser = new DiagramParser();
+            var parser = new Parser();
 
             var parseOptions = new ParseOptions()
             {

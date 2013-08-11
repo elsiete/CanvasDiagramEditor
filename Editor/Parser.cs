@@ -30,9 +30,9 @@ namespace CanvasDiagramEditor.Editor
 
     #endregion
 
-    #region DiagramParser
+    #region Parser
 
-    public class DiagramParser : IDiagramParser
+    public class Parser : IDiagramParser
     {
         #region Parse
 

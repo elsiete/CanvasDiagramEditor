@@ -89,7 +89,7 @@
     <Compile Include="Dxf\Enums\DxfVportStandardFlags.cs" />
     <Compile Include="Editor\ModelConstants.cs" />
     <Compile Include="Editor\ResourceConstants.cs" />
-    <Compile Include="Editor\DiagramParser.cs" />
+    <Compile Include="Editor\Parser.cs" />
     <Compile Include="Editor\DiagramEditor.cs" />
     <Compile Include="Editor\DiagramEditorOptions.cs" />
     <Compile Include="Editor\Editor.cs" />

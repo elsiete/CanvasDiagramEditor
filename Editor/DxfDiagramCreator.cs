@@ -1621,7 +1621,7 @@ namespace CanvasDiagramEditor.Editor
             ResetHandleCounter();
 
             // initialize parser
-            var parser = new DiagramParser();
+            var parser = new Parser();
             var parseOptions = DefaultParseOptions();
 
             // dxf file sections
