@@ -28,6 +28,12 @@ namespace CanvasDiagramEditor
 
     public partial class DiagramControl : UserControl
     {
+        #region Properties
+
+        public Action SelectionChanged { get; set; }
+
+        #endregion
+
         #region Fields
 
         public Slider ZoomSlider { get; set; }
@@ -81,6 +87,14 @@ namespace CanvasDiagramEditor
 
             Adorner.SelectionRect = new RectEx(point.X, point.Y, origin.X, origin.Y);
             Adorner.InvalidateVisual();
+        }
+
+        private void UpdateSelectedTags()
+        {
+            if (SelectionChanged != null)
+            {
+                SelectionChanged();
+            }
         }
 
         #endregion
@@ -401,6 +415,8 @@ namespace CanvasDiagramEditor
                     Editor.SelectNone();
                 }
 
+                UpdateSelectedTags();
+
                 canvas.CaptureMouse();
             }
             else
@@ -438,6 +454,7 @@ namespace CanvasDiagramEditor
                     }
 
                     RemoveAdorner(canvas);
+                    UpdateSelectedTags();
                 }
             }
         }

@@ -8,22 +8,56 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:controls="clr-namespace:CanvasDiagramEditor.Controls"
              mc:Ignorable="d" 
-             d:DesignHeight="430" d:DesignWidth="895"
-             Background="{DynamicResource LogicBackgroundColorKey}">
+             d:DesignHeight="600" d:DesignWidth="320"
+             Background="Transparent">
 
     <Grid Margin="4">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="330"/>
-            <ColumnDefinition Width="4"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="4"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Grid Grid.Column="0" Grid.Row="0" VerticalAlignment="Bottom">
+        <Grid x:Name="FilterGrid" 
+              Grid.Column="0" Grid.Row="0" 
+              Margin="0,0,0,4"
+              VerticalAlignment="Bottom">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="80"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Text="Filter by:" Margin="4,2,4,2" VerticalAlignment="Center" Grid.Column="0" Grid.Row="0"/>
+            <TextBlock Text="Designation" Margin="4,2,4,2" VerticalAlignment="Center" Grid.Column="0" Grid.Row="1"/>
+            <TextBlock Text="Signal" Margin="4,2,4,2" VerticalAlignment="Center" Grid.Column="0" Grid.Row="2"/>
+            <TextBlock Text="Condition" Margin="4,2,4,2" VerticalAlignment="Center" Grid.Column="0" Grid.Row="3"/>
+            <TextBlock Text="Description" Margin="4,2,4,2" VerticalAlignment="Center" Grid.Column="0" Grid.Row="4"/>
+
+            <TextBox x:Name="FilterByDesignation" Text="" Margin="4,2,0,2" Grid.Column="1" Grid.Row="1" TextChanged="FilterByDesignation_TextChanged"/>
+            <TextBox x:Name="FilterBySignal" Text="" Margin="4,2,0,2" Grid.Column="1" Grid.Row="2" TextChanged="FilterBySignal_TextChanged"/>
+            <TextBox x:Name="FilterByCondition" Text="" Margin="4,2,0,2" Grid.Column="1" Grid.Row="3" TextChanged="FilterByCondition_TextChanged"/>
+            <TextBox x:Name="FilterByDescription" Text="" Margin="4,2,0,2" Grid.Column="1" Grid.Row="4" TextChanged="FilterByDescription_TextChanged"/>
+
+            <Button Content="_Reset" x:Name="ButtonResetFilter" Width="100" HorizontalAlignment="Right" Margin="0,2,0,0" Grid.Column="1" Grid.Row="5" Click="ButtonResetFilter_Click"/>
+
+        </Grid>
+
+        <Grid x:Name="TagGrid" 
+              Grid.Column="0" Grid.Row="1"
+              Margin="0,0,0,0"
+              VerticalAlignment="Bottom">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="80"/>
                 <ColumnDefinition Width="*"/>
@@ -49,54 +83,9 @@
             <Button Content="Create _New" x:Name="ButtonNewTag" Width="100" HorizontalAlignment="Right" Margin="0,2,0,0" Grid.Column="1" Grid.Row="5" Click="ButtonNewTag_Click"/>
         </Grid>
 
-        <Grid Grid.Column="2" Grid.Row="0" VerticalAlignment="Bottom">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="80"/>
-                <ColumnDefinition Width="200"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-
-            <TextBlock Text="Filter by:" Margin="4,2,4,2" VerticalAlignment="Center" Grid.Column="1" Grid.Row="0"/>
-            <TextBlock Text="Designation" Margin="4,2,4,2" VerticalAlignment="Center" Grid.Column="1" Grid.Row="1"/>
-            <TextBlock Text="Signal" Margin="4,2,4,2" VerticalAlignment="Center" Grid.Column="1" Grid.Row="2"/>
-            <TextBlock Text="Condition" Margin="4,2,4,2" VerticalAlignment="Center" Grid.Column="1" Grid.Row="3"/>
-            <TextBlock Text="Description" Margin="4,2,4,2" VerticalAlignment="Center" Grid.Column="1" Grid.Row="4"/>
-
-            <TextBox x:Name="FilterByDesignation" Text="" Margin="4,2,0,2" Grid.Column="2" Grid.Row="1" TextChanged="FilterByDesignation_TextChanged"/>
-            <TextBox x:Name="FilterBySignal" Text="" Margin="4,2,0,2" Grid.Column="2" Grid.Row="2" TextChanged="FilterBySignal_TextChanged"/>
-            <TextBox x:Name="FilterByCondition" Text="" Margin="4,2,0,2" Grid.Column="2" Grid.Row="3" TextChanged="FilterByCondition_TextChanged"/>
-            <TextBox x:Name="FilterByDescription" Text="" Margin="4,2,0,2" Grid.Column="2" Grid.Row="4" TextChanged="FilterByDescription_TextChanged"/>
-
-            <Button Content="_Reset" x:Name="ButtonResetFilter" Width="100" HorizontalAlignment="Right" Margin="0,2,0,0" Grid.Column="2" Grid.Row="5" Click="ButtonResetFilter_Click"/>
-                
-        </Grid>
-
-        <ListView x:Name="SelectedList" 
-                  Grid.Column="0" Grid.Row="2" 
-                  HorizontalContentAlignment="Stretch"
-                  ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                  ScrollViewer.VerticalScrollBarVisibility="Auto"
-                  SelectionChanged="SelectedList_SelectionChanged">
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn Header="Uid" DisplayMemberBinding="{Binding Path=Item1.Uid}" Width="80"/>
-                    <GridViewColumn Header="TagId" DisplayMemberBinding="{Binding Path=Item1.(controls:ElementThumb.Data).Id, FallbackValue=&lt;tag&gt;}" Width="40"/>
-                    <GridViewColumn Header="Designation" DisplayMemberBinding="{Binding Path=Item1.(controls:ElementThumb.Data).Designation, FallbackValue=&lt;tag&gt;}" Width="100"/>
-                    <GridViewColumn Header="Signal" DisplayMemberBinding="{Binding Path=Item1.(controls:ElementThumb.Data).Signal, FallbackValue=&lt;tag&gt;}" Width="70"/>
-                </GridView>
-            </ListView.View>
-        </ListView>
-
         <ListView x:Name="TagList" 
-                  Grid.Column="2" Grid.Row="2"
+                  Grid.Column="0" Grid.Row="2"
+                  Margin="0,4,0,4"
                   HorizontalContentAlignment="Stretch"
                   ScrollViewer.HorizontalScrollBarVisibility="Auto"
                   ScrollViewer.VerticalScrollBarVisibility="Auto"
@@ -105,18 +94,31 @@
                   KeyDown="TagList_KeyDown">
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Header="TagId" DisplayMemberBinding="{Binding Path=Id}" Width="50"/>
+                    <!--<GridViewColumn Header="TagId" DisplayMemberBinding="{Binding Path=Id}" Width="50"/>-->
                     <GridViewColumn Header="Designation" DisplayMemberBinding="{Binding Path=Designation}" Width="110"/>
                     <GridViewColumn Header="Signal" DisplayMemberBinding="{Binding Path=Signal}" Width="80"/>
                     <GridViewColumn Header="Condition" DisplayMemberBinding="{Binding Path=Condition}" Width="90"/>
-                    <GridViewColumn Header="Description" DisplayMemberBinding="{Binding Path=Description}" Width="180"/>
+                    <!--<GridViewColumn Header="Description" DisplayMemberBinding="{Binding Path=Description}" Width="180"/>-->
                 </GridView>
             </ListView.View>
         </ListView>
 
-        <GridSplitter Grid.Column="1" Grid.Row="0" Grid.RowSpan="3"
-                      Background="Transparent" 
-                      VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+        <ListView x:Name="SelectedList" 
+                  Grid.Column="0" Grid.Row="3" 
+                  Margin="0,0,0,0"
+                  HorizontalContentAlignment="Stretch"
+                  ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                  ScrollViewer.VerticalScrollBarVisibility="Auto"
+                  SelectionChanged="SelectedList_SelectionChanged">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Uid" DisplayMemberBinding="{Binding Path=Item1.Uid}" Width="80"/>
+                    <!--<GridViewColumn Header="TagId" DisplayMemberBinding="{Binding Path=Item1.(controls:ElementThumb.Data).Id, FallbackValue=&lt;tag&gt;}" Width="40"/>-->
+                    <GridViewColumn Header="Designation" DisplayMemberBinding="{Binding Path=Item1.(controls:ElementThumb.Data).Designation, FallbackValue=&lt;tag&gt;}" Width="100"/>
+                    <GridViewColumn Header="Signal" DisplayMemberBinding="{Binding Path=Item1.(controls:ElementThumb.Data).Signal, FallbackValue=&lt;tag&gt;}" Width="70"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
 
     </Grid>
 

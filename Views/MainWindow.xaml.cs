@@ -129,6 +129,9 @@ namespace CanvasDiagramEditor
             };
 
             TableGrid.SetData(this, table);
+
+            InitializeTagEditor();
+
         }
 
         private void InitializeEditor()
@@ -415,11 +418,13 @@ namespace CanvasDiagramEditor
         private void FileNew_Click(object sender, RoutedEventArgs e)
         {
             Editor.TreeCreateNewSolution();
+            InitializeTagEditor();
         }
 
         private void FileOpen_Click(object sender, RoutedEventArgs e)
         {
             Editor.OpenSolution();
+            InitializeTagEditor();
         }
 
         private void FileSave_Click(object sender, RoutedEventArgs e)
@@ -440,6 +445,7 @@ namespace CanvasDiagramEditor
         private void FileOpenTags_Click(object sender, RoutedEventArgs e)
         {
             Editor.TagsOpen();
+            InitializeTagEditor();
         }
 
         private void FileSaveTags_Click(object sender, RoutedEventArgs e)
@@ -450,6 +456,7 @@ namespace CanvasDiagramEditor
         private void FileImportTags_Click(object sender, RoutedEventArgs e)
         {
             Editor.TagsImport();
+            InitializeTagEditor();
         }
 
         private void FileExportTags_Click(object sender, RoutedEventArgs e)
@@ -626,17 +633,17 @@ namespace CanvasDiagramEditor
 
         #endregion
 
-        #region Tools Menu Events
+        #region Help Menu Events
 
-        private void ToolsTagEditor_Click(object sender, RoutedEventArgs e)
+        private void HelpAbout_Click(object sender, RoutedEventArgs e)
         {
-            ShowTagEditor();
-        }
-
-        private void ToolsTableEditor_Click(object sender, RoutedEventArgs e)
-        {
-            ShowTableEditor();
-        }
+            MessageBox.Show("Canvas Diagram Editor\n\n" +
+                "Copyright (C) Wiesław Šoltés 2013.\n" +
+                "All Rights Reserved",
+                "About Canvas Diagram Editor",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+        }    
 
         #endregion
 
@@ -730,6 +737,7 @@ namespace CanvasDiagramEditor
                         if (isControl == true)
                         {
                             Editor.OpenSolution();
+                            InitializeTagEditor();
                             e.Handled = true;
                             break;
                         }
@@ -772,6 +780,7 @@ namespace CanvasDiagramEditor
                         if (isControl == true)
                         {
                             Editor.TreeCreateNewSolution();
+                            InitializeTagEditor();
                             e.Handled = true;
                             break;
                         }
@@ -784,6 +793,7 @@ namespace CanvasDiagramEditor
                         if (isControl == true)
                         {
                             Editor.TagsOpen();
+                            InitializeTagEditor();
                             e.Handled = true;
                             break;
                         }
@@ -988,7 +998,7 @@ namespace CanvasDiagramEditor
                 // tag editor
                 case Key.F5:
                     {
-                        ShowTagEditor();
+                        InitializeTagEditor();
                         e.Handled = true;
                     }
                     break;
@@ -1082,53 +1092,39 @@ namespace CanvasDiagramEditor
 
         #region Tag Editor
 
-        private string DesignationFilter = "";
-        private string SignalFilter = "";
-        private string ConditionFilter = "";
-        private string DescriptionFilter = "";
-
-        private void ShowTagEditor()
+        public List<IElement> GetSeletedIO()
         {
-            var window = new TagEditorWindow();
-            var control = window.TagEditorControl;
+            var selected = GetSelectedInputOutputElements();
+
+            if (selected.Count == 0)
+            {
+                var all = GetAllInputOutputElements();
+                return all;
+            }
+            else
+            {
+                return selected;
+            }
+        }
+
+        private void InitializeTagEditor()
+        {
+            var control = this.TagEditorControl;
 
             if (Editor.CurrentOptions.Tags == null)
             {
                 Editor.CurrentOptions.Tags = new List<object>();
             }
 
-            var selected = GetSelectedInputOutputElements();
-
-            if (selected.Count == 0)
-            {
-                var all = GetAllInputOutputElements();
-
-                control.Selected = all;
-            }
-            else
-            {
-                control.Selected = selected;
-            }
-
+            control.Selected = GetSeletedIO();
             control.Tags = Editor.CurrentOptions.Tags;
+            control.Initialize();
 
-            window.Closing += (sender, e) =>
+            DiagramControl.SelectionChanged = () =>
             {
-                // save filters
-                DesignationFilter = control.FilterByDesignation.Text;
-                SignalFilter = control.FilterBySignal.Text;
-                ConditionFilter = control.FilterByCondition.Text;
-                DescriptionFilter = control.FilterByDescription.Text;
+                control.Selected = GetSeletedIO();
+                control.UpdateSelected();
             };
-
-            // load filters
-            control.FilterByDesignation.Text = DesignationFilter;
-            control.FilterBySignal.Text = SignalFilter;
-            control.FilterByCondition.Text = ConditionFilter;
-            control.FilterByDescription.Text = DescriptionFilter;
-
-            // display tag editor window
-            window.ShowDialog();
         }
 
         private List<IElement> GetAllInputOutputElements()
@@ -1242,11 +1238,6 @@ namespace CanvasDiagramEditor
         {
             // SetLogo(1);
             // SetLogo(2);
-
-            var window = new TableEditorWindow();
-
-            // display table editor window
-            window.ShowDialog();
         }
 
         #endregion
@@ -1900,6 +1891,8 @@ namespace CanvasDiagramEditor
         }
 
         #endregion
+
+
     }
 
     #endregion

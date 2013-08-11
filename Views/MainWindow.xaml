@@ -41,7 +41,7 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="4"/>
-            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="330"/>
         </Grid.ColumnDefinitions>
 
         <Menu Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Background="{DynamicResource LogicBackgroundColorKey}" Margin="0">
@@ -107,10 +107,8 @@
                 <MenuItem x:Name="ViewPreviousDiagramSolution" Header="P_revious Diagram (Solution)" Click="ViewPreviousDiagramSolution_Click" InputGestureText="Ctrl+&lt;"/>
                 <MenuItem x:Name="ViewNextDiagramSolution" Header="Ne_xt Diagram (Solution)" Click="ViewNextDiagramSolution_Click" InputGestureText="Ctrl+&gt;"/>
             </MenuItem>
-            <MenuItem Header="_Tools">
-                <MenuItem x:Name="ToolsTagEditor" Header="Ta_g Editor" Click="ToolsTagEditor_Click" InputGestureText="F5"/>
-                <Separator/>
-                <MenuItem x:Name="ToolsTableEditor" Header="Ta_ble Editor" Click="ToolsTableEditor_Click" InputGestureText="F6"/>
+            <MenuItem Header="_Help">
+                <MenuItem x:Name="HelpAbout" Header="_About Canvas Diagram Editor" Click="HelpAbout_Click"/>
             </MenuItem>
         </Menu>
 
@@ -153,6 +151,64 @@
                             </controls:SolutionTreeViewItem>
 
                         </controls:SolutionTreeView>
+
+                    </Grid>
+
+                </TabItem>
+
+                <TabItem Header="Tags" x:Name="TabTags">
+
+                    <local:TagEditorControl x:Name="TagEditorControl"/>
+
+                </TabItem>
+                
+                <TabItem Header="Tables" x:Name="TabTables">
+                    
+                    <local:TableEditorControl x:Name="TableEditorControl"/>
+                    
+                </TabItem>
+
+                <TabItem Header="Model" x:Name="TabModel">
+
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Grid.Column="0" Grid.Row="0">
+
+                            <Button x:Name="GenerateModel" Content="_Generate Model" Margin="2" Click="GenerateModel_Click"/>
+                            <Button x:Name="GenerateModelFromSelected" Content="Generate Model (from selected)" Margin="2" Click="GenerateModelFromSelected_Click"/>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="70"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="Offset X:" Grid.Column="0" Grid.Row="0" Margin="2" HorizontalAlignment="Right"/>
+                                <TextBox x:Name="TextOffsetX" Text="0" Grid.Column="1" Grid.Row="0" Margin="2"/>
+                                <TextBlock Text="Offset Y:" Grid.Column="0" Grid.Row="1" Margin="2" HorizontalAlignment="Right"/>
+                                <TextBox x:Name="TextOffsetY" Text="0" Grid.Column="1" Grid.Row="1" Margin="2"/>
+                                <Button x:Name="IsertModel" Content="_Insert Model" Grid.Column="1" Grid.Row="2" Margin="2" Click="InsertModel_Click"/>
+                            </Grid>
+
+                        </StackPanel>
+
+                        <TextBox x:Name="TextModel" 
+                                 Grid.Column="0" Grid.Row="1"
+                                AcceptsReturn="True" AcceptsTab="True" 
+                                VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                                Padding="2"
+                                FontFamily="Consolas" FontSize="12"
+                                VerticalScrollBarVisibility="Auto"
+                                HorizontalScrollBarVisibility="Auto">
+                        </TextBox>
 
                     </Grid>
 
@@ -258,52 +314,6 @@
                         
                     </ScrollViewer>
                     
-                </TabItem>
-
-                <TabItem Header="Model" x:Name="TabModel">
-                    
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
-                    
-                        <StackPanel Grid.Column="0" Grid.Row="0">
-                        
-                            <Button x:Name="GenerateModel" Content="_Generate Model" Margin="2" Click="GenerateModel_Click"/>
-                            <Button x:Name="GenerateModelFromSelected" Content="Generate Model (from selected)" Margin="2" Click="GenerateModelFromSelected_Click"/>
-                        
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="70"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-                                <TextBlock Text="Offset X:" Grid.Column="0" Grid.Row="0" Margin="2" HorizontalAlignment="Right"/>
-                                <TextBox x:Name="TextOffsetX" Text="0" Grid.Column="1" Grid.Row="0" Margin="2"/>
-                                <TextBlock Text="Offset Y:" Grid.Column="0" Grid.Row="1" Margin="2" HorizontalAlignment="Right"/>
-                                <TextBox x:Name="TextOffsetY" Text="0" Grid.Column="1" Grid.Row="1" Margin="2"/>
-                                <Button x:Name="IsertModel" Content="_Insert Model" Grid.Column="1" Grid.Row="2" Margin="2" Click="InsertModel_Click"/>
-                            </Grid>
-                        
-                        </StackPanel>
-
-                        <TextBox x:Name="TextModel" 
-                                 Grid.Column="0" Grid.Row="1"
-                                AcceptsReturn="True" AcceptsTab="True" 
-                                VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                                Padding="2"
-                                FontFamily="Consolas" FontSize="12"
-                                VerticalScrollBarVisibility="Auto"
-                                HorizontalScrollBarVisibility="Auto">
-                        </TextBox>
-
-                    </Grid>
-
                 </TabItem>
 
             </TabControl>

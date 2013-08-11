@@ -179,14 +179,8 @@
     <Compile Include="Views\TableEditorControl.xaml.cs">
       <DependentUpon>TableEditorControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\TableEditorWindow.xaml.cs">
-      <DependentUpon>TableEditorWindow.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\TagEditorControl.xaml.cs">
       <DependentUpon>TagEditorControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\TagEditorWindow.xaml.cs">
-      <DependentUpon>TagEditorWindow.xaml</DependentUpon>
     </Compile>
     <Page Include="Elements\AndGateControl.xaml">
       <SubType>Designer</SubType>
@@ -248,15 +242,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\TableEditorWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Views\TagEditorControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\TagEditorWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

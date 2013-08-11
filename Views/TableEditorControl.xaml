@@ -8,9 +8,10 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:controls="clr-namespace:CanvasDiagramEditor.Controls"
              mc:Ignorable="d" 
+             Background="Transparent"
              d:DesignHeight="430" d:DesignWidth="895">
 
-    <Grid Background="{DynamicResource LogicBackgroundColorKey}">
+    <Grid>
 
     </Grid>
 
