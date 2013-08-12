@@ -59,6 +59,11 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Core\IClipboard.cs" />
+    <Compile Include="DxfInspect.cs" />
+    <Compile Include="DxfDiagramCreator.cs" />
+    <Compile Include="Util\WindowsClipboard.cs" />
+    <Compile Include="WpfDiagramCreator.cs" />
     <Compile Include="Core\ICanvas.cs" />
     <Compile Include="Core\IData.cs" />
     <Compile Include="Core\IElement.cs" />
@@ -94,12 +99,11 @@
     <Compile Include="Editor\DiagramEditorOptions.cs" />
     <Compile Include="Editor\Editor.cs" />
     <Compile Include="Editor\Table.cs" />
+    <Compile Include="Editor\Tree.cs" />
     <Compile Include="Editor\Elements.cs" />
     <Compile Include="Editor\Model.cs" />
     <Compile Include="Editor\Tags.cs" />
     <Compile Include="Editor\LineCalc.cs" />
-    <Compile Include="Editor\WpfDiagramCreator.cs" />
-    <Compile Include="Editor\DxfDiagramCreator.cs" />
     <Compile Include="Dxf\Core\DxfObject.cs" />
     <Compile Include="Dxf\Core\Vector2.cs" />
     <Compile Include="Dxf\Core\Vector3.cs" />

@@ -32,10 +32,6 @@ namespace CanvasDiagramEditor
 
         public Action SelectionChanged { get; set; }
 
-        #endregion
-
-        #region Fields
-
         public Slider ZoomSlider { get; set; }
         public DiagramEditor Editor { get; set; }
         private SelectionAdorner Adorner { get; set; }
@@ -53,7 +49,7 @@ namespace CanvasDiagramEditor
 
         #region SelectionAdorner
 
-        private void CreateAdorner(Canvas canvas, Point origin, Point point)
+        private void CreateAdorner(Canvas canvas, PointEx origin, PointEx point)
         {
             var layer = AdornerLayer.GetAdornerLayer(canvas);
 
@@ -103,7 +99,7 @@ namespace CanvasDiagramEditor
 
         private void BeginPan(Point point)
         {
-            Editor.CurrentOptions.PanStart = point;
+            Editor.CurrentOptions.PanStart = new PointEx(point.X, point.Y);
 
             Editor.CurrentOptions.PreviousScrollOffsetX = -1.0;
             Editor.CurrentOptions.PreviousScrollOffsetY = -1.0;
@@ -167,7 +163,7 @@ namespace CanvasDiagramEditor
                 Editor.CurrentOptions.PreviousScrollOffsetY = scrollOffsetY;
             }
 
-            Editor.CurrentOptions.PanStart = point;
+            Editor.CurrentOptions.PanStart = new PointEx(point.X, point.Y);
         }
 
         private void PanToOffset(double offsetX, double offsetY)
@@ -348,8 +344,8 @@ namespace CanvasDiagramEditor
                 return;
 
             var canvas = Editor.CurrentOptions.CurrentCanvas;
-
-            Editor.CurrentOptions.ZoomPoint = e.GetPosition(canvas);
+            var point = e.GetPosition(sender as IInputElement);
+            Editor.CurrentOptions.ZoomPoint = new PointEx(point.X, point.Y);
 
             if (e.Delta > 0)
             {
@@ -371,7 +367,7 @@ namespace CanvasDiagramEditor
 
         private void PanScrollViewer_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.ChangedButton == Editor.CurrentOptions.PanButton)
+            if (e.ChangedButton == MouseButton.Middle)
             {
                 var point = e.GetPosition(this.PanScrollViewer);
 
@@ -381,7 +377,7 @@ namespace CanvasDiagramEditor
 
         private void PanScrollViewer_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            if (e.ChangedButton == Editor.CurrentOptions.PanButton)
+            if (e.ChangedButton == MouseButton.Middle)
             {
                 EndPan();
             }
@@ -403,12 +399,14 @@ namespace CanvasDiagramEditor
 
         private void Canvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            var canvas = Editor.CurrentOptions.CurrentCanvas;
+            var canvas = sender as DiagramCanvas;
             var point = e.GetPosition(canvas);
 
-            if (Editor.CurrentOptions.CurrentRoot == null && Editor.CurrentOptions.CurrentLine == null && Editor.CurrentOptions.EnableInsertLast == false)
+            if (Editor.CurrentOptions.CurrentRoot == null && 
+                Editor.CurrentOptions.CurrentLine == null && 
+                Editor.CurrentOptions.EnableInsertLast == false)
             {
-                Editor.CurrentOptions.SelectionOrigin = point;
+                Editor.CurrentOptions.SelectionOrigin = new PointEx(point.X, point.Y);
 
                 if (Keyboard.Modifiers != ModifierKeys.Control)
                 {
@@ -421,13 +419,13 @@ namespace CanvasDiagramEditor
             }
             else
             {
-                Editor.MouseEventLeftDown(canvas, new PointEx(point.X, point.Y));
+                Editor.MouseEventLeftDown(canvas as ICanvas, new PointEx(point.X, point.Y));
             }
         }
 
         private void Canvas_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            var canvas = Editor.CurrentOptions.CurrentCanvas;
+            var canvas = sender as DiagramCanvas;
 
             if (canvas.IsMouseCaptured)
             {
@@ -468,7 +466,7 @@ namespace CanvasDiagramEditor
                 return;
             }
 
-            var canvas = Editor.CurrentOptions.CurrentCanvas;
+            var canvas = sender as DiagramCanvas;
             var point = e.GetPosition(canvas);
             var pin = (e.OriginalSource as FrameworkElement).TemplatedParent as IThumb;
 
@@ -479,7 +477,7 @@ namespace CanvasDiagramEditor
 
         private void Canvas_MouseMove(object sender, MouseEventArgs e)
         {
-            var canvas = Editor.CurrentOptions.CurrentCanvas;
+            var canvas = sender as DiagramCanvas;
 
             var point = e.GetPosition(canvas);
 
@@ -487,7 +485,9 @@ namespace CanvasDiagramEditor
             {
                 if (Adorner == null)
                 {
-                    CreateAdorner(canvas, Editor.CurrentOptions.SelectionOrigin, point);
+                    CreateAdorner(canvas, 
+                        Editor.CurrentOptions.SelectionOrigin, 
+                        new PointEx(point.X, point.Y));
                 }
 
                 UpdateAdorner(point);
@@ -500,12 +500,12 @@ namespace CanvasDiagramEditor
 
         private void Canvas_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
-            var canvas = Editor.CurrentOptions.CurrentCanvas;
-            var path = Editor.CurrentOptions.CurrentPathGrid;
+            var canvas = sender as DiagramCanvas;
 
-            Editor.CurrentOptions.RightClick = e.GetPosition(canvas);
+            var point = e.GetPosition(canvas);
+            Editor.CurrentOptions.RightClick = new PointEx(point.X, point.Y);
 
-            var result = Editor.MouseEventRightDown(canvas, path);
+            var result = Editor.MouseEventRightDown(canvas);
             if (result == true)
             {
                 Editor.CurrentOptions.SkipContextMenu = true;

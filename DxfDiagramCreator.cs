@@ -13,6 +13,7 @@ using CanvasDiagramEditor.Dxf.Enums;
 using CanvasDiagramEditor.Dxf.Tables;
 using CanvasDiagramEditor.Util;
 using CanvasDiagramEditor.Core;
+using CanvasDiagramEditor.Editor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,7 +22,7 @@ using System.Windows;
 
 #endregion
 
-namespace CanvasDiagramEditor.Editor
+namespace CanvasDiagramEditor
 {
     #region Aliases
 
@@ -1554,6 +1555,15 @@ namespace CanvasDiagramEditor.Editor
         }
 
         public object CreateDiagram(DiagramProperties properties)
+        {
+            return null;
+        }
+
+        public object CreateGrid(double originX,
+            double originY,
+            double width,
+            double height,
+            double size)
         {
             return null;
         }

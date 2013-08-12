@@ -65,6 +65,16 @@ namespace CanvasDiagramEditor.Controls
             this.Height = height;
         }
 
+        public List<object> GetTags()
+        {
+            return ElementThumb.GetItems(this);
+        }
+
+        public void SetTags(List<object> tags)
+        {
+            ElementThumb.SetItems(this, tags);
+        }
+
         #endregion
 
         #region IUid

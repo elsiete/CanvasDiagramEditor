@@ -29,22 +29,6 @@ using System.Windows.Markup;
 
 namespace CanvasDiagramEditor
 {
-    #region Aliases
-
-    using MapPin = Tuple<string, string>;
-    using MapWire = Tuple<object, object, object>;
-    using MapWires = Tuple<object, List<Tuple<string, string>>>;
-    using Selection = Tuple<bool, List<Tuple<object, object, object>>>;
-    using History = Tuple<Stack<string>, Stack<string>>;
-    using Diagram = Tuple<string, Tuple<Stack<string>, Stack<string>>>;
-    using TreeDiagram = Stack<string>;
-    using TreeDiagrams = Stack<Stack<string>>;
-    using TreeProject = Tuple<string, Stack<Stack<string>>>;
-    using TreeProjects = Stack<Tuple<string, Stack<Stack<string>>>>;
-    using TreeSolution = Tuple<string, string, Stack<Tuple<string, Stack<Stack<string>>>>>;
-
-    #endregion
-
     #region MainWindow
 
     public partial class MainWindow : Window
@@ -52,9 +36,17 @@ namespace CanvasDiagramEditor
         #region Fields
 
         private DiagramEditor Editor { get; set; }
+
         private string LogicDictionaryUri = "Views/LogicDictionary.xaml";
 
         private bool HaveKeyE = false;
+
+        private PointEx InsertPointInput = new PointEx(45.0, 30.0);
+        private PointEx InsertPointOutput = new PointEx(930.0, 30.0);
+        private PointEx InsertPointGate = new PointEx(325.0, 30.0);
+
+        private const double PageWidth = 1260;
+        private const double PageHeight = 891;
 
         #endregion
 
@@ -72,7 +64,7 @@ namespace CanvasDiagramEditor
             this.Loaded += MainWindow_Loaded;
         }
 
-        void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             this.DiagramControl.PanScrollViewer.Focus();
 
@@ -131,19 +123,31 @@ namespace CanvasDiagramEditor
             TableGrid.SetData(this, table);
 
             InitializeTagEditor();
-
         }
 
         private void InitializeEditor()
         {
+            Editor = new DiagramEditor();
+
+            // set clipboard
+            Editor.Clipboard = new WindowsClipboard();
+
+            // set options
             var options = new DiagramEditorOptions();
 
-            Editor = new DiagramEditor();
             Editor.CurrentOptions = options;
-
+            Editor.CurrentOptions.CurrentTree = this.SolutionTree;
+            Editor.CurrentOptions.CurrentCanvas = this.DiagramControl.DiagramCanvas;
             Editor.CurrentOptions.Counter.ProjectCount = 1;
             Editor.CurrentOptions.Counter.DiagramCount = 1;
 
+            // input actions
+            Editor.IsControlPressed = () =>
+            {
+                return Keyboard.Modifiers == ModifierKeys.Control;
+            };
+
+            // diagram properties
             Editor.UpdateDiagramProperties = () =>
             {
                 var prop = options.CurrentProperties;
@@ -163,23 +167,47 @@ namespace CanvasDiagramEditor
                 prop.SnapOffsetY = double.Parse(TextSnapOffsetY.Text);
             };
 
-            Editor.CurrentOptions.CurrentResources = this.Resources;
+            // diagram creator
+            var creator = new WpfDiagramCreator();
 
-            Editor.CurrentOptions.CurrentTree = this.SolutionTree;
-            Editor.CurrentOptions.CurrentCanvas = this.DiagramControl.DiagramCanvas;
-            Editor.CurrentOptions.CurrentPathGrid = this.DiagramControl.PathGrid;
+            creator.SetThumbEvents = (thumb) =>
+            {
+                Editor.SetThumbEvents(thumb);
+            };
 
+            creator.SetElementPosition = (element, left, top, snap) =>
+            {
+                Editor.SetElementPosition(element, left, top, snap);
+            };
+
+            creator.GetTags = () =>
+            {
+                return Editor.CurrentOptions.Tags;
+            };
+
+            creator.GetCounter = () =>
+            {
+                return Editor.CurrentOptions.Counter;
+            };
+
+            creator.ParserCanvas = this.DiagramControl.DiagramCanvas;
+            creator.ParserPath = this.DiagramControl.PathGrid;
+
+            Editor.WpfCreator = creator;
+
+            // set checkbox states
             EnableHistory.IsChecked = options.EnableHistory;
             EnableInsertLast.IsChecked = options.EnableInsertLast;
             EnableSnap.IsChecked = options.EnableSnap;
             SnapOnRelease.IsChecked = options.SnapOnRelease;
 
+            // tree actions
             Editor.CreateTreeSolutionItem = () =>
             {
                 var solution = new SolutionTreeViewItem();
 
                 solution.Header = ModelConstants.TagHeaderSolution;
-                solution.ContextMenu = Editor.CurrentOptions.CurrentResources["SolutionContextMenuKey"] as ContextMenu;
+                solution.ContextMenu = this.Resources["SolutionContextMenuKey"] as ContextMenu;
                 solution.MouseRightButtonDown += TreeViewItem_MouseRightButtonDown;
                 solution.IsExpanded = true;
 
@@ -191,7 +219,7 @@ namespace CanvasDiagramEditor
                 var project = new SolutionTreeViewItem();
 
                 project.Header = ModelConstants.TagHeaderProject;
-                project.ContextMenu = Editor.CurrentOptions.CurrentResources["ProjectContextMenuKey"] as ContextMenu;
+                project.ContextMenu = this.Resources["ProjectContextMenuKey"] as ContextMenu;
                 project.MouseRightButtonDown += TreeViewItem_MouseRightButtonDown;
                 project.IsExpanded = true;
 
@@ -203,7 +231,7 @@ namespace CanvasDiagramEditor
                 var diagram = new SolutionTreeViewItem();
 
                 diagram.Header = ModelConstants.TagHeaderDiagram;
-                diagram.ContextMenu = Editor.CurrentOptions.CurrentResources["DiagramContextMenuKey"] as ContextMenu;
+                diagram.ContextMenu = this.Resources["DiagramContextMenuKey"] as ContextMenu;
                 diagram.MouseRightButtonDown += TreeViewItem_MouseRightButtonDown;
 
                 return diagram as ITreeItem;
@@ -241,7 +269,8 @@ namespace CanvasDiagramEditor
                 };
             };
 
-            Editor.GridGenerate(false);
+            // update canvas grid
+            Editor.SetCanvasGrid(false);
         }
 
         #endregion
@@ -334,7 +363,7 @@ namespace CanvasDiagramEditor
 
         private void UpdateGrid_Click(object sender, RoutedEventArgs e)
         {
-            Editor.GridGenerate(true);
+            Editor.SetCanvasGrid(true);
         }
 
         #endregion
@@ -473,7 +502,8 @@ namespace CanvasDiagramEditor
 
         private void FileInspectDxf_Click(object sender, RoutedEventArgs e)
         {
-            InspectDxf();
+            var dxf = new DxfInspect();
+            dxf.Inspect();
         }
 
         private void FileImport_Click(object sender, RoutedEventArgs e)
@@ -1052,10 +1082,6 @@ namespace CanvasDiagramEditor
 
         #region Insert
 
-        private PointEx InsertPointInput = new PointEx(45.0, 30.0);
-        private PointEx InsertPointOutput = new PointEx(930.0, 30.0);
-        private PointEx InsertPointGate = new PointEx(325.0, 30.0);
-
         private void InsertInput(ICanvas canvas)
         {
             Editor.HistoryAdd(canvas, true);
@@ -1266,15 +1292,10 @@ namespace CanvasDiagramEditor
 
         #region Fixed Document
 
-        private const double PageWidth = 1260;
-        private const double PageHeight = 891;
-
         private void SetPrintStrokeSthickness(ResourceDictionary resources)
         {
             if (resources == null)
-            {
                 return;
-            }
 
             resources[ResourceConstants.KeyLogicStrokeThickness] = DipUtil.MmToDip(DxfDiagramCreator.LogicThicknessMm);
             resources[ResourceConstants.KeyWireStrokeThickness] = DipUtil.MmToDip(DxfDiagramCreator.WireThicknessMm);
@@ -1286,9 +1307,7 @@ namespace CanvasDiagramEditor
         private void SetPrintColors(ResourceDictionary resources)
         {
             if (resources == null)
-            {
                 return;
-            }
 
             var backgroundColor = resources["LogicBackgroundColorKey"] as SolidColorBrush;
             backgroundColor.Color = Colors.White;
@@ -1346,11 +1365,11 @@ namespace CanvasDiagramEditor
 
             var canvas = new DiagramCanvas()
             {
-                Width = Editor.CurrentOptions.CurrentCanvas.Width,
-                Height = Editor.CurrentOptions.CurrentCanvas.Height
+                Width = Editor.CurrentOptions.CurrentCanvas.GetWidth(),
+                Height = Editor.CurrentOptions.CurrentCanvas.GetHeight()
             };
 
-            Editor.ModelParseDiagram(diagram, canvas, null, 0, 0, false, false, false, true);
+            Editor.ModelParseDiagram(diagram, canvas, 0, 0, false, false, false, true);
 
             grid.Children.Add(template);
             grid.Children.Add(canvas);
@@ -1633,266 +1652,6 @@ namespace CanvasDiagramEditor
         }
 
         #endregion
-
-        #region Dxf Inspect
-
-        private const string DxfCodeForType = "0";
-        private const string DxfCodeForName = "2";
-
-        public void InspectDxf()
-        {
-            var dlg = new Microsoft.Win32.OpenFileDialog()
-            {
-                Filter = "Dxf (*.dxf)|*.dxf|All Files (*.*)|*.*",
-                Title = "Inspect Dxf"
-            };
-
-            var res = dlg.ShowDialog();
-            if (res == true)
-            {
-                try
-                {
-                    var html = ParseDxf(dlg.FileName);
-
-                    ShowHtmlWindow(html, "Dxf Inspect");
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
-                }
-            }
-        }
-
-        private void ShowHtmlWindow(string html, string title)
-        {
-            var window = new HtmlWindow();
-
-            window.Title = title;
-
-            window.Html.NavigateToString(html);
-
-            window.Show();
-        }
-
-        private string GetDxfData(string fileName)
-        {
-            string data = null;
-
-            try
-            {
-                using (var reader = new System.IO.StreamReader(fileName))
-                {
-                    data = reader.ReadToEnd();
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
-            }
-
-            return data;
-        }
-
-        public string ParseDxf(string fileName)
-        {
-            var sb = new StringBuilder();
-
-            string data = GetDxfData(fileName);
-            if (data == null)
-                return null;
-
-            ParseDxfData(sb, fileName, data);
-
-            return sb.ToString();
-        }
-
-        private void ParseDxfData(StringBuilder sb, string fileName, string data)
-        {
-            WriteHtmlHeader(sb, fileName);
-            WriteBodyHeader(sb, fileName);
-
-            var lines = data.Split("\n".ToCharArray(),
-                StringSplitOptions.RemoveEmptyEntries);
-
-            var tags = new List<DxfRawTag>();
-            DxfRawTag tag = null;
-
-            bool previousName = false;
-            bool haveSection = false;
-            //bool haveDxfCodeForType = false;
-
-            string[] entity = new string[2] { null, null };
-            int lineNumber = 0;
-
-            foreach (var line in lines)
-            {
-                var str = line.Trim();
-
-                // DxfCodeForType data
-                if (tag != null)
-                {
-                    tag.Data = str;
-                    tags.Add(tag);
-
-                    haveSection = WriteTag(sb, tag, haveSection, lineNumber, str);
-
-                    //haveDxfCodeForType = true;
-
-                    tag = null;
-                }
-                else
-                {
-                    if (str == DxfCodeForType && entity[0] == null)
-                    {
-                        tag = new DxfRawTag();
-                        tag.Code = str;
-                    }
-                    else
-                    {
-                        if (entity[0] == null)
-                        {
-                            entity[0] = str;
-                            entity[1] = null;
-                        }
-                        else
-                        {
-                            entity[1] = str;
-
-                            WriteEntity(sb, entity, lineNumber);
-
-                            // entity Name
-                            previousName = entity[0] == DxfCodeForName;
-
-                            entity[0] = null;
-                            entity[1] = null;
-
-                            //haveDxfCodeForType = false;
-                        }
-                    }
-                }
-
-                lineNumber++;
-            }
-
-            WriteBodyFooter(sb, haveSection);
-            WriteHtmlFooter(sb);
-        }
-
-        private static bool WriteTag(StringBuilder sb, 
-            DxfRawTag tag,
-            bool haveSection, 
-            int lineNumber, 
-            string str)
-        {
-            bool isHeaderSection = str == CodeName.Section;
-            string entityClass = isHeaderSection == true ? "section" : "other";
-
-            if (haveSection == true && isHeaderSection == true)
-            {
-                sb.AppendFormat("</div>");
-                haveSection = false;
-            }
-
-            if (haveSection == false && isHeaderSection == true)
-            {
-                haveSection = true;
-                sb.AppendFormat("<div class=\"content\">");
-                sb.AppendFormat("<dt class=\"header\"><code class=\"lineHeader\">LINE</code><code class=\"codeHeader\">CODE</code><code class=\"dataHeader\">DATA</code></dt>{0}", Environment.NewLine);
-            }
-
-            sb.AppendFormat("<dt class=\"{3}\"><code class=\"line\">{4}</code><code class=\"code\">{0}:</code><code class=\"data\">{1}</code></dt>{2}",
-                tag.Code,
-                tag.Data,
-                Environment.NewLine,
-                entityClass,
-                lineNumber);
-
-            return haveSection;
-        }
-
-        private static void WriteEntity(StringBuilder sb, string[] entity, int lineNumber)
-        {
-            sb.AppendFormat("<dd><code class=\"line\">{3}</code><code class=\"code\">{0}:</code><code class=\"data\">{1}</code></dd>{2}",
-                entity[0],
-                entity[1],
-                Environment.NewLine, lineNumber);
-        }
-
-        private static void WriteBodyHeader(StringBuilder sb, string fileName)
-        {
-            sb.AppendLine("<div class=\"container\">");
-            sb.AppendLine("<div class=\"header\">");
-            sb.AppendFormat("<h1 class=\"header\">{0}</h1></div>{1}",
-                System.IO.Path.GetFileName(fileName),
-                Environment.NewLine);
-
-            sb.AppendLine("<dl>");
-        }
-
-        private static void WriteBodyFooter(StringBuilder sb, bool haveSection)
-        {
-            if (haveSection == true)
-            {
-                sb.AppendFormat("</div>");
-            }
-
-            sb.AppendLine(@"</dl>");
-
-            sb.AppendLine("<div class=\"footer\">Copyright (C) Wiesław Šoltés 2013. All Rights Reserved</div>");
-            sb.AppendLine("</div>");
-        }
-
-        private void WriteHtmlHeader(StringBuilder sb, string fileName)
-        {
-            sb.AppendLine("<html><head>");
-
-            sb.AppendFormat("<title>{0}</title>{1}",
-                System.IO.Path.GetFileName(fileName), Environment.NewLine);
-
-            sb.AppendFormat("<meta charset=\"utf-8\"/>");
-
-            sb.AppendLine("<style>");
-            sb.AppendLine("body { background-color:rgb(221,221,221); }");
-            sb.AppendLine("dl,dt,dd { font-family: Arial; font-size:10pt; width:100%; }");
-            sb.AppendLine("dl { font-weight:normal; margin:0.0cm 0.0cm 0.0cm 0.0cm; background-color:rgb(221,221,221); }");
-
-            sb.AppendLine("dt { font-weight:bold; }");
-            sb.AppendLine("dt.header { margin:0.0cm 0.0cm 0.0cm 0.0cm; background-color:rgb(255,30,102); }");
-            sb.AppendLine("dt.section { margin:0.0cm 0.0cm 0.0cm 0.0cm; background-color:rgb(255,242,102); }");
-            sb.AppendLine("dt.other { margin:0.0cm 0.0cm 0.0cm 0.0cm; background-color:rgb(191,191,191); }");
-
-            sb.AppendLine("dd { font-weight:normal; margin:0.0cm 0.0cm 0.0cm 0.0cm; background-color:rgb(221,221,221); }");
-
-            sb.AppendLine("code.lineHeader { width:2.0cm; text-align:Left; color:rgb(0,0,0); }");
-            sb.AppendLine("code.codeHeader { width:1.2cm; text-align:right; color:rgb(0,0,0); }");
-            sb.AppendLine("code.dataHeader { margin:0.0cm 0.0cm 0.0cm 0.5cm; text-align:left; color:rgb(0,0,0); }");
-
-            sb.AppendLine("code.line { width:2.0cm; text-align:Left; color:rgb(84,84,84); }");
-            sb.AppendLine("code.code { width:1.2cm; text-align:right; color:rgb(116,116,116); }");
-            sb.AppendLine("code.data { margin:0.0cm 0.0cm 0.0cm 0.5cm; text-align:left; color:rgb(0,0,0); }");
-
-            sb.AppendLine("div.footer { font-family: Arial; font-size:10pt; }");
-
-            sb.AppendLine("div.container { clear:both; width:auto; display:inline-block; zoom: 1;*display: inline; height:0.0cm; vertical-align:top; overflow:auto; }");
-            sb.AppendLine("div.header { margin:0.2cm; }");
-            sb.AppendLine("div.content { margin:0.2cm; width:10.0cm; float:left; }");
-            sb.AppendLine("div.footer { margin:0.2cm;clear:both;text-align:center; }");
-
-            sb.AppendLine("h1 { font-family: Arial; font-size:12pt; }");
-            sb.AppendLine("h1.header { margin-bottom:0; }");
-
-            sb.AppendLine("</style>");
-            sb.AppendLine("</head><body>");
-        }
-
-        private void WriteHtmlFooter(StringBuilder sb)
-        {
-            sb.AppendLine("</body></html>");
-        }
-
-        #endregion
-
-
     }
 
     #endregion

@@ -4,6 +4,7 @@
 #region References
 
 using CanvasDiagramEditor.Core;
+using CanvasDiagramEditor.Editor;
 using CanvasDiagramEditor.Controls;
 using CanvasDiagramEditor.Util;
 using System;
@@ -19,7 +20,7 @@ using System.Windows.Input;
 
 #endregion
 
-namespace CanvasDiagramEditor.Editor
+namespace CanvasDiagramEditor
 {
     #region Aliases
 
@@ -54,6 +55,38 @@ namespace CanvasDiagramEditor.Editor
 
         public ICanvas ParserCanvas { get; set; }
         public Path ParserPath { get; set; }
+
+        #endregion
+
+        #region Grid Geometry
+
+        private string CreateGridGeometry(double originX, 
+            double originY, 
+            double width, 
+            double height, 
+            double size)
+        {
+            var sb = new StringBuilder();
+
+            double sizeX = size;
+            double sizeY = size;
+
+            // horizontal lines
+            for (double y = sizeY + originY /* originY + size */; y < height + originY; y += size)
+            {
+                sb.AppendFormat("M{0},{1}", originX, y);
+                sb.AppendFormat("L{0},{1}", width + originX, y);
+            }
+
+            // vertical lines
+            for (double x = sizeX + originX /* originX + size */; x < width + originX; x += size)
+            {
+                sb.AppendFormat("M{0},{1}", x, originY);
+                sb.AppendFormat("L{0},{1}", x, height + originY);
+            }
+
+            return sb.ToString();
+        }
 
         #endregion
 
@@ -183,20 +216,36 @@ namespace CanvasDiagramEditor.Editor
 
         public object CreateDiagram(DiagramProperties properties)
         {
-            var canvas = ParserCanvas;
-            var path = ParserPath;
-
-            if (path != null)
+            if (ParserPath != null)
             {
-                DiagramEditor.GridGenerate(path,
-                    properties.GridOriginX,
-                    properties.GridOriginY,
-                    properties.GridWidth,
-                    properties.GridHeight,
+                CreateGrid(properties.GridOriginX, properties.GridOriginY,
+                    properties.GridWidth, properties.GridHeight,
                     properties.GridSize);
             }
 
-            DiagramEditor.DiagramSetSize(canvas, properties.PageWidth, properties.PageHeight);
+            if (ParserCanvas != null)
+            {
+                ParserCanvas.SetWidth(properties.PageWidth);
+                ParserCanvas.SetHeight(properties.PageHeight);
+            }
+
+            return null;
+        }
+
+
+        public object CreateGrid(double originX,
+            double originY,
+            double width,
+            double height,
+            double size)
+        {
+            var path = this.ParserPath;
+            if (path == null)
+                return null;
+
+            string str = CreateGridGeometry(originX, originY, width, height, size);
+
+            path.Data = Geometry.Parse(str);
 
             return null;
         }
@@ -205,22 +254,22 @@ namespace CanvasDiagramEditor.Editor
         {
             var canvas = ParserCanvas;
 
-            Elements.Insert(canvas, elements.Cast<IElement>(), select);
+            Editor.Elements.Insert(canvas, elements.Cast<IElement>(), select);
         }
 
         public void UpdateCounter(IdCounter original, IdCounter counter)
         {
-            Editor.IdsUpdateCounter(original, counter);
+            Editor.Editor.IdsUpdateCounter(original, counter);
         }
 
         public void UpdateConnections(IDictionary<string, MapWires> dict)
         {
-            Editor.ConnectionsUpdate(dict);
+            Editor.Editor.ConnectionsUpdate(dict);
         }
 
         public void AppendIds(IEnumerable<object> elements)
         {
-            Editor.IdsAppend(elements, this.GetCounter());
+            Editor.Editor.IdsAppend(elements, this.GetCounter());
         }
 
         #endregion

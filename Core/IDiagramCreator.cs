@@ -47,6 +47,8 @@ namespace CanvasDiagramEditor.Core
         object CreateOrGate(double x, double y, int id, bool snap);
         object CreateDiagram(DiagramProperties properties);
 
+        object CreateGrid(double originX, double originY, double width, double height, double size);
+
         void UpdateConnections(IDictionary<string, MapWires> dict);
         void UpdateCounter(IdCounter original, IdCounter counter);
 

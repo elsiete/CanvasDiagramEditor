@@ -27,6 +27,9 @@ namespace CanvasDiagramEditor.Core
         double GetHeight();
         void SetHeight(double height);
 
+        List<object> GetTags();
+        void SetTags(List<object> tags);
+
         IEnumerable<IElement> HitTest(IPoint point, double radius);
         IEnumerable<IElement> HitTest(IRect rect);
     }

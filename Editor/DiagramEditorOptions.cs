@@ -9,10 +9,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
-using System.Windows.Shapes; 
 
 #endregion
 
@@ -26,14 +22,14 @@ namespace CanvasDiagramEditor.Editor
 
         public DiagramProperties CurrentProperties = new DiagramProperties();
 
-        public ResourceDictionary CurrentResources = null;
-
         public string TagFileName = null;
         public List<object> Tags = null;
 
+        public string TableFileName = null;
+        public List<object> Tables = null;
+
         public ITree CurrentTree = null;
-        public DiagramCanvas CurrentCanvas = null;
-        public Path CurrentPathGrid = null;
+        public ICanvas CurrentCanvas = null;
 
         public bool EnableHistory = true;
 
@@ -42,7 +38,7 @@ namespace CanvasDiagramEditor.Editor
 
         public IdCounter Counter = new IdCounter();
 
-        public Point RightClick;
+        public PointEx RightClick;
 
         public bool EnableInsertLast = false;
         public string LastInsert = ModelConstants.TagElementInput;
@@ -57,7 +53,7 @@ namespace CanvasDiagramEditor.Editor
         public bool SkipContextMenu = false;
         public bool SkipLeftClick = false;
 
-        public Point PanStart;
+        public PointEx PanStart;
         public double PreviousScrollOffsetX = -1.0;
         public double PreviousScrollOffsetY = -1.0;
 
@@ -67,12 +63,11 @@ namespace CanvasDiagramEditor.Editor
         public double ZoomLogBase = 1.9;
         public double ZoomExpFactor = 1.3;
 
-        public Point ZoomPoint;
+        public PointEx ZoomPoint;
 
         public double ReversePanDirection = -1.0; // reverse: 1.0, normal: -1.0
-        public MouseButton PanButton = MouseButton.Middle;
 
-        public Point SelectionOrigin;
+        public PointEx SelectionOrigin;
 
         #endregion
     }
