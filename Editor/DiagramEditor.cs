@@ -2690,8 +2690,6 @@ namespace CanvasDiagramEditor.Editor
                 Title = "Open Solution"
             };
 
-            TreeSolution solution = null;
-
             var res = dlg.ShowDialog();
             if (res == true)
             {
@@ -2699,28 +2697,11 @@ namespace CanvasDiagramEditor.Editor
 
                 ModelClear(canvas);
 
-                solution = OpenSolutionModel(dlg.FileName);
+                TreeSolution solution = OpenSolutionModel(dlg.FileName);
+                return solution;
             }
 
-            return solution;
-        }
-
-        public void SaveDiagram()
-        {
-            var dlg = new Microsoft.Win32.SaveFileDialog()
-            {
-                Filter = "Diagram (*.txt)|*.txt|All Files (*.*)|*.*",
-                Title = "Save Diagram",
-                FileName = "diagram"
-            };
-
-            var res = dlg.ShowDialog();
-            if (res == true)
-            {
-                var canvas = CurrentOptions.CurrentCanvas;
-
-                this.SaveDiagram(dlg.FileName, canvas);
-            }
+            return null;
         }
 
         public void SaveSolution()
@@ -2742,6 +2723,24 @@ namespace CanvasDiagramEditor.Editor
                 TagsUpdate();
 
                 SaveSolution(fileName);
+            }
+        }
+
+        public void SaveDiagram()
+        {
+            var dlg = new Microsoft.Win32.SaveFileDialog()
+            {
+                Filter = "Diagram (*.txt)|*.txt|All Files (*.*)|*.*",
+                Title = "Save Diagram",
+                FileName = "diagram"
+            };
+
+            var res = dlg.ShowDialog();
+            if (res == true)
+            {
+                var canvas = CurrentOptions.CurrentCanvas;
+
+                this.SaveDiagram(dlg.FileName, canvas);
             }
         }
 
@@ -2832,15 +2831,15 @@ namespace CanvasDiagramEditor.Editor
                 Title = "Import Tags"
             };
 
-            if (CurrentOptions.Tags == null)
-            {
-                CurrentOptions.Tags = new List<object>();
-            }
-
             var res = dlg.ShowDialog();
             if (res == true)
             {
                 var tagFileName = dlg.FileName;
+
+                if (CurrentOptions.Tags == null)
+                {
+                    CurrentOptions.Tags = new List<object>();
+                }
 
                 Tags.Import(tagFileName, CurrentOptions.Tags, true);
             }
