@@ -17,12 +17,18 @@ namespace CanvasDiagramEditor.Core
     public interface ITreeItem : IData, IUid, ITag, ISelected
     {
     	IEnumerable<ITreeItem> GetItems();
+        int GetItemsCount();
 
-    	void Add(ITreeItem item);
+        ITreeItem GetItem(int index);
+        int GetItemIndex(ITreeItem item);
+
+        void Add(ITreeItem item);
         void Remove(ITreeItem item);
         void Clear();
 
         object GetParent();
+
+        void PushIntoView();
     }
 
     #endregion

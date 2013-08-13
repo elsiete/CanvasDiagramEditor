@@ -1382,6 +1382,15 @@ namespace CanvasDiagramEditor
 
         #region IDiagramCreator
 
+        public void SetCanvas(ICanvas canvas)
+        {
+        }
+
+        public ICanvas GetCanvas()
+        {
+            return null;
+        }
+
         public object CreatePin(double x, double y, int id, bool snap)
         {
             return null;

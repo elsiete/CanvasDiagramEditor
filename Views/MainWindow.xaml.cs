@@ -68,6 +68,13 @@ namespace CanvasDiagramEditor
         {
             this.DiagramControl.PanScrollViewer.Focus();
 
+            SetCurrentTable();
+
+            InitializeTagEditor();
+        }
+
+        private void SetCurrentTable()
+        {
             var table = new DiagramTable()
             {
                 Id = 0,
@@ -121,156 +128,140 @@ namespace CanvasDiagramEditor
             };
 
             TableGrid.SetData(this, table);
-
-            InitializeTagEditor();
         }
 
         private void InitializeEditor()
         {
             Editor = new DiagramEditor();
+            Editor.CurrentOptions = new DiagramEditorOptions();
 
-            // set clipboard
-            Editor.Clipboard = new WindowsClipboard();
-
-            // set options
-            var options = new DiagramEditorOptions();
-
-            Editor.CurrentOptions = options;
             Editor.CurrentOptions.CurrentTree = this.SolutionTree;
             Editor.CurrentOptions.CurrentCanvas = this.DiagramControl.DiagramCanvas;
+
             Editor.CurrentOptions.Counter.ProjectCount = 1;
             Editor.CurrentOptions.Counter.DiagramCount = 1;
 
-            // input actions
-            Editor.IsControlPressed = () =>
-            {
-                return Keyboard.Modifiers == ModifierKeys.Control;
-            };
+            Editor.IsControlPressed = () => Keyboard.Modifiers == ModifierKeys.Control;
+            Editor.UpdateProperties = () => UpdateProperties(Editor.CurrentOptions.CurrentProperties);
 
-            // diagram properties
-            Editor.UpdateDiagramProperties = () =>
-            {
-                var prop = options.CurrentProperties;
-
-                prop.PageWidth = int.Parse(TextPageWidth.Text);
-                prop.PageHeight = int.Parse(TextPageHeight.Text);
-
-                prop.GridOriginX = int.Parse(TextGridOriginX.Text);
-                prop.GridOriginY = int.Parse(TextGridOriginY.Text);
-                prop.GridWidth = int.Parse(TextGridWidth.Text);
-                prop.GridHeight = int.Parse(TextGridHeight.Text);
-                prop.GridSize = int.Parse(TextGridSize.Text);
-
-                prop.SnapX = double.Parse(TextSnapX.Text);
-                prop.SnapY = double.Parse(TextSnapY.Text);
-                prop.SnapOffsetX = double.Parse(TextSnapOffsetX.Text);
-                prop.SnapOffsetY = double.Parse(TextSnapOffsetY.Text);
-            };
+            Editor.Clipboard = new WindowsClipboard();
 
             // diagram creator
-            var creator = new WpfDiagramCreator();
+            var creator = GetDiagramCreator();
 
-            creator.SetThumbEvents = (thumb) =>
-            {
-                Editor.SetThumbEvents(thumb);
-            };
-
-            creator.SetElementPosition = (element, left, top, snap) =>
-            {
-                Editor.SetElementPosition(element, left, top, snap);
-            };
-
-            creator.GetTags = () =>
-            {
-                return Editor.CurrentOptions.Tags;
-            };
-
-            creator.GetCounter = () =>
-            {
-                return Editor.CurrentOptions.Counter;
-            };
-
-            creator.ParserCanvas = this.DiagramControl.DiagramCanvas;
-            creator.ParserPath = this.DiagramControl.PathGrid;
-
-            Editor.WpfCreator = creator;
+            Editor.DiagramCreator = creator;
 
             // set checkbox states
-            EnableHistory.IsChecked = options.EnableHistory;
-            EnableInsertLast.IsChecked = options.EnableInsertLast;
-            EnableSnap.IsChecked = options.EnableSnap;
-            SnapOnRelease.IsChecked = options.SnapOnRelease;
+            EnableHistory.IsChecked = Editor.CurrentOptions.EnableHistory;
+            EnableInsertLast.IsChecked = Editor.CurrentOptions.EnableInsertLast;
+            EnableSnap.IsChecked = Editor.CurrentOptions.EnableSnap;
+            SnapOnRelease.IsChecked = Editor.CurrentOptions.SnapOnRelease;
 
             // tree actions
-            Editor.CreateTreeSolutionItem = () =>
-            {
-                var solution = new SolutionTreeViewItem();
-
-                solution.Header = ModelConstants.TagHeaderSolution;
-                solution.ContextMenu = this.Resources["SolutionContextMenuKey"] as ContextMenu;
-                solution.MouseRightButtonDown += TreeViewItem_MouseRightButtonDown;
-                solution.IsExpanded = true;
-
-                return solution as ITreeItem;
-            };
-
-            Editor.CreateTreeProjectItem = () =>
-            {
-                var project = new SolutionTreeViewItem();
-
-                project.Header = ModelConstants.TagHeaderProject;
-                project.ContextMenu = this.Resources["ProjectContextMenuKey"] as ContextMenu;
-                project.MouseRightButtonDown += TreeViewItem_MouseRightButtonDown;
-                project.IsExpanded = true;
-
-                return project as ITreeItem;
-            };
-
-            Editor.CreateTreeDiagramItem = () =>
-            {
-                var diagram = new SolutionTreeViewItem();
-
-                diagram.Header = ModelConstants.TagHeaderDiagram;
-                diagram.ContextMenu = this.Resources["DiagramContextMenuKey"] as ContextMenu;
-                diagram.MouseRightButtonDown += TreeViewItem_MouseRightButtonDown;
-
-                return diagram as ITreeItem;
-            };
-
-            Editor.SetThumbEvents = (ithumb) =>
-            {
-                var thumb = ithumb as ElementThumb;
-
-                thumb.DragDelta += (sender, e) =>
-                {
-                    var canvas = Editor.CurrentOptions.CurrentCanvas;
-                    var element = sender as IThumb;
-
-                    double dX = e.HorizontalChange;
-                    double dY = e.VerticalChange;
-
-                    Editor.Drag(canvas, element, dX, dY);
-                };
-
-                thumb.DragStarted += (sender, e) =>
-                {
-                    var canvas = Editor.CurrentOptions.CurrentCanvas;
-                    var element = sender as IThumb;
-
-                    Editor.DragStart(canvas, element);
-                };
-
-                thumb.DragCompleted += (sender, e) =>
-                {
-                    var canvas = Editor.CurrentOptions.CurrentCanvas;
-                    var element = sender as IThumb;
-
-                    Editor.DragEnd(canvas, element);
-                };
-            };
+            Editor.CreateTreeSolutionItem = () => CreateTreeSolutionItem();
+            Editor.CreateTreeProjectItem = () => CreateTreeProjectItem();
+            Editor.CreateTreeDiagramItem = () => CreateTreeDiagramItem();
 
             // update canvas grid
             Editor.SetCanvasGrid(false);
+        }
+
+        private IDiagramCreator GetDiagramCreator()
+        {
+            var creator = new WpfDiagramCreator();
+
+            creator.SetThumbEvents = (thumb) => SetThumbEvents(thumb);
+            creator.SetPosition = (element, left, top, snap) => Editor.SetPosition(element, left, top, snap);
+            
+            creator.GetTags = () => Editor.CurrentOptions.Tags;
+            creator.GetCounter = () => Editor.CurrentOptions.Counter;
+
+            creator.SetCanvas(this.DiagramControl.DiagramCanvas);
+            creator.ParserPath = this.DiagramControl.PathGrid;
+
+            return creator;
+        }
+
+        private void SetThumbEvents(ElementThumb thumb)
+        {
+            thumb.DragDelta += (sender, e) =>
+            {
+                var canvas = Editor.CurrentOptions.CurrentCanvas;
+                var element = sender as IThumb;
+
+                double dX = e.HorizontalChange;
+                double dY = e.VerticalChange;
+
+                Editor.Drag(canvas, element, dX, dY);
+            };
+
+            thumb.DragStarted += (sender, e) =>
+            {
+                var canvas = Editor.CurrentOptions.CurrentCanvas;
+                var element = sender as IThumb;
+
+                Editor.DragStart(canvas, element);
+            };
+
+            thumb.DragCompleted += (sender, e) =>
+            {
+                var canvas = Editor.CurrentOptions.CurrentCanvas;
+                var element = sender as IThumb;
+
+                Editor.DragEnd(canvas, element);
+            };
+        }
+
+        private void UpdateProperties(DiagramProperties prop)
+        {
+            prop.PageWidth = int.Parse(TextPageWidth.Text);
+            prop.PageHeight = int.Parse(TextPageHeight.Text);
+
+            prop.GridOriginX = int.Parse(TextGridOriginX.Text);
+            prop.GridOriginY = int.Parse(TextGridOriginY.Text);
+            prop.GridWidth = int.Parse(TextGridWidth.Text);
+            prop.GridHeight = int.Parse(TextGridHeight.Text);
+            prop.GridSize = int.Parse(TextGridSize.Text);
+
+            prop.SnapX = double.Parse(TextSnapX.Text);
+            prop.SnapY = double.Parse(TextSnapY.Text);
+            prop.SnapOffsetX = double.Parse(TextSnapOffsetX.Text);
+            prop.SnapOffsetY = double.Parse(TextSnapOffsetY.Text);
+        }
+
+        private ITreeItem CreateTreeDiagramItem()
+        {
+            var diagram = new SolutionTreeViewItem();
+
+            diagram.Header = ModelConstants.TagHeaderDiagram;
+            diagram.ContextMenu = this.Resources["DiagramContextMenuKey"] as ContextMenu;
+            diagram.MouseRightButtonDown += TreeViewItem_MouseRightButtonDown;
+
+            return diagram as ITreeItem;
+        }
+
+        private ITreeItem CreateTreeProjectItem()
+        {
+            var project = new SolutionTreeViewItem();
+
+            project.Header = ModelConstants.TagHeaderProject;
+            project.ContextMenu = this.Resources["ProjectContextMenuKey"] as ContextMenu;
+            project.MouseRightButtonDown += TreeViewItem_MouseRightButtonDown;
+            project.IsExpanded = true;
+
+            return project as ITreeItem;
+        }
+
+        private ITreeItem CreateTreeSolutionItem()
+        {
+            var solution = new SolutionTreeViewItem();
+
+            solution.Header = ModelConstants.TagHeaderSolution;
+            solution.ContextMenu = this.Resources["SolutionContextMenuKey"] as ContextMenu;
+            solution.MouseRightButtonDown += TreeViewItem_MouseRightButtonDown;
+            solution.IsExpanded = true;
+
+            return solution as ITreeItem;
         }
 
         #endregion

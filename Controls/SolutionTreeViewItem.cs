@@ -30,6 +30,25 @@ namespace CanvasDiagramEditor.Controls
             return elements.Cast<ITreeItem>();
         }
 
+        public int GetItemsCount()
+        {
+            return this.Items.Count;
+        }
+
+        public ITreeItem GetItem(int index)
+        {
+            var item = this.Items[index];
+
+            return item as ITreeItem;
+        }
+
+        public int GetItemIndex(ITreeItem item)
+        {
+            int index = Items.IndexOf(item as FrameworkElement);
+
+            return index;
+        }
+
         public void Add(ITreeItem item)
         {
             this.Items.Add(item as FrameworkElement);
@@ -49,6 +68,11 @@ namespace CanvasDiagramEditor.Controls
         {
             return this.Parent;
         }
+
+        public void PushIntoView()
+        {
+            this.BringIntoView();
+        }        
 
         #endregion
 

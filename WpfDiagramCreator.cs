@@ -48,12 +48,12 @@ namespace CanvasDiagramEditor
         #region Properties
 
         public Action<ElementThumb> SetThumbEvents { get; set; }
-        public Action<IElement, double, double, bool> SetElementPosition { get; set; }
+        public Action<IElement, double, double, bool> SetPosition { get; set; }
 
         public Func<List<object>> GetTags { get; set; }
         public Func<IdCounter> GetCounter { get; set; }
 
-        public ICanvas ParserCanvas { get; set; }
+        private ICanvas ParserCanvas { get; set; }
         public Path ParserPath { get; set; }
 
         #endregion
@@ -92,6 +92,16 @@ namespace CanvasDiagramEditor
 
         #region IDiagramCreator
 
+        public void SetCanvas(ICanvas canvas)
+        {
+            this.ParserCanvas = canvas;
+        }
+
+        public ICanvas GetCanvas()
+        {
+            return this.ParserCanvas;
+        }
+
         public object CreatePin(double x, double y, int id, bool snap)
         {
             var thumb = new ElementThumb()
@@ -102,7 +112,7 @@ namespace CanvasDiagramEditor
             };
 
             SetThumbEvents(thumb);
-            SetElementPosition(thumb, x, y, snap);
+            SetPosition(thumb, x, y, snap);
 
             return thumb;
         }
@@ -140,7 +150,7 @@ namespace CanvasDiagramEditor
             };
 
             SetThumbEvents(thumb);
-            SetElementPosition(thumb, x, y, snap);
+            SetPosition(thumb, x, y, snap);
 
             // set element Tag
             var tags = this.GetTags();
@@ -167,7 +177,7 @@ namespace CanvasDiagramEditor
             };
 
             SetThumbEvents(thumb);
-            SetElementPosition(thumb, x, y, snap);
+            SetPosition(thumb, x, y, snap);
 
             // set element Tag
             var tags = this.GetTags();
@@ -194,7 +204,7 @@ namespace CanvasDiagramEditor
             };
 
             SetThumbEvents(thumb);
-            SetElementPosition(thumb, x, y, snap);
+            SetPosition(thumb, x, y, snap);
 
             return thumb;
         }
@@ -209,7 +219,7 @@ namespace CanvasDiagramEditor
             };
 
             SetThumbEvents(thumb);
-            SetElementPosition(thumb, x, y, snap);
+            SetPosition(thumb, x, y, snap);
 
             return thumb;
         }
@@ -231,7 +241,6 @@ namespace CanvasDiagramEditor
 
             return null;
         }
-
 
         public object CreateGrid(double originX,
             double originY,

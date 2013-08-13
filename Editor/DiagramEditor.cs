@@ -11,8 +11,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using CanvasDiagramEditor.Controls;
-
 #endregion
 
 namespace CanvasDiagramEditor.Editor
@@ -46,21 +44,20 @@ namespace CanvasDiagramEditor.Editor
 
         public DiagramEditorOptions CurrentOptions { get; set; }
 
-        public IDiagramCreator WpfCreator { get; set; }
+        public IDiagramCreator DiagramCreator { get; set; }
 
         public IClipboard Clipboard { get; set; }
         private string ClipboardText = null;
 
-        public Action UpdateDiagramProperties { get; set; }
-        public Action<IThumb> SetThumbEvents { get; set; }
+        public Action UpdateProperties { get; set; }
         public Func<ITreeItem> CreateTreeSolutionItem { get; set; }
         public Func<ITreeItem> CreateTreeProjectItem { get; set; }
         public Func<ITreeItem> CreateTreeDiagramItem { get; set; }
 
         public Func<bool> IsControlPressed { get; set; }
 
-        public LinkedList<IElement> SelectedThumbList = null;
-        public LinkedListNode<IElement> CurrentThumbNode = null;
+        private LinkedList<IElement> SelectedThumbList = null;
+        private LinkedListNode<IElement> CurrentThumbNode = null;
 
         #endregion
 
@@ -95,7 +92,14 @@ namespace CanvasDiagramEditor.Editor
                 Properties = CurrentOptions.CurrentProperties
             };
 
-            var result = parser.Parse(model, WpfCreator, parseOptions);
+            var creator = DiagramCreator;
+            var oldCanvas = creator.GetCanvas();
+
+            creator.SetCanvas(canvas);
+
+            var result = parser.Parse(model, DiagramCreator, parseOptions);
+
+            creator.SetCanvas(oldCanvas);
 
             CurrentOptions.Counter = parseOptions.Counter;
             CurrentOptions.CurrentProperties = parseOptions.Properties;
@@ -149,25 +153,6 @@ namespace CanvasDiagramEditor.Editor
             var diagram = ModelGenerateFromSelected(canvas);
 
             return diagram;
-        }
-
-        public string ModelImport()
-        {
-            var dlg = new Microsoft.Win32.OpenFileDialog()
-            {
-                Filter = "Diagram (*.txt)|*.txt|All Files (*.*)|*.*",
-                Title = "Import Diagram"
-            };
-
-            var res = dlg.ShowDialog();
-            if (res == true)
-            {
-                var diagram = Model.Open(dlg.FileName);
-
-                return diagram;
-            }
-
-            return null;
         }
 
         public void ModelInsert(string diagram, double offsetX, double offsetY)
@@ -580,7 +565,7 @@ namespace CanvasDiagramEditor.Editor
             bool startIsIO = StringUtil.StartsWith(rootUid, ModelConstants.TagElementInput) 
                 || StringUtil.StartsWith(rootUid, ModelConstants.TagElementOutput);
 
-            var line = WpfCreator.CreateWire(x, y, x, y,
+            var line = DiagramCreator.CreateWire(x, y, x, y,
                 false, false,
                 startIsIO, false,
                 CurrentOptions.Counter.WireCount) as ILine;
@@ -760,7 +745,7 @@ namespace CanvasDiagramEditor.Editor
 
         public IElement InsertPin(ICanvas canvas, IPoint point)
         {
-            var thumb = WpfCreator.CreatePin(point.X, point.Y, 
+            var thumb = DiagramCreator.CreatePin(point.X, point.Y, 
                 CurrentOptions.Counter.PinCount,
                 CurrentOptions.EnableSnap) as IThumb;
 
@@ -773,7 +758,7 @@ namespace CanvasDiagramEditor.Editor
 
         public IElement InsertInput(ICanvas canvas, IPoint point)
         {
-            var thumb = WpfCreator.CreateInput(point.X, point.Y, 
+            var thumb = DiagramCreator.CreateInput(point.X, point.Y, 
                 CurrentOptions.Counter.InputCount, 
                 -1, 
                 CurrentOptions.EnableSnap) as IThumb;
@@ -787,7 +772,7 @@ namespace CanvasDiagramEditor.Editor
 
         public IElement InsertOutput(ICanvas canvas, IPoint point)
         {
-            var thumb = WpfCreator.CreateOutput(point.X, point.Y, 
+            var thumb = DiagramCreator.CreateOutput(point.X, point.Y, 
                 CurrentOptions.Counter.OutputCount, 
                 -1, 
                 CurrentOptions.EnableSnap) as IThumb;
@@ -801,7 +786,7 @@ namespace CanvasDiagramEditor.Editor
 
         public IElement InsertAndGate(ICanvas canvas, IPoint point)
         {
-            var thumb = WpfCreator.CreateAndGate(point.X, point.Y, 
+            var thumb = DiagramCreator.CreateAndGate(point.X, point.Y, 
                 CurrentOptions.Counter.AndGateCount, 
                 CurrentOptions.EnableSnap) as IThumb;
 
@@ -814,7 +799,7 @@ namespace CanvasDiagramEditor.Editor
 
         public IElement InsertOrGate(ICanvas canvas, IPoint point)
         {
-            var thumb = WpfCreator.CreateOrGate(point.X, point.Y, 
+            var thumb = DiagramCreator.CreateOrGate(point.X, point.Y, 
                 CurrentOptions.Counter.OrGateCount, 
                 CurrentOptions.EnableSnap) as IThumb;
 
@@ -846,53 +831,15 @@ namespace CanvasDiagramEditor.Editor
 
         #endregion
 
-        #region Snap
-
-        public double Snap(double original, double snap, double offset)
-        {
-            return Snap(original - offset, snap) + offset;
-        }
-
-        public double Snap(double original, double snap)
-        {
-            return original + ((Math.Round(original / snap) - original / snap) * snap);
-        }
-
-        private double SnapOffsetX(double original, bool snap)
-        {
-            return snap == true ?
-                Snap(original, CurrentOptions.CurrentProperties.SnapX, CurrentOptions.CurrentProperties.SnapOffsetX) : original;
-        }
-
-        private double SnapOffsetY(double original, bool snap)
-        {
-            return snap == true ?
-                Snap(original, CurrentOptions.CurrentProperties.SnapY, CurrentOptions.CurrentProperties.SnapOffsetY) : original;
-        }
-
-        private double SnapX(double original, bool snap)
-        {
-            return snap == true ?
-                Snap(original, CurrentOptions.CurrentProperties.SnapX) : original;
-        }
-
-        private double SnapY(double original, bool snap)
-        {
-            return snap == true ?
-                Snap(original, CurrentOptions.CurrentProperties.SnapY) : original;
-        }
-
-        #endregion
-
         #region Canvas Size & Grid
 
         public void SetCanvasGrid(bool undo)
         {
             var canvas = CurrentOptions.CurrentCanvas;
 
-            if (UpdateDiagramProperties != null)
+            if (UpdateProperties != null)
             {
-                UpdateDiagramProperties();
+                UpdateProperties();
             }
 
             if (undo == true)
@@ -902,7 +849,7 @@ namespace CanvasDiagramEditor.Editor
 
             var prop = CurrentOptions.CurrentProperties;
 
-            WpfCreator.CreateGrid(prop.GridOriginX, 
+            DiagramCreator.CreateGrid(prop.GridOriginX, 
                 prop.GridOriginY,
                 prop.GridWidth, 
                 prop.GridHeight,
@@ -1132,7 +1079,7 @@ namespace CanvasDiagramEditor.Editor
             return new Tuple<PointEx, PointEx>(startPoint, endPoint);
         }
 
-        public void SetElementPosition(IElement element, double left, double top, bool snap)
+        public void SetPosition(IElement element, double left, double top, bool snap)
         {
             element.SetX(SnapOffsetX(left, snap));
             element.SetY(SnapOffsetY(top, snap));
@@ -1143,7 +1090,7 @@ namespace CanvasDiagramEditor.Editor
             double left = element.GetX() + dX;
             double top = element.GetY() + dY;
 
-            SetElementPosition(element, left, top, snap);
+            SetPosition(element, left, top, snap);
 
             MoveLines(element, dX, dY, snap);
         }
@@ -1558,23 +1505,6 @@ namespace CanvasDiagramEditor.Editor
             ModelParseDiagram(diagram, canvas, 0, 0, false, true, false, true);
         }
 
-        public void OpenDiagram()
-        {
-            var dlg = new Microsoft.Win32.OpenFileDialog()
-            {
-                Filter = "Diagram (*.txt)|*.txt|All Files (*.*)|*.*",
-                Title = "Open Diagram"
-            };
-
-            var res = dlg.ShowDialog();
-            if (res == true)
-            {
-                var canvas = CurrentOptions.CurrentCanvas;
-
-                this.OpenDiagram(dlg.FileName, canvas);
-            }
-        }
-
         private TreeSolution OpenSolutionModel(string fileName)
         {
             TreeSolution solution = null;
@@ -1584,29 +1514,6 @@ namespace CanvasDiagramEditor.Editor
                 string diagram = reader.ReadToEnd();
 
                 solution = ModelParseDiagram(diagram, null, 0, 0, false, false, false, false);
-            }
-
-            return solution;
-        }
-
-        public TreeSolution OpenSolutionModel()
-        {
-            var dlg = new Microsoft.Win32.OpenFileDialog()
-            {
-                Filter = "Solution (*.txt)|*.txt|All Files (*.*)|*.*",
-                Title = "Open Solution"
-            };
-
-            TreeSolution solution = null;
-
-            var res = dlg.ShowDialog();
-            if (res == true)
-            {
-                var canvas = CurrentOptions.CurrentCanvas;
-
-                ModelClear(canvas);
-
-                solution = OpenSolutionModel(dlg.FileName);
             }
 
             return solution;
@@ -1630,52 +1537,12 @@ namespace CanvasDiagramEditor.Editor
             Model.Save(fileName, model);
         }
 
-        public void SaveDiagram()
-        {
-            var dlg = new Microsoft.Win32.SaveFileDialog()
-            {
-                Filter = "Diagram (*.txt)|*.txt|All Files (*.*)|*.*",
-                Title = "Save Diagram",
-                FileName = "diagram"
-            };
-
-            var res = dlg.ShowDialog();
-            if (res == true)
-            {
-                var canvas = CurrentOptions.CurrentCanvas;
-
-                this.SaveDiagram(dlg.FileName, canvas);
-            }
-        }
-
         private void SaveSolution(string fileName)
         {
             ModelUpdateSelectedDiagram();
 
             var model = ModelGenerateSolution(fileName, false).Item1;
             Model.Save(fileName, model);
-        }
-
-        public void SaveSolution()
-        {
-            var dlg = new Microsoft.Win32.SaveFileDialog()
-            {
-                Filter = "Solution (*.txt)|*.txt|All Files (*.*)|*.*",
-                Title = "Save Solution",
-                FileName = "solution"
-            };
-
-            var res = dlg.ShowDialog();
-            if (res == true)
-            {
-                var fileName = dlg.FileName;
-
-                var tree = CurrentOptions.CurrentTree;
-
-                TagsUpdate();
-
-                SaveSolution(fileName);
-            }
         }
 
         #endregion
@@ -1719,82 +1586,6 @@ namespace CanvasDiagramEditor.Editor
             string dxf = DxfGenerate(model, shortenStart, shortenEnd, version, table);
 
             DxfSave(fileName, dxf);
-        }
-
-        public void DxfExport(bool shortenStart, bool shortenEnd, DiagramTable table)
-        {
-            var dlg = new Microsoft.Win32.SaveFileDialog()
-            {
-                Filter = "Dxf R12 (*.dxf)|*.dxf|Dxf AutoCAD 2000 (*.dxf)|*.dxf|All Files (*.*)|*.*",
-                FilterIndex = 2,
-                Title = "Export Diagram to Dxf",
-                FileName = "diagram"
-            };
-
-            var res = dlg.ShowDialog();
-            if (res == true)
-            {
-                var canvas = CurrentOptions.CurrentCanvas;
-
-                DxfAcadVer version;
-                switch(dlg.FilterIndex)
-                {
-                    case 1: 
-                        version = DxfAcadVer.AC1009; 
-                        break;
-                    case 2: 
-                        version = DxfAcadVer.AC1015; 
-                        break;
-                    case 3:
-                    default: 
-                        version = DxfAcadVer.AC1015; 
-                        break;
-                }
-
-                this.DxfExportDiagram(dlg.FileName, 
-                    canvas, 
-                    shortenStart, 
-                    shortenEnd, 
-                    version,
-                    table);
-            }
-        }
-
-        #endregion
-
-        #region Clipboard
-
-        public string ClipboardGetText()
-        {
-            try
-            {
-                if (Clipboard.ContainsText())
-                {
-                    return Clipboard.GetText();
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.Print(ex.Message);
-
-                return ClipboardText;
-            }
-
-            return ClipboardText;
-        }
-
-        public void ClipboardSetText(string model)
-        {
-            try
-            {
-                ClipboardText = model;
-
-                Clipboard.SetText(model);
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.Print(ex.Message);
-            }
         }
 
         #endregion
@@ -1945,12 +1736,6 @@ namespace CanvasDiagramEditor.Editor
 
         private void SelectPreviousElement(bool deselect)
         {
-            // bool isCurrentSelected = ElementThumb.GetIsSelected(CurrentThumbNode.Value);
-            // if (deselect == false && isCurrentSelected)
-            // {
-            //     ElementThumb.SetIsSelected(CurrentThumbNode.Value, false);
-            // }
-
             if (CurrentThumbNode != null)
             {
                 CurrentThumbNode = CurrentThumbNode.Previous;
@@ -1985,6 +1770,7 @@ namespace CanvasDiagramEditor.Editor
                 SelectedThumbList = new LinkedList<IElement>(elements);
 
                 CurrentThumbNode = SelectedThumbList.First;
+
                 if (CurrentThumbNode != null)
                 {
                     SelectOneElement(CurrentThumbNode.Value, deselect);
@@ -1996,13 +1782,8 @@ namespace CanvasDiagramEditor.Editor
         {
             if (CurrentThumbNode != null)
             {
-                // bool isCurrentSelected = ElementThumb.GetIsSelected(CurrentThumbNode.Value);
-                // if (deselect == false && isCurrentSelected)
-                // {
-                //     ElementThumb.SetIsSelected(CurrentThumbNode.Value, false);
-                // }
-
                 CurrentThumbNode = CurrentThumbNode.Next;
+
                 if (CurrentThumbNode == null)
                 {
                     CurrentThumbNode = SelectedThumbList.First;
@@ -2222,13 +2003,13 @@ namespace CanvasDiagramEditor.Editor
 
                 if (CurrentOptions.CurrentLine.GetX2() != x)
                 {
-                    //this._line.X2 = SnapX(x);
+                    //CurrentOptions.CurrentLine.X2 = SnapX(x);
                     CurrentOptions.CurrentLine.SetX2(x);
                 }
 
                 if (CurrentOptions.CurrentLine.GetY2() != y)
                 {
-                    //this._line.Y2 = SnapY(y);
+                    //CurrentOptions.CurrentLine.Y2 = SnapY(y);
                     CurrentOptions.CurrentLine.SetY2(y);
                 }
             }
@@ -2259,42 +2040,6 @@ namespace CanvasDiagramEditor.Editor
 
         #endregion
 
-        #region Path
-
-        public static string PathMakeRelative(string fromPath, string toPath)
-        {
-            Uri fromUri = new Uri(fromPath, UriKind.RelativeOrAbsolute);
-            Uri toUri = new Uri(toPath, UriKind.RelativeOrAbsolute);
-
-            if (fromUri.IsAbsoluteUri == true)
-            {
-                Uri relativeUri = fromUri.MakeRelativeUri(toUri);
-                string relativePath = Uri.UnescapeDataString(relativeUri.ToString());
-
-                return relativePath.Replace('/', System.IO.Path.DirectorySeparatorChar);
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        public static string PathGetRelativeFileName(string fromPath, string toPath)
-        {
-            string relativePath = PathMakeRelative(toPath, fromPath);
-            string onlyFileName = System.IO.Path.GetFileName(toPath);
-
-            if (relativePath != null)
-            {
-                toPath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(relativePath),
-                    onlyFileName);
-            }
-
-            return toPath;
-        }
-
-        #endregion
-
         #region Tree
 
         public void TreeSelectPreviousItem(bool selectParent)
@@ -2308,13 +2053,12 @@ namespace CanvasDiagramEditor.Editor
                 StringUtil.StartsWith(selected.GetUid(), ModelConstants.TagHeaderDiagram))
             {
                 // get current project
-                var parent = selected.GetParent() as SolutionTreeViewItem;
+                var parent = selected.GetParent() as ITreeItem;
                 if (parent != null)
                 {
                     // get all sibling diagrams in current project
-                    var items = parent.Items;
-                    int index = items.IndexOf(selected);
-                    int count = items.Count;
+                    int index = parent.GetItemIndex(selected);
+                    int count = parent.GetItemsCount();
 
                     // use '<' key for navigation in tree (project scope)
                     if (count > 0 && index > 0)
@@ -2322,9 +2066,9 @@ namespace CanvasDiagramEditor.Editor
                         // select previous diagram
                         index = index - 1;
 
-                        var item = items[index] as SolutionTreeViewItem;
-                        item.IsSelected = true;
-                        item.BringIntoView();
+                        var item = parent.GetItem(index) as ITreeItem;
+                        item.SetSelected(true);
+                        item.PushIntoView();
                     }
 
                     // use 'Ctrl + <' key combination for navigation in tree (solution scope)
@@ -2336,12 +2080,12 @@ namespace CanvasDiagramEditor.Editor
             }
         }
 
-        private static void TreeSelectPreviousParentItem(SolutionTreeViewItem parent)
+        private static void TreeSelectPreviousParentItem(ITreeItem parent)
         {
             // get parent of current project
-            var parentParent = parent.Parent as SolutionTreeViewItem;
-            int parentIndex = parentParent.Items.IndexOf(parent);
-            int parentCount = parentParent.Items.Count;
+            var parentParent = parent.GetParent() as ITreeItem;
+            int parentIndex = parentParent.GetItemIndex(parent);
+            int parentCount = parentParent.GetItemsCount();
 
             if (parentCount > 0 && parentIndex > 0)
             {
@@ -2349,18 +2093,20 @@ namespace CanvasDiagramEditor.Editor
             }
         }
 
-        private static void TreeSelectLastItemInPreviousProject(SolutionTreeViewItem parentParent, int parentIndex)
+        private static void TreeSelectLastItemInPreviousProject(ITreeItem parentParent, int parentIndex)
         {
             // get previous project
             int index = parentIndex - 1;
-            var parentProject = (parentParent.Items[index] as SolutionTreeViewItem);
+            var parentProject = parentParent.GetItem(index);
+            int count = parentProject.GetItemsCount();
 
             // select last item in previous project
-            if (parentProject.Items.Count > 0)
+            if (count > 0)
             {
-                var item = (parentProject.Items[parentProject.Items.Count - 1] as SolutionTreeViewItem);
-                item.IsSelected = true;
-                item.BringIntoView();
+                var item = parentProject.GetItem(count - 1);
+
+                item.SetSelected(true);
+                item.PushIntoView();
             }
         }
 
@@ -2369,19 +2115,18 @@ namespace CanvasDiagramEditor.Editor
             var tree = CurrentOptions.CurrentTree;
 
             // get current diagram
-            var selected = tree.GetSelectedItem() as SolutionTreeViewItem;
+            var selected = tree.GetSelectedItem() as ITreeItem;
 
             if (selected != null && 
-                StringUtil.StartsWith(selected.Uid, ModelConstants.TagHeaderDiagram))
+                StringUtil.StartsWith(selected.GetUid(), ModelConstants.TagHeaderDiagram))
             {
                 // get current project
-                var parent = selected.Parent as SolutionTreeViewItem;
+                var parent = selected.GetParent() as ITreeItem;
                 if (parent != null)
                 {
                     // get all sibling diagrams in current project
-                    var items = parent.Items;
-                    int index = items.IndexOf(selected);
-                    int count = items.Count;
+                    int index = parent.GetItemIndex(selected);
+                    int count = parent.GetItemsCount();
 
                     // use '>' key for navigation in tree (project scope)
                     if (count > 0 && index < count - 1)
@@ -2389,9 +2134,9 @@ namespace CanvasDiagramEditor.Editor
                         // select next diagram
                         index = index + 1;
 
-                        var item = items[index] as SolutionTreeViewItem;
-                        item.IsSelected = true;
-                        item.BringIntoView();
+                        var item = parent.GetItem(index);
+                        item.SetSelected(true);
+                        item.PushIntoView();
                     }
              
                     // use 'Ctrl + >' key combination for navigation in tree (solution scope)
@@ -2403,12 +2148,12 @@ namespace CanvasDiagramEditor.Editor
             }
         }
 
-        private static void TreeSelectNextParentItem(SolutionTreeViewItem parent)
+        private static void TreeSelectNextParentItem(ITreeItem parent)
         {
             // get parent of current project
-            var parentParent = parent.Parent as SolutionTreeViewItem;
-            int parentIndex = parentParent.Items.IndexOf(parent);
-            int parentCount = parentParent.Items.Count;
+            var parentParent = parent.GetParent() as ITreeItem;
+            int parentIndex = parentParent.GetItemIndex(parent);
+            int parentCount = parentParent.GetItemsCount();
 
             if (parentCount > 0 && parentIndex < parentCount - 1)
             {
@@ -2416,28 +2161,28 @@ namespace CanvasDiagramEditor.Editor
             }
         }
 
-        private static void TreeSelectFirstItemInNextProject(SolutionTreeViewItem parentParent, int parentIndex)
+        private static void TreeSelectFirstItemInNextProject(ITreeItem parentParent, int parentIndex)
         {
             // get next project
             int index = parentIndex + 1;
-            var parentProject = (parentParent.Items[index] as SolutionTreeViewItem);
+            var parentProject = parentParent.GetItem(index);
 
             // select first item in next project
-            if (parentProject.Items.Count > 0)
+            if (parentProject.GetItemsCount() > 0)
             {
-                var item = (parentProject.Items[0] as SolutionTreeViewItem);
-                item.IsSelected = true;
-                item.BringIntoView();
+                var item = parentProject.GetItem(0);
+                item.SetSelected(true);
+                item.PushIntoView();
             }
         }
 
-        public bool TreeSwitchItems(ICanvas canvas, SolutionTreeViewItem oldItem, SolutionTreeViewItem newItem)
+        public bool TreeSwitchItems(ICanvas canvas, ITreeItem oldItem, ITreeItem newItem)
         {
             if (newItem == null)
                 return false;
 
-            string oldUid = oldItem == null ? null : oldItem.Uid;
-            string newUid = newItem == null ? null : newItem.Uid;
+            string oldUid = oldItem == null ? null : oldItem.GetUid();
+            string newUid = newItem == null ? null : newItem.GetUid();
 
             bool isOldItemDiagram = oldUid == null ? false : StringUtil.StartsWith(oldUid, ModelConstants.TagHeaderDiagram);
             bool isNewItemDiagram = newUid == null ? false : StringUtil.StartsWith(newUid, ModelConstants.TagHeaderDiagram);
@@ -2610,24 +2355,24 @@ namespace CanvasDiagramEditor.Editor
             tree.Remove(solution as ITreeItem);
         }
 
-        public void TreeDeleteProject(SolutionTreeViewItem project)
+        public void TreeDeleteProject(ITreeItem project)
         {
-            var solution = project.Parent as SolutionTreeViewItem;
-            var diagrams = project.Items.Cast<SolutionTreeViewItem>().ToList();
+            var solution = project.GetParent() as ITreeItem;
+            var diagrams = project.GetItems().ToList();
 
             foreach (var diagram in diagrams)
             {
-                project.Items.Remove(diagram);
+                project.Remove(diagram);
             }
 
-            solution.Items.Remove(project);
+            solution.Remove(project);
         }
 
-        public void TreeDeleteDiagram(SolutionTreeViewItem diagram)
+        public void TreeDeleteDiagram(ITreeItem diagram)
         {
-            var project = diagram.Parent as SolutionTreeViewItem;
+            var project = diagram.GetParent() as ITreeItem;
 
-            project.Items.Remove(diagram);
+            project.Remove(diagram);
         }
 
         private void TreeOpenSolution(ITree tree, TreeSolution solution)
@@ -2738,6 +2483,307 @@ namespace CanvasDiagramEditor.Editor
             }
         }
 
+        private void TagsUpdate()
+        {
+            string tagFileName = CurrentOptions.TagFileName;
+            var tags = CurrentOptions.Tags;
+
+            if (tagFileName != null && tags != null)
+            {
+                Tags.Export(tagFileName, tags);
+            }
+            else if (tagFileName == null && tags != null)
+            {
+                TagsSave();
+            }
+        }
+
+        private void TagsLoad(string tagFileName)
+        {
+            // load tags
+            if (tagFileName != null)
+            {
+                CurrentOptions.TagFileName = tagFileName;
+
+                try
+                {
+                    var tags = Tags.Open(tagFileName);
+
+                    CurrentOptions.Tags = tags;
+
+                    CurrentOptions.CurrentCanvas.SetTags(tags);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.Print("Failed to load tags from file: {0}, error: {1}", tagFileName, ex.Message);
+                }
+            }
+        }
+
+        private void TagsReset()
+        {
+            if (CurrentOptions.Tags != null)
+            {
+                CurrentOptions.Tags.Clear();
+                CurrentOptions.Tags = null;
+            }
+
+            CurrentOptions.TagFileName = null;
+        }
+
+        #endregion
+
+        #region Clipboard
+
+        public string ClipboardGetText()
+        {
+            try
+            {
+                if (Clipboard.ContainsText())
+                {
+                    return Clipboard.GetText();
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.Print(ex.Message);
+
+                return ClipboardText;
+            }
+
+            return ClipboardText;
+        }
+
+        public void ClipboardSetText(string model)
+        {
+            try
+            {
+                ClipboardText = model;
+
+                Clipboard.SetText(model);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.Print(ex.Message);
+            }
+        }
+
+        #endregion
+
+        #region Snap
+
+        public double Snap(double original, double snap, double offset)
+        {
+            return Snap(original - offset, snap) + offset;
+        }
+
+        public double Snap(double original, double snap)
+        {
+            return original + ((Math.Round(original / snap) - original / snap) * snap);
+        }
+
+        private double SnapOffsetX(double original, bool snap)
+        {
+            return snap == true ?
+                Snap(original, CurrentOptions.CurrentProperties.SnapX, CurrentOptions.CurrentProperties.SnapOffsetX) : original;
+        }
+
+        private double SnapOffsetY(double original, bool snap)
+        {
+            return snap == true ?
+                Snap(original, CurrentOptions.CurrentProperties.SnapY, CurrentOptions.CurrentProperties.SnapOffsetY) : original;
+        }
+
+        private double SnapX(double original, bool snap)
+        {
+            return snap == true ?
+                Snap(original, CurrentOptions.CurrentProperties.SnapX) : original;
+        }
+
+        private double SnapY(double original, bool snap)
+        {
+            return snap == true ?
+                Snap(original, CurrentOptions.CurrentProperties.SnapY) : original;
+        }
+
+        #endregion
+
+        #region Path
+
+        public static string PathMakeRelative(string fromPath, string toPath)
+        {
+            Uri fromUri = new Uri(fromPath, UriKind.RelativeOrAbsolute);
+            Uri toUri = new Uri(toPath, UriKind.RelativeOrAbsolute);
+
+            if (fromUri.IsAbsoluteUri == true)
+            {
+                Uri relativeUri = fromUri.MakeRelativeUri(toUri);
+                string relativePath = Uri.UnescapeDataString(relativeUri.ToString());
+
+                return relativePath.Replace('/', System.IO.Path.DirectorySeparatorChar);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public static string PathGetRelativeFileName(string fromPath, string toPath)
+        {
+            string relativePath = PathMakeRelative(toPath, fromPath);
+            string onlyFileName = System.IO.Path.GetFileName(toPath);
+
+            if (relativePath != null)
+            {
+                toPath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(relativePath),
+                    onlyFileName);
+            }
+
+            return toPath;
+        }
+
+        #endregion
+
+        #region File Dialogs
+
+        public string ModelImport()
+        {
+            var dlg = new Microsoft.Win32.OpenFileDialog()
+            {
+                Filter = "Diagram (*.txt)|*.txt|All Files (*.*)|*.*",
+                Title = "Import Diagram"
+            };
+
+            var res = dlg.ShowDialog();
+            if (res == true)
+            {
+                var diagram = Model.Open(dlg.FileName);
+
+                return diagram;
+            }
+
+            return null;
+        }
+
+        public void OpenDiagram()
+        {
+            var dlg = new Microsoft.Win32.OpenFileDialog()
+            {
+                Filter = "Diagram (*.txt)|*.txt|All Files (*.*)|*.*",
+                Title = "Open Diagram"
+            };
+
+            var res = dlg.ShowDialog();
+            if (res == true)
+            {
+                var canvas = CurrentOptions.CurrentCanvas;
+
+                this.OpenDiagram(dlg.FileName, canvas);
+            }
+        }
+
+        public TreeSolution OpenSolutionModel()
+        {
+            var dlg = new Microsoft.Win32.OpenFileDialog()
+            {
+                Filter = "Solution (*.txt)|*.txt|All Files (*.*)|*.*",
+                Title = "Open Solution"
+            };
+
+            TreeSolution solution = null;
+
+            var res = dlg.ShowDialog();
+            if (res == true)
+            {
+                var canvas = CurrentOptions.CurrentCanvas;
+
+                ModelClear(canvas);
+
+                solution = OpenSolutionModel(dlg.FileName);
+            }
+
+            return solution;
+        }
+
+        public void SaveDiagram()
+        {
+            var dlg = new Microsoft.Win32.SaveFileDialog()
+            {
+                Filter = "Diagram (*.txt)|*.txt|All Files (*.*)|*.*",
+                Title = "Save Diagram",
+                FileName = "diagram"
+            };
+
+            var res = dlg.ShowDialog();
+            if (res == true)
+            {
+                var canvas = CurrentOptions.CurrentCanvas;
+
+                this.SaveDiagram(dlg.FileName, canvas);
+            }
+        }
+
+        public void SaveSolution()
+        {
+            var dlg = new Microsoft.Win32.SaveFileDialog()
+            {
+                Filter = "Solution (*.txt)|*.txt|All Files (*.*)|*.*",
+                Title = "Save Solution",
+                FileName = "solution"
+            };
+
+            var res = dlg.ShowDialog();
+            if (res == true)
+            {
+                var fileName = dlg.FileName;
+
+                var tree = CurrentOptions.CurrentTree;
+
+                TagsUpdate();
+
+                SaveSolution(fileName);
+            }
+        }
+
+        public void DxfExport(bool shortenStart, bool shortenEnd, DiagramTable table)
+        {
+            var dlg = new Microsoft.Win32.SaveFileDialog()
+            {
+                Filter = "Dxf R12 (*.dxf)|*.dxf|Dxf AutoCAD 2000 (*.dxf)|*.dxf|All Files (*.*)|*.*",
+                FilterIndex = 2,
+                Title = "Export Diagram to Dxf",
+                FileName = "diagram"
+            };
+
+            var res = dlg.ShowDialog();
+            if (res == true)
+            {
+                var canvas = CurrentOptions.CurrentCanvas;
+
+                DxfAcadVer version;
+                switch (dlg.FilterIndex)
+                {
+                    case 1:
+                        version = DxfAcadVer.AC1009;
+                        break;
+                    case 2:
+                        version = DxfAcadVer.AC1015;
+                        break;
+                    case 3:
+                    default:
+                        version = DxfAcadVer.AC1015;
+                        break;
+                }
+
+                this.DxfExportDiagram(dlg.FileName,
+                    canvas,
+                    shortenStart,
+                    shortenEnd,
+                    version,
+                    table);
+            }
+        }
+
         public void TagsOpen()
         {
             var dlg = new Microsoft.Win32.OpenFileDialog()
@@ -2816,54 +2862,6 @@ namespace CanvasDiagramEditor.Editor
 
                 Tags.Export(tagFileName, CurrentOptions.Tags);
             }
-        }
-
-        private void TagsUpdate()
-        {
-            string tagFileName = CurrentOptions.TagFileName;
-            var tags = CurrentOptions.Tags;
-
-            if (tagFileName != null && tags != null)
-            {
-                Tags.Export(tagFileName, tags);
-            }
-            else if (tagFileName == null && tags != null)
-            {
-                TagsSave();
-            }
-        }
-
-        private void TagsLoad(string tagFileName)
-        {
-            // load tags
-            if (tagFileName != null)
-            {
-                CurrentOptions.TagFileName = tagFileName;
-
-                try
-                {
-                    var tags = Tags.Open(tagFileName);
-
-                    CurrentOptions.Tags = tags;
-
-                    CurrentOptions.CurrentCanvas.SetTags(tags);
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.Print("Failed to load tags from file: {0}, error: {1}", tagFileName, ex.Message);
-                }
-            }
-        }
-
-        private void TagsReset()
-        {
-            if (CurrentOptions.Tags != null)
-            {
-                CurrentOptions.Tags.Clear();
-                CurrentOptions.Tags = null;
-            }
-
-            CurrentOptions.TagFileName = null;
         }
 
         #endregion

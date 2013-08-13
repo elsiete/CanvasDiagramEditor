@@ -33,6 +33,9 @@ namespace CanvasDiagramEditor.Core
 
     public interface IDiagramCreator
     {
+        void SetCanvas(ICanvas canvas);
+        ICanvas GetCanvas();
+
         object CreatePin(double x, double y, int id, bool snap);
 
         object CreateWire(double x1, double y1, double x2, double y2,
