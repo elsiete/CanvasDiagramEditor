@@ -14,13 +14,22 @@ using System.Text;
 
 namespace CanvasDiagramEditor.Editor
 {
-    #region DiagramEditorOptions
+    #region Context
 
-    public class DiagramEditorOptions
+    public class Context
     {
+        #region Properties
+
+        public IDiagramCreator DiagramCreator { get; set; }
+        public IClipboard Clipboard { get; set; }
+
+        #endregion
+
         #region Fields
 
-        public DiagramProperties CurrentProperties = new DiagramProperties();
+        public DiagramProperties Properties = new DiagramProperties();
+
+        public string ClipboardText = null;
 
         public string TagFileName = null;
         public List<object> Tags = null;
@@ -68,6 +77,21 @@ namespace CanvasDiagramEditor.Editor
         public double ReversePanDirection = -1.0; // reverse: 1.0, normal: -1.0
 
         public PointEx SelectionOrigin;
+
+        public LinkedList<IElement> SelectedThumbList = null;
+        public LinkedListNode<IElement> CurrentThumbNode = null;
+
+        #endregion
+
+        #region Hooks
+
+        public Action UpdateProperties { get; set; }
+
+        public Func<ITreeItem> CreateTreeSolutionItem { get; set; }
+        public Func<ITreeItem> CreateTreeProjectItem { get; set; }
+        public Func<ITreeItem> CreateTreeDiagramItem { get; set; }
+
+        public Func<bool> IsControlPressed { get; set; }
 
         #endregion
     }

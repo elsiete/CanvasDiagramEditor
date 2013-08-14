@@ -98,7 +98,7 @@
     <Compile Include="Editor\ResourceConstants.cs" />
     <Compile Include="Editor\Parser.cs" />
     <Compile Include="Editor\DiagramEditor.cs" />
-    <Compile Include="Editor\DiagramEditorOptions.cs" />
+    <Compile Include="Editor\Context.cs" />
     <Compile Include="Editor\Editor.cs" />
     <Compile Include="Editor\Table.cs" />
     <Compile Include="Editor\Tree.cs" />

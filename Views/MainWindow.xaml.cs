@@ -133,34 +133,34 @@ namespace CanvasDiagramEditor
         private void InitializeEditor()
         {
             Editor = new DiagramEditor();
-            Editor.CurrentOptions = new DiagramEditorOptions();
+            Editor.Context = new Context();
 
-            Editor.CurrentOptions.CurrentTree = this.SolutionTree;
-            Editor.CurrentOptions.CurrentCanvas = this.DiagramControl.DiagramCanvas;
+            Editor.Context.CurrentTree = this.SolutionTree;
+            Editor.Context.CurrentCanvas = this.DiagramControl.DiagramCanvas;
 
-            Editor.CurrentOptions.Counter.ProjectCount = 1;
-            Editor.CurrentOptions.Counter.DiagramCount = 1;
+            Editor.Context.Counter.ProjectCount = 1;
+            Editor.Context.Counter.DiagramCount = 1;
 
-            Editor.IsControlPressed = () => Keyboard.Modifiers == ModifierKeys.Control;
-            Editor.UpdateProperties = () => UpdateProperties(Editor.CurrentOptions.CurrentProperties);
+            Editor.Context.IsControlPressed = () => Keyboard.Modifiers == ModifierKeys.Control;
+            Editor.Context.UpdateProperties = () => UpdateProperties(Editor.Context.Properties);
 
-            Editor.Clipboard = new WindowsClipboard();
+            Editor.Context.Clipboard = new WindowsClipboard();
 
             // diagram creator
             var creator = GetDiagramCreator();
 
-            Editor.DiagramCreator = creator;
+            Editor.Context.DiagramCreator = creator;
 
             // set checkbox states
-            EnableHistory.IsChecked = Editor.CurrentOptions.EnableHistory;
-            EnableInsertLast.IsChecked = Editor.CurrentOptions.EnableInsertLast;
-            EnableSnap.IsChecked = Editor.CurrentOptions.EnableSnap;
-            SnapOnRelease.IsChecked = Editor.CurrentOptions.SnapOnRelease;
+            EnableHistory.IsChecked = Editor.Context.EnableHistory;
+            EnableInsertLast.IsChecked = Editor.Context.EnableInsertLast;
+            EnableSnap.IsChecked = Editor.Context.EnableSnap;
+            SnapOnRelease.IsChecked = Editor.Context.SnapOnRelease;
 
             // tree actions
-            Editor.CreateTreeSolutionItem = () => CreateTreeSolutionItem();
-            Editor.CreateTreeProjectItem = () => CreateTreeProjectItem();
-            Editor.CreateTreeDiagramItem = () => CreateTreeDiagramItem();
+            Editor.Context.CreateTreeSolutionItem = () => CreateTreeSolutionItem();
+            Editor.Context.CreateTreeProjectItem = () => CreateTreeProjectItem();
+            Editor.Context.CreateTreeDiagramItem = () => CreateTreeDiagramItem();
 
             // update canvas grid
             Editor.SetCanvasGrid(false);
@@ -173,8 +173,8 @@ namespace CanvasDiagramEditor
             creator.SetThumbEvents = (thumb) => SetThumbEvents(thumb);
             creator.SetPosition = (element, left, top, snap) => Editor.SetPosition(element, left, top, snap);
             
-            creator.GetTags = () => Editor.CurrentOptions.Tags;
-            creator.GetCounter = () => Editor.CurrentOptions.Counter;
+            creator.GetTags = () => Editor.Context.Tags;
+            creator.GetCounter = () => Editor.Context.Counter;
 
             creator.SetCanvas(this.DiagramControl.DiagramCanvas);
             creator.ParserPath = this.DiagramControl.PathGrid;
@@ -186,7 +186,7 @@ namespace CanvasDiagramEditor
         {
             thumb.DragDelta += (sender, e) =>
             {
-                var canvas = Editor.CurrentOptions.CurrentCanvas;
+                var canvas = Editor.Context.CurrentCanvas;
                 var element = sender as IThumb;
 
                 double dX = e.HorizontalChange;
@@ -197,7 +197,7 @@ namespace CanvasDiagramEditor
 
             thumb.DragStarted += (sender, e) =>
             {
-                var canvas = Editor.CurrentOptions.CurrentCanvas;
+                var canvas = Editor.Context.CurrentCanvas;
                 var element = sender as IThumb;
 
                 Editor.DragStart(canvas, element);
@@ -205,7 +205,7 @@ namespace CanvasDiagramEditor
 
             thumb.DragCompleted += (sender, e) =>
             {
-                var canvas = Editor.CurrentOptions.CurrentCanvas;
+                var canvas = Editor.Context.CurrentCanvas;
                 var element = sender as IThumb;
 
                 Editor.DragEnd(canvas, element);
@@ -270,11 +270,11 @@ namespace CanvasDiagramEditor
 
         private void EnableHistory_Click(object sender, RoutedEventArgs e)
         {
-            Editor.CurrentOptions.EnableHistory = EnableHistory.IsChecked == true ? true : false;
+            Editor.Context.EnableHistory = EnableHistory.IsChecked == true ? true : false;
 
-            if (Editor.CurrentOptions.EnableHistory == false)
+            if (Editor.Context.EnableHistory == false)
             {
-                var canvas = Editor.CurrentOptions.CurrentCanvas;
+                var canvas = Editor.Context.CurrentCanvas;
 
                 Editor.HistoryClear(canvas);
             }
@@ -282,17 +282,17 @@ namespace CanvasDiagramEditor
 
         private void EnableSnap_Click(object sender, RoutedEventArgs e)
         {
-            Editor.CurrentOptions.EnableSnap = EnableSnap.IsChecked == true ? true : false;
+            Editor.Context.EnableSnap = EnableSnap.IsChecked == true ? true : false;
         }
 
         private void SnapOnRelease_Click(object sender, RoutedEventArgs e)
         {
-            Editor.CurrentOptions.SnapOnRelease = SnapOnRelease.IsChecked == true ? true : false;
+            Editor.Context.SnapOnRelease = SnapOnRelease.IsChecked == true ? true : false;
         }
 
         private void EnableInsertLast_Click(object sender, RoutedEventArgs e)
         {
-            Editor.CurrentOptions.EnableInsertLast = EnableInsertLast.IsChecked == true ? true : false;
+            Editor.Context.EnableInsertLast = EnableInsertLast.IsChecked == true ? true : false;
         }
 
         private void EnablePage_Click(object sender, RoutedEventArgs e)
@@ -379,7 +379,7 @@ namespace CanvasDiagramEditor
             if (Editor == null)
                 return;
 
-            var canvas = Editor.CurrentOptions.CurrentCanvas;
+            var canvas = Editor.Context.CurrentCanvas;
 
             var oldItem = e.OldValue as SolutionTreeViewItem;
             var newItem = e.NewValue as SolutionTreeViewItem;
@@ -683,7 +683,7 @@ namespace CanvasDiagramEditor
 
         private void HandleKey(KeyEventArgs e)
         {
-            var canvas = Editor.CurrentOptions.CurrentCanvas;
+            var canvas = Editor.Context.CurrentCanvas;
             bool isControl = HaveKeyE == true ? false : Keyboard.Modifiers == ModifierKeys.Control;
             //bool isControlShift = (Keyboard.Modifiers & ModifierKeys.Shift) > 0 && (Keyboard.Modifiers & ModifierKeys.Control) > 0;
 
@@ -1128,13 +1128,13 @@ namespace CanvasDiagramEditor
         {
             var control = this.TagEditorControl;
 
-            if (Editor.CurrentOptions.Tags == null)
+            if (Editor.Context.Tags == null)
             {
-                Editor.CurrentOptions.Tags = new List<object>();
+                Editor.Context.Tags = new List<object>();
             }
 
             control.Selected = GetSeletedIO();
-            control.Tags = Editor.CurrentOptions.Tags;
+            control.Tags = Editor.Context.Tags;
             control.Initialize();
 
             DiagramControl.SelectionChanged = () =>
@@ -1266,8 +1266,8 @@ namespace CanvasDiagramEditor
             if (this.IsLoaded == false)
                 return;
 
-            Editor.CurrentOptions.ZoomLogBase = LogBaseSlider.Value;
-            Editor.CurrentOptions.ZoomExpFactor = ExpFactorSlider.Value;
+            Editor.Context.ZoomLogBase = LogBaseSlider.Value;
+            Editor.Context.ZoomExpFactor = ExpFactorSlider.Value;
 
             double zoom = ZoomSlider.Value;
 
@@ -1356,8 +1356,8 @@ namespace CanvasDiagramEditor
 
             var canvas = new DiagramCanvas()
             {
-                Width = Editor.CurrentOptions.CurrentCanvas.GetWidth(),
-                Height = Editor.CurrentOptions.CurrentCanvas.GetHeight()
+                Width = Editor.Context.CurrentCanvas.GetWidth(),
+                Height = Editor.Context.CurrentCanvas.GetHeight()
             };
 
             Editor.ModelParseDiagram(diagram, canvas, 0, 0, false, false, false, true);
