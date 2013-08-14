@@ -1493,7 +1493,7 @@ namespace CanvasDiagramEditor.Editor
 
         #endregion
 
-        #region Open/Save
+        #region Open/Save Diagram
 
         private void OpenDiagram(string fileName, ICanvas canvas)
         {
@@ -1505,7 +1505,18 @@ namespace CanvasDiagramEditor.Editor
             ModelParseDiagram(diagram, canvas, 0, 0, false, true, false, true);
         }
 
-        private TreeSolution OpenSolutionModel(string fileName)
+        private void SaveDiagram(string fileName, ICanvas canvas)
+        {
+            string model = Model.Generate(canvas, null, CurrentOptions.CurrentProperties);
+
+            Model.Save(fileName, model);
+        }
+
+        #endregion
+
+        #region Open/Save Solution
+
+        private TreeSolution OpenSolution(string fileName)
         {
             TreeSolution solution = null;
 
@@ -1519,29 +1530,12 @@ namespace CanvasDiagramEditor.Editor
             return solution;
         }
 
-        public void OpenSolution()
-        {
-            var tree = CurrentOptions.CurrentTree;
-            var solution = OpenSolutionModel();
-
-            if (solution != null)
-            {
-                TreeOpenSolution(tree, solution);
-            }
-        }
-
-        private void SaveDiagram(string fileName, ICanvas canvas)
-        {
-            string model = Model.Generate(canvas, null, CurrentOptions.CurrentProperties);
-
-            Model.Save(fileName, model);
-        }
-
         private void SaveSolution(string fileName)
         {
             ModelUpdateSelectedDiagram();
 
             var model = ModelGenerateSolution(fileName, false).Item1;
+
             Model.Save(fileName, model);
         }
 
@@ -2682,7 +2676,7 @@ namespace CanvasDiagramEditor.Editor
             }
         }
 
-        public TreeSolution OpenSolutionModel()
+        public void OpenSolution()
         {
             var dlg = new Microsoft.Win32.OpenFileDialog()
             {
@@ -2697,11 +2691,15 @@ namespace CanvasDiagramEditor.Editor
 
                 ModelClear(canvas);
 
-                TreeSolution solution = OpenSolutionModel(dlg.FileName);
-                return solution;
-            }
+                TreeSolution solution = OpenSolution(dlg.FileName);
 
-            return null;
+                if (solution != null)
+                {
+                    var tree = CurrentOptions.CurrentTree;
+
+                    TreeOpenSolution(tree, solution);
+                }
+            }
         }
 
         public void SaveSolution()
@@ -2738,9 +2736,10 @@ namespace CanvasDiagramEditor.Editor
             var res = dlg.ShowDialog();
             if (res == true)
             {
+                var fileName = dlg.FileName;
                 var canvas = CurrentOptions.CurrentCanvas;
 
-                this.SaveDiagram(dlg.FileName, canvas);
+                this.SaveDiagram(fileName, canvas);
             }
         }
 
@@ -2757,30 +2756,31 @@ namespace CanvasDiagramEditor.Editor
             var res = dlg.ShowDialog();
             if (res == true)
             {
+                var filter = dlg.FilterIndex;
+                var fileName = dlg.FileName;
                 var canvas = CurrentOptions.CurrentCanvas;
 
-                DxfAcadVer version;
-                switch (dlg.FilterIndex)
-                {
-                    case 1:
-                        version = DxfAcadVer.AC1009;
-                        break;
-                    case 2:
-                        version = DxfAcadVer.AC1015;
-                        break;
-                    case 3:
-                    default:
-                        version = DxfAcadVer.AC1015;
-                        break;
-                }
-
-                this.DxfExportDiagram(dlg.FileName,
+                this.DxfExportDiagram(fileName,
                     canvas,
-                    shortenStart,
-                    shortenEnd,
-                    version,
+                    shortenStart, shortenEnd,
+                    FilterToAcadVer(filter),
                     table);
             }
+        }
+
+        private DxfAcadVer FilterToAcadVer(int filter)
+        {
+            DxfAcadVer version;
+
+            switch (filter)
+            {
+                case 1: version = DxfAcadVer.AC1009; break;
+                case 2: version = DxfAcadVer.AC1015; break;
+                case 3: version = DxfAcadVer.AC1015; break;
+                default: version = DxfAcadVer.AC1015; break;
+            }
+
+            return version;
         }
 
         public void TagsOpen()
