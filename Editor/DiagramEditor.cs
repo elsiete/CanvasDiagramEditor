@@ -267,7 +267,7 @@ namespace CanvasDiagramEditor.Editor
             // tags file path is relative to solution file path
             if (tagFileName != null && fileName != null)
             {
-                tagFileName = PathGetRelativeFileName(fileName, tagFileName);
+                tagFileName = PathUtil.GetRelativeFileName(fileName, tagFileName);
             }
 
             // Solution
@@ -1505,7 +1505,7 @@ namespace CanvasDiagramEditor.Editor
             ModelParseDiagram(diagram, canvas, 0, 0, false, true, false, true);
         }
 
-        private void SaveDiagram(string fileName, ICanvas canvas)
+        public void SaveDiagram(string fileName, ICanvas canvas)
         {
             string model = Model.Generate(canvas, null, CurrentOptions.CurrentProperties);
 
@@ -1516,7 +1516,7 @@ namespace CanvasDiagramEditor.Editor
 
         #region Open/Save Solution
 
-        private TreeSolution OpenSolution(string fileName)
+        public TreeSolution OpenSolution(string fileName)
         {
             TreeSolution solution = null;
 
@@ -1530,7 +1530,7 @@ namespace CanvasDiagramEditor.Editor
             return solution;
         }
 
-        private void SaveSolution(string fileName)
+        public void SaveSolution(string fileName)
         {
             ModelUpdateSelectedDiagram();
 
@@ -1568,7 +1568,7 @@ namespace CanvasDiagramEditor.Editor
             }
         }
 
-        private void DxfExportDiagram(string fileName, 
+        public void DxfExportDiagram(string fileName, 
             ICanvas canvas, 
             bool shortenStart, 
             bool shortenEnd,
@@ -2369,7 +2369,7 @@ namespace CanvasDiagramEditor.Editor
             project.Remove(diagram);
         }
 
-        private void TreeOpenSolution(ITree tree, TreeSolution solution)
+        public void TreeOpenSolution(ITree tree, TreeSolution solution)
         {
             TreeClearSolution();
 
@@ -2566,74 +2566,32 @@ namespace CanvasDiagramEditor.Editor
 
         #region Snap
 
-        public double Snap(double original, double snap, double offset)
-        {
-            return Snap(original - offset, snap) + offset;
-        }
-
-        public double Snap(double original, double snap)
-        {
-            return original + ((Math.Round(original / snap) - original / snap) * snap);
-        }
-
         private double SnapOffsetX(double original, bool snap)
         {
             return snap == true ?
-                Snap(original, CurrentOptions.CurrentProperties.SnapX, CurrentOptions.CurrentProperties.SnapOffsetX) : original;
+                SnapUtil.Snap(original, 
+                    CurrentOptions.CurrentProperties.SnapX, CurrentOptions.CurrentProperties.SnapOffsetX) : 
+                    original;
         }
 
         private double SnapOffsetY(double original, bool snap)
         {
             return snap == true ?
-                Snap(original, CurrentOptions.CurrentProperties.SnapY, CurrentOptions.CurrentProperties.SnapOffsetY) : original;
+                SnapUtil.Snap(original,
+                    CurrentOptions.CurrentProperties.SnapY, CurrentOptions.CurrentProperties.SnapOffsetY) : 
+                    original;
         }
 
         private double SnapX(double original, bool snap)
         {
             return snap == true ?
-                Snap(original, CurrentOptions.CurrentProperties.SnapX) : original;
+                SnapUtil.Snap(original, CurrentOptions.CurrentProperties.SnapX) : original;
         }
 
         private double SnapY(double original, bool snap)
         {
             return snap == true ?
-                Snap(original, CurrentOptions.CurrentProperties.SnapY) : original;
-        }
-
-        #endregion
-
-        #region Path
-
-        public static string PathMakeRelative(string fromPath, string toPath)
-        {
-            Uri fromUri = new Uri(fromPath, UriKind.RelativeOrAbsolute);
-            Uri toUri = new Uri(toPath, UriKind.RelativeOrAbsolute);
-
-            if (fromUri.IsAbsoluteUri == true)
-            {
-                Uri relativeUri = fromUri.MakeRelativeUri(toUri);
-                string relativePath = Uri.UnescapeDataString(relativeUri.ToString());
-
-                return relativePath.Replace('/', System.IO.Path.DirectorySeparatorChar);
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        public static string PathGetRelativeFileName(string fromPath, string toPath)
-        {
-            string relativePath = PathMakeRelative(toPath, fromPath);
-            string onlyFileName = System.IO.Path.GetFileName(toPath);
-
-            if (relativePath != null)
-            {
-                toPath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(relativePath),
-                    onlyFileName);
-            }
-
-            return toPath;
+                SnapUtil.Snap(original, CurrentOptions.CurrentProperties.SnapY) : original;
         }
 
         #endregion
@@ -2670,9 +2628,10 @@ namespace CanvasDiagramEditor.Editor
             var res = dlg.ShowDialog();
             if (res == true)
             {
+                var fileName = dlg.FileName;
                 var canvas = CurrentOptions.CurrentCanvas;
 
-                this.OpenDiagram(dlg.FileName, canvas);
+                this.OpenDiagram(fileName, canvas);
             }
         }
 
@@ -2687,11 +2646,12 @@ namespace CanvasDiagramEditor.Editor
             var res = dlg.ShowDialog();
             if (res == true)
             {
+                var fileName = dlg.FileName;
                 var canvas = CurrentOptions.CurrentCanvas;
 
                 ModelClear(canvas);
 
-                TreeSolution solution = OpenSolution(dlg.FileName);
+                TreeSolution solution = OpenSolution(fileName);
 
                 if (solution != null)
                 {
@@ -2739,7 +2699,7 @@ namespace CanvasDiagramEditor.Editor
                 var fileName = dlg.FileName;
                 var canvas = CurrentOptions.CurrentCanvas;
 
-                this.SaveDiagram(fileName, canvas);
+                SaveDiagram(fileName, canvas);
             }
         }
 
@@ -2760,7 +2720,7 @@ namespace CanvasDiagramEditor.Editor
                 var fileName = dlg.FileName;
                 var canvas = CurrentOptions.CurrentCanvas;
 
-                this.DxfExportDiagram(fileName,
+                DxfExportDiagram(fileName,
                     canvas,
                     shortenStart, shortenEnd,
                     FilterToAcadVer(filter),
