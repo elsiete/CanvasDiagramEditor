@@ -28,6 +28,7 @@ namespace CanvasDiagramEditor.Editor
     using TreeProjects = Stack<Tuple<string, Stack<Stack<string>>>>;
     using TreeSolution = Tuple<string, string, Stack<Tuple<string, Stack<Stack<string>>>>>;
 
+    using Position = Tuple<double, double>;
     using Connection = Tuple<IElement, List<Tuple<object, object, object>>>;
     using Connections = List<Tuple<IElement, List<Tuple<object, object, object>>>>;
 
@@ -350,6 +351,23 @@ namespace CanvasDiagramEditor.Editor
                     }
                 }
             }
+        }
+
+        public static Position GetPinPosition(IElement root, IThumb pin)
+        {
+            // get root position in canvas
+            double rx = root.GetX();
+            double ry = root.GetY();
+
+            // get pin position in canvas (relative to root)
+            double px = pin.GetX();
+            double py = pin.GetY();
+
+            // calculate real pin position
+            double x = rx + px;
+            double y = ry + py;
+
+            return new Position(x, y);
         }
 
         #endregion

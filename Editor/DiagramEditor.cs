@@ -29,6 +29,7 @@ namespace CanvasDiagramEditor.Editor
     using TreeProjects = Stack<Tuple<string, Stack<Stack<string>>>>;
     using TreeSolution = Tuple<string, string, Stack<Tuple<string, Stack<Stack<string>>>>>;
 
+    using Position = Tuple<double, double>;
     using Connection = Tuple<IElement, List<Tuple<object, object, object>>>;
     using Connections = List<Tuple<IElement, List<Tuple<object, object, object>>>>;
     
@@ -73,7 +74,7 @@ namespace CanvasDiagramEditor.Editor
                 UpdateIds = updateIds,
                 Select = select,
                 CreateElements = createElements,
-                Counter = Context.Counter,
+                Counter = canvas != null ? canvas.GetCounter() : null,
                 Properties = Context.Properties
             };
 
@@ -86,17 +87,18 @@ namespace CanvasDiagramEditor.Editor
 
             creator.SetCanvas(oldCanvas);
 
-            Context.Counter = parseOptions.Counter;
+            if (updateIds == true)
+                canvas.SetCounter(parseOptions.Counter);
+
             Context.Properties = parseOptions.Properties;
 
             return result;
         }
 
-        public void ModelClear(ICanvas canvas)
+        public static void ModelClear(ICanvas canvas)
         {
             canvas.Clear();
-
-            Context.Counter.ResetDiagram();
+            canvas.GetCounter().ResetDiagram();
         }
 
         public void ModelClear()
@@ -482,23 +484,6 @@ namespace CanvasDiagramEditor.Editor
 
         #region Wire Connection
 
-        private static Tuple<double, double> PinGetPosition(IElement root, IThumb pin)
-        {
-            // get root position in canvas
-            double rx = root.GetX();
-            double ry = root.GetY();
-
-            // get pin position in canvas (relative to root)
-            double px = pin.GetX();
-            double py = pin.GetY();
-
-            // calculate real pin position
-            double x = rx + px;
-            double y = ry + py;
-
-            return new Tuple<double, double>(x, y);
-        }
-
         private void ConnectionCreate(ICanvas canvas, IThumb pin)
         {
             if (pin == null)
@@ -508,7 +493,7 @@ namespace CanvasDiagramEditor.Editor
 
             //System.Diagnostics.Debug.Print("ConnectPins, pin: {0}, {1}", pin.GetType(), pin.Name);
 
-            var position = PinGetPosition(Context.CurrentRoot, pin);
+            var position = Editor.GetPinPosition(Context.CurrentRoot, pin);
             double x = position.Item1;
             double y = position.Item2;
 
@@ -545,6 +530,7 @@ namespace CanvasDiagramEditor.Editor
         private ILine ConnectionCreateFirst(ICanvas canvas, double x, double y, List<MapWire> tuples)
         {
             // update IsStartIO
+            var counter = canvas.GetCounter();
             string rootUid = Context.CurrentRoot.GetUid();
 
             bool startIsIO = StringUtil.StartsWith(rootUid, ModelConstants.TagElementInput) 
@@ -553,9 +539,9 @@ namespace CanvasDiagramEditor.Editor
             var line = Context.DiagramCreator.CreateWire(x, y, x, y,
                 false, false,
                 startIsIO, false,
-                Context.Counter.WireCount) as ILine;
+                counter.WireCount) as ILine;
 
-            Context.Counter.WireCount += 1;
+            counter.WireCount += 1;
             Context.CurrentLine = line;
 
             // update connections
@@ -730,11 +716,13 @@ namespace CanvasDiagramEditor.Editor
 
         public IElement InsertPin(ICanvas canvas, IPoint point)
         {
+            var counter = canvas.GetCounter();
+
             var thumb = Context.DiagramCreator.CreatePin(point.X, point.Y, 
-                Context.Counter.PinCount,
+                counter.PinCount,
                 Context.EnableSnap) as IThumb;
 
-            Context.Counter.PinCount += 1;
+            counter.PinCount += 1;
 
             canvas.Add(thumb);
 
@@ -743,12 +731,14 @@ namespace CanvasDiagramEditor.Editor
 
         public IElement InsertInput(ICanvas canvas, IPoint point)
         {
+            var counter = canvas.GetCounter();
+
             var thumb = Context.DiagramCreator.CreateInput(point.X, point.Y, 
-                Context.Counter.InputCount, 
+                counter.InputCount, 
                 -1, 
                 Context.EnableSnap) as IThumb;
 
-            Context.Counter.InputCount += 1;
+            counter.InputCount += 1;
 
             canvas.Add(thumb);
 
@@ -757,12 +747,14 @@ namespace CanvasDiagramEditor.Editor
 
         public IElement InsertOutput(ICanvas canvas, IPoint point)
         {
+            var counter = canvas.GetCounter();
+
             var thumb = Context.DiagramCreator.CreateOutput(point.X, point.Y, 
-                Context.Counter.OutputCount, 
+                counter.OutputCount, 
                 -1, 
                 Context.EnableSnap) as IThumb;
 
-            Context.Counter.OutputCount += 1;
+            counter.OutputCount += 1;
 
             canvas.Add(thumb);
 
@@ -771,11 +763,13 @@ namespace CanvasDiagramEditor.Editor
 
         public IElement InsertAndGate(ICanvas canvas, IPoint point)
         {
+            var counter = canvas.GetCounter();
+
             var thumb = Context.DiagramCreator.CreateAndGate(point.X, point.Y, 
-                Context.Counter.AndGateCount, 
+               counter.AndGateCount, 
                 Context.EnableSnap) as IThumb;
 
-            Context.Counter.AndGateCount += 1;
+            counter.AndGateCount += 1;
 
             canvas.Add(thumb);
 
@@ -784,11 +778,13 @@ namespace CanvasDiagramEditor.Editor
 
         public IElement InsertOrGate(ICanvas canvas, IPoint point)
         {
+            var counter = canvas.GetCounter();
+
             var thumb = Context.DiagramCreator.CreateOrGate(point.X, point.Y, 
-                Context.Counter.OrGateCount, 
+                counter.OrGateCount, 
                 Context.EnableSnap) as IThumb;
 
-            Context.Counter.OrGateCount += 1;
+            counter.OrGateCount += 1;
 
             canvas.Add(thumb);
 
@@ -816,7 +812,7 @@ namespace CanvasDiagramEditor.Editor
 
         #endregion
 
-        #region Canvas Size & Grid
+        #region Grid
 
         public void SetCanvasGrid(bool undo)
         {
@@ -946,9 +942,6 @@ namespace CanvasDiagramEditor.Editor
 
         private void HistoryUndo(ICanvas canvas, bool pushRedo)
         {
-            if (Context.EnableHistory != true)
-                return;
-
             var tuple = HistoryGet(canvas);
             var undoHistory = tuple.Item1;
             var redoHistory = tuple.Item2;
@@ -972,9 +965,6 @@ namespace CanvasDiagramEditor.Editor
 
         private void HistoryRedo(ICanvas canvas, bool pushUndo)
         {
-            if (Context.EnableHistory != true)
-                return;
-
             var tuple = HistoryGet(canvas);
             var undoHistory = tuple.Item1;
             var redoHistory = tuple.Item2;
@@ -998,16 +988,22 @@ namespace CanvasDiagramEditor.Editor
 
         public void HistoryUndo()
         {
-            var canvas = Context.CurrentCanvas;
+            if (Context.EnableHistory == true)
+            {
+                var canvas = Context.CurrentCanvas;
 
-            this.HistoryUndo(canvas, true);
+                this.HistoryUndo(canvas, true);
+            }
         }
 
         public void HistoryRedo()
         {
-            var canvas = Context.CurrentCanvas;
+            if (Context.EnableHistory == true)
+            {
+                var canvas = Context.CurrentCanvas;
 
-            this.HistoryRedo(canvas, true);
+                this.HistoryRedo(canvas, true);
+            }
         }
 
         #endregion
@@ -2189,7 +2185,7 @@ namespace CanvasDiagramEditor.Editor
 
             if (uid == null)
             {
-                var counter = Context.Counter;
+                var counter = Context.CurrentCanvas.GetCounter();
                 int id = 0; // there is only one solution allowed
 
                 solution.SetUid(ModelConstants.TagHeaderSolution + ModelConstants.TagNameSeparator + id.ToString());
@@ -2209,7 +2205,7 @@ namespace CanvasDiagramEditor.Editor
 
             if (uid == null)
             {
-                var counter = Context.Counter;
+                var counter = Context.CurrentCanvas.GetCounter();
                 int id = counter.ProjectCount;
 
                 project.SetUid(ModelConstants.TagHeaderProject + ModelConstants.TagNameSeparator + id.ToString());
@@ -2229,7 +2225,7 @@ namespace CanvasDiagramEditor.Editor
 
             if (uid == null)
             {
-                var counter = Context.Counter;
+                var counter = Context.CurrentCanvas.GetCounter();
                 int id = counter.DiagramCount;
 
                 diagram.SetUid(ModelConstants.TagHeaderDiagram + ModelConstants.TagNameSeparator + id.ToString());
@@ -2354,16 +2350,9 @@ namespace CanvasDiagramEditor.Editor
             project.Remove(diagram);
         }
 
-        public void TreeOpenSolution(ITree tree, TreeSolution solution)
-        {
-            TreeClearSolution(tree);
-
-            TreeParseSolution(tree, solution);
-        }
-
         private void TreeParseSolution(ITree tree, TreeSolution solution)
         {
-            var counter = Context.Counter;
+            var counter = Context.CurrentCanvas.GetCounter();
 
             // create solution
             string tagFileName = null;
@@ -2388,7 +2377,7 @@ namespace CanvasDiagramEditor.Editor
             TreeClear(tree);
 
             // reset counter
-            Context.Counter.ResetAll();
+            Context.CurrentCanvas.GetCounter().ResetAll();
 
             TagsReset();
 
@@ -2640,7 +2629,8 @@ namespace CanvasDiagramEditor.Editor
                 {
                     var tree = Context.CurrentTree;
 
-                    TreeOpenSolution(tree, solution);
+                    TreeClearSolution(tree);
+                    TreeParseSolution(tree, solution);
                 }
             }
         }

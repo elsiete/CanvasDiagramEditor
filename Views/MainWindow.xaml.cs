@@ -138,8 +138,10 @@ namespace CanvasDiagramEditor
             Editor.Context.CurrentTree = this.SolutionTree;
             Editor.Context.CurrentCanvas = this.DiagramControl.DiagramCanvas;
 
-            Editor.Context.Counter.ProjectCount = 1;
-            Editor.Context.Counter.DiagramCount = 1;
+            var counter = new IdCounter();
+            counter.ProjectCount = 1;
+            counter.DiagramCount = 1;
+            this.DiagramControl.DiagramCanvas.SetCounter(counter);
 
             Editor.Context.IsControlPressed = () => Keyboard.Modifiers == ModifierKeys.Control;
             Editor.Context.UpdateProperties = () => UpdateProperties(Editor.Context.Properties);
@@ -174,7 +176,7 @@ namespace CanvasDiagramEditor
             creator.SetPosition = (element, left, top, snap) => Editor.SetPosition(element, left, top, snap);
             
             creator.GetTags = () => Editor.Context.Tags;
-            creator.GetCounter = () => Editor.Context.Counter;
+            creator.GetCounter = () => Editor.Context.CurrentCanvas.GetCounter();
 
             creator.SetCanvas(this.DiagramControl.DiagramCanvas);
             creator.ParserPath = this.DiagramControl.PathGrid;

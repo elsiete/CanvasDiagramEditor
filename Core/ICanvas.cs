@@ -32,6 +32,9 @@ namespace CanvasDiagramEditor.Core
 
         IEnumerable<IElement> HitTest(IPoint point, double radius);
         IEnumerable<IElement> HitTest(IRect rect);
+
+        IdCounter GetCounter();
+        void SetCounter(IdCounter counter);
     }
 
     #endregion

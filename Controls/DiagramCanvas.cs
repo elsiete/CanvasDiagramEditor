@@ -23,6 +23,8 @@ namespace CanvasDiagramEditor.Controls
     {
         #region ICanvas
 
+        private IdCounter Counter { get; set; }
+
         public IEnumerable<IElement> GetElements()
         {
             var elements = this.Children.Cast<FrameworkElement>();
@@ -73,6 +75,16 @@ namespace CanvasDiagramEditor.Controls
         public void SetTags(List<object> tags)
         {
             ElementThumb.SetItems(this, tags);
+        }
+
+        public IdCounter GetCounter()
+        {
+            return this.Counter;
+        }
+
+        public void SetCounter(IdCounter counter)
+        {
+            this.Counter = counter;
         }
 
         #endregion

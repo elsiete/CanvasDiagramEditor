@@ -45,8 +45,6 @@ namespace CanvasDiagramEditor.Editor
         public ILine CurrentLine = null;
         public IElement CurrentRoot = null;
 
-        public IdCounter Counter = new IdCounter();
-
         public PointEx RightClick;
 
         public bool EnableInsertLast = false;
