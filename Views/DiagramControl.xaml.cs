@@ -344,7 +344,7 @@ namespace CanvasDiagramEditor
                 return;
 
             var canvas = Editor.Context.CurrentCanvas;
-            var point = e.GetPosition(sender as IInputElement);
+            var point = e.GetPosition(canvas as DiagramCanvas);
             Editor.Context.ZoomPoint = new PointEx(point.X, point.Y);
 
             if (e.Delta > 0)
@@ -369,7 +369,7 @@ namespace CanvasDiagramEditor
         {
             if (e.ChangedButton == MouseButton.Middle)
             {
-                var point = e.GetPosition(this.PanScrollViewer);
+                var point = e.GetPosition(this);
 
                 BeginPan(point);
             }
@@ -387,7 +387,7 @@ namespace CanvasDiagramEditor
         {
             if (this.PanScrollViewer.IsMouseCaptured == true)
             {
-                var point = e.GetPosition(this.PanScrollViewer);
+                var point = e.GetPosition(this);
 
                 PanToPoint(point);
             }
@@ -530,19 +530,6 @@ namespace CanvasDiagramEditor
             }
         }
 
-        private void InsertPin_Click(object sender, RoutedEventArgs e)
-        {
-            var canvas = Editor.Context.CurrentCanvas;
-
-            Editor.HistoryAdd(canvas, true);
-
-            var point = new PointEx(Editor.Context.RightClick.X, Editor.Context.RightClick.Y);
-            Editor.InsertPin(canvas, point);
-
-            Editor.Context.LastInsert = ModelConstants.TagElementPin;
-            Editor.Context.SkipLeftClick = false;
-        }
-
         private void InsertInput_Click(object sender, RoutedEventArgs e)
         {
             var canvas = Editor.Context.CurrentCanvas;
@@ -595,14 +582,6 @@ namespace CanvasDiagramEditor
             Editor.Context.SkipLeftClick = false;
         }
 
-        private void DeleteElement_Click(object sender, RoutedEventArgs e)
-        {
-            var canvas = Editor.Context.CurrentCanvas;
-            var point = new PointEx(Editor.Context.RightClick.X, Editor.Context.RightClick.Y);
-
-            Editor.Delete(canvas, point);
-        }
-
         private void InvertStart_Click(object sender, RoutedEventArgs e)
         {
             var canvas = Editor.Context.CurrentCanvas;
@@ -617,6 +596,31 @@ namespace CanvasDiagramEditor
             var point = new PointEx(Editor.Context.RightClick.X, Editor.Context.RightClick.Y);
 
             Editor.WireToggleEnd(canvas, point);
+        }
+
+        private void EditCut_Click(object sender, RoutedEventArgs e)
+        {
+            Editor.EditCut();
+            Editor.Context.SkipLeftClick = false;
+        }
+
+        private void EditCopy_Click(object sender, RoutedEventArgs e)
+        {
+            Editor.EditCopy();
+            Editor.Context.SkipLeftClick = false;
+        }
+
+        private void EditPaste_Click(object sender, RoutedEventArgs e)
+        {
+            var point = new PointEx(Editor.Context.RightClick.X, Editor.Context.RightClick.Y);
+            Editor.EditPaste(point);
+            Editor.Context.SkipLeftClick = false;
+        }
+
+        private void EditDelete_Click(object sender, RoutedEventArgs e)
+        {
+            Editor.EditDelete();
+            Editor.Context.SkipLeftClick = false;
         }
 
         #endregion

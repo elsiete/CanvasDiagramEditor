@@ -64,20 +64,6 @@ namespace CanvasDiagramEditor.Editor
             Model.Clear(canvas);
         }
 
-        public static string ModelGenerateFromSelected(ICanvas canvas)
-        {
-            var sw = System.Diagnostics.Stopwatch.StartNew();
-
-            var elements = Model.GetSelected(canvas);
-
-            string model = Model.Generate(elements.Cast<IElement>());
-
-            sw.Stop();
-            System.Diagnostics.Debug.Print("ModelGenerateFromSelected() in {0}ms", sw.Elapsed.TotalMilliseconds);
-
-            return model;
-        }
-
         public string ModelGenerate()
         {
             var canvas = Context.CurrentCanvas;
@@ -87,13 +73,9 @@ namespace CanvasDiagramEditor.Editor
             return diagram;
         }
 
-        public string ModelGenerateFromSelected()
+        public string ModelGenerateFromSelected(ICanvas canvas)
         {
-            var canvas = Context.CurrentCanvas;
-
-            var diagram = ModelGenerateFromSelected(canvas);
-
-            return diagram;
+            return Model.Generate(Model.GetSelected(canvas));
         }
 
         public void ModelInsert(string diagram, double offsetX, double offsetY)
@@ -155,8 +137,7 @@ namespace CanvasDiagramEditor.Editor
             return ModelGetCurrent(false);
         }
 
-        public Solution ModelGenerateSolution(string fileName,
-            bool includeHistory)
+        public Solution ModelGenerateSolution(string fileName, bool includeHistory)
         {
             var tree = Context.CurrentTree;
             var tagFileName = Context.TagFileName;
@@ -169,9 +150,7 @@ namespace CanvasDiagramEditor.Editor
             var tree = Context.CurrentTree;
             var selected = tree.GetSelectedItem() as ITreeItem;
             if (selected == null)
-            {
                 return null;
-            }
 
             string uid = selected.GetUid();
             bool isSelectedSolution = StringUtil.StartsWith(uid, ModelConstants.TagHeaderSolution);
@@ -673,7 +652,7 @@ namespace CanvasDiagramEditor.Editor
 
         #region Move
 
-        private Tuple<PointEx, PointEx> GetLineExStartAndEnd(MapWire map1, MapWire map2)
+        private static Tuple<PointEx, PointEx> GetLineExStartAndEnd(MapWire map1, MapWire map2)
         {
             var line1 = map1.Item1 as ILine;
             var start1 = map1.Item2;
@@ -798,7 +777,6 @@ namespace CanvasDiagramEditor.Editor
 
         public void MoveSelectedElements(ICanvas canvas, double dX, double dY, bool snap)
         {
-            // move all selected elements
             var thumbs = canvas.GetElements().OfType<IThumb>().Where(x => x.GetSelected());
 
             foreach (var thumb in thumbs)
@@ -871,10 +849,15 @@ namespace CanvasDiagramEditor.Editor
 
         #region Drag
 
+        private bool IsSnapOnDragEnabled()
+        {
+            return (Context.SnapOnRelease == true &&
+                Context.EnableSnap == true) ? false : Context.EnableSnap;
+        }
+
         public void Drag(ICanvas canvas, IThumb element, double dX, double dY)
         {
-            bool snap = (Context.SnapOnRelease == true && 
-                Context.EnableSnap == true) ? false : Context.EnableSnap;
+            bool snap = IsSnapOnDragEnabled();
 
             if (Context.MoveAllSelected == true)
             {
@@ -898,7 +881,6 @@ namespace CanvasDiagramEditor.Editor
             {
                 Context.MoveAllSelected = false;
 
-                // select
                 element.SetSelected(true);
             }
         }
@@ -913,9 +895,6 @@ namespace CanvasDiagramEditor.Editor
                 }
                 else
                 {
-                    // move only selected element
-
-                    // deselect
                     element.SetSelected(false);
 
                     MoveRoot(element, 0.0, 0.0, Context.EnableSnap);
@@ -924,10 +903,7 @@ namespace CanvasDiagramEditor.Editor
             else
             {
                 if (Context.MoveAllSelected != true)
-                {
-                    // de-select
                     element.SetSelected(false);
-                }
             }
 
             Context.MoveAllSelected = false;
@@ -1140,7 +1116,10 @@ namespace CanvasDiagramEditor.Editor
 
             if (model != null && model.Length > 0)
             {
-                ModelInsert(model, point.X, point.Y);
+                double offsetX = point.X != 0.0 ? SnapOffsetX(point.X, Context.EnableSnap) : 0.0;
+                double offsetY = point.Y != 0.0 ? SnapOffsetY(point.Y, Context.EnableSnap) : 0.0;
+
+                ModelInsert(model, offsetX, offsetY);
             }
         }
 

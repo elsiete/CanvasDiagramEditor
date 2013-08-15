@@ -15,16 +15,16 @@
         <ContextMenu x:Key="DiagramCanvasContextMenuKey">
             <MenuItem x:Name="InsertInput" Header="Insert _Input" Click="InsertInput_Click" InputGestureText="I"/>
             <MenuItem x:Name="InsertOutput" Header="Insert _Output" Click="InsertOutput_Click" InputGestureText="O"/>
+            <MenuItem x:Name="InsertAndGate" Header="Insert _AndGate" Click="InsertAndGate_Click" InputGestureText="A"/>
+            <MenuItem x:Name="InsertOrGate" Header="Insert O_rGate" Click="InsertOrGate_Click" InputGestureText="R"/>
             <Separator/>
-            <MenuItem x:Name="InsertAndGate" Header="Insert _AndGate" Click="InsertAndGate_Click" InputGestureText="E+A"/>
-            <MenuItem x:Name="InsertOrGate" Header="Insert O_rGate" Click="InsertOrGate_Click" InputGestureText="E+O"/>
+            <MenuItem x:Name="EditCut" Header="Cu_t" Click="EditCut_Click" InputGestureText="Ctrl+X"/>
+            <MenuItem x:Name="EditCopy" Header="_Copy" Click="EditCopy_Click" InputGestureText="Ctrl+C"/>
+            <MenuItem x:Name="EditPaste" Header="_Paste" Click="EditPaste_Click" InputGestureText="Ctrl+V"/>
+            <MenuItem x:Name="EditDelete" Header="_Delete" Click="EditDelete_Click" InputGestureText="Del"/>
             <Separator/>
-            <MenuItem x:Name="InsertPin" Header="Insert _Pin" Click="InsertPin_Click"/>
-            <Separator/>
-            <MenuItem x:Name="InvertStart" Header="Invert _Start" Click="InvertStart_Click"/>
-            <MenuItem x:Name="InvertEnd" Header="Invert _End" Click="InvertEnd_Click"/>
-            <Separator/>
-            <MenuItem x:Name="DeleteElement" Header="_Delete" Click="DeleteElement_Click"/>
+            <MenuItem x:Name="InvertStart" Header="Invert _Start" Click="InvertStart_Click" InputGestureText="S"/>
+            <MenuItem x:Name="InvertEnd" Header="Invert _End" Click="InvertEnd_Click" InputGestureText="E"/>
         </ContextMenu>
 
     </UserControl.Resources>

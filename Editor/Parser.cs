@@ -43,7 +43,7 @@ namespace CanvasDiagramEditor.Editor
         public TreeSolution Parse(string model, IDiagramCreator creator, ParseOptions options)
         {
             double offsetX = options.OffsetX;
-            double offsetY = options.OffsetX;
+            double offsetY = options.OffsetY;
             bool appendIds = options.AppendIds;
             bool updateIds = options.UpdateIds;
             bool select = options.Select;
@@ -426,7 +426,7 @@ namespace CanvasDiagramEditor.Editor
                     creator.UpdateCounter(options.Counter, counter);
                 }
 
-                creator.InsertElements(elements, select);
+                creator.InsertElements(elements, select, offsetX, offsetY);
             }
 
             sw.Stop();

@@ -1593,7 +1593,10 @@ namespace CanvasDiagramEditor
         {
         }
 
-        public void InsertElements(IEnumerable<object> elements, bool select)
+        public void InsertElements(IEnumerable<object> elements, 
+            bool select,
+            double offsetX,
+            double offsetY)
         {
         }
 

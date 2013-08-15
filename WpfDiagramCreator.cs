@@ -260,11 +260,18 @@ namespace CanvasDiagramEditor
             return null;
         }
 
-        public void InsertElements(IEnumerable<object> elements, bool select)
+        public void InsertElements(IEnumerable<object> elements, 
+            bool select,
+            double offsetX,
+            double offsetY)
         {
             var canvas = ParserCanvas;
 
-            Model.Insert(canvas, elements.Cast<IElement>(), select);
+            Model.Insert(canvas, 
+                elements.Cast<IElement>(), 
+                select,
+                offsetX,
+                offsetY);
         }
 
         public void UpdateCounter(IdCounter original, IdCounter counter)

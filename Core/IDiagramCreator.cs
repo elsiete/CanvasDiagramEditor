@@ -61,7 +61,7 @@ namespace CanvasDiagramEditor.Core
 
         void AppendIds(IEnumerable<object> elements);
 
-        void InsertElements(IEnumerable<object> elements, bool select);
+        void InsertElements(IEnumerable<object> elements, bool select, double offsetX, double offsetY);
     } 
 
     #endregion

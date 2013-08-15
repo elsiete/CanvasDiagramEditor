@@ -428,7 +428,7 @@ namespace CanvasDiagramEditor.Editor
         public static void Store(ICanvas canvas, ITreeItem item)
         {
             var uid = item.GetUid();
-            var model = Model.GenerateDiagram(canvas, uid, canvas.GetProperties());
+            var model = Model.GenerateDiagram(canvas, uid, canvas == null ? null : canvas.GetProperties());
 
             if (item != null)
             {
@@ -444,7 +444,6 @@ namespace CanvasDiagramEditor.Editor
         {
             var elements = new List<IElement>();
 
-            // get selected thumbs
             var thumbs = canvas.GetElements().OfType<IThumb>();
 
             foreach (var thumb in thumbs)
@@ -455,7 +454,6 @@ namespace CanvasDiagramEditor.Editor
                 }
             }
 
-            // get selected wires
             var wires = canvas.GetElements().OfType<ILine>();
 
             foreach (var wire in wires)
@@ -473,7 +471,6 @@ namespace CanvasDiagramEditor.Editor
         {
             var elements = new List<IElement>();
 
-            // get selected thumbs
             var thumbs = canvas.GetElements().OfType<IThumb>();
 
             foreach (var thumb in thumbs)
@@ -491,7 +488,6 @@ namespace CanvasDiagramEditor.Editor
         {
             var elements = new List<IElement>();
 
-            // get selected wires
             var wires = canvas.GetElements().OfType<ILine>();
 
             foreach (var wire in wires)
@@ -509,7 +505,6 @@ namespace CanvasDiagramEditor.Editor
         {
             var elements = new List<IElement>();
 
-            // get all thumbs
             var thumbs = canvas.GetElements().OfType<IThumb>();
 
             foreach (var thumb in thumbs)
@@ -517,7 +512,6 @@ namespace CanvasDiagramEditor.Editor
                 elements.Add(thumb);
             }
 
-            // get all wires
             var wires = canvas.GetElements().OfType<ILine>();
 
             foreach (var wire in wires)
@@ -532,7 +526,6 @@ namespace CanvasDiagramEditor.Editor
         {
             var elements = new List<IElement>();
 
-            // get all thumbs
             var thumbs = canvas.GetElements().OfType<IThumb>();
 
             foreach (var thumb in thumbs)
@@ -547,7 +540,6 @@ namespace CanvasDiagramEditor.Editor
         {
             var elements = new List<IElement>();
 
-            // get all wires
             var wires = canvas.GetElements().OfType<ILine>();
 
             foreach (var wire in wires)
@@ -558,16 +550,95 @@ namespace CanvasDiagramEditor.Editor
             return elements;
         }
 
-        public static void Insert(ICanvas canvas, IEnumerable<IElement> elements, bool select)
+        #endregion
+
+        #region Move
+
+        private static void MoveElement(IElement element, double dX, double dY)
         {
+            if (dX != 0.0)
+            {
+                element.SetX(element.GetX() - dX);
+            }
+
+            if (dY != 0.0)
+            {
+                element.SetY(element.GetY() - dY);
+            }
+        }
+
+        public static void MoveLine(ILine line, double dX, double dY)
+        {
+            ModeLineStart(line, dX, dY);
+            MoveLineEnd(line, dX, dY);
+        }
+
+        public static void MoveLineEnd(ILine line, double dX, double dY)
+        {
+            double left = line.GetX2();
+            double top = line.GetY2();
+            double x = 0.0;
+            double y = 0.0;
+
+            x = dX != 0.0 ? left - dX : left;
+            y = dY != 0.0 ? top - dY : top;
+
+            line.SetX2(x);
+            line.SetY2(y);
+        }
+
+        public static void ModeLineStart(ILine line, double dX, double dY)
+        {
+            var margin = line.GetMargin();
+            double left = margin.Left;
+            double top = margin.Top;
+            double x = 0.0;
+            double y = 0.0;
+
+            x = dX != 0.0 ? left - dX : left;
+            y = dY != 0.0 ? top - dY : top;
+
+            line.SetX2(line.GetX2() + (left - x));
+            line.SetY2(line.GetY2() + (top - y));
+            line.SetMargin(new MarginEx(0, x, 0, y));
+        }
+
+        #endregion
+
+        #region Insert
+
+        public static void Insert(ICanvas canvas, 
+            IEnumerable<IElement> elements, 
+            bool select, 
+            double offsetX, 
+            double offsetY)
+        {
+            var thumbs = elements.Where(x => x is IThumb);
+            int count = thumbs.Count();
+            double minX = count == 0 ? 0.0 : thumbs.Min(x => x.GetX());
+            double minY = count == 0 ? 0.0 : thumbs.Min(x => x.GetY());
+            double dX = offsetX != 0.0 ? minX - offsetX : 0.0;
+            double dY = offsetY != 0.0 ? minY - offsetY : 0.0;
+
+            //System.Diagnostics.Debug.Print("minX: {0}, offsetX: {1}, dX: {2}", minX, offsetX, dX);
+            //System.Diagnostics.Debug.Print("minY: {0}, offsetY: {1}, dY: {2}", minY, offsetY, dY);
+
             foreach (var element in elements)
             {
                 canvas.Add(element);
 
-                if (select == true)
+                if (element is IThumb)
                 {
-                    element.SetSelected(true);
+                    MoveElement(element, dX, dY);
                 }
+                else if (element is ILine)
+                {
+                    if (dX != 0.0 || dY != 0.0)
+                        MoveLine(element as ILine, dX, dY);
+                }
+
+                if (select == true)
+                    element.SetSelected(true);
             }
         }
 
