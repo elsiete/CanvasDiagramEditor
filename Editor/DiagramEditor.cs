@@ -2356,7 +2356,7 @@ namespace CanvasDiagramEditor.Editor
 
         public void TreeOpenSolution(ITree tree, TreeSolution solution)
         {
-            TreeClearSolution();
+            TreeClearSolution(tree);
 
             TreeParseSolution(tree, solution);
         }
@@ -2382,10 +2382,8 @@ namespace CanvasDiagramEditor.Editor
             ModelParseProjects(projects, counter, solutionItem);
         }
 
-        private void TreeClearSolution()
+        public void TreeClearSolution(ITree tree)
         {
-            var tree = Context.CurrentTree;
-
             // clear solution tree
             TreeClear(tree);
 
@@ -2399,7 +2397,7 @@ namespace CanvasDiagramEditor.Editor
             Context.CurrentCanvas.SetTags(null);
         }
 
-        private void TreeClear(ITree tree)
+        public void TreeClear(ITree tree)
         {
             var items = tree.GetItems().ToList();
 
@@ -2416,7 +2414,7 @@ namespace CanvasDiagramEditor.Editor
 
             ModelClear(canvas);
 
-            TreeClearSolution();
+            TreeClearSolution(tree);
 
             TreeCreateDefaultSolution(tree);
         }
