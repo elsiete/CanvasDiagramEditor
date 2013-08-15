@@ -101,7 +101,6 @@
     <Compile Include="Editor\Context.cs" />
     <Compile Include="Editor\Editor.cs" />
     <Compile Include="Editor\Table.cs" />
-    <Compile Include="Editor\Tree.cs" />
     <Compile Include="Editor\Elements.cs" />
     <Compile Include="Editor\Model.cs" />
     <Compile Include="Editor\Tags.cs" />
