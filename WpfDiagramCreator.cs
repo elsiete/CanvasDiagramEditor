@@ -28,16 +28,17 @@ namespace CanvasDiagramEditor
     using MapWire = Tuple<object, object, object>;
     using MapWires = Tuple<object, List<Tuple<string, string>>>;
     using Selection = Tuple<bool, List<Tuple<object, object, object>>>;
-    using History = Tuple<Stack<string>, Stack<string>>;
+    using UndoRedo = Tuple<Stack<string>, Stack<string>>;
     using Diagram = Tuple<string, Tuple<Stack<string>, Stack<string>>>;
     using TreeDiagram = Stack<string>;
     using TreeDiagrams = Stack<Stack<string>>;
     using TreeProject = Tuple<string, Stack<Stack<string>>>;
     using TreeProjects = Stack<Tuple<string, Stack<Stack<string>>>>;
     using TreeSolution = Tuple<string, string, Stack<Tuple<string, Stack<Stack<string>>>>>;
-
+    using Position = Tuple<double, double>;
     using Connection = Tuple<IElement, List<Tuple<object, object, object>>>;
     using Connections = List<Tuple<IElement, List<Tuple<object, object, object>>>>;
+    using Solution = Tuple<string, IEnumerable<string>>;
     
     #endregion
 
@@ -263,22 +264,22 @@ namespace CanvasDiagramEditor
         {
             var canvas = ParserCanvas;
 
-            Editor.Elements.Insert(canvas, elements.Cast<IElement>(), select);
+            Model.Insert(canvas, elements.Cast<IElement>(), select);
         }
 
         public void UpdateCounter(IdCounter original, IdCounter counter)
         {
-            Editor.Editor.IdsUpdateCounter(original, counter);
+            Model.IdsUpdateCounter(original, counter);
         }
 
         public void UpdateConnections(IDictionary<string, MapWires> dict)
         {
-            Editor.Editor.ConnectionsUpdate(dict);
+            Model.ConnectionsUpdate(dict);
         }
 
         public void AppendIds(IEnumerable<object> elements)
         {
-            Editor.Editor.IdsAppend(elements, this.GetCounter());
+            Model.IdsAppend(elements, this.GetCounter());
         }
 
         #endregion

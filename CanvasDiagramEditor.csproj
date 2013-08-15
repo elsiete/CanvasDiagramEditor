@@ -62,6 +62,7 @@
     <Compile Include="Core\IClipboard.cs" />
     <Compile Include="DxfInspect.cs" />
     <Compile Include="DxfDiagramCreator.cs" />
+    <Compile Include="Editor\History.cs" />
     <Compile Include="Util\PathUtil.cs" />
     <Compile Include="Util\SnapUtil.cs" />
     <Compile Include="Util\WindowsClipboard.cs" />
@@ -99,9 +100,7 @@
     <Compile Include="Editor\Parser.cs" />
     <Compile Include="Editor\DiagramEditor.cs" />
     <Compile Include="Editor\Context.cs" />
-    <Compile Include="Editor\Editor.cs" />
     <Compile Include="Editor\Table.cs" />
-    <Compile Include="Editor\Elements.cs" />
     <Compile Include="Editor\Model.cs" />
     <Compile Include="Editor\Tags.cs" />
     <Compile Include="Editor\LineCalc.cs" />

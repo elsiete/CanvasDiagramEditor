@@ -143,8 +143,11 @@ namespace CanvasDiagramEditor
             counter.DiagramCount = 1;
             this.DiagramControl.DiagramCanvas.SetCounter(counter);
 
+            var properties = new DiagramProperties();
+            this.DiagramControl.DiagramCanvas.SetProperties(properties);
+
             Editor.Context.IsControlPressed = () => Keyboard.Modifiers == ModifierKeys.Control;
-            Editor.Context.UpdateProperties = () => UpdateProperties(Editor.Context.Properties);
+            Editor.Context.UpdateProperties = () => UpdateProperties(Editor.Context.CurrentCanvas.GetProperties());
 
             Editor.Context.Clipboard = new WindowsClipboard();
 
@@ -165,7 +168,10 @@ namespace CanvasDiagramEditor
             Editor.Context.CreateTreeDiagramItem = () => CreateTreeDiagramItem();
 
             // update canvas grid
-            Editor.SetCanvasGrid(false);
+            Editor.Context.UpdateProperties();
+            Model.SetGrid(Editor.Context.CurrentCanvas, 
+                Editor.Context.DiagramCreator,
+                false);
         }
 
         private IDiagramCreator GetDiagramCreator()
@@ -278,7 +284,7 @@ namespace CanvasDiagramEditor
             {
                 var canvas = Editor.Context.CurrentCanvas;
 
-                Editor.HistoryClear(canvas);
+                History.Clear(canvas);
             }
         }
 
@@ -356,7 +362,11 @@ namespace CanvasDiagramEditor
 
         private void UpdateGrid_Click(object sender, RoutedEventArgs e)
         {
-            Editor.SetCanvasGrid(true);
+            Editor.Context.UpdateProperties();
+
+            Model.SetGrid(Editor.Context.CurrentCanvas,
+                Editor.Context.DiagramCreator,
+                true);
         }
 
         #endregion
@@ -382,11 +392,12 @@ namespace CanvasDiagramEditor
                 return;
 
             var canvas = Editor.Context.CurrentCanvas;
+            var creator = Editor.Context.DiagramCreator;
 
             var oldItem = e.OldValue as SolutionTreeViewItem;
             var newItem = e.NewValue as SolutionTreeViewItem;
 
-            bool isDiagram = Editor.TreeSwitchItems(canvas, oldItem, newItem);
+            bool isDiagram = Editor.TreeSwitchItems(canvas, creator, oldItem, newItem);
             if (isDiagram == true)
             {
                 this.DiagramControl.PanScrollViewer.Visibility = Visibility.Visible;
@@ -1362,7 +1373,10 @@ namespace CanvasDiagramEditor
                 Height = Editor.Context.CurrentCanvas.GetHeight()
             };
 
-            Editor.ModelParseDiagram(diagram, canvas, 0, 0, false, false, false, true);
+            Model.Parse(diagram,
+                canvas, Editor.Context.DiagramCreator, 
+                0, 0, 
+                false, false, false, true);
 
             grid.Children.Add(template);
             grid.Children.Add(canvas);

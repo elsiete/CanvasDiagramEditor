@@ -35,6 +35,9 @@ namespace CanvasDiagramEditor.Core
 
         IdCounter GetCounter();
         void SetCounter(IdCounter counter);
+
+        DiagramProperties GetProperties();
+        void SetProperties(DiagramProperties properties);
     }
 
     #endregion

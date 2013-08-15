@@ -27,8 +27,6 @@ namespace CanvasDiagramEditor.Editor
 
         #region Fields
 
-        public DiagramProperties Properties = new DiagramProperties();
-
         public string ClipboardText = null;
 
         public string TagFileName = null;

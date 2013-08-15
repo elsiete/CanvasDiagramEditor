@@ -24,6 +24,7 @@ namespace CanvasDiagramEditor.Controls
         #region ICanvas
 
         private IdCounter Counter { get; set; }
+        private DiagramProperties Properties { get; set; }
 
         public IEnumerable<IElement> GetElements()
         {
@@ -85,6 +86,16 @@ namespace CanvasDiagramEditor.Controls
         public void SetCounter(IdCounter counter)
         {
             this.Counter = counter;
+        }
+
+        public DiagramProperties GetProperties()
+        {
+            return this.Properties;
+        }
+
+        public void SetProperties(DiagramProperties properties)
+        {
+            this.Properties = properties;
         }
 
         #endregion
