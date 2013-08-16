@@ -1567,6 +1567,11 @@ namespace CanvasDiagramEditor
             return null;
         }
 
+        public object CreateElement(string type, object[] data, double x, double y, bool snap)
+        {
+            return null;
+        }
+
         public object CreateDiagram(DiagramProperties properties)
         {
             return null;

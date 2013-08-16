@@ -442,29 +442,19 @@ namespace CanvasDiagramEditor.Editor
 
         public static IEnumerable<IElement> GetSelected(ICanvas canvas)
         {
-            var elements = new List<IElement>();
+            var selected = new List<IElement>();
 
-            var thumbs = canvas.GetElements().OfType<IThumb>();
+            var elements = canvas.GetElements().OfType<IElement>();
 
-            foreach (var thumb in thumbs)
+            foreach (var element in elements)
             {
-                if (thumb.GetSelected() == true)
+                if (element.GetSelected() == true)
                 {
-                    elements.Add(thumb);
+                    selected.Add(element);
                 }
             }
 
-            var wires = canvas.GetElements().OfType<ILine>();
-
-            foreach (var wire in wires)
-            {
-                if (wire.GetSelected() == true)
-                {
-                    elements.Add(wire);
-                }
-            }
-
-            return elements;
+            return selected;
         }
 
         public static IEnumerable<IElement> GetSelectedThumbs(ICanvas canvas)
@@ -505,18 +495,11 @@ namespace CanvasDiagramEditor.Editor
         {
             var elements = new List<IElement>();
 
-            var thumbs = canvas.GetElements().OfType<IThumb>();
+            var all = canvas.GetElements().OfType<IElement>();
 
-            foreach (var thumb in thumbs)
+            foreach (var element in all)
             {
-                elements.Add(thumb);
-            }
-
-            var wires = canvas.GetElements().OfType<ILine>();
-
-            foreach (var wire in wires)
-            {
-                elements.Add(wire);
+                elements.Add(element);
             }
 
             return elements;
@@ -867,6 +850,9 @@ namespace CanvasDiagramEditor.Editor
             foreach (var item in dict)
             {
                 var element = item.Value.Item1 as IElement;
+                if (element == null)
+                    continue;
+
                 var wires = item.Value.Item2;
 
                 if (element.GetTag() == null)
@@ -890,6 +876,9 @@ namespace CanvasDiagramEditor.Editor
                             if (dict.TryGetValue(_name, out mapWires) == true)
                             {
                                 var line = mapWires.Item1;
+                                if (line == null)
+                                    continue;
+
                                 var mapWire = new MapWire(line, element, null);
 
                                 tuples.Add(mapWire);
@@ -925,6 +914,9 @@ namespace CanvasDiagramEditor.Editor
                             if (dict.TryGetValue(_name, out mapWires) == true)
                             {
                                 var line = mapWires.Item1;
+                                if (line == null)
+                                    continue;
+
                                 var mapWire = new MapWire(line, null, element);
 
                                 tuples.Add(mapWire);

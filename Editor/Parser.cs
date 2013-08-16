@@ -165,7 +165,11 @@ namespace CanvasDiagramEditor.Editor
 
                             counter.PinCount = Math.Max(counter.PinCount, id + 1);
 
-                            var element = creator.CreatePin(x + offsetX, y + offsetY, id, false);
+                            //var element = creator.CreatePin(x + offsetX, y + offsetY, id, false);
+                            //elements.Add(element);
+                            var element = creator.CreateElement("pin",
+                                new object[] { id },
+                                x + offsetX, y + offsetY, false);
                             elements.Add(element);
 
                             tuple = new MapWires(element, new List<MapPin>());
@@ -206,7 +210,11 @@ namespace CanvasDiagramEditor.Editor
 
                             counter.InputCount = Math.Max(counter.InputCount, id + 1);
 
-                            var element = creator.CreateInput(x + offsetX, y + offsetY, id, tagId, false);
+                            //var element = creator.CreateInput(x + offsetX, y + offsetY, id, tagId, false);
+                            //elements.Add(element);
+                            var element = creator.CreateElement("input",
+                                new object[] { id, tagId },
+                                x + offsetX, y + offsetY, false);
                             elements.Add(element);
 
                             tuple = new MapWires(element, new List<MapPin>());
@@ -247,7 +255,11 @@ namespace CanvasDiagramEditor.Editor
 
                             counter.OutputCount = Math.Max(counter.OutputCount, id + 1);
 
-                            var element = creator.CreateOutput(x + offsetX, y + offsetY, id, tagId, false);
+                            //var element = creator.CreateOutput(x + offsetX, y + offsetY, id, tagId, false);
+                            //elements.Add(element);
+                            var element = creator.CreateElement("output",
+                                new object[] { id, tagId },
+                                x + offsetX, y + offsetY, false);
                             elements.Add(element);
 
                             tuple = new MapWires(element, new List<MapPin>());
@@ -281,7 +293,11 @@ namespace CanvasDiagramEditor.Editor
 
                             counter.AndGateCount = Math.Max(counter.AndGateCount, id + 1);
 
-                            var element = creator.CreateAndGate(x + offsetX, y + offsetY, id, false);
+                            //var element = creator.CreateAndGate(x + offsetX, y + offsetY, id, false);
+                            //elements.Add(element);
+                            var element = creator.CreateElement("andgate",
+                                new object[] { id },
+                                x + offsetX, y + offsetY, false);
                             elements.Add(element);
 
                             tuple = new MapWires(element, new List<MapPin>());
@@ -315,7 +331,11 @@ namespace CanvasDiagramEditor.Editor
 
                             counter.OrGateCount = Math.Max(counter.OrGateCount, id + 1);
 
-                            var element = creator.CreateOrGate(x + offsetX, y + offsetY, id, false);
+                            //var element = creator.CreateOrGate(x + offsetX, y + offsetY, id, false);
+                            //elements.Add(element);
+                            var element = creator.CreateElement("orgate",
+                                new object[] { id },
+                                x + offsetX, y + offsetY, false);
                             elements.Add(element);
 
                             tuple = new MapWires(element, new List<MapPin>());
@@ -369,12 +389,22 @@ namespace CanvasDiagramEditor.Editor
 
                             counter.WireCount = Math.Max(counter.WireCount, id + 1);
 
-                            var element = creator.CreateWire(x1 + offsetX, y1 + offsetY,
-                                x2 + offsetX, y2 + offsetY,
-                                startVisible, endVisible,
-                                startIsIO, endIsIO,
-                                id);
-
+                            //var element = creator.CreateWire(x1 + offsetX, y1 + offsetY,
+                            //    x2 + offsetX, y2 + offsetY,
+                            //    startVisible, endVisible,
+                            //    startIsIO, endIsIO,
+                            //    id);
+                            //elements.Add(element);
+                            var element = creator.CreateElement("wire",
+                                new object[] 
+                                {
+                                    x1 + offsetX, y1 + offsetY,
+                                    x2 + offsetX, y2 + offsetY,
+                                    startVisible, endVisible,
+                                    startIsIO, endIsIO,
+                                    id
+                                },
+                                0.0, 0.0, false);
                             elements.Add(element);
 
                             tuple = new MapWires(element, new List<MapPin>());

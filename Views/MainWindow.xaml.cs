@@ -784,6 +784,7 @@ namespace CanvasDiagramEditor
                     }
 
                 // Ctrl+S -> save solution
+                // S -> invert wire start
                 case Key.S:
                     {
                         if (isControl == true)
@@ -791,6 +792,10 @@ namespace CanvasDiagramEditor
                             Editor.SaveSolution();
                             e.Handled = true;
                             break;
+                        }
+                        else
+                        {
+                            Editor.WireToggleStart();
                         }
                     }
                     break;
@@ -839,6 +844,7 @@ namespace CanvasDiagramEditor
                     break;
 
                 // Ctrl+E -> export to dxf
+                // E -> invert wire end
                 case Key.E:
                     {
                         if (isControl == true)
@@ -846,6 +852,10 @@ namespace CanvasDiagramEditor
                             var table = TableGrid.GetData(this) as DiagramTable;
                             Editor.DxfExport(ShortenStart.IsChecked.Value, ShortenEnd.IsChecked.Value, table);
                             e.Handled = true;
+                        }
+                        else
+                        {
+                            Editor.WireToggleEnd();
                         }
                     }
                     break;

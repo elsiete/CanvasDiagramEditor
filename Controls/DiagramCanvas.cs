@@ -35,12 +35,14 @@ namespace CanvasDiagramEditor.Controls
 
         public void Add(IElement element)
         {
-            this.Children.Add(element as FrameworkElement);
+            if (element != null)
+                this.Children.Add(element as FrameworkElement);
         }
 
         public void Remove(IElement element)
         {
-            this.Children.Remove(element as FrameworkElement);
+            if (element != null)
+                this.Children.Remove(element as FrameworkElement);
         }
 
         public void Clear()

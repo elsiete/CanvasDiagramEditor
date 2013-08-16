@@ -584,18 +584,20 @@ namespace CanvasDiagramEditor
 
         private void InvertStart_Click(object sender, RoutedEventArgs e)
         {
-            var canvas = Editor.Context.CurrentCanvas;
-            var point = new PointEx(Editor.Context.RightClick.X, Editor.Context.RightClick.Y);
-
-            Editor.WireToggleStart(canvas, point);
+            //var canvas = Editor.Context.CurrentCanvas;
+            //var point = new PointEx(Editor.Context.RightClick.X, Editor.Context.RightClick.Y);
+            //Editor.WireToggleStart(canvas, point);
+            Editor.WireToggleStart();
+            Editor.Context.SkipLeftClick = false;
         }
 
         private void InvertEnd_Click(object sender, RoutedEventArgs e)
         {
-            var canvas = Editor.Context.CurrentCanvas;
-            var point = new PointEx(Editor.Context.RightClick.X, Editor.Context.RightClick.Y);
-
-            Editor.WireToggleEnd(canvas, point);
+            //var canvas = Editor.Context.CurrentCanvas;
+            //var point = new PointEx(Editor.Context.RightClick.X, Editor.Context.RightClick.Y);
+            //Editor.WireToggleEnd(canvas, point);
+            Editor.WireToggleEnd();
+            Editor.Context.SkipLeftClick = false;
         }
 
         private void EditCut_Click(object sender, RoutedEventArgs e)

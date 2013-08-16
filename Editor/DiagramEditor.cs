@@ -926,6 +926,38 @@ namespace CanvasDiagramEditor.Editor
 
         #region Wire
 
+        public void WireToggleStart()
+        {
+            var canvas = Context.CurrentCanvas;
+            var wires = Model.GetSelectedWires(canvas);
+
+            if (wires.Count() > 0)
+            {
+                HistoryAdd(canvas, false);
+
+                foreach (var wire in wires.Cast<ILine>())
+                {
+                    wire.SetStartVisible(wire.GetStartVisible() == true ? false : true);
+                }
+            }
+        }
+
+        public void WireToggleEnd()
+        {
+            var canvas = Context.CurrentCanvas;
+            var wires = Model.GetSelectedWires(canvas);
+
+            if (wires.Count() > 0)
+            {
+                HistoryAdd(canvas, false);
+
+                foreach (var wire in wires.Cast<ILine>())
+                {
+                    wire.SetEndVisible(wire.GetEndVisible() == true ? false : true);
+                }
+            }
+        }
+
         public ILine WireFind(ICanvas canvas, IPoint point)
         {
             var element = canvas.HitTest(point, 6.0).FirstOrDefault();
@@ -1207,7 +1239,7 @@ namespace CanvasDiagramEditor.Editor
         private void SelectPreviousInitialize(bool deselect)
         {
             var canvas = Context.CurrentCanvas;
-            var elements = Model.GetThumbs(canvas);
+            var elements = Model.GetAll(canvas);
 
             if (elements != null)
             {
@@ -1250,7 +1282,7 @@ namespace CanvasDiagramEditor.Editor
         private void SelectNextInitialize(bool deselect)
         {
             var canvas = Context.CurrentCanvas;
-            var elements = Model.GetThumbs(canvas);
+            var elements = Model.GetAll(canvas);
 
             if (elements != null)
             {

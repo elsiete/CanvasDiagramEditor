@@ -41,7 +41,6 @@ namespace CanvasDiagramEditor.Core
         ICanvas GetCanvas();
 
         object CreatePin(double x, double y, int id, bool snap);
-
         object CreateWire(double x1, double y1, double x2, double y2,
             bool startVisible, bool endVisible,
             bool startIsIO, bool endIsIO,
@@ -52,15 +51,15 @@ namespace CanvasDiagramEditor.Core
 
         object CreateAndGate(double x, double y, int id, bool snap);
         object CreateOrGate(double x, double y, int id, bool snap);
-        object CreateDiagram(DiagramProperties properties);
 
+        object CreateElement(string type, object[] data, double x, double y, bool snap);
+
+        object CreateDiagram(DiagramProperties properties);
         object CreateGrid(double originX, double originY, double width, double height, double size);
 
         void UpdateConnections(IDictionary<string, MapWires> dict);
         void UpdateCounter(IdCounter original, IdCounter counter);
-
         void AppendIds(IEnumerable<object> elements);
-
         void InsertElements(IEnumerable<object> elements, bool select, double offsetX, double offsetY);
     } 
 
