@@ -15,6 +15,7 @@
         <ContextMenu x:Key="DiagramCanvasContextMenuKey">
             <MenuItem x:Name="InsertInput" Header="Insert _Input" Click="InsertInput_Click" InputGestureText="I"/>
             <MenuItem x:Name="InsertOutput" Header="Insert _Output" Click="InsertOutput_Click" InputGestureText="O"/>
+            <Separator/>
             <MenuItem x:Name="InsertAndGate" Header="Insert _AndGate" Click="InsertAndGate_Click" InputGestureText="A"/>
             <MenuItem x:Name="InsertOrGate" Header="Insert O_rGate" Click="InsertOrGate_Click" InputGestureText="R"/>
             <Separator/>
