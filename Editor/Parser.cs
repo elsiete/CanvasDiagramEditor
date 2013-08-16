@@ -42,17 +42,15 @@ namespace CanvasDiagramEditor.Editor
 
         public TreeSolution Parse(string model, IDiagramCreator creator, ParseOptions options)
         {
+            if (model == null)
+                return null;
+
             double offsetX = options.OffsetX;
             double offsetY = options.OffsetY;
             bool appendIds = options.AppendIds;
             bool updateIds = options.UpdateIds;
             bool select = options.Select;
             bool createElements = options.CreateElements;
-
-            if (model == null)
-                return null;
-
-            var sw = System.Diagnostics.Stopwatch.StartNew();
 
             string name = null;
             var counter = new IdCounter();
@@ -66,10 +64,10 @@ namespace CanvasDiagramEditor.Editor
             TreeDiagrams diagrams = null;
             TreeDiagram diagram = null;
 
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+
             var lines = model.Split(Environment.NewLine.ToCharArray(),
                 StringSplitOptions.RemoveEmptyEntries);
-
-            //System.Diagnostics.Debug.Print("Parsing model:");
 
             foreach (var line in lines)
             {
@@ -77,9 +75,6 @@ namespace CanvasDiagramEditor.Editor
                     StringSplitOptions.RemoveEmptyEntries);
 
                 int length = args.Length;
-
-                //System.Diagnostics.Debug.Print(line);
-
                 if (length < 2)
                     continue;
 
