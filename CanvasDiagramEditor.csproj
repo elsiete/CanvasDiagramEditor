@@ -59,6 +59,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Controls\LineGuidesAdorner.cs" />
     <Compile Include="Core\IClipboard.cs" />
     <Compile Include="DxfInspect.cs" />
     <Compile Include="DxfDiagramCreator.cs" />

@@ -46,6 +46,8 @@ namespace CanvasDiagramEditor
         private const double PageWidth = 1260;
         private const double PageHeight = 891;
 
+        private LineGuidesAdorner GuidesAdorner = null;
+
         #endregion
 
         #region Constructor
@@ -60,6 +62,22 @@ namespace CanvasDiagramEditor
             this.DiagramControl.ZoomSlider = this.ZoomSlider;
 
             this.Loaded += MainWindow_Loaded;
+            this.MouseMove += MainWindow_MouseMove;
+        }
+
+        void MainWindow_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (GuidesAdorner != null)
+            {
+                var canvas = this.DiagramControl.DiagramCanvas;
+                var point = e.GetPosition(canvas);
+
+                double x = Editor.SnapOffsetX(point.X, true);
+                double y = Editor.SnapOffsetY(point.Y, true);
+
+                GuidesAdorner.X = x;
+                GuidesAdorner.Y = y;
+            }
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
@@ -355,7 +373,7 @@ namespace CanvasDiagramEditor
             double offsetX = double.Parse(TextOffsetX.Text);
             double offsetY = double.Parse(TextOffsetY.Text);
 
-            Editor.ModelInsert(diagram, offsetX, offsetY);
+            Editor.ModelInsert(diagram, offsetX, offsetY, true);
         }
 
         private void UpdateGrid_Click(object sender, RoutedEventArgs e)
@@ -559,7 +577,7 @@ namespace CanvasDiagramEditor
 
         private void EditPaste_Click(object sender, RoutedEventArgs e)
         {
-            Editor.EditPaste(new PointEx(0.0, 0.0));
+            Editor.EditPaste(new PointEx(0.0, 0.0), true);
         }
 
         private void EditDelete_Click(object sender, RoutedEventArgs e)
@@ -605,6 +623,11 @@ namespace CanvasDiagramEditor
         private void EditResetThumbTags_Click(object sender, RoutedEventArgs e)
         {
             Editor.ModelResetThumbTags();
+        }
+
+        private void EditConnect_Click(object sender, RoutedEventArgs e)
+        {
+            Connect();
         }
 
         private void EditOptions_Click(object sender, RoutedEventArgs e)
@@ -659,6 +682,11 @@ namespace CanvasDiagramEditor
         private void ViewNextDiagramSolution_Click(object sender, RoutedEventArgs e)
         {
             Editor.TreeSelectNextItem(true);
+        }
+
+        private void ViewToggleGuides_Click(object sender, RoutedEventArgs e)
+        {
+            ToggleGuides();
         }
 
         #endregion
@@ -777,7 +805,8 @@ namespace CanvasDiagramEditor
                         }
                         else
                         {
-                            InsertOutput(canvas);
+                            var point = GetInsertionPoint();
+                            InsertOutput(canvas, point);
                             e.Handled = true;
                             break;
                         }
@@ -837,7 +866,9 @@ namespace CanvasDiagramEditor
                         }
                         else
                         {
-                            InsertInput(canvas);
+                            var point = GetInsertionPoint();
+                            InsertInput(canvas, point);
+
                             e.Handled = true;
                         }
                     }
@@ -882,7 +913,8 @@ namespace CanvasDiagramEditor
                         }
                         else
                         {
-                            InsertOrGate(canvas);
+                            var point = GetInsertionPoint();
+                            InsertOrGate(canvas, point);
                             e.Handled = true;
                         }
                     }
@@ -922,12 +954,17 @@ namespace CanvasDiagramEditor
                     break;
 
                 // Ctrl+C -> copy
+                // C -> connect
                 case Key.C:
                     {
                         if (isControl == true)
                         {
                             Editor.EditCopy();
                             e.Handled = true;
+                        }
+                        else
+                        {
+                            Connect();
                         }
                     }
                     break;
@@ -938,8 +975,13 @@ namespace CanvasDiagramEditor
                         // paste from clipboard
                         if (isControl == true)
                         {
+                            //var point = GetInsertionPoint();
+                            //if (point == null)
+                            //    point = new PointEx(0.0, 0.0);
+                            
                             var point = new PointEx(0.0, 0.0);
-                            Editor.EditPaste(point);
+
+                            Editor.EditPaste(point, true);
                             e.Handled = true;
                         }
                     }
@@ -956,7 +998,8 @@ namespace CanvasDiagramEditor
                         }
                         else
                         {
-                            InsertAndGate(canvas);
+                            var point = GetInsertionPoint();
+                            InsertAndGate(canvas, point);
                             e.Handled = true;
                         }
                     }
@@ -965,50 +1008,122 @@ namespace CanvasDiagramEditor
                 // Del -> delete
                 case Key.Delete:
                     {
-                        Editor.EditDelete();
+                        if (GuidesAdorner == null)
+                        {
+                            // delete selected elements
+                            Editor.EditDelete();
+                        }
+                        else
+                        {
+                            var elements = Model.GetSelected(canvas);
+
+                            // delete selected elements
+                            if (elements.Count() > 0)
+                            {
+                                Editor.EditDelete(canvas, elements);
+                            }
+                            // delete single element using guides
+                            else
+                            {
+                                Editor.Delete(canvas, GetInsertionPoint());
+                            }
+                        }
+
                         e.Handled = true;
                     }
                     break;
 
-                // Up Arrow -> move up
+                // Up Arrow -> move selected elements/line guides up
                 case Key.Up:
                     {
                         if (e.OriginalSource is ScrollViewer)
                         {
-                            Editor.MoveUp(canvas);
+                            if (GuidesAdorner == null)
+                            {
+                                Editor.MoveUp(canvas);
+                            }
+                            else
+                            {
+                                var prop = Editor.Context.CurrentCanvas.GetProperties();
+                                double y = GuidesAdorner.Y;
+
+                                y -= prop.SnapY;
+                                if (y >= (prop.SnapOffsetY + prop.SnapY))
+                                    GuidesAdorner.Y = y;
+                            }
+                            
                             e.Handled = true;
                         }
                     }
                     break;
 
-                // Down Arrow -> move down
+                // Down Arrow -> move selected elements/line guides down
                 case Key.Down:
                     {
                         if (e.OriginalSource is ScrollViewer)
                         {
-                            Editor.MoveDown(canvas);
+                            if (GuidesAdorner == null)
+                            {
+                                Editor.MoveDown(canvas);
+                            }
+                            else
+                            {
+                                var prop = Editor.Context.CurrentCanvas.GetProperties();
+                                double y = GuidesAdorner.Y;
+
+                                y += prop.SnapY;
+                                if (y <= canvas.GetHeight() - prop.SnapY - prop.SnapOffsetY)
+                                    GuidesAdorner.Y = y;
+                            }
+
                             e.Handled = true;
                         }
                     }
                     break;
 
-                // Left Arrow -> move left
+                // Left Arrow -> move selected elements/line guides left
                 case Key.Left:
                     {
                         if (e.OriginalSource is ScrollViewer)
                         {
-                            Editor.MoveLeft(canvas);
+                            if (GuidesAdorner == null)
+                            {
+                                Editor.MoveLeft(canvas);
+                            }
+                            else
+                            {
+                                var prop = Editor.Context.CurrentCanvas.GetProperties();
+                                double x = GuidesAdorner.X;
+
+                                x -= prop.SnapX;
+                                if (x >= (prop.SnapOffsetX + prop.SnapX))
+                                    GuidesAdorner.X = x;
+                            }
+
                             e.Handled = true;
                         }
                     }
                     break;
 
-                // Right Arrow -> move right
+                // Right Arrow -> move selected elements/line guides right
                 case Key.Right:
                     {
                         if (e.OriginalSource is ScrollViewer)
                         {
-                            Editor.MoveRight(canvas);
+                            if (GuidesAdorner == null)
+                            {
+                                Editor.MoveRight(canvas);
+                            }
+                            else
+                            {
+                                var prop = Editor.Context.CurrentCanvas.GetProperties();
+                                double x = GuidesAdorner.X;
+
+                                x += prop.SnapX;
+                                if (x <= canvas.GetWidth() - prop.SnapX - prop.SnapOffsetX)
+                                    GuidesAdorner.X = x;
+                            }
+
                             e.Handled = true;
                         }
                     }
@@ -1057,49 +1172,216 @@ namespace CanvasDiagramEditor
                     }
                     break;
 
-                // Esc -> deselect all
+                // G -> show/hide guides
+                case Key.G:
+                    {
+                        ToggleGuides();
+                    }
+                    break;
+
+                // Esc -> deselect all/cancel connection/hide guides
                 case Key.Escape:
                     {
+                        // deselect all
                         Editor.SelectNone();
+
+                        // cancel connection
+                        Editor.MouseEventRightDown(canvas);
+
+                        // hide guides
+                        if (GuidesAdorner != null)
+                            HideGuides();
                     }
                     break;
             }
+        }
+
+
+        #endregion
+
+        #region Guides
+
+        private void ToggleGuides()
+        {
+            var point = GetInsertionPoint();
+
+            if (GuidesAdorner == null)
+            {
+                var prop = Editor.Context.CurrentCanvas.GetProperties();
+
+                if (point == null)
+                {
+                    ShowGuides(prop.SnapX + prop.SnapOffsetX,
+                        prop.SnapY + prop.SnapOffsetY);
+                }
+                else
+                {
+                    ShowGuides(Editor.SnapOffsetX(point.X, true),
+                        Editor.SnapOffsetY(point.Y, true));
+                }
+            }
+            else
+            {
+                HideGuides();
+            }
+        }
+
+        private void ShowGuides(double x, double y)
+        {
+            var canvas = DiagramControl.DiagramCanvas;
+            var adornerLayer = AdornerLayer.GetAdornerLayer(canvas);
+            GuidesAdorner = new LineGuidesAdorner(canvas);
+
+            RenderOptions.SetEdgeMode(GuidesAdorner, EdgeMode.Aliased);
+            GuidesAdorner.SnapsToDevicePixels = false;
+            GuidesAdorner.IsHitTestVisible = false;
+
+            double zoom = ZoomSlider.Value;
+            double zoom_fx = DiagramControl.CalculateZoom(zoom);
+
+            GuidesAdorner.StrokeThickness = 1.0 / zoom_fx;
+            GuidesAdorner.CanvasWidth = canvas.Width;
+            GuidesAdorner.CanvasHeight = canvas.Height;
+            GuidesAdorner.X = x;
+            GuidesAdorner.Y = y;
+
+            adornerLayer.Add(GuidesAdorner);
+
+            GuidesAdorner.Cursor = Cursors.None;
+            canvas.Cursor = Cursors.None;
+        }
+
+        private void HideGuides()
+        {
+            var canvas = DiagramControl.DiagramCanvas;
+            var adornerLayer = AdornerLayer.GetAdornerLayer(canvas);
+            adornerLayer.Remove(GuidesAdorner);
+            GuidesAdorner = null;
+
+            canvas.Cursor = Cursors.Arrow;
+        }
+
+        #endregion
+
+        #region Connect
+
+        private void Connect()
+        {
+            var canvas = DiagramControl.DiagramCanvas;
+
+            var point = GetInsertionPoint();
+            var elements = this.HitTest(canvas, point, 6.0);
+            var pin = elements.Where(x => x is PinThumb).FirstOrDefault();
+
+            bool result = Editor.MouseEventPreviewLeftDown(canvas, point, pin as IThumb);
+            if (result == false)
+            {
+                Editor.MouseEventLeftDown(canvas, point);
+            }
+        }
+
+        public List<DependencyObject> HitTest(Visual visual, IPoint point, double radius)
+        {
+            var elements = new List<DependencyObject>();
+
+            var elippse = new EllipseGeometry()
+            {
+                RadiusX = radius,
+                RadiusY = radius,
+                Center = new Point(point.X, point.Y),
+            };
+
+            var hitTestParams = new GeometryHitTestParameters(elippse);
+            var resultCallback = new HitTestResultCallback(result => HitTestResultBehavior.Continue);
+
+            var filterCallback = new HitTestFilterCallback(
+                element =>
+                {
+                    elements.Add(element);
+                    return HitTestFilterBehavior.Continue;
+                });
+
+            VisualTreeHelper.HitTest(visual, filterCallback, resultCallback, hitTestParams);
+
+            return elements;
+        }
+
+        private PointEx GetInsertionPoint()
+        {
+            PointEx insertionPoint = null;
+
+            if (GuidesAdorner != null)
+            {
+                double x = GuidesAdorner.X;
+                double y = GuidesAdorner.Y;
+
+                insertionPoint = new PointEx(x, y);
+            }
+            else
+            {
+                var relativeTo = DiagramControl.DiagramCanvas;
+                var point = Mouse.GetPosition(relativeTo);
+                double x = point.X;
+                double y = point.Y;
+                double width = relativeTo.Width;
+                double height = relativeTo.Height;
+
+                if (x >= 0.0 && x <= width &&
+                    y >= 0.0 && y <= height)
+                {
+                    insertionPoint = new PointEx(x, y);
+                }
+            }
+
+            return insertionPoint;
         }
 
         #endregion
 
         #region Insert
 
-        private void InsertInput(ICanvas canvas)
+        private void InsertInput(ICanvas canvas, PointEx point)
         {
             Editor.HistoryAdd(canvas, true);
             
-            var element = Editor.InsertInput(canvas, InsertPointInput);
-            Editor.SelectOneElement(element, true);
+            var element = Editor.InsertInput(canvas, 
+                point != null ? point : InsertPointInput);
+
+            if (GuidesAdorner == null)
+                Editor.SelectOneElement(element, true);
         }
 
-        private void InsertOutput(ICanvas canvas)
+        private void InsertOutput(ICanvas canvas, PointEx point)
         {
             Editor.HistoryAdd(canvas, true);
 
-            var element = Editor.InsertOutput(canvas, InsertPointOutput);
-            Editor.SelectOneElement(element, true);
+            var element = Editor.InsertOutput(canvas, 
+                point != null ? point : InsertPointOutput);
+
+            if (GuidesAdorner == null)
+                Editor.SelectOneElement(element, true);
         }
 
-        private void InsertOrGate(ICanvas canvas)
+        private void InsertOrGate(ICanvas canvas, PointEx point)
         {
             Editor.HistoryAdd(canvas, true);
 
-            var element = Editor.InsertOrGate(canvas, InsertPointGate);
-            Editor.SelectOneElement(element, true);
+            var element = Editor.InsertOrGate(canvas, 
+                point != null ? point : InsertPointGate);
+
+            if (GuidesAdorner == null)
+                Editor.SelectOneElement(element, true);
         }
 
-        private void InsertAndGate(ICanvas canvas)
+        private void InsertAndGate(ICanvas canvas, PointEx point)
         {
             Editor.HistoryAdd(canvas, true);
 
-            var element = Editor.InsertAndGate(canvas, InsertPointGate);
-            Editor.SelectOneElement(element, true);
+            var element = Editor.InsertAndGate(canvas, 
+                point != null ? point : InsertPointGate);
+
+            if (GuidesAdorner == null)
+                Editor.SelectOneElement(element, true);
         }
 
         #endregion
@@ -1272,7 +1554,12 @@ namespace CanvasDiagramEditor
 
             if (e.OldValue != e.NewValue)
             {
-                this.DiagramControl.Zoom(zoom);
+                double zoom_fx = this.DiagramControl.Zoom(zoom);
+
+                if (GuidesAdorner != null)
+                {
+                    GuidesAdorner.StrokeThickness = 1.0 / zoom_fx;
+                }
             }
         }
 

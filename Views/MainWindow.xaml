@@ -90,6 +90,8 @@
                 <Separator/>
                 <MenuItem x:Name="EditResetThumbTags" Header="Reset Element Ta_gs" Click="EditResetThumbTags_Click" InputGestureText="Ctrl+R"/>
                 <Separator/>
+                <MenuItem x:Name="EditConnect" Header="Connect" Click="EditConnect_Click" InputGestureText="C"/>
+                <Separator/>
                 <MenuItem x:Name="EditOptions" Header="_Options" Click="EditOptions_Click"/>
             </MenuItem>
             <MenuItem Header="_View">
@@ -106,6 +108,8 @@
                 <Separator/>
                 <MenuItem x:Name="ViewPreviousDiagramSolution" Header="P_revious Diagram (Solution)" Click="ViewPreviousDiagramSolution_Click" InputGestureText="Ctrl+&lt;"/>
                 <MenuItem x:Name="ViewNextDiagramSolution" Header="Ne_xt Diagram (Solution)" Click="ViewNextDiagramSolution_Click" InputGestureText="Ctrl+&gt;"/>
+                <Separator/>
+                <MenuItem x:Name="ViewToggleGuides" Header="Toggle _Guides" Click="ViewToggleGuides_Click" InputGestureText="G"/>
             </MenuItem>
             <MenuItem Header="_Help">
                 <MenuItem x:Name="HelpAbout" Header="_About Canvas Diagram Editor" Click="HelpAbout_Click"/>

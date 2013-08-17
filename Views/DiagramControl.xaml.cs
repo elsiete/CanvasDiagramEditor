@@ -216,10 +216,10 @@ namespace CanvasDiagramEditor
             return y;
         }
 
-        public void Zoom(double zoom)
+        public double Zoom(double zoom)
         {
             if (Editor == null || Editor.Context == null)
-                return;
+                return 1.0;
 
             double zoom_fx = CalculateZoom(zoom);
 
@@ -236,6 +236,8 @@ namespace CanvasDiagramEditor
 
             // zoom to point
             ZoomToPoint(zoom_fx, oldZoom);
+
+            return zoom_fx;
         }
 
         private ScaleTransform GetZoomScaleTransform()
@@ -615,7 +617,7 @@ namespace CanvasDiagramEditor
         private void EditPaste_Click(object sender, RoutedEventArgs e)
         {
             var point = new PointEx(Editor.Context.RightClick.X, Editor.Context.RightClick.Y);
-            Editor.EditPaste(point);
+            Editor.EditPaste(point, true);
             Editor.Context.SkipLeftClick = false;
         }
 

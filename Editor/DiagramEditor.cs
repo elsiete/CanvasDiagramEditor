@@ -78,7 +78,7 @@ namespace CanvasDiagramEditor.Editor
             return Model.Generate(Model.GetSelected(canvas));
         }
 
-        public void ModelInsert(string diagram, double offsetX, double offsetY)
+        public void ModelInsert(string diagram, double offsetX, double offsetY, bool select)
         {
             var canvas = Context.CurrentCanvas;
 
@@ -87,8 +87,8 @@ namespace CanvasDiagramEditor.Editor
             SelectNone();
             Model.Parse(diagram, 
                 canvas, Context.DiagramCreator, 
-                offsetX, offsetY, 
-                true, true, true, true);
+                offsetX, offsetY,
+                true, true, select, true);
         }
 
         public void ModelResetThumbTags()
@@ -1142,7 +1142,7 @@ namespace CanvasDiagramEditor.Editor
             ClipboardSetText(model);
         }
 
-        public void EditPaste(IPoint point)
+        public void EditPaste(IPoint point, bool select)
         {
             var model = ClipboardGetText();
 
@@ -1151,7 +1151,7 @@ namespace CanvasDiagramEditor.Editor
                 double offsetX = point.X != 0.0 ? SnapOffsetX(point.X, Context.EnableSnap) : 0.0;
                 double offsetY = point.Y != 0.0 ? SnapOffsetY(point.Y, Context.EnableSnap) : 0.0;
 
-                ModelInsert(model, offsetX, offsetY);
+                ModelInsert(model, offsetX, offsetY, select);
             }
         }
 
@@ -1350,23 +1350,23 @@ namespace CanvasDiagramEditor.Editor
 
         #region Mouse Conditions
 
-        private bool IsSameUid(string uid1, string uid2)
+        public bool IsSameUid(string uid1, string uid2)
         {
             return StringUtil.Compare(uid2, uid1) == false;
         }
 
-        private bool IsWire(string elementUid)
+        public bool IsWire(string elementUid)
         {
             return StringUtil.StartsWith(elementUid, ModelConstants.TagElementWire) == true;
         }
 
-        private bool CanConnect()
+        public bool CanConnect()
         {
             return Context.CurrentRoot != null &&
                    Context.CurrentLine != null;
         }
 
-        private bool CanSplitWire(IElement element)
+        public bool CanSplitWire(IElement element)
         {
             if (element == null)
             {
@@ -1382,14 +1382,14 @@ namespace CanvasDiagramEditor.Editor
                 IsWire(elementUid);
         }
 
-        private bool CanToggleLine()
+        public bool CanToggleLine()
         {
             return Context.CurrentRoot == null &&
                 Context.CurrentLine == null &&
                 (Context.IsControlPressed != null && Context.IsControlPressed());
         }
 
-        private bool CanConnectToPin(IThumb pin)
+        public bool CanConnectToPin(IThumb pin)
         {
             return pin != null &&
             (
@@ -1398,7 +1398,7 @@ namespace CanvasDiagramEditor.Editor
             );
         }
 
-        private bool CanMoveCurrentLine()
+        public bool CanMoveCurrentLine()
         {
             return Context.CurrentRoot != null &&
                 Context.CurrentLine != null;
@@ -1829,7 +1829,7 @@ namespace CanvasDiagramEditor.Editor
             if (newItemType == TreeItemType.Diagram)
             {
                 var point = new PointEx(0.0, 0.0);
-                EditPaste(point);
+                EditPaste(point, true);
             }
         }
 
@@ -2091,7 +2091,7 @@ namespace CanvasDiagramEditor.Editor
 
         #region Snap
 
-        private double SnapOffsetX(double original, bool snap)
+        public double SnapOffsetX(double original, bool snap)
         {
             var prop = Context.CurrentCanvas.GetProperties();
 
@@ -2101,7 +2101,7 @@ namespace CanvasDiagramEditor.Editor
                     original;
         }
 
-        private double SnapOffsetY(double original, bool snap)
+        public double SnapOffsetY(double original, bool snap)
         {
             var prop = Context.CurrentCanvas.GetProperties();
 
@@ -2111,7 +2111,7 @@ namespace CanvasDiagramEditor.Editor
                     original;
         }
 
-        private double SnapX(double original, bool snap)
+        public double SnapX(double original, bool snap)
         {
             var prop = Context.CurrentCanvas.GetProperties();
 
@@ -2119,7 +2119,7 @@ namespace CanvasDiagramEditor.Editor
                 SnapUtil.Snap(original, prop.SnapX) : original;
         }
 
-        private double SnapY(double original, bool snap)
+        public double SnapY(double original, bool snap)
         {
             var prop = Context.CurrentCanvas.GetProperties();
 
