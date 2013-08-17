@@ -1196,7 +1196,6 @@ namespace CanvasDiagramEditor
             }
         }
 
-
         #endregion
 
         #region Guides
