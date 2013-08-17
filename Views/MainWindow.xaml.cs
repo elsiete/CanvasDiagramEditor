@@ -48,6 +48,9 @@ namespace CanvasDiagramEditor
 
         private LineGuidesAdorner GuidesAdorner = null;
 
+        private const double GuideSpeedUpLevel1 = 4.0;
+        private const double GuideSpeedUpLevel2 = 3.0;
+
         #endregion
 
         #region Constructor
@@ -1044,10 +1047,14 @@ namespace CanvasDiagramEditor
                             }
                             else
                             {
+                                int delta = e.Timestamp - Environment.TickCount;
+                                //System.Diagnostics.Debug.Print("timestamp: {0}, delta: {1}, {2}ms", e.Timestamp, delta, TimeSpan.FromMilliseconds(delta).TotalMilliseconds);
+                                double speedUp = (delta > -200.0 && delta < -50.0) ? GuideSpeedUpLevel1 : (delta > -50.0) ? GuideSpeedUpLevel2 : 1.0;
+
                                 var prop = Editor.Context.CurrentCanvas.GetProperties();
                                 double y = GuidesAdorner.Y;
 
-                                y -= prop.SnapY;
+                                y -= prop.SnapY * speedUp;
                                 if (y >= (prop.SnapOffsetY + prop.SnapY))
                                     GuidesAdorner.Y = y;
                             }
@@ -1068,10 +1075,14 @@ namespace CanvasDiagramEditor
                             }
                             else
                             {
+                                int delta = e.Timestamp - Environment.TickCount;
+                                //System.Diagnostics.Debug.Print("timestamp: {0}, delta: {1}, {2}ms", e.Timestamp, delta, TimeSpan.FromMilliseconds(delta).TotalMilliseconds);
+                                double speedUp = (delta > -200.0 && delta < -50.0) ? GuideSpeedUpLevel1 : (delta > -50.0) ? GuideSpeedUpLevel2 : 1.0;
+
                                 var prop = Editor.Context.CurrentCanvas.GetProperties();
                                 double y = GuidesAdorner.Y;
 
-                                y += prop.SnapY;
+                                y += prop.SnapY * speedUp;
                                 if (y <= canvas.GetHeight() - prop.SnapY - prop.SnapOffsetY)
                                     GuidesAdorner.Y = y;
                             }
@@ -1092,10 +1103,14 @@ namespace CanvasDiagramEditor
                             }
                             else
                             {
+                                int delta = e.Timestamp - Environment.TickCount;
+                                //System.Diagnostics.Debug.Print("timestamp: {0}, delta: {1}, {2}ms", e.Timestamp, delta, TimeSpan.FromMilliseconds(delta).TotalMilliseconds);
+                                double speedUp = (delta > -200.0 && delta < -50.0) ? GuideSpeedUpLevel1 : (delta > -50.0) ? GuideSpeedUpLevel2 : 1.0;
+
                                 var prop = Editor.Context.CurrentCanvas.GetProperties();
                                 double x = GuidesAdorner.X;
 
-                                x -= prop.SnapX;
+                                x -= prop.SnapX * speedUp;
                                 if (x >= (prop.SnapOffsetX + prop.SnapX))
                                     GuidesAdorner.X = x;
                             }
@@ -1116,10 +1131,14 @@ namespace CanvasDiagramEditor
                             }
                             else
                             {
+                                int delta = e.Timestamp - Environment.TickCount;
+                                //System.Diagnostics.Debug.Print("timestamp: {0}, delta: {1}, {2}ms", e.Timestamp, delta, TimeSpan.FromMilliseconds(delta).TotalMilliseconds);
+                                double speedUp = (delta > -200.0 && delta < -50.0) ? GuideSpeedUpLevel1 : (delta > -50.0) ? GuideSpeedUpLevel2 : 1.0;
+
                                 var prop = Editor.Context.CurrentCanvas.GetProperties();
                                 double x = GuidesAdorner.X;
 
-                                x += prop.SnapX;
+                                x += prop.SnapX * speedUp;
                                 if (x <= canvas.GetWidth() - prop.SnapX - prop.SnapOffsetX)
                                     GuidesAdorner.X = x;
                             }
