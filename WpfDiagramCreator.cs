@@ -104,7 +104,7 @@ namespace CanvasDiagramEditor
 
         #region Factory
 
-        public Dictionary<string, FactoryFunc> Factory { get; set; }
+        private Dictionary<string, FactoryFunc> Factory { get; set; }
 
         private void InitializeFactory()
         {
@@ -119,7 +119,7 @@ namespace CanvasDiagramEditor
             };
         }
 
-        public object _CreatePin(object[] data, double x, double y, bool snap)
+        private object _CreatePin(object[] data, double x, double y, bool snap)
         {
             if (data == null || data.Length != 1)
                 return null;
@@ -139,7 +139,7 @@ namespace CanvasDiagramEditor
             return thumb;
         }
 
-        public object _CreateWire(object[] data, double x, double y, bool snap)
+        private object _CreateWire(object[] data, double x, double y, bool snap)
         {
             if (data == null || data.Length != 9)
                 return null;
@@ -172,7 +172,7 @@ namespace CanvasDiagramEditor
             return line;
         }
 
-        public object _CreateInput(object[] data, double x, double y, bool snap)
+        private object _CreateInput(object[] data, double x, double y, bool snap)
         {
             if (data == null || data.Length != 2)
                 return null;
@@ -205,7 +205,7 @@ namespace CanvasDiagramEditor
             return thumb;
         }
 
-        public object _CreateOutput(object[] data, double x, double y, bool snap)
+        private object _CreateOutput(object[] data, double x, double y, bool snap)
         {
             if (data == null || data.Length != 2)
                 return null;
@@ -238,7 +238,7 @@ namespace CanvasDiagramEditor
             return thumb;
         }
 
-        public object _CreateAndGate(object[] data, double x, double y, bool snap)
+        private object _CreateAndGate(object[] data, double x, double y, bool snap)
         {
             if (data == null || data.Length != 1)
                 return null;
@@ -258,7 +258,7 @@ namespace CanvasDiagramEditor
             return thumb;
         }
 
-        public object _CreateOrGate(object[] data, double x, double y, bool snap)
+        private object _CreateOrGate(object[] data, double x, double y, bool snap)
         {
             if (data == null || data.Length != 1)
                 return null;
