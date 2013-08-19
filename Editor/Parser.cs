@@ -55,6 +55,7 @@ namespace CanvasDiagramEditor.Editor
             string name = null;
             string root = null;
             var counter = new IdCounter();
+            var total = new IdCounter();
             var elements = new List<object>();
             MapWires tuple = null;
             var dict = new Dictionary<string, MapWires>();
@@ -89,6 +90,11 @@ namespace CanvasDiagramEditor.Editor
                     if (StringUtil.StartsWith(name, ModelConstants.TagHeaderSolution) &&
                         (length == 2 || length == 3))
                     {
+                        int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
+                        counter.SolutionCount = Math.Max(counter.SolutionCount, id + 1);
+
+                        total.SolutionCount++;
+
                         string tagFileName = (length == 3) ? args[2] : null;
 
                         projects = new TreeProjects();
@@ -99,6 +105,11 @@ namespace CanvasDiagramEditor.Editor
                     else if (StringUtil.StartsWith(name, ModelConstants.TagHeaderProject) &&
                         length == 2)
                     {
+                        int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
+                        counter.ProjectCount = Math.Max(counter.ProjectCount, id + 1);
+
+                        total.ProjectCount++;
+
                         if (projects != null)
                         {
                             diagrams = new TreeDiagrams();
@@ -111,6 +122,11 @@ namespace CanvasDiagramEditor.Editor
                     else if (StringUtil.StartsWith(name, ModelConstants.TagHeaderDiagram) &&
                         length == 13)
                     {
+                        int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
+                        counter.DiagramCount = Math.Max(counter.DiagramCount, id + 1);
+
+                        total.DiagramCount++;
+
                         if (diagrams != null)
                         {
                             diagram = new TreeDiagram();
@@ -147,6 +163,8 @@ namespace CanvasDiagramEditor.Editor
                         if (diagram != null)
                             diagram.Push(line);
 
+                        total.PinCount++;
+
                         if (createElements == true)
                         {
                             double x = double.Parse(args[2]);
@@ -155,9 +173,7 @@ namespace CanvasDiagramEditor.Editor
 
                             counter.PinCount = Math.Max(counter.PinCount, id + 1);
 
-                            //var element = creator.CreatePin(x + offsetX, y + offsetY, id, false);
-                            //elements.Add(element);
-                            var element = creator.CreateElement("pin",
+                            var element = creator.CreateElement(ModelConstants.TagElementPin,
                                 new object[] { id },
                                 x + offsetX, y + offsetY, false);
                             elements.Add(element);
@@ -178,6 +194,8 @@ namespace CanvasDiagramEditor.Editor
                         if (diagram != null)
                             diagram.Push(line);
 
+                        total.InputCount++;
+
                         if (createElements == true)
                         {
                             double x = double.Parse(args[2]);
@@ -187,9 +205,7 @@ namespace CanvasDiagramEditor.Editor
 
                             counter.InputCount = Math.Max(counter.InputCount, id + 1);
 
-                            //var element = creator.CreateInput(x + offsetX, y + offsetY, id, tagId, false);
-                            //elements.Add(element);
-                            var element = creator.CreateElement("input",
+                            var element = creator.CreateElement(ModelConstants.TagElementInput,
                                 new object[] { id, tagId },
                                 x + offsetX, y + offsetY, false);
                             elements.Add(element);
@@ -210,6 +226,8 @@ namespace CanvasDiagramEditor.Editor
                         if (diagram != null)
                             diagram.Push(line);
 
+                        total.OutputCount++;
+
                         if (createElements == true)
                         {
                             double x = double.Parse(args[2]);
@@ -219,9 +237,7 @@ namespace CanvasDiagramEditor.Editor
 
                             counter.OutputCount = Math.Max(counter.OutputCount, id + 1);
 
-                            //var element = creator.CreateOutput(x + offsetX, y + offsetY, id, tagId, false);
-                            //elements.Add(element);
-                            var element = creator.CreateElement("output",
+                            var element = creator.CreateElement(ModelConstants.TagElementOutput,
                                 new object[] { id, tagId },
                                 x + offsetX, y + offsetY, false);
                             elements.Add(element);
@@ -242,6 +258,8 @@ namespace CanvasDiagramEditor.Editor
                         if (diagram != null)
                             diagram.Push(line);
 
+                        total.AndGateCount++;
+
                         if (createElements == true)
                         {
                             double x = double.Parse(args[2]);
@@ -250,9 +268,7 @@ namespace CanvasDiagramEditor.Editor
 
                             counter.AndGateCount = Math.Max(counter.AndGateCount, id + 1);
 
-                            //var element = creator.CreateAndGate(x + offsetX, y + offsetY, id, false);
-                            //elements.Add(element);
-                            var element = creator.CreateElement("andgate",
+                            var element = creator.CreateElement(ModelConstants.TagElementAndGate,
                                 new object[] { id },
                                 x + offsetX, y + offsetY, false);
                             elements.Add(element);
@@ -271,9 +287,9 @@ namespace CanvasDiagramEditor.Editor
                         length == 4)
                     {
                         if (diagram != null)
-                        {
                             diagram.Push(line);
-                        }
+
+                        total.OrGateCount++;
 
                         if (createElements == true)
                         {
@@ -283,9 +299,7 @@ namespace CanvasDiagramEditor.Editor
 
                             counter.OrGateCount = Math.Max(counter.OrGateCount, id + 1);
 
-                            //var element = creator.CreateOrGate(x + offsetX, y + offsetY, id, false);
-                            //elements.Add(element);
-                            var element = creator.CreateElement("orgate",
+                            var element = creator.CreateElement(ModelConstants.TagElementOrGate,
                                 new object[] { id },
                                 x + offsetX, y + offsetY, false);
                             elements.Add(element);
@@ -306,6 +320,8 @@ namespace CanvasDiagramEditor.Editor
                         if (diagram != null)
                             diagram.Push(line);
 
+                        total.WireCount++;
+
                         if (createElements == true)
                         {
                             double x1 = double.Parse(args[2]);
@@ -320,13 +336,7 @@ namespace CanvasDiagramEditor.Editor
 
                             counter.WireCount = Math.Max(counter.WireCount, id + 1);
 
-                            //var element = creator.CreateWire(x1 + offsetX, y1 + offsetY,
-                            //    x2 + offsetX, y2 + offsetY,
-                            //    startVisible, endVisible,
-                            //    startIsIO, endIsIO,
-                            //    id);
-                            //elements.Add(element);
-                            var element = creator.CreateElement("wire",
+                            var element = creator.CreateElement(ModelConstants.TagElementWire,
                                 new object[] 
                                 {
                                     x1 + offsetX, y1 + offsetY,
@@ -381,7 +391,17 @@ namespace CanvasDiagramEditor.Editor
             }
 
             sw.Stop();
+
             System.Diagnostics.Debug.Print("Parse() in {0}ms", sw.Elapsed.TotalMilliseconds);
+            System.Diagnostics.Debug.Print("> Solutions: {0}", total.SolutionCount);
+            System.Diagnostics.Debug.Print(">  Projects: {0}", total.ProjectCount);
+            System.Diagnostics.Debug.Print(">  Diagrams: {0}", total.DiagramCount);
+            System.Diagnostics.Debug.Print(">      Pins: {0}", total.PinCount);
+            System.Diagnostics.Debug.Print(">     Wires: {0}", total.WireCount);
+            System.Diagnostics.Debug.Print(">    Inputs: {0}", total.InputCount);
+            System.Diagnostics.Debug.Print(">   Outputs: {0}", total.OutputCount);
+            System.Diagnostics.Debug.Print(">  AndGates: {0}", total.AndGateCount);
+            System.Diagnostics.Debug.Print(">   OrGates: {0}", total.OrGateCount);
 
             return solution;
         }
