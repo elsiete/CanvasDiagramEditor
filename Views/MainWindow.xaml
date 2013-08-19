@@ -8,8 +8,7 @@
         x:Class="CanvasDiagramEditor.MainWindow"
         Title="Canvas Diagram Editor" Height="710" Width="1035"
         WindowStartupLocation="CenterScreen" WindowState="Maximized"
-        Style="{StaticResource MainWindowStyleKey}"
-        PreviewKeyDown="Window_PreviewKeyDown">
+        Style="{StaticResource MainWindowStyleKey}">
 
     <Window.Resources>
 
@@ -46,73 +45,71 @@
 
         <Menu Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Background="{DynamicResource LogicBackgroundColorKey}" Margin="0">
             <MenuItem Header="_File">
-                <MenuItem x:Name="FileOpen" Header="_Open Solution..." Click="FileOpen_Click" InputGestureText="Ctrl+O"/>
-                <MenuItem x:Name="FileSave" Header="_Save Solution..." Click="FileSave_Click" InputGestureText="Ctrl+S"/>
+                <MenuItem x:Name="FileOpen" Header="_Open Solution..." InputGestureText="Ctrl+O"/>
+                <MenuItem x:Name="FileSave" Header="_Save Solution..." InputGestureText="Ctrl+S"/>
                 <Separator/>
-                <MenuItem x:Name="FileNew" Header="_New Solution" Click="FileNew_Click" InputGestureText="Ctrl+N"/>
+                <MenuItem x:Name="FileNew" Header="_New Solution" InputGestureText="Ctrl+N"/>
                 <Separator/>
-                <MenuItem x:Name="FileOpenDiagram" Header="Open Diagram..." Click="FileOpenDiagram_Click"/>
-                <MenuItem x:Name="FileSaveDiagram" Header="Save Diagram..." Click="FileSaveDiagram_Click"/>
+                <MenuItem x:Name="FileOpenDiagram" Header="Open Diagram..."/>
+                <MenuItem x:Name="FileSaveDiagram" Header="Save Diagram..."/>
                 <Separator/>
-                <MenuItem x:Name="FileOpenTags" Header="Open _Tags..." Click="FileOpenTags_Click" InputGestureText="Ctrl+T"/>
-                <MenuItem x:Name="FileSaveTags" Header="Save Ta_gs..." Click="FileSaveTags_Click"/>
+                <MenuItem x:Name="FileOpenTags" Header="Open _Tags..." InputGestureText="Ctrl+T"/>
+                <MenuItem x:Name="FileSaveTags" Header="Save Ta_gs..."/>
                 <Separator/>
-                <MenuItem x:Name="FileImportTags" Header="Import Tags..." Click="FileImportTags_Click"/>
-                <MenuItem x:Name="FileExportTags" Header="Export Tags..." Click="FileExportTags_Click"/>
+                <MenuItem x:Name="FileImportTags" Header="Import Tags..." InputGestureText="Ctrl+I"/>
+                <MenuItem x:Name="FileExportTags" Header="Export Tags..."/>
                 <Separator/>
-                <MenuItem x:Name="FileExportToDxf" Header="Export to _Dxf" Click="FileExportToDxf_Click" InputGestureText="Ctrl+E"/>
-                <MenuItem x:Name="FileInspectDxf" Header="Inspe_ct Dxf" Click="FileInspectDxf_Click"/>
+                <MenuItem x:Name="FileExportToDxf" Header="Export to _Dxf" InputGestureText="Ctrl+E"/>
+                <MenuItem x:Name="FileInspectDxf" Header="Inspe_ct Dxf"/>
                 <Separator/>
-                <MenuItem x:Name="FileImport" Header="_Import Model..." Click="FileImport_Click" InputGestureText="Ctrl+I"/>
+                <MenuItem x:Name="FilePrint" Header="_Print..." InputGestureText="Ctrl+P"/>
+                <MenuItem x:Name="FilePrintHistory" Header="Print _History..."/>
                 <Separator/>
-                <MenuItem x:Name="FilePrint" Header="_Print..." Click="FilePrint_Click" InputGestureText="Ctrl+P"/>
-                <MenuItem x:Name="FilePrintHistory" Header="Print _History..." Click="FilePrintHistory_Click"/>
-                <Separator/>
-                <MenuItem x:Name="FileExit" Header="E_xit" Click="FileExit_Click"  InputGestureText="Alt+F4"/>
+                <MenuItem x:Name="FileExit" Header="E_xit" InputGestureText="Alt+F4"/>
             </MenuItem>
             <MenuItem Header="_Edit">
-                <MenuItem x:Name="EditUndo" Header="_Undo" Click="EditUndo_Click" InputGestureText="Ctrl+Z"/>
-                <MenuItem x:Name="EditRedo" Header="_Redo" Click="EditRedo_Click" InputGestureText="Ctrl+Y"/>
+                <MenuItem x:Name="EditUndo" Header="_Undo" InputGestureText="Ctrl+Z"/>
+                <MenuItem x:Name="EditRedo" Header="_Redo" InputGestureText="Ctrl+Y"/>
                 <Separator/>
-                <MenuItem x:Name="EditCut" Header="Cu_t" Click="EditCut_Click" InputGestureText="Ctrl+X"/>
-                <MenuItem x:Name="EditCopy" Header="_Copy" Click="EditCopy_Click" InputGestureText="Ctrl+C"/>
-                <MenuItem x:Name="EditPaste" Header="_Paste" Click="EditPaste_Click"  InputGestureText="Ctrl+V"/>
-                <MenuItem x:Name="EditDelete" Header="_Delete" Click="EditDelete_Click"  InputGestureText="Del"/>
+                <MenuItem x:Name="EditCut" Header="Cu_t" InputGestureText="Ctrl+X"/>
+                <MenuItem x:Name="EditCopy" Header="_Copy" InputGestureText="Ctrl+C"/>
+                <MenuItem x:Name="EditPaste" Header="_Paste" InputGestureText="Ctrl+V"/>
+                <MenuItem x:Name="EditDelete" Header="_Delete" InputGestureText="Del"/>
                 <Separator/>
-                <MenuItem x:Name="EditSelectAll" Header="Select _All" Click="EditSelectAll_Click" InputGestureText="Ctrl+A"/>
-                <MenuItem x:Name="EditDeselectAll" Header="_Select None" Click="EditDeselectAll_Click" InputGestureText="Escape"/>
+                <MenuItem x:Name="EditSelectAll" Header="Select _All" InputGestureText="Ctrl+A"/>
+                <MenuItem x:Name="EditDeselectAll" Header="_Select None" InputGestureText="Escape"/>
                 <Separator/>
-                <MenuItem x:Name="EditSelectPrevious" Header="Select Pre_vious" Click="EditSelectPrevious_Click" InputGestureText="["/>
-                <MenuItem x:Name="EditSelectNext" Header="Select Ne_xt" Click="EditSelectNext_Click" InputGestureText="]"/>
-                <MenuItem x:Name="EditSelectConnected" Header="Select Co_nnected" Click="EditSelectConnected_Click" InputGestureText="\"/>
+                <MenuItem x:Name="EditSelectPrevious" Header="Select Pre_vious" InputGestureText="["/>
+                <MenuItem x:Name="EditSelectNext" Header="Select Ne_xt" InputGestureText="]"/>
+                <MenuItem x:Name="EditSelectConnected" Header="Select Co_nnected" InputGestureText="\"/>
                 <Separator/>
-                <MenuItem x:Name="EditClear" Header="C_lear" Click="EditClear_Click"/>
+                <MenuItem x:Name="EditClear" Header="C_lear"/>
                 <Separator/>
-                <MenuItem x:Name="EditResetThumbTags" Header="Reset Element Ta_gs" Click="EditResetThumbTags_Click" InputGestureText="Ctrl+R"/>
+                <MenuItem x:Name="EditResetThumbTags" Header="Reset Element Ta_gs" InputGestureText="Ctrl+R"/>
                 <Separator/>
-                <MenuItem x:Name="EditConnect" Header="Connect" Click="EditConnect_Click" InputGestureText="C"/>
+                <MenuItem x:Name="EditConnect" Header="Connect" InputGestureText="C"/>
                 <Separator/>
-                <MenuItem x:Name="EditOptions" Header="_Options" Click="EditOptions_Click"/>
+                <MenuItem x:Name="EditOptions" Header="_Options"/>
             </MenuItem>
             <MenuItem Header="_View">
-                <MenuItem x:Name="ViewProjectDiagrams" Header="Pro_ject Diagrams..." Click="ViewProjectDiagrams_Click" InputGestureText="F7"/>
-                <MenuItem x:Name="ViewSolutionDiagrams" Header="So_lution Diagrams..." Click="ViewSolutionDiagrams_Click" InputGestureText="F8"/>
+                <MenuItem x:Name="ViewProjectDiagrams" Header="Pro_ject Diagrams..." InputGestureText="F7"/>
+                <MenuItem x:Name="ViewSolutionDiagrams" Header="So_lution Diagrams..." InputGestureText="F8"/>
                 <Separator/>
-                <MenuItem x:Name="ViewDiagram" Header="Diagram..." Click="ViewDiagram_Click"/>
-                <MenuItem x:Name="ViewDiagramSelectedElements" Header="Diagram (Selected Elements)..." Click="ViewDiagramSelectedElements_Click"/>
+                <MenuItem x:Name="ViewDiagram" Header="Diagram..."/>
+                <MenuItem x:Name="ViewDiagramSelectedElements" Header="Diagram (Selected Elements)..."/>
                 <Separator/>
-                <MenuItem x:Name="ViewDiagramHistory" Header="Diagram _History..." Click="ViewDiagramHistory_Click" InputGestureText="Ctrl+H"/>
+                <MenuItem x:Name="ViewDiagramHistory" Header="Diagram _History..." InputGestureText="Ctrl+H"/>
                 <Separator/>
-                <MenuItem x:Name="ViewPreviousDiagramProject" Header="_Previous Diagram (Project)" Click="ViewPreviousDiagramProject_Click" InputGestureText="&lt;"/>
-                <MenuItem x:Name="ViewNextDiagramProjcet" Header="_Next Diagram (Project)" Click="ViewNextDiagramProjcet_Click" InputGestureText="&gt;"/>
+                <MenuItem x:Name="ViewPreviousDiagramProject" Header="_Previous Diagram (Project)" InputGestureText="&lt;"/>
+                <MenuItem x:Name="ViewNextDiagramProjcet" Header="_Next Diagram (Project)" InputGestureText="&gt;"/>
                 <Separator/>
-                <MenuItem x:Name="ViewPreviousDiagramSolution" Header="P_revious Diagram (Solution)" Click="ViewPreviousDiagramSolution_Click" InputGestureText="Ctrl+&lt;"/>
-                <MenuItem x:Name="ViewNextDiagramSolution" Header="Ne_xt Diagram (Solution)" Click="ViewNextDiagramSolution_Click" InputGestureText="Ctrl+&gt;"/>
+                <MenuItem x:Name="ViewPreviousDiagramSolution" Header="P_revious Diagram (Solution)" InputGestureText="Ctrl+&lt;"/>
+                <MenuItem x:Name="ViewNextDiagramSolution" Header="Ne_xt Diagram (Solution)" InputGestureText="Ctrl+&gt;"/>
                 <Separator/>
-                <MenuItem x:Name="ViewToggleGuides" Header="Toggle _Guides" Click="ViewToggleGuides_Click" InputGestureText="G"/>
+                <MenuItem x:Name="ViewToggleGuides" Header="Toggle _Guides" InputGestureText="G"/>
             </MenuItem>
             <MenuItem Header="_Help">
-                <MenuItem x:Name="HelpAbout" Header="_About Canvas Diagram Editor" Click="HelpAbout_Click"/>
+                <MenuItem x:Name="HelpAbout" Header="_About Canvas Diagram Editor"/>
             </MenuItem>
         </Menu>
 

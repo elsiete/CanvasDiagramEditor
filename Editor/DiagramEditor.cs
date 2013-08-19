@@ -2141,25 +2141,6 @@ namespace CanvasDiagramEditor.Editor
 
         #region File Dialogs
 
-        public string ModelImport()
-        {
-            var dlg = new Microsoft.Win32.OpenFileDialog()
-            {
-                Filter = "Diagram (*.txt)|*.txt|All Files (*.*)|*.*",
-                Title = "Import Diagram"
-            };
-
-            var res = dlg.ShowDialog();
-            if (res == true)
-            {
-                var diagram = Model.Open(dlg.FileName);
-
-                return diagram;
-            }
-
-            return null;
-        }
-
         public void OpenDiagram()
         {
             var dlg = new Microsoft.Win32.OpenFileDialog()

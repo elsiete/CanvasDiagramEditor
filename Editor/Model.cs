@@ -161,10 +161,12 @@ namespace CanvasDiagramEditor.Editor
             var sb = new StringBuilder();
             var elements = canvas.GetElements();
 
+            string defaultUid = ModelConstants.TagHeaderDiagram + ModelConstants.TagNameSeparator + (-1).ToString();
+
             string header = string.Format("{0}{1}{2}{1}{3}{1}{4}{1}{5}{1}{6}{1}{7}{1}{8}{1}{9}{1}{10}{1}{11}{1}{12}{1}{13}",
                 ModelConstants.PrefixRoot,
                 ModelConstants.ArgumentSeparator,
-                uid == null ? ModelConstants.TagHeaderDiagram : uid,
+                uid == null ? defaultUid : uid,
                 properties.PageWidth, properties.PageHeight,
                 properties.GridOriginX, properties.GridOriginY,
                 properties.GridWidth, properties.GridHeight,
@@ -266,7 +268,7 @@ namespace CanvasDiagramEditor.Editor
                     models.Add(model);
                     sb.Append(model);
 
-                    if (includeHistory == true)
+                    if (includeHistory == true && history != null)
                     {
                         var undoHistory = history.Item1;
                         var redoHistory = history.Item2;
