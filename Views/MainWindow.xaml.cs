@@ -180,7 +180,7 @@ namespace CanvasDiagramEditor
             Editor = new DiagramEditor();
             Editor.Context = new Context();
 
-            Editor.Context.CurrentTree = this.SolutionTree;
+            Editor.Context.CurrentTree = this.ExplorerControl.SolutionTree;
             Editor.Context.CurrentCanvas = this.DiagramControl.DiagramCanvas;
 
             var counter = new IdCounter();
@@ -207,10 +207,14 @@ namespace CanvasDiagramEditor
             EnableSnap.IsChecked = Editor.Context.EnableSnap;
             SnapOnRelease.IsChecked = Editor.Context.SnapOnRelease;
 
+            // explorer control
+            this.ExplorerControl.Editor = Editor;
+            this.ExplorerControl.DiagramView = this.DiagramControl.PanScrollViewer;
+
             // tree actions
-            Editor.Context.CreateTreeSolutionItem = () => CreateTreeSolutionItem();
-            Editor.Context.CreateTreeProjectItem = () => CreateTreeProjectItem();
-            Editor.Context.CreateTreeDiagramItem = () => CreateTreeDiagramItem();
+            Editor.Context.CreateTreeSolutionItem = () => this.ExplorerControl.CreateTreeSolutionItem();
+            Editor.Context.CreateTreeProjectItem = () => this.ExplorerControl.CreateTreeProjectItem();
+            Editor.Context.CreateTreeDiagramItem = () => this.ExplorerControl.CreateTreeDiagramItem();
 
             // update canvas grid
             Editor.Context.UpdateProperties();
@@ -336,41 +340,6 @@ namespace CanvasDiagramEditor
             prop.SnapY = double.Parse(TextSnapY.Text);
             prop.SnapOffsetX = double.Parse(TextSnapOffsetX.Text);
             prop.SnapOffsetY = double.Parse(TextSnapOffsetY.Text);
-        }
-
-        private ITreeItem CreateTreeDiagramItem()
-        {
-            var diagram = new SolutionTreeViewItem();
-
-            diagram.Header = ModelConstants.TagHeaderDiagram;
-            diagram.ContextMenu = this.Resources["DiagramContextMenuKey"] as ContextMenu;
-            diagram.MouseRightButtonDown += TreeViewItem_MouseRightButtonDown;
-
-            return diagram as ITreeItem;
-        }
-
-        private ITreeItem CreateTreeProjectItem()
-        {
-            var project = new SolutionTreeViewItem();
-
-            project.Header = ModelConstants.TagHeaderProject;
-            project.ContextMenu = this.Resources["ProjectContextMenuKey"] as ContextMenu;
-            project.MouseRightButtonDown += TreeViewItem_MouseRightButtonDown;
-            project.IsExpanded = true;
-
-            return project as ITreeItem;
-        }
-
-        private ITreeItem CreateTreeSolutionItem()
-        {
-            var solution = new SolutionTreeViewItem();
-
-            solution.Header = ModelConstants.TagHeaderSolution;
-            solution.ContextMenu = this.Resources["SolutionContextMenuKey"] as ContextMenu;
-            solution.MouseRightButtonDown += TreeViewItem_MouseRightButtonDown;
-            solution.IsExpanded = true;
-
-            return solution as ITreeItem;
         }
 
         private void OpenSolution()
@@ -902,81 +871,6 @@ namespace CanvasDiagramEditor
             Model.SetGrid(Editor.Context.CurrentCanvas,
                 Editor.Context.DiagramCreator,
                 true);
-        }
-
-        #endregion
-
-        #region TreeView Events
-
-        private void TreeViewItem_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            var item = sender as SolutionTreeViewItem;
-            if (item != null)
-            {
-                item.IsSelected = true;
-                item.Focus();
-                item.BringIntoView();
-
-                e.Handled = true;
-            }
-        }
-
-        private void SolutionTree_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
-        {
-            if (Editor == null)
-                return;
-
-            var canvas = Editor.Context.CurrentCanvas;
-            var creator = Editor.Context.DiagramCreator;
-
-            var oldItem = e.OldValue as SolutionTreeViewItem;
-            var newItem = e.NewValue as SolutionTreeViewItem;
-
-            bool isDiagram = Editor.TreeSwitchItems(canvas, creator, oldItem, newItem);
-            if (isDiagram == true)
-            {
-                this.DiagramControl.PanScrollViewer.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                this.DiagramControl.PanScrollViewer.Visibility = Visibility.Collapsed;
-            }
-        }
-
-        private void SolutionAddProject_Click(object sender, RoutedEventArgs e)
-        {
-            var solution = SolutionTree.SelectedItem as SolutionTreeViewItem;
-
-            Editor.TreeAddProject(solution);
-        }
-
-        private void ProjectAddDiagram_Click(object sender, RoutedEventArgs e)
-        {
-            Editor.TreeAddNewItem();
-        }
-
-        private void DiagramAddDiagram_Click(object sender, RoutedEventArgs e)
-        {
-            Editor.TreeAddNewItem();
-        }
-
-        private void SolutionDeleteProject_Click(object sender, RoutedEventArgs e)
-        {
-            var project = SolutionTree.SelectedItem as SolutionTreeViewItem;
-
-            Editor.TreeDeleteProject(project);
-        }
-
-        private void DiagramDeleteDiagram_Click(object sender, RoutedEventArgs e)
-        {
-            var diagram = SolutionTree.SelectedItem as SolutionTreeViewItem;
-
-            Editor.TreeDeleteDiagram(diagram);
-        }
-
-        private void DiagramAddDiagramAndPaste_Click(object sender, RoutedEventArgs e)
-        {
-            Editor.TreeAddNewItemAndPaste();
         }
 
         #endregion

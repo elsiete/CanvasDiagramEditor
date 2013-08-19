@@ -1593,6 +1593,23 @@ namespace CanvasDiagramEditor.Editor
 
         #region Tree
 
+        public static TreeItemType GetTreeItemType(string uid)
+        {
+            if (string.IsNullOrEmpty(uid))
+                return TreeItemType.None;
+
+            if (StringUtil.StartsWith(uid, ModelConstants.TagHeaderSolution))
+                return TreeItemType.Solution;
+
+            if (StringUtil.StartsWith(uid, ModelConstants.TagHeaderProject))
+                return TreeItemType.Project;
+
+            if (StringUtil.StartsWith(uid, ModelConstants.TagHeaderDiagram))
+                return TreeItemType.Diagram;
+
+            return TreeItemType.None;
+        }
+
         public void TreeSelectPreviousItem(bool selectParent)
         {
             var tree = Context.CurrentTree;
@@ -1727,12 +1744,12 @@ namespace CanvasDiagramEditor.Editor
             }
         }
 
-        public bool TreeSwitchItems(ICanvas canvas, 
+        public TreeItemType TreeSwitchItems(ICanvas canvas, 
             IDiagramCreator creator, 
             ITreeItem oldItem, ITreeItem newItem)
         {
             if (newItem == null)
-                return false;
+                return TreeItemType.None;
 
             string oldUid = oldItem == null ? null : oldItem.GetUid();
             string newUid = newItem == null ? null : newItem.GetUid();
@@ -1740,26 +1757,23 @@ namespace CanvasDiagramEditor.Editor
             bool isOldItemDiagram = oldUid == null ? false : StringUtil.StartsWith(oldUid, ModelConstants.TagHeaderDiagram);
             bool isNewItemDiagram = newUid == null ? false : StringUtil.StartsWith(newUid, ModelConstants.TagHeaderDiagram);
 
-            if (isOldItemDiagram == true)
-            {
-                // save current model
-                Model.Store(canvas, oldItem);
-            }
+            var oldItemType = GetTreeItemType(oldUid);
+            var newItemType = GetTreeItemType(newUid);
 
-            if (isNewItemDiagram == true)
+            if (oldItemType == TreeItemType.Diagram)
+                Model.Store(canvas, oldItem);
+
+            if (newItemType == TreeItemType.Diagram)
             {
                 if (Context.UpdateProperties != null)
-                {
                     Context.UpdateProperties();
-                }
 
-                // load new model
                 Model.Load(canvas, creator, newItem);
             }
 
             //System.Diagnostics.Debug.Print("Old Uid: {0}, new Uid: {1}", oldUid, newUid);
 
-            return isNewItemDiagram;
+            return newItemType;
         }
         
         private ITreeItem TreeCreateSolutionItem(string uid)
@@ -1828,23 +1842,20 @@ namespace CanvasDiagramEditor.Editor
             var selected = tree.GetSelectedItem() as ITreeItem;
 
             string uid = selected.GetUid();
-            bool isSelectedSolution = StringUtil.StartsWith(uid, ModelConstants.TagHeaderSolution);
-            bool isSelectedProject = StringUtil.StartsWith(uid, ModelConstants.TagHeaderProject);
-            bool isSelectedDiagram = StringUtil.StartsWith(uid, ModelConstants.TagHeaderDiagram);
+            var type = GetTreeItemType(uid);
 
-            if (isSelectedDiagram == true)
+            if (type == TreeItemType.Diagram)
             {
                 var project = selected.GetParent() as ITreeItem;
-
                 TreeAddDiagram(project, true);
                 return TreeItemType.Diagram;
             }
-            else if (isSelectedProject == true)
+            else if (type == TreeItemType.Project)
             {
                 TreeAddDiagram(selected, false);
                 return TreeItemType.Diagram;
             }
-            else if (isSelectedSolution == true)
+            else if (type == TreeItemType.Solution)
             {
                 TreeAddProject(selected);
                 return TreeItemType.Project;

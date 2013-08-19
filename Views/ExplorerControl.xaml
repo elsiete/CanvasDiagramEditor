@@ -1,0 +1,63 @@
+﻿<!-- Copyright (C) Wiesław Šoltés 2013. -->
+<!-- All Rights Reserved -->
+
+<UserControl x:Class="CanvasDiagramEditor.ExplorerControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:controls="clr-namespace:CanvasDiagramEditor.Controls"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="330"
+             Background="Transparent">
+
+    <UserControl.Resources>
+
+        <ContextMenu x:Key="SolutionContextMenuKey">
+            <MenuItem x:Name="SolutionAddProject" Header="Add _Project" Click="SolutionAddProject_Click"/>
+        </ContextMenu>
+
+        <ContextMenu x:Key="ProjectContextMenuKey">
+            <MenuItem x:Name="ProjectAddDiagram" Header="Add _Diagram" InputGestureText="Ctrl+M" Click="ProjectAddDiagram_Click"/>
+            <Separator/>
+            <MenuItem x:Name="SolutionDeleteProject" Header="De_lete" Click="SolutionDeleteProject_Click"/>
+        </ContextMenu>
+
+        <ContextMenu x:Key="DiagramContextMenuKey">
+            <MenuItem x:Name="DiagramAddDiagram" Header="Add _Diagram" InputGestureText="Ctrl+M" Click="DiagramAddDiagram_Click"/>
+            <MenuItem x:Name="DiagramAddDiagramAndPaste" Header="Add Diagram&amp;_Paste" InputGestureText="Ctrl+J" Click="DiagramAddDiagramAndPaste_Click"/>
+            <MenuItem x:Name="DiagramDeleteDiagram" Header="De_lete" Click="DiagramDeleteDiagram_Click"/>
+        </ContextMenu>
+
+    </UserControl.Resources>
+    
+    <Grid Margin="2">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <controls:SolutionTreeView x:Name="SolutionTree" 
+                                   Grid.Column="0" Grid.Row="1"
+                                   ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                   ScrollViewer.HorizontalScrollBarVisibility="Auto"  
+                                   SelectedItemChanged="SolutionTree_SelectedItemChanged">
+
+            <controls:SolutionTreeViewItem Header="Solution" IsExpanded="True" x:Uid="Solution|0" ContextMenu="{StaticResource SolutionContextMenuKey}" MouseRightButtonDown="TreeViewItem_MouseRightButtonDown">
+                <controls:SolutionTreeViewItem Header="Project" IsExpanded="True" x:Uid="Project|0" ContextMenu="{StaticResource ProjectContextMenuKey}" MouseRightButtonDown="TreeViewItem_MouseRightButtonDown">
+                    <controls:SolutionTreeViewItem IsSelected="True" Header="Diagram" x:Uid="Diagram|0" ContextMenu="{StaticResource DiagramContextMenuKey}" MouseRightButtonDown="TreeViewItem_MouseRightButtonDown"/>
+                </controls:SolutionTreeViewItem>
+            </controls:SolutionTreeViewItem>
+
+        </controls:SolutionTreeView>
+
+        <TextBox Grid.Column="0" Grid.Row="0" 
+                 Margin="0,0,0,2"
+                 Background="Transparent"
+                 BorderBrush="Transparent" BorderThickness="0"
+                 Text="{Binding ElementName=SolutionTree, Path=SelectedItem.Uid, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+        </TextBox>
+
+    </Grid>
+
+</UserControl>

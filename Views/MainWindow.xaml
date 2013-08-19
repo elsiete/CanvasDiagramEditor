@@ -6,29 +6,10 @@
         xmlns:local="clr-namespace:CanvasDiagramEditor" 
         xmlns:controls="clr-namespace:CanvasDiagramEditor.Controls"
         x:Class="CanvasDiagramEditor.MainWindow"
-        Title="Canvas Diagram Editor" Height="710" Width="1035"
+        Title="Canvas Diagram Editor" 
+        Height="710" Width="1035"
         WindowStartupLocation="CenterScreen" WindowState="Maximized"
         Style="{StaticResource MainWindowStyleKey}">
-
-    <Window.Resources>
-
-        <ContextMenu x:Key="SolutionContextMenuKey">
-            <MenuItem x:Name="SolutionAddProject" Header="Add _Project" Click="SolutionAddProject_Click"/>
-        </ContextMenu>
-
-        <ContextMenu x:Key="ProjectContextMenuKey">
-            <MenuItem x:Name="ProjectAddDiagram" Header="Add _Diagram" InputGestureText="Ctrl+M" Click="ProjectAddDiagram_Click"/>
-            <Separator/>
-            <MenuItem x:Name="SolutionDeleteProject" Header="De_lete" Click="SolutionDeleteProject_Click"/>
-        </ContextMenu>
-
-        <ContextMenu x:Key="DiagramContextMenuKey">
-            <MenuItem x:Name="DiagramAddDiagram" Header="Add _Diagram" InputGestureText="Ctrl+M" Click="DiagramAddDiagram_Click"/>
-            <MenuItem x:Name="DiagramAddDiagramAndPaste" Header="Add Diagram&amp;_Paste" InputGestureText="Ctrl+J" Click="DiagramAddDiagramAndPaste_Click"/>
-            <MenuItem x:Name="DiagramDeleteDiagram" Header="De_lete" Click="DiagramDeleteDiagram_Click"/>
-        </ContextMenu>
-
-    </Window.Resources>
 
     <Grid Background="{DynamicResource LogicBackgroundColorKey}">
         
@@ -127,33 +108,7 @@
                 
                 <TabItem Header="Explorer" x:Name="TabExplorer">
 
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
-                        
-                        <TextBox Grid.Column="0" Grid.Row="0" 
-                                 Margin="0,0,0,2"
-                                 Background="Transparent"
-                                 BorderBrush="Transparent" BorderThickness="0"
-                                 Text="{Binding ElementName=SolutionTree, Path=SelectedItem.Uid, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-        
-                        <controls:SolutionTreeView x:Name="SolutionTree" 
-                                  Grid.Column="0" Grid.Row="1"
-                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                  ScrollViewer.HorizontalScrollBarVisibility="Auto"  
-                                  SelectedItemChanged="SolutionTree_SelectedItemChanged">
-
-                            <controls:SolutionTreeViewItem Header="Solution" IsExpanded="True" x:Uid="Solution|0" ContextMenu="{StaticResource SolutionContextMenuKey}" MouseRightButtonDown="TreeViewItem_MouseRightButtonDown">
-                                <controls:SolutionTreeViewItem Header="Project" IsExpanded="True" x:Uid="Project|0" ContextMenu="{StaticResource ProjectContextMenuKey}" MouseRightButtonDown="TreeViewItem_MouseRightButtonDown">
-                                    <controls:SolutionTreeViewItem IsSelected="True" Header="Diagram" x:Uid="Diagram|0" ContextMenu="{StaticResource DiagramContextMenuKey}" MouseRightButtonDown="TreeViewItem_MouseRightButtonDown"/>
-                                </controls:SolutionTreeViewItem>
-                            </controls:SolutionTreeViewItem>
-
-                        </controls:SolutionTreeView>
-
-                    </Grid>
+                    <local:ExplorerControl x:Name="ExplorerControl"/>
 
                 </TabItem>
 
@@ -203,12 +158,13 @@
 
                         <TextBox x:Name="TextModel" 
                                  Grid.Column="0" Grid.Row="1"
-                                AcceptsReturn="True" AcceptsTab="True" 
-                                VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                                Padding="2"
-                                FontFamily="Consolas" FontSize="12"
-                                VerticalScrollBarVisibility="Auto"
-                                HorizontalScrollBarVisibility="Auto">
+                                 Margin="2"
+                                 AcceptsReturn="True" AcceptsTab="True" 
+                                 VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                                 Padding="2"
+                                 FontFamily="Consolas" FontSize="12"
+                                 VerticalScrollBarVisibility="Auto"
+                                 HorizontalScrollBarVisibility="Auto">
                         </TextBox>
 
                     </Grid>
@@ -219,100 +175,98 @@
                     
                     <ScrollViewer VerticalScrollBarVisibility="Auto"
                                   HorizontalScrollBarVisibility="Auto">
-                        
                         <StackPanel>
-                        <Expander Header="_Zoom" IsExpanded="True">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="40"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                </Grid.RowDefinitions>
-                                <TextBlock Text="Zoom:" Grid.Column="0" Grid.Row="0" Margin="0,0,4,0" VerticalAlignment="Center" HorizontalAlignment="Right"/>
-                                <Slider x:Name="ZoomSlider" Grid.Column="1" Grid.Row="0" Minimum="0.1" Maximum="5.0" SmallChange="0.1" LargeChange="1.0" TickFrequency="0.1" IsSnapToTickEnabled="True" Value="1.0" ValueChanged="ZoomSlider_ValueChanged"/>
-                                <TextBox Text="{Binding ElementName=ZoomSlider, Path=Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="2" Grid.Row="0" Margin="4,0,2,0" VerticalAlignment="Center" />
-                                <TextBlock Text="Log:" Grid.Column="0" Grid.Row="1" Margin="0,0,4,0" VerticalAlignment="Center" HorizontalAlignment="Right"/>
-                                <Slider x:Name="LogBaseSlider" Grid.Column="1" Grid.Row="1" Minimum="1.0" Maximum="10.0" SmallChange="0.1" LargeChange="1.0" TickFrequency="0.1" IsSnapToTickEnabled="True" Value="1.9" ValueChanged="ZoomSlider_ValueChanged"/>
-                                <TextBox Text="{Binding ElementName=LogBaseSlider, Path=Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="2" Grid.Row="1" Margin="4,0,2,0" VerticalAlignment="Center" />
-                                <TextBlock Text="Exp:" Grid.Column="0" Grid.Row="2" Margin="0,0,4,0" VerticalAlignment="Center" HorizontalAlignment="Right"/>
-                                <Slider x:Name="ExpFactorSlider" Grid.Column="1" Grid.Row="2" Minimum="0.0" Maximum="10.0" SmallChange="0.1" LargeChange="1.0" TickFrequency="0.1" IsSnapToTickEnabled="True" Value="1.3" ValueChanged="ZoomSlider_ValueChanged"/>
-                                <TextBox Text="{Binding ElementName=ExpFactorSlider, Path=Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="2" Grid.Row="2" Margin="4,0,2,0" VerticalAlignment="Center" />
-                                <Button x:Name="ResetZoom" Grid.Column="2" Grid.Row="3" Content="Re_set" Margin="4,0,2,0" Click="ResetZoom_Click"/>
-                            </Grid>
-                        </Expander>
-                        <Separator Margin="2"/>
-                        <Expander Header="_Options" IsExpanded="True">
-                            <StackPanel>
-                                <CheckBox x:Name="EnableHistory" Content="Enable _History" Margin="2" Click="EnableHistory_Click"/>
-                                <Separator Margin="2"/>
-                                <CheckBox x:Name="EnableSnap" Content="Enable S_nap to Grid" Margin="2" Click="EnableSnap_Click"/>
-                                <CheckBox x:Name="SnapOnRelease" Content="Snap to Gri_d on Release" Margin="2" Click="SnapOnRelease_Click"/>
-                                <Separator Margin="2"/>
-                                <CheckBox x:Name="ShortenStart" IsChecked="True" Content="Shorten Wire Start" Margin="2"/>
-                                <CheckBox x:Name="ShortenEnd" IsChecked="False" Content="Shorten Wire End" Margin="2"/>
-                                <Separator Margin="2"/>
-                                <CheckBox x:Name="EnableInsertLast" Content="Insert Last on Left _Click" Margin="2" Click="EnableInsertLast_Click"/>
-                                <Separator Margin="2"/>
-                                <CheckBox x:Name="EnablePage" IsChecked="True" Content="Enable Page" Margin="2" Click="EnablePage_Click"/>
-                                <CheckBox x:Name="EnablePageGrid" IsChecked="True" Content="Enable Page Grid" Margin="2" Click="EnablePageGrid_Click"/>
-                                <CheckBox x:Name="EnablePageTemplate" IsChecked="True" Content="Enable Page Template" Margin="2" Click="EnablePageTemplate_Click"/>
-                            </StackPanel>
-                        </Expander>
-                        <Separator Margin="2"/>
-                        <Expander Header="Diagram _Properties" IsExpanded="True">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="80"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                </Grid.RowDefinitions>
-                                <TextBlock Text="Page Width:" Grid.Column="0" Grid.Row="0" Margin="2" HorizontalAlignment="Right"/>
-                                <TextBox x:Name="TextPageWidth" Text="1260" Grid.Column="1" Grid.Row="0" Margin="2"/>
-                                <TextBlock Text="Page Height:" Grid.Column="0" Grid.Row="1" Margin="2" HorizontalAlignment="Right"/>
-                                <TextBox x:Name="TextPageHeight" Text="891" Grid.Column="1" Grid.Row="1" Margin="2"/>
-                                <TextBlock Text="Grid Origin X:" Grid.Column="0" Grid.Row="2" Margin="2" HorizontalAlignment="Right"/>
-                                <TextBox x:Name="TextGridOriginX" Text="330" Grid.Column="1" Grid.Row="2" Margin="2"/>
-                                <TextBlock Text="Grid Origin Y:" Grid.Column="0" Grid.Row="3" Margin="2" HorizontalAlignment="Right"/>
-                                <TextBox x:Name="TextGridOriginY" Text="31" Grid.Column="1" Grid.Row="3" Margin="2"/>
-                                <TextBlock Text="Grid Width:" Grid.Column="0" Grid.Row="4" Margin="2" HorizontalAlignment="Right"/>
-                                <TextBox x:Name="TextGridWidth" Text="600" Grid.Column="1" Grid.Row="4" Margin="2"/>
-                                <TextBlock Text="Grid Height:" Grid.Column="0" Grid.Row="5" Margin="2" HorizontalAlignment="Right"/>
-                                <TextBox x:Name="TextGridHeight" Text="750" Grid.Column="1" Grid.Row="5" Margin="2"/>
-                                <TextBlock Text="Grid Size:" Grid.Column="0" Grid.Row="6" Margin="2" HorizontalAlignment="Right"/>
-                                <TextBox x:Name="TextGridSize" Text="30" Grid.Column="1" Grid.Row="6" Margin="2"/>
-                                <TextBlock Text="SnapX:" Grid.Column="0" Grid.Row="7" Margin="2" HorizontalAlignment="Right"/>
-                                <TextBox x:Name="TextSnapX" Text="15" Grid.Column="1" Grid.Row="7" Margin="2"/>
-                                <TextBlock Text="SnapY:" Grid.Column="0" Grid.Row="8" Margin="2" HorizontalAlignment="Right"/>
-                                <TextBox x:Name="TextSnapY" Text="15" Grid.Column="1" Grid.Row="8" Margin="2"/>
-                                <TextBlock Text="SnapOffsetX:" Grid.Column="0" Grid.Row="9" Margin="2" HorizontalAlignment="Right"/>
-                                <TextBox x:Name="TextSnapOffsetX" Text="0" Grid.Column="1" Grid.Row="9" Margin="2"/>
-                                <TextBlock Text="SnapOffsetY:" Grid.Column="0" Grid.Row="10" Margin="2" HorizontalAlignment="Right"/>
-                                <TextBox x:Name="TextSnapOffsetY" Text="1" Grid.Column="1" Grid.Row="10" Margin="2"/>
-                                <Button x:Name="UpdateGrid" Content="_Update Properties" Grid.Column="1" Grid.Row="11" Margin="2" Click="UpdateGrid_Click"/>
-                            </Grid>
-                        </Expander>
-                    </StackPanel>
-                        
+                            <Expander Header="_Zoom" IsExpanded="True">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="40"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Text="Zoom:" Grid.Column="0" Grid.Row="0" Margin="0,0,4,0" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                                    <Slider x:Name="ZoomSlider" Grid.Column="1" Grid.Row="0" Minimum="0.1" Maximum="5.0" SmallChange="0.1" LargeChange="1.0" TickFrequency="0.1" IsSnapToTickEnabled="True" Value="1.0" ValueChanged="ZoomSlider_ValueChanged"/>
+                                    <TextBox Text="{Binding ElementName=ZoomSlider, Path=Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="2" Grid.Row="0" Margin="4,2,2,2" VerticalAlignment="Center" />
+                                    <TextBlock Text="Log:" Grid.Column="0" Grid.Row="1" Margin="0,0,4,0" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                                    <Slider x:Name="LogBaseSlider" Grid.Column="1" Grid.Row="1" Minimum="1.0" Maximum="10.0" SmallChange="0.1" LargeChange="1.0" TickFrequency="0.1" IsSnapToTickEnabled="True" Value="1.9" ValueChanged="ZoomSlider_ValueChanged"/>
+                                    <TextBox Text="{Binding ElementName=LogBaseSlider, Path=Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="2" Grid.Row="1" Margin="4,2,2,2" VerticalAlignment="Center" />
+                                    <TextBlock Text="Exp:" Grid.Column="0" Grid.Row="2" Margin="0,0,4,0" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                                    <Slider x:Name="ExpFactorSlider" Grid.Column="1" Grid.Row="2" Minimum="0.0" Maximum="10.0" SmallChange="0.1" LargeChange="1.0" TickFrequency="0.1" IsSnapToTickEnabled="True" Value="1.3" ValueChanged="ZoomSlider_ValueChanged"/>
+                                    <TextBox Text="{Binding ElementName=ExpFactorSlider, Path=Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="2" Grid.Row="2" Margin="4,2,2,2" VerticalAlignment="Center" />
+                                    <Button x:Name="ResetZoom" Grid.Column="2" Grid.Row="3" Content="Re_set" Margin="4,2,2,2" Click="ResetZoom_Click"/>
+                                </Grid>
+                            </Expander>
+                            <Separator Margin="2"/>
+                            <Expander Header="_Options" IsExpanded="True">
+                                <StackPanel>
+                                    <CheckBox x:Name="EnableHistory" Content="Enable _History" Margin="2" Click="EnableHistory_Click"/>
+                                    <Separator Margin="2"/>
+                                    <CheckBox x:Name="EnableSnap" Content="Enable S_nap to Grid" Margin="2" Click="EnableSnap_Click"/>
+                                    <CheckBox x:Name="SnapOnRelease" Content="Snap to Gri_d on Release" Margin="2" Click="SnapOnRelease_Click"/>
+                                    <Separator Margin="2"/>
+                                    <CheckBox x:Name="ShortenStart" IsChecked="True" Content="Shorten Wire Start" Margin="2"/>
+                                    <CheckBox x:Name="ShortenEnd" IsChecked="False" Content="Shorten Wire End" Margin="2"/>
+                                    <Separator Margin="2"/>
+                                    <CheckBox x:Name="EnableInsertLast" Content="Insert Last on Left _Click" Margin="2" Click="EnableInsertLast_Click"/>
+                                    <Separator Margin="2"/>
+                                    <CheckBox x:Name="EnablePage" IsChecked="True" Content="Enable Page" Margin="2" Click="EnablePage_Click"/>
+                                    <CheckBox x:Name="EnablePageGrid" IsChecked="True" Content="Enable Page Grid" Margin="2" Click="EnablePageGrid_Click"/>
+                                    <CheckBox x:Name="EnablePageTemplate" IsChecked="True" Content="Enable Page Template" Margin="2" Click="EnablePageTemplate_Click"/>
+                                </StackPanel>
+                            </Expander>
+                            <Separator Margin="2"/>
+                            <Expander Header="Diagram _Properties" IsExpanded="True">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="80"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Text="Page Width:" Grid.Column="0" Grid.Row="0" Margin="2" HorizontalAlignment="Right"/>
+                                    <TextBox x:Name="TextPageWidth" Text="1260" Grid.Column="1" Grid.Row="0" Margin="2"/>
+                                    <TextBlock Text="Page Height:" Grid.Column="0" Grid.Row="1" Margin="2" HorizontalAlignment="Right"/>
+                                    <TextBox x:Name="TextPageHeight" Text="891" Grid.Column="1" Grid.Row="1" Margin="2"/>
+                                    <TextBlock Text="Grid Origin X:" Grid.Column="0" Grid.Row="2" Margin="2" HorizontalAlignment="Right"/>
+                                    <TextBox x:Name="TextGridOriginX" Text="330" Grid.Column="1" Grid.Row="2" Margin="2"/>
+                                    <TextBlock Text="Grid Origin Y:" Grid.Column="0" Grid.Row="3" Margin="2" HorizontalAlignment="Right"/>
+                                    <TextBox x:Name="TextGridOriginY" Text="31" Grid.Column="1" Grid.Row="3" Margin="2"/>
+                                    <TextBlock Text="Grid Width:" Grid.Column="0" Grid.Row="4" Margin="2" HorizontalAlignment="Right"/>
+                                    <TextBox x:Name="TextGridWidth" Text="600" Grid.Column="1" Grid.Row="4" Margin="2"/>
+                                    <TextBlock Text="Grid Height:" Grid.Column="0" Grid.Row="5" Margin="2" HorizontalAlignment="Right"/>
+                                    <TextBox x:Name="TextGridHeight" Text="750" Grid.Column="1" Grid.Row="5" Margin="2"/>
+                                    <TextBlock Text="Grid Size:" Grid.Column="0" Grid.Row="6" Margin="2" HorizontalAlignment="Right"/>
+                                    <TextBox x:Name="TextGridSize" Text="30" Grid.Column="1" Grid.Row="6" Margin="2"/>
+                                    <TextBlock Text="SnapX:" Grid.Column="0" Grid.Row="7" Margin="2" HorizontalAlignment="Right"/>
+                                    <TextBox x:Name="TextSnapX" Text="15" Grid.Column="1" Grid.Row="7" Margin="2"/>
+                                    <TextBlock Text="SnapY:" Grid.Column="0" Grid.Row="8" Margin="2" HorizontalAlignment="Right"/>
+                                    <TextBox x:Name="TextSnapY" Text="15" Grid.Column="1" Grid.Row="8" Margin="2"/>
+                                    <TextBlock Text="SnapOffsetX:" Grid.Column="0" Grid.Row="9" Margin="2" HorizontalAlignment="Right"/>
+                                    <TextBox x:Name="TextSnapOffsetX" Text="0" Grid.Column="1" Grid.Row="9" Margin="2"/>
+                                    <TextBlock Text="SnapOffsetY:" Grid.Column="0" Grid.Row="10" Margin="2" HorizontalAlignment="Right"/>
+                                    <TextBox x:Name="TextSnapOffsetY" Text="1" Grid.Column="1" Grid.Row="10" Margin="2"/>
+                                    <Button x:Name="UpdateGrid" Content="_Update Properties" Grid.Column="1" Grid.Row="11" Margin="2" Click="UpdateGrid_Click"/>
+                                </Grid>
+                            </Expander>
+                        </StackPanel>
                     </ScrollViewer>
                     
                 </TabItem>

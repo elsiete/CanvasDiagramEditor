@@ -9,9 +9,9 @@
              xmlns:controls="clr-namespace:CanvasDiagramEditor.Controls"
              mc:Ignorable="d" 
              Background="Transparent"
-             d:DesignHeight="430" d:DesignWidth="895">
+             d:DesignHeight="600" d:DesignWidth="330">
 
-    <Grid>
+    <Grid Margin="2">
 
     </Grid>
 

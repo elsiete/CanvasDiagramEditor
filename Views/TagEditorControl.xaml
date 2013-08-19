@@ -8,10 +8,10 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:controls="clr-namespace:CanvasDiagramEditor.Controls"
              mc:Ignorable="d" 
-             d:DesignHeight="600" d:DesignWidth="320"
+             d:DesignHeight="600" d:DesignWidth="330"
              Background="Transparent">
 
-    <Grid Margin="4">
+    <Grid Margin="2">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
