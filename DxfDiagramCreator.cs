@@ -1403,16 +1403,16 @@ namespace CanvasDiagramEditor
         {
             Factory = new Dictionary<string, FactoryFunc>()
             {
-                {  "pin", _CreatePin },
-                {  "wire", _CreateWire },
-                {  "input", _CreateInput },
-                {  "output", _CreateOutput },
-                {  "andgate", _CreateAndGate },
-                {  "orgate", _CreateOrGate },
+                {  ModelConstants.TagElementPin, CreatePin },
+                {  ModelConstants.TagElementWire, CreateWire },
+                {  ModelConstants.TagElementInput, CreateInput },
+                {  ModelConstants.TagElementOutput, CreateOutput },
+                {  ModelConstants.TagElementAndGate, CreateAndGate },
+                {  ModelConstants.TagElementOrGate, CreateOrGate },
             };
         }
 
-        private object _CreatePin(object[] data, double x, double y, bool snap)
+        private object CreatePin(object[] data, double x, double y, bool snap)
         {
             if (data == null || data.Length != 1)
                 return null;
@@ -1424,7 +1424,7 @@ namespace CanvasDiagramEditor
             return null;
         }
 
-        private object _CreateWire(object[] data, double x, double y, bool snap)
+        private object CreateWire(object[] data, double x, double y, bool snap)
         {
             if (data == null || data.Length != 9)
                 return null;
@@ -1509,7 +1509,7 @@ namespace CanvasDiagramEditor
             return null;
         }
 
-        private object _CreateInput(object[] data, double x, double y, bool snap)
+        private object CreateInput(object[] data, double x, double y, bool snap)
         {
             if (data == null || data.Length != 2)
                 return null;
@@ -1542,7 +1542,7 @@ namespace CanvasDiagramEditor
             return null;
         }
 
-        private object _CreateOutput(object[] data, double x, double y, bool snap)
+        private object CreateOutput(object[] data, double x, double y, bool snap)
         {
             if (data == null || data.Length != 2)
                 return null;
@@ -1575,7 +1575,7 @@ namespace CanvasDiagramEditor
             return null;
         }
 
-        private object _CreateAndGate(object[] data, double x, double y, bool snap)
+        private object CreateAndGate(object[] data, double x, double y, bool snap)
         {
             if (data == null || data.Length != 1)
                 return null;
@@ -1597,7 +1597,7 @@ namespace CanvasDiagramEditor
             return null;
         }
 
-        private object _CreateOrGate(object[] data, double x, double y, bool snap)
+        private object CreateOrGate(object[] data, double x, double y, bool snap)
         {
             if (data == null || data.Length != 1)
                 return null;
@@ -1638,182 +1638,10 @@ namespace CanvasDiagramEditor
         public object CreateElement(string type, object[] data, double x, double y, bool snap)
         {
             FactoryFunc func;
-            bool result = Factory.TryGetValue(type.ToLower(), out func);
+            bool result = Factory.TryGetValue(type, out func);
 
             if (result == true && func != null)
                 return func(data, x, y, snap);
-
-            return null;
-        }
-
-        public object CreatePin(double x, double y, int id, bool snap)
-        {
-            return null;
-        }
-
-        public object CreateWire(double x1, double y1, 
-            double x2, double y2, 
-            bool startVisible, bool endVisible, 
-            bool startIsIO, bool endIsIO, 
-            int id)
-        {
-            double startX = x1;
-            double startY = y1;
-            double endX = x2;
-            double endY = y2;
-
-            double zet = LineCalc.CalculateZet(startX, startY, endX, endY);
-            double sizeX = LineCalc.CalculateSizeX(InvertedCircleRadius, InvertedCircleThickness, zet);
-            double sizeY = LineCalc.CalculateSizeY(InvertedCircleRadius, InvertedCircleThickness, zet);
-
-            bool shortenStart = ShortenStart;
-            bool shortenEnd = ShortenEnd;
-            bool isStartIO = startIsIO;
-            bool isEndIO = endIsIO;
-
-            // shorten start
-            if (isStartIO == true && 
-                isEndIO == false && 
-                shortenStart == true &&
-                (Math.Round(startY, 1) == Math.Round(endY, 1)))
-            {
-                startX = endX - ShortenLineSize;
-            }
-
-            // shorten end
-            if (isStartIO == false && 
-                isEndIO == true && 
-                shortenEnd == true &&
-                 (Math.Round(startY, 1) == Math.Round(endY, 1)))
-            {
-                endX = startX + ShortenLineSize;
-            }
-
-            // get start and end ellipse position
-            Point ellipseStartCenter = LineCalc.GetEllipseStartCenter(startX, startY, sizeX, sizeY, startVisible);
-            Point ellipseEndCenter = LineCalc.GetEllipseEndCenter(endX, endY, sizeX, sizeY, endVisible);
-
-            // get line position
-            Point lineStart = LineCalc.GetLineStart(startX, startY, sizeX, sizeY, startVisible);
-            Point lineEnd = LineCalc.GetLineEnd(endX, endY, sizeX, sizeY, endVisible);
-
-            if (startVisible == true)
-            {
-                var circle = Circle(ellipseStartCenter.X, ellipseStartCenter.Y, 
-                    InvertedCircleRadius,
-                    0, 0, 
-                    LayerWires);
-
-                Entities.Add(circle);
-            }
-
-            if (endVisible == true)
-            {
-                var circle = Circle(ellipseEndCenter.X, ellipseEndCenter.Y,
-                    InvertedCircleRadius,
-                    0, 0,
-                    LayerWires);
-
-                Entities.Add(circle);
-            }
-
-            var line = Line(lineStart.X, lineStart.Y,
-                lineEnd.X, lineEnd.Y,
-                0, 0,
-                LayerWires);
-
-            Entities.Add(line);
-
-            return null;
-        }
-
-        public object CreateInput(double x, double y, int id, int tagId, bool snap)
-        {
-            var insert = new DxfInsert(Version, GetNextHandle())
-                .Block("INPUT")
-                .Layer(LayerIO)
-                .Insertion(new Vector3(X(x), Y(y), 0));
-
-            var tag = GetTagById(tagId);
-            if (tag != null)
-            {
-                double offsetX = 3;
-
-                insert.AttributesBegin()
-                      .AddAttribute(AttribIO("ID", id.ToString(), x + 300 + offsetX, y + 30, false))
-                      .AddAttribute(AttribIO("TAGID", tag.Id.ToString(), x + 300 + offsetX, y, false))
-                      .AddAttribute(AttribIO("DESIGNATION", tag.Designation, x + offsetX, y + 7.5, true))
-                      .AddAttribute(AttribIO("DESCRIPTION", tag.Description, x + offsetX, y + 22.5, true))
-                      .AddAttribute(AttribIO("SIGNAL", tag.Signal, x + 210 + offsetX, y + 7.5, true))
-                      .AddAttribute(AttribIO("CONDITION", tag.Condition, x + 210 + offsetX, y + 22.5, true))
-                      .AttributesEnd(GetNextHandle(), LayerIO);
-            }
-
-            Entities.Add(insert);
-
-            return null;
-        }
-
-        public object CreateOutput(double x, double y, int id, int tagId, bool snap)
-        {
-            var insert = new DxfInsert(Version, GetNextHandle())
-                .Block("OUTPUT")
-                .Layer(LayerIO)
-                .Insertion(new Vector3(X(x), Y(y), 0));
-
-            var tag = GetTagById(tagId);
-            if (tag != null)
-            {
-                double offsetX = 3;
-
-                insert.AttributesBegin()
-                      .AddAttribute(AttribIO("ID", id.ToString(), x + 300 + offsetX, y + 30, false))
-                      .AddAttribute(AttribIO("TAGID", tag.Id.ToString(), x + 300 + offsetX, y, false))
-                      .AddAttribute(AttribIO("DESIGNATION", tag.Designation, x + offsetX, y + 7.5, true))
-                      .AddAttribute(AttribIO("DESCRIPTION", tag.Description, x + offsetX, y + 22.5, true))
-                      .AddAttribute(AttribIO("SIGNAL", tag.Signal, x + 210 + offsetX, y + 7.5, true))
-                      .AddAttribute(AttribIO("CONDITION", tag.Condition, x + 210 + offsetX, y + 22.5, true))
-                      .AttributesEnd(GetNextHandle(), LayerIO);
-            }
-
-            Entities.Add(insert);
-
-            return null;
-        }
-
-        public object CreateAndGate(double x, double y, int id, bool snap)
-        {
-            var insert = new DxfInsert(Version, GetNextHandle())
-                .Block("ANDGATE")
-                .Layer(LayerElements)
-                .Insertion(new Vector3(X(x), Y(y), 0));
-
-            insert.AttributesBegin()
-                .AddAttribute(AttribGate("ID", id.ToString(), x + 30, y + 30, false))
-                .AddAttribute(AttribGate("TEXT", "&", x + 15, y + 15, true))
-                .AttributesEnd(GetNextHandle(), LayerElements);
-
-            Entities.Add(insert);
-
-            return null;
-        }
-
-        public object CreateOrGate(double x, double y, int id, bool snap)
-        {
-            var insert = new DxfInsert(Version, GetNextHandle())
-                .Block("ORGATE")
-                .Layer(LayerElements)
-                .Insertion(new Vector3(X(x), Y(y), 0));
-
-            // Arial, arial.ttf, ≥, \U+2265
-            // Arial Unicode MS, arialuni.ttf ≥, \U+2265
-
-            insert.AttributesBegin()
-                .AddAttribute(AttribGate("ID", id.ToString(), x + 30, y + 30, false))
-                .AddAttribute(AttribGate("TEXT", "\\U+22651", x + 15, y + 15, true))
-                .AttributesEnd(GetNextHandle(), LayerElements);
-
-            Entities.Add(insert);
 
             return null;
         }

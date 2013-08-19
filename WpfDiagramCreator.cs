@@ -110,16 +110,16 @@ namespace CanvasDiagramEditor
         {
             Factory = new Dictionary<string, FactoryFunc>()
             {
-                {  "pin", _CreatePin },
-                {  "wire", _CreateWire },
-                {  "input", _CreateInput },
-                {  "output", _CreateOutput },
-                {  "andgate", _CreateAndGate },
-                {  "orgate", _CreateOrGate },
+                {  ModelConstants.TagElementPin, CreatePin },
+                {  ModelConstants.TagElementWire, CreateWire },
+                {  ModelConstants.TagElementInput, CreateInput },
+                {  ModelConstants.TagElementOutput, CreateOutput },
+                {  ModelConstants.TagElementAndGate, CreateAndGate },
+                {  ModelConstants.TagElementOrGate, CreateOrGate },
             };
         }
 
-        private object _CreatePin(object[] data, double x, double y, bool snap)
+        private object CreatePin(object[] data, double x, double y, bool snap)
         {
             if (data == null || data.Length != 1)
                 return null;
@@ -139,7 +139,7 @@ namespace CanvasDiagramEditor
             return thumb;
         }
 
-        private object _CreateWire(object[] data, double x, double y, bool snap)
+        private object CreateWire(object[] data, double x, double y, bool snap)
         {
             if (data == null || data.Length != 9)
                 return null;
@@ -172,7 +172,7 @@ namespace CanvasDiagramEditor
             return line;
         }
 
-        private object _CreateInput(object[] data, double x, double y, bool snap)
+        private object CreateInput(object[] data, double x, double y, bool snap)
         {
             if (data == null || data.Length != 2)
                 return null;
@@ -205,7 +205,7 @@ namespace CanvasDiagramEditor
             return thumb;
         }
 
-        private object _CreateOutput(object[] data, double x, double y, bool snap)
+        private object CreateOutput(object[] data, double x, double y, bool snap)
         {
             if (data == null || data.Length != 2)
                 return null;
@@ -238,7 +238,7 @@ namespace CanvasDiagramEditor
             return thumb;
         }
 
-        private object _CreateAndGate(object[] data, double x, double y, bool snap)
+        private object CreateAndGate(object[] data, double x, double y, bool snap)
         {
             if (data == null || data.Length != 1)
                 return null;
@@ -258,7 +258,7 @@ namespace CanvasDiagramEditor
             return thumb;
         }
 
-        private object _CreateOrGate(object[] data, double x, double y, bool snap)
+        private object CreateOrGate(object[] data, double x, double y, bool snap)
         {
             if (data == null || data.Length != 1)
                 return null;
@@ -295,134 +295,12 @@ namespace CanvasDiagramEditor
         public object CreateElement(string type, object[] data, double x, double y, bool snap)
         {
             FactoryFunc func;
-            bool result = Factory.TryGetValue(type.ToLower(), out func);
+            bool result = Factory.TryGetValue(type, out func);
 
             if (result == true && func != null)
                 return func(data, x, y, snap);
 
             return null;
-        }
-
-        public object CreatePin(double x, double y, int id, bool snap)
-        {
-            var thumb = new ElementThumb()
-            {
-                Template = Application.Current.Resources[ResourceConstants.KeyTemplatePin] as ControlTemplate,
-                Style = Application.Current.Resources[ResourceConstants.KeySyleRootThumb] as Style,
-                Uid = ModelConstants.TagElementPin + ModelConstants.TagNameSeparator + id.ToString()
-            };
-
-            SetThumbEvents(thumb);
-            SetPosition(thumb, x, y, snap);
-
-            return thumb;
-        }
-
-        public object CreateWire(double x1, double y1, double x2, double y2,
-            bool startVisible, bool endVisible,
-            bool startIsIO, bool endIsIO,
-            int id)
-        {
-            var line = new LineEx()
-            {
-                Style = Application.Current.Resources[ResourceConstants.KeyStyleWireLine] as Style,
-                X1 = 0, //X1 = x1,
-                Y1 = 0, //Y1 = y1,
-                Margin = new Thickness(x1, y1, 0, 0),
-                X2 = x2 - x1, // X2 = x2,
-                Y2 = y2 - y1, // Y2 = y2,
-                IsStartVisible = startVisible,
-                IsEndVisible = endVisible,
-                IsStartIO = startIsIO,
-                IsEndIO = endIsIO,
-                Uid = ModelConstants.TagElementWire + ModelConstants.TagNameSeparator + id.ToString()
-            };
-
-            return line;
-        }
-
-        public object CreateInput(double x, double y, int id, int tagId, bool snap)
-        {
-            var thumb = new ElementThumb()
-            {
-                Template = Application.Current.Resources[ResourceConstants.KeyTemplateInput] as ControlTemplate,
-                Style = Application.Current.Resources[ResourceConstants.KeySyleRootThumb] as Style,
-                Uid = ModelConstants.TagElementInput + ModelConstants.TagNameSeparator + id.ToString()
-            };
-
-            SetThumbEvents(thumb);
-            SetPosition(thumb, x, y, snap);
-
-            // set element Tag
-            var tags = this.GetTags();
-            if (tags != null)
-            {
-                var tag = tags.Cast<Tag>().Where(t => t.Id == tagId).FirstOrDefault();
-
-                if (tag != null)
-                {
-                    ElementThumb.SetData(thumb, tag);
-                }
-            }
-
-            return thumb;
-        }
-
-        public object CreateOutput(double x, double y, int id, int tagId, bool snap)
-        {
-            var thumb = new ElementThumb()
-            {
-                Template = Application.Current.Resources[ResourceConstants.KeyTemplateOutput] as ControlTemplate,
-                Style = Application.Current.Resources[ResourceConstants.KeySyleRootThumb] as Style,
-                Uid = ModelConstants.TagElementOutput + ModelConstants.TagNameSeparator + id.ToString()
-            };
-
-            SetThumbEvents(thumb);
-            SetPosition(thumb, x, y, snap);
-
-            // set element Tag
-            var tags = this.GetTags();
-            if (tags != null)
-            {
-                var tag = tags.Cast<Tag>().Where(t => t.Id == tagId).FirstOrDefault();
-
-                if (tag != null)
-                {
-                    ElementThumb.SetData(thumb, tag);
-                }
-            }
-
-            return thumb;
-        }
-
-        public object CreateAndGate(double x, double y, int id, bool snap)
-        {
-            var thumb = new ElementThumb()
-            {
-                Template = Application.Current.Resources[ResourceConstants.KeyTemplateAndGate] as ControlTemplate,
-                Style = Application.Current.Resources[ResourceConstants.KeySyleRootThumb] as Style,
-                Uid = ModelConstants.TagElementAndGate + ModelConstants.TagNameSeparator + id.ToString()
-            };
-
-            SetThumbEvents(thumb);
-            SetPosition(thumb, x, y, snap);
-
-            return thumb;
-        }
-
-        public object CreateOrGate(double x, double y, int id, bool snap)
-        {
-            var thumb = new ElementThumb()
-            {
-                Template = Application.Current.Resources[ResourceConstants.KeyTemplateOrGate] as ControlTemplate,
-                Style = Application.Current.Resources[ResourceConstants.KeySyleRootThumb] as Style,
-                Uid = ModelConstants.TagElementOrGate + ModelConstants.TagNameSeparator + id.ToString()
-            };
-
-            SetThumbEvents(thumb);
-            SetPosition(thumb, x, y, snap);
-
-            return thumb;
         }
 
         public object CreateDiagram(DiagramProperties properties)

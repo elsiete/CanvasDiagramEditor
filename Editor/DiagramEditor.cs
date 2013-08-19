@@ -329,16 +329,23 @@ namespace CanvasDiagramEditor.Editor
         private ILine ConnectionCreateFirst(ICanvas canvas, double x, double y, List<MapWire> tuples)
         {
             // update IsStartIO
+            var creator = Context.DiagramCreator;
             var counter = canvas.GetCounter();
             string rootUid = Context.CurrentRoot.GetUid();
 
             bool startIsIO = StringUtil.StartsWith(rootUid, ModelConstants.TagElementInput) 
                 || StringUtil.StartsWith(rootUid, ModelConstants.TagElementOutput);
 
-            var line = Context.DiagramCreator.CreateWire(x, y, x, y,
-                false, false,
-                startIsIO, false,
-                counter.WireCount) as ILine;
+            var line = creator.CreateElement(ModelConstants.TagElementWire,
+                new object[] 
+                {
+                    x, y,
+                    x, y,
+                    false, false,
+                    startIsIO, false,
+                    counter.WireCount
+                },
+                0.0, 0.0, false) as ILine;
 
             counter.WireCount += 1;
             Context.CurrentLine = line;
@@ -515,11 +522,12 @@ namespace CanvasDiagramEditor.Editor
 
         public IElement InsertPin(ICanvas canvas, IPoint point)
         {
+            var creator = Context.DiagramCreator;
             var counter = canvas.GetCounter();
 
-            var thumb = Context.DiagramCreator.CreatePin(point.X, point.Y, 
-                counter.PinCount,
-                Context.EnableSnap) as IThumb;
+            var thumb = creator.CreateElement(ModelConstants.TagElementPin,
+                new object[] { counter.PinCount },
+                point.X, point.Y, Context.EnableSnap) as IThumb;
 
             counter.PinCount += 1;
 
@@ -530,12 +538,12 @@ namespace CanvasDiagramEditor.Editor
 
         public IElement InsertInput(ICanvas canvas, IPoint point)
         {
+            var creator = Context.DiagramCreator;
             var counter = canvas.GetCounter();
 
-            var thumb = Context.DiagramCreator.CreateInput(point.X, point.Y, 
-                counter.InputCount, 
-                -1, 
-                Context.EnableSnap) as IThumb;
+            var thumb = creator.CreateElement(ModelConstants.TagElementInput,
+                new object[] { counter.InputCount, -1 },
+                point.X, point.Y, Context.EnableSnap) as IThumb;
 
             counter.InputCount += 1;
 
@@ -546,12 +554,12 @@ namespace CanvasDiagramEditor.Editor
 
         public IElement InsertOutput(ICanvas canvas, IPoint point)
         {
+            var creator = Context.DiagramCreator;
             var counter = canvas.GetCounter();
 
-            var thumb = Context.DiagramCreator.CreateOutput(point.X, point.Y, 
-                counter.OutputCount, 
-                -1, 
-                Context.EnableSnap) as IThumb;
+            var thumb = creator.CreateElement(ModelConstants.TagElementOutput,
+                new object[] { counter.OutputCount, -1 },
+                point.X, point.Y, Context.EnableSnap) as IThumb;
 
             counter.OutputCount += 1;
 
@@ -562,11 +570,12 @@ namespace CanvasDiagramEditor.Editor
 
         public IElement InsertAndGate(ICanvas canvas, IPoint point)
         {
+            var creator = Context.DiagramCreator;
             var counter = canvas.GetCounter();
 
-            var thumb = Context.DiagramCreator.CreateAndGate(point.X, point.Y, 
-               counter.AndGateCount, 
-                Context.EnableSnap) as IThumb;
+            var thumb = creator.CreateElement(ModelConstants.TagElementAndGate,
+                new object[] { counter.AndGateCount },
+                point.X, point.Y, Context.EnableSnap) as IThumb;
 
             counter.AndGateCount += 1;
 
@@ -577,11 +586,12 @@ namespace CanvasDiagramEditor.Editor
 
         public IElement InsertOrGate(ICanvas canvas, IPoint point)
         {
+            var creator = Context.DiagramCreator;
             var counter = canvas.GetCounter();
 
-            var thumb = Context.DiagramCreator.CreateOrGate(point.X, point.Y, 
-                counter.OrGateCount, 
-                Context.EnableSnap) as IThumb;
+            var thumb = creator.CreateElement(ModelConstants.TagElementOrGate,
+                new object[] { counter.OrGateCount },
+                point.X, point.Y, Context.EnableSnap) as IThumb;
 
             counter.OrGateCount += 1;
 
@@ -1727,7 +1737,7 @@ namespace CanvasDiagramEditor.Editor
                 Model.Load(canvas, creator, newItem);
             }
 
-            System.Diagnostics.Debug.Print("Old Uid: {0}, new Uid: {1}", oldUid, newUid);
+            //System.Diagnostics.Debug.Print("Old Uid: {0}, new Uid: {1}", oldUid, newUid);
 
             return isNewItemDiagram;
         }

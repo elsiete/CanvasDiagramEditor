@@ -40,20 +40,7 @@ namespace CanvasDiagramEditor.Core
         void SetCanvas(ICanvas canvas);
         ICanvas GetCanvas();
 
-        object CreatePin(double x, double y, int id, bool snap);
-        object CreateWire(double x1, double y1, double x2, double y2,
-            bool startVisible, bool endVisible,
-            bool startIsIO, bool endIsIO,
-            int id);
-
-        object CreateInput(double x, double y, int id, int tagId, bool snap);
-        object CreateOutput(double x, double y, int id, int tagId, bool snap);
-
-        object CreateAndGate(double x, double y, int id, bool snap);
-        object CreateOrGate(double x, double y, int id, bool snap);
-
         object CreateElement(string type, object[] data, double x, double y, bool snap);
-
         object CreateDiagram(DiagramProperties properties);
         object CreateGrid(double originX, double originY, double width, double height, double size);
 
