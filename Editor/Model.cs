@@ -832,6 +832,10 @@ namespace CanvasDiagramEditor.Editor
 
         public static void IdsUpdateCounter(IdCounter original, IdCounter counter)
         {
+            original.SolutionCount = Math.Max(original.SolutionCount, counter.SolutionCount);
+            original.ProjectCount = Math.Max(original.ProjectCount, counter.ProjectCount);
+            original.DiagramCount = Math.Max(original.DiagramCount, counter.DiagramCount);
+
             original.PinCount = Math.Max(original.PinCount, counter.PinCount);
             original.WireCount = Math.Max(original.WireCount, counter.WireCount);
             original.InputCount = Math.Max(original.InputCount, counter.InputCount);
