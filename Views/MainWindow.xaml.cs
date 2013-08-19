@@ -37,19 +37,19 @@ namespace CanvasDiagramEditor
 
         private DiagramEditor Editor { get; set; }
 
-        private string LogicDictionaryUri = "Views/LogicDictionary.xaml";
+        private string ResourcesUri = "Views/LogicDictionary.xaml";
 
         private PointEx InsertPointInput = new PointEx(30, 30.0);
         private PointEx InsertPointOutput = new PointEx(930.0, 30.0);
         private PointEx InsertPointGate = new PointEx(325.0, 30.0);
 
-        private const double PageWidth = 1260;
-        private const double PageHeight = 891;
+        private double PageWidth = 1260;
+        private double PageHeight = 891;
 
         private LineGuidesAdorner GuidesAdorner = null;
 
-        private const double GuideSpeedUpLevel1 = 2.0;
-        private const double GuideSpeedUpLevel2 = 2.0;
+        private double GuideSpeedUpLevel1 = 2.0;
+        private double GuideSpeedUpLevel2 = 2.0;
 
         #endregion
 
@@ -282,7 +282,6 @@ namespace CanvasDiagramEditor
 
             creator.SetThumbEvents = (thumb) => SetThumbEvents(thumb);
             creator.SetPosition = (element, left, top, snap) => Editor.SetPosition(element, left, top, snap);
-            
             creator.GetTags = () => Editor.Context.Tags;
             creator.GetCounter = () => Editor.Context.CurrentCanvas.GetCounter();
 
@@ -808,50 +807,56 @@ namespace CanvasDiagramEditor
 
         private void EnableHistory_Click(object sender, RoutedEventArgs e)
         {
-            Editor.Context.EnableHistory = EnableHistory.IsChecked == true ? true : false;
+            Editor.Context.EnableHistory = 
+                EnableHistory.IsChecked == true ? true : false;
 
             if (Editor.Context.EnableHistory == false)
             {
                 var canvas = Editor.Context.CurrentCanvas;
-
                 History.Clear(canvas);
             }
         }
 
         private void EnableSnap_Click(object sender, RoutedEventArgs e)
         {
-            Editor.Context.EnableSnap = EnableSnap.IsChecked == true ? true : false;
+            Editor.Context.EnableSnap = 
+                EnableSnap.IsChecked == true ? true : false;
         }
 
         private void SnapOnRelease_Click(object sender, RoutedEventArgs e)
         {
-            Editor.Context.SnapOnRelease = SnapOnRelease.IsChecked == true ? true : false;
+            Editor.Context.SnapOnRelease = 
+                SnapOnRelease.IsChecked == true ? true : false;
         }
 
         private void EnableInsertLast_Click(object sender, RoutedEventArgs e)
         {
-            Editor.Context.EnableInsertLast = EnableInsertLast.IsChecked == true ? true : false;
+            Editor.Context.EnableInsertLast = 
+                EnableInsertLast.IsChecked == true ? true : false;
         }
 
         private void EnablePage_Click(object sender, RoutedEventArgs e)
         {
             var diagram = this.DiagramControl;
             var visibility = diagram.Visibility;
-            diagram.Visibility = visibility == Visibility.Collapsed ? Visibility.Visible : Visibility.Collapsed;
+            diagram.Visibility = visibility == Visibility.Collapsed ? 
+                Visibility.Visible : Visibility.Collapsed;
         }
 
         private void EnablePageGrid_Click(object sender, RoutedEventArgs e)
         {
             var grid = this.DiagramControl.DiagramGrid;
             var visibility = grid.Visibility;
-            grid.Visibility = visibility == Visibility.Collapsed ? Visibility.Visible :Visibility.Collapsed;
+            grid.Visibility = visibility == Visibility.Collapsed ? 
+                Visibility.Visible :Visibility.Collapsed;
         }
 
         private void EnablePageTemplate_Click(object sender, RoutedEventArgs e)
         {
             var template = this.DiagramControl.DiagramTemplate;
             var visibility = template.Visibility;
-            template.Visibility = visibility == Visibility.Collapsed ? Visibility.Visible : Visibility.Collapsed;
+            template.Visibility = visibility == Visibility.Collapsed ? 
+                Visibility.Visible : Visibility.Collapsed;
         }
 
         #endregion
@@ -1170,17 +1175,9 @@ namespace CanvasDiagramEditor
 
         public List<IElement> GetSeletedIO()
         {
-            var selected = GetSelectedInputOutputElements();
-
-            if (selected.Count == 0)
-            {
-                var all = GetAllInputOutputElements();
-                return all;
-            }
-            else
-            {
-                return selected;
-            }
+            var selected = Editor.GetSelectedInputOutputElements();
+            return (selected.Count() == 0) ? 
+                Editor.GetAllInputOutputElements().ToList() : selected.ToList();
         }
 
         private void InitializeTagEditor()
@@ -1188,9 +1185,7 @@ namespace CanvasDiagramEditor
             var control = this.TagEditorControl;
 
             if (Editor.Context.Tags == null)
-            {
                 Editor.Context.Tags = new List<object>();
-            }
 
             control.Selected = GetSeletedIO();
             control.Tags = Editor.Context.Tags;
@@ -1201,30 +1196,6 @@ namespace CanvasDiagramEditor
                 control.Selected = GetSeletedIO();
                 control.UpdateSelected();
             };
-        }
-
-        private List<IElement> GetAllInputOutputElements()
-        {
-            var all = Editor.GetElementsAll().Where(x =>
-            {
-                string uid = x.GetUid();
-                return StringUtil.StartsWith(uid, ModelConstants.TagElementInput) ||
-                    StringUtil.StartsWith(uid, ModelConstants.TagElementOutput);
-            }).ToList();
-
-            return all;
-        }
-
-        private List<IElement> GetSelectedInputOutputElements()
-        {
-            var selected = Editor.GetElementsSelected().Where(x =>
-            {
-                string uid = x.GetUid();
-                return StringUtil.StartsWith(uid, ModelConstants.TagElementInput) ||
-                    StringUtil.StartsWith(uid, ModelConstants.TagElementOutput);
-            }).ToList();
-
-            return selected;
         }
 
         #endregion
@@ -1312,8 +1283,8 @@ namespace CanvasDiagramEditor
 
         public void ShowTableEditor()
         {
-            // SetLogo(1);
-            // SetLogo(2);
+            SetLogo(1);
+            SetLogo(2);
         }
 
         #endregion
@@ -1337,294 +1308,8 @@ namespace CanvasDiagramEditor
                 double zoom_fx = this.DiagramControl.Zoom(zoom);
 
                 if (GuidesAdorner != null)
-                {
                     GuidesAdorner.StrokeThickness = 1.0 / zoom_fx;
-                }
             }
-        }
-
-        #endregion
-
-        #region Fixed Document
-
-        private void SetPrintStrokeSthickness(ResourceDictionary resources)
-        {
-            if (resources == null)
-                return;
-
-            resources[ResourceConstants.KeyLogicStrokeThickness] = DipUtil.MmToDip(DxfDiagramCreator.LogicThicknessMm);
-            resources[ResourceConstants.KeyWireStrokeThickness] = DipUtil.MmToDip(DxfDiagramCreator.WireThicknessMm);
-            resources[ResourceConstants.KeyElementStrokeThickness] = DipUtil.MmToDip(DxfDiagramCreator.ElementThicknessMm);
-            resources[ResourceConstants.KeyIOStrokeThickness] = DipUtil.MmToDip(DxfDiagramCreator.IOThicknessMm);
-            resources[ResourceConstants.KeyPageStrokeThickness] = DipUtil.MmToDip(DxfDiagramCreator.PageThicknessMm);
-        }
-
-        private void SetPrintColors(ResourceDictionary resources)
-        {
-            if (resources == null)
-                return;
-
-            var backgroundColor = resources["LogicBackgroundColorKey"] as SolidColorBrush;
-            backgroundColor.Color = Colors.White;
-
-            var gridColor = resources["LogicGridColorKey"] as SolidColorBrush;
-            gridColor.Color = Colors.Transparent;
-
-            var pageColor = resources["LogicTemplateColorKey"] as SolidColorBrush;
-            pageColor.Color = Colors.Black;
-
-            var logicColor = resources["LogicColorKey"] as SolidColorBrush;
-            logicColor.Color = Colors.Black;
-
-            var logicSelectedColor = resources["LogicSelectedColorKey"] as SolidColorBrush;
-            logicSelectedColor.Color = Colors.Black;
-
-            var helperColor = resources["LogicTransparentColorKey"] as SolidColorBrush;
-            helperColor.Color = Colors.Transparent;
-        }
-
-        private void SetElementResources(ResourceDictionary resources, bool fixedStrokeThickness)
-        {
-            // set print dictionary
-            resources.Source = new Uri(LogicDictionaryUri, UriKind.Relative);
-
-            if (fixedStrokeThickness == false)
-            {
-                SetPrintStrokeSthickness(resources);
-            }
-
-            // set print colors
-            SetPrintColors(resources);
-        }
-
-        public FrameworkElement CreateDiagramElement(string diagram, 
-            Size areaExtent, 
-            Point origin, 
-            Rect area,
-            bool fixedStrokeThickness,
-            ResourceDictionary resources)
-        {
-            var grid = new Grid()
-            {
-                ClipToBounds = true,
-                Resources = resources
-            };
-
-            //SetElementResources(grid.Resources, fixedStrokeThickness);
-
-            // set element template and content
-            var template = new Control()
-            {
-                Template = grid.Resources["LandscapePageTemplateKey"] as ControlTemplate
-            };
-
-            var canvas = new DiagramCanvas()
-            {
-                Width = Editor.Context.CurrentCanvas.GetWidth(),
-                Height = Editor.Context.CurrentCanvas.GetHeight()
-            };
-
-            Model.Parse(diagram,
-                canvas, Editor.Context.DiagramCreator, 
-                0, 0, 
-                false, false, false, true);
-
-            grid.Children.Add(template);
-            grid.Children.Add(canvas);
-
-            // set diagram table
-            var table = TableGrid.GetData(this);
-            TableGrid.SetData(grid, table);
-
-            // set shorten flags
-            LineEx.SetShortenStart(grid, ShortenStart.IsChecked.Value);
-            LineEx.SetShortenEnd(grid, ShortenEnd.IsChecked.Value);
-
-            return grid;
-        }
-
-        public FixedDocument CreateFixedDocument(IEnumerable<string> diagrams, 
-            Size areaExtent, 
-            Size areaOrigin, 
-            bool fixedStrokeThickness)
-        {
-            var origin = new Point(areaOrigin.Width, areaOrigin.Height);
-            var area = new Rect(origin, areaExtent);
-            var scale = Math.Min(areaExtent.Width / PageWidth, areaExtent.Height / PageHeight);
-
-            // create fixed document
-            var fixedDocument = new FixedDocument() { Name = "diagrams" };
-
-            SetElementResources(fixedDocument.Resources, fixedStrokeThickness);
-
-            //fixedDocument.DocumentPaginator.PageSize = new Size(areaExtent.Width, areaExtent.Height);
-
-            foreach (var diagram in diagrams)
-            {
-                var pageContent = new PageContent();
-                var fixedPage = new FixedPage();
-
-                //pageContent.Child = fixedPage;
-                ((IAddChild)pageContent).AddChild(fixedPage);
-
-                fixedDocument.Pages.Add(pageContent);
-
-                fixedPage.Width = areaExtent.Width;
-                fixedPage.Height = areaExtent.Height;
-
-                var element = CreateDiagramElement(diagram, 
-                    areaExtent, 
-                    origin, 
-                    area, 
-                    fixedStrokeThickness,
-                    fixedDocument.Resources);
-
-                // transform and scale for print
-                element.LayoutTransform = new ScaleTransform(scale, scale);
-
-                // set element position
-                FixedPage.SetLeft(element, areaOrigin.Width);
-                FixedPage.SetTop(element, areaOrigin.Height);
-
-                // add element to page
-                fixedPage.Children.Add(element);
-
-                // update fixed page layout
-                //fixedPage.Measure(areaExtent);
-                //fixedPage.Arrange(area);
-            }
-
-            return fixedDocument;
-        }
-
-        public FixedDocumentSequence CreateFixedDocumentSequence(IEnumerable<IEnumerable<string>> projects, 
-            Size areaExtent, 
-            Size areaOrigin,
-            bool fixedStrokeThickness)
-        {
-            var fixedDocumentSeq = new FixedDocumentSequence() { Name = "diagrams" };
-
-            foreach (var diagrams in projects)
-            {
-                var fixedDocument = CreateFixedDocument(diagrams, 
-                    areaExtent, 
-                    areaOrigin, 
-                    fixedStrokeThickness);
-
-                var documentRef = new DocumentReference();
-                documentRef.BeginInit();
-                documentRef.SetDocument(fixedDocument);
-                documentRef.EndInit();
-
-                (fixedDocumentSeq as IAddChild).AddChild(documentRef);
-            }
-
-            return fixedDocumentSeq;
-        }
-
-        #endregion
-
-        #region Print
-
-        private void SetPrintDialogOptions(PrintDialog dlg)
-        {
-            if (dlg == null)
-                throw new ArgumentNullException();
-
-            dlg.PrintQueue = LocalPrintServer.GetDefaultPrintQueue();
-
-            dlg.PrintTicket = dlg.PrintQueue.DefaultPrintTicket;
-            dlg.PrintTicket.PageOrientation = PageOrientation.Landscape;
-            dlg.PrintTicket.OutputQuality = OutputQuality.High;
-            dlg.PrintTicket.TrueTypeFontMode = TrueTypeFontMode.DownloadAsNativeTrueTypeFont;
-        }
-
-        private bool ShowPrintDialog(PrintDialog dlg)
-        {
-            if (dlg == null)
-                throw new ArgumentNullException();
-
-            // configure printer
-            SetPrintDialogOptions(dlg);
-
-            // show print dialog
-            if (dlg.ShowDialog() == true)
-                return true;
-            else
-                return false;
-        }
-
-        public void Print(IEnumerable<string> diagrams, string name)
-        {
-            var dlg = new PrintDialog();
-
-            ShowPrintDialog(dlg);
-
-            // print capabilities
-            var caps = dlg.PrintQueue.GetPrintCapabilities(dlg.PrintTicket);
-            var areaExtent = new Size(caps.PageImageableArea.ExtentWidth, caps.PageImageableArea.ExtentHeight);
-            var areaOrigin = new Size(caps.PageImageableArea.OriginWidth, caps.PageImageableArea.OriginHeight);
-
-            // create document
-            var s = System.Diagnostics.Stopwatch.StartNew();
-
-            var fixedDocument = CreateFixedDocument(diagrams, 
-                areaExtent, 
-                areaOrigin,
-                false);
-
-            s.Stop();
-            System.Diagnostics.Debug.Print("CreateFixedDocument in {0}ms", s.Elapsed.TotalMilliseconds);
-
-            // print document
-            dlg.PrintDocument(fixedDocument.DocumentPaginator, name);
-        }
-
-        public void PrintSequence(IEnumerable<IEnumerable<string>> projects, string name)
-        {
-            if (projects == null)
-                throw new ArgumentNullException();
-
-            var dlg = new PrintDialog();
-
-            ShowPrintDialog(dlg);
-
-            // print capabilities
-            var caps = dlg.PrintQueue.GetPrintCapabilities(dlg.PrintTicket);
-            var areaExtent = new Size(caps.PageImageableArea.ExtentWidth, caps.PageImageableArea.ExtentHeight);
-            var areaOrigin = new Size(caps.PageImageableArea.OriginWidth, caps.PageImageableArea.OriginHeight);
-
-            // create document
-            var s = System.Diagnostics.Stopwatch.StartNew();
-
-            var fixedDocumentSeq = CreateFixedDocumentSequence(projects, 
-                areaExtent, 
-                areaOrigin,
-                false);
-
-            s.Stop();
-            System.Diagnostics.Debug.Print("CreateFixedDocumentSequence in {0}ms", s.Elapsed.TotalMilliseconds);
-
-            // print document
-            dlg.PrintDocument(fixedDocumentSeq.DocumentPaginator, name);
-        }
-
-        public void Print()
-        {
-            Editor.ModelUpdateSelectedDiagram();
-
-            var diagrams = Editor.ModelGenerateSolution(null, false).Item2;
-
-            Print(diagrams, "solution");
-        }
-
-        public void PrintHistory()
-        {
-            Editor.ModelUpdateSelectedDiagram();
-
-            var diagrams = Editor.ModelGenerateSolution(null, true).Item2;
-
-            Print(diagrams, "history");
         }
 
         #endregion
@@ -1686,10 +1371,13 @@ namespace CanvasDiagramEditor
             var areaExtent = new Size(PageWidth, PageHeight);
             var areaOrigin = new Size(0, 0);
 
-            var fixedDocument = CreateFixedDocument(diagrams,
-                areaExtent,
-                areaOrigin,
-                true);
+            var printer = GetDefaultPrinter();
+            var table = TableGrid.GetData(this) as DiagramTable;
+
+            var fixedDocument = printer.CreateFixedDocument(diagrams,
+                areaExtent, areaOrigin,
+                true,
+                table);
 
             var window = new Window()
             {
@@ -1700,13 +1388,52 @@ namespace CanvasDiagramEditor
                 WindowState = WindowState.Maximized
             };
 
-            var viewer = new DocumentViewer();
-
-            viewer.Document = fixedDocument;
+            var viewer = new DocumentViewer() { Document = fixedDocument };
 
             window.Content = viewer;
 
             window.Show();
+        }
+
+        #endregion
+
+        #region Print
+
+        private WpfDiagramPrinter GetDefaultPrinter()
+        {
+            return new WpfDiagramPrinter()
+            {
+                DiagramCreator = this.Editor.Context.DiagramCreator,
+                ResourcesUri = this.ResourcesUri,
+                PageWidth = PageWidth,
+                PageHeight = PageHeight,
+                ShortenStart = this.ShortenStart.IsChecked.Value,
+                ShortenEnd = this.ShortenEnd.IsChecked.Value
+            };
+        }
+
+        private void Print()
+        {
+            var printer = GetDefaultPrinter();
+            var table = TableGrid.GetData(this) as DiagramTable;
+
+            Editor.ModelUpdateSelectedDiagram();
+
+            var diagrams = Editor.ModelGenerateSolution(null, false).Item2;
+
+            printer.Print(diagrams, "solution", table);
+        }
+
+        private void PrintHistory()
+        {
+            var printer = GetDefaultPrinter();
+            var table = TableGrid.GetData(this) as DiagramTable;
+
+            Editor.ModelUpdateSelectedDiagram();
+
+            var diagrams = Editor.ModelGenerateSolution(null, true).Item2;
+
+            printer.Print(diagrams, "history", table);
         }
 
         #endregion

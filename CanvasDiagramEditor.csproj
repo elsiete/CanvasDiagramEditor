@@ -64,6 +64,7 @@
     <Compile Include="DxfInspect.cs" />
     <Compile Include="DxfDiagramCreator.cs" />
     <Compile Include="Editor\History.cs" />
+    <Compile Include="WpfDiagramPrinter.cs" />
     <Compile Include="Util\PathUtil.cs" />
     <Compile Include="Util\SnapUtil.cs" />
     <Compile Include="Util\WindowsClipboard.cs" />

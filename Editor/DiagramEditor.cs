@@ -1220,6 +1220,26 @@ namespace CanvasDiagramEditor.Editor
             return Model.GetAll(canvas);
         }
 
+        public IEnumerable<IElement> GetAllInputOutputElements()
+        {
+            return GetElementsAll().Where(x =>
+            {
+                string uid = x.GetUid();
+                return StringUtil.StartsWith(uid, ModelConstants.TagElementInput) ||
+                    StringUtil.StartsWith(uid, ModelConstants.TagElementOutput);
+            });
+        }
+
+        public IEnumerable<IElement> GetSelectedInputOutputElements()
+        {
+            return GetElementsSelected().Where(x =>
+            {
+                string uid = x.GetUid();
+                return StringUtil.StartsWith(uid, ModelConstants.TagElementInput) ||
+                    StringUtil.StartsWith(uid, ModelConstants.TagElementOutput);
+            });
+        }
+
         public void SelectAll()
         {
             var canvas = Context.CurrentCanvas;
