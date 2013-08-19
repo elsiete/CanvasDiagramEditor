@@ -1361,7 +1361,7 @@ namespace CanvasDiagramEditor
         {
             Editor.ModelUpdateSelectedDiagram();
 
-            var diagrams = Editor.ModelGenerateSolution(null, false).Item2;
+            var diagrams = Editor.ModelGenerateSolution(null, true).Item2;
 
             ShowDiagramsWindow(diagrams, "Diagram History");
         }
