@@ -48,8 +48,8 @@ namespace CanvasDiagramEditor
 
         private LineGuidesAdorner GuidesAdorner = null;
 
-        private const double GuideSpeedUpLevel1 = 4.0;
-        private const double GuideSpeedUpLevel2 = 3.0;
+        private const double GuideSpeedUpLevel1 = 2.0;
+        private const double GuideSpeedUpLevel2 = 2.0;
 
         #endregion
 
