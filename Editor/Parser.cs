@@ -20,38 +20,42 @@ namespace CanvasDiagramEditor.Editor
     using MapWire = Tuple<object, object, object>;
     using MapWires = Tuple<object, List<Tuple<string, string>>>;
     using Selection = Tuple<bool, List<Tuple<object, object, object>>>;
-    using History = Tuple<Stack<string>, Stack<string>>;
+    using UndoRedo = Tuple<Stack<string>, Stack<string>>;
     using Diagram = Tuple<string, Tuple<Stack<string>, Stack<string>>>;
     using TreeDiagram = Stack<string>;
     using TreeDiagrams = Stack<Stack<string>>;
     using TreeProject = Tuple<string, Stack<Stack<string>>>;
     using TreeProjects = Stack<Tuple<string, Stack<Stack<string>>>>;
-    using TreeSolution = Tuple<string, string, Stack<Tuple<string, Stack<Stack<string>>>>>; 
+    using TreeSolution = Tuple<string, string, Stack<Tuple<string, Stack<Stack<string>>>>>;
+    using Position = Tuple<double, double>;
+    using Connection = Tuple<IElement, List<Tuple<object, object, object>>>;
+    using Connections = List<Tuple<IElement, List<Tuple<object, object, object>>>>;
+    using Solution = Tuple<string, IEnumerable<string>>; 
 
     #endregion
 
-    #region DiagramParser
+    #region Parser
 
-    public class DiagramParser : IDiagramParser
+    public class Parser : IDiagramParser
     {
         #region Parse
 
         public TreeSolution Parse(string model, IDiagramCreator creator, ParseOptions options)
         {
+            if (model == null || creator == null || options == null)
+                return null;
+
             double offsetX = options.OffsetX;
-            double offsetY = options.OffsetX;
+            double offsetY = options.OffsetY;
             bool appendIds = options.AppendIds;
             bool updateIds = options.UpdateIds;
             bool select = options.Select;
             bool createElements = options.CreateElements;
 
-            if (model == null)
-                return null;
-
-            var sw = System.Diagnostics.Stopwatch.StartNew();
-
             string name = null;
+            string root = null;
             var counter = new IdCounter();
+            var total = new IdCounter();
             var elements = new List<object>();
             MapWires tuple = null;
             var dict = new Dictionary<string, MapWires>();
@@ -62,10 +66,10 @@ namespace CanvasDiagramEditor.Editor
             TreeDiagrams diagrams = null;
             TreeDiagram diagram = null;
 
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+
             var lines = model.Split(Environment.NewLine.ToCharArray(),
                 StringSplitOptions.RemoveEmptyEntries);
-
-            //System.Diagnostics.Debug.Print("Parsing model:");
 
             foreach (var line in lines)
             {
@@ -73,26 +77,25 @@ namespace CanvasDiagramEditor.Editor
                     StringSplitOptions.RemoveEmptyEntries);
 
                 int length = args.Length;
-
-                //System.Diagnostics.Debug.Print(line);
-
                 if (length < 2)
                     continue;
 
+                root = args[0];
                 name = args[1];
 
                 // root element
-                if (StringUtil.Compare(args[0], ModelConstants.PrefixRoot))
+                if (StringUtil.Compare(root, ModelConstants.PrefixRoot))
                 {
                     // Solution
                     if (StringUtil.StartsWith(name, ModelConstants.TagHeaderSolution) &&
                         (length == 2 || length == 3))
                     {
-                        string tagFileName = null;
-                        if (length == 3)
-                        {
-                            tagFileName = args[2];
-                        }
+                        int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
+                        counter.SolutionCount = Math.Max(counter.SolutionCount, id + 1);
+
+                        total.SolutionCount++;
+
+                        string tagFileName = (length == 3) ? args[2] : null;
 
                         projects = new TreeProjects();
                         solution = new TreeSolution(name, tagFileName, projects);
@@ -102,6 +105,11 @@ namespace CanvasDiagramEditor.Editor
                     else if (StringUtil.StartsWith(name, ModelConstants.TagHeaderProject) &&
                         length == 2)
                     {
+                        int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
+                        counter.ProjectCount = Math.Max(counter.ProjectCount, id + 1);
+
+                        total.ProjectCount++;
+
                         if (projects != null)
                         {
                             diagrams = new TreeDiagrams();
@@ -114,6 +122,11 @@ namespace CanvasDiagramEditor.Editor
                     else if (StringUtil.StartsWith(name, ModelConstants.TagHeaderDiagram) &&
                         length == 13)
                     {
+                        int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
+                        counter.DiagramCount = Math.Max(counter.DiagramCount, id + 1);
+
+                        total.DiagramCount++;
+
                         if (diagrams != null)
                         {
                             diagram = new TreeDiagram();
@@ -148,32 +161,29 @@ namespace CanvasDiagramEditor.Editor
                         length == 4)
                     {
                         if (diagram != null)
-                        {
                             diagram.Push(line);
-                        }
+
+                        total.PinCount++;
 
                         if (createElements == true)
                         {
                             double x = double.Parse(args[2]);
                             double y = double.Parse(args[3]);
-
                             int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
 
                             counter.PinCount = Math.Max(counter.PinCount, id + 1);
 
-                            var element = creator.CreatePin(x + offsetX, y + offsetY, id, false);
+                            var element = creator.CreateElement(ModelConstants.TagElementPin,
+                                new object[] { id },
+                                x + offsetX, y + offsetY, false);
                             elements.Add(element);
 
                             tuple = new MapWires(element, new List<MapPin>());
 
                             if (dict.ContainsKey(name) == false)
-                            {
                                 dict.Add(name, tuple);
-                            }
                             else
-                            {
                                 System.Diagnostics.Debug.Print("Dictionary already contains name key: {0}", name);
-                            }
                         }
                     }
 
@@ -182,39 +192,30 @@ namespace CanvasDiagramEditor.Editor
                         (length == 4 || length == 5))
                     {
                         if (diagram != null)
-                        {
                             diagram.Push(line);
-                        }
+
+                        total.InputCount++;
 
                         if (createElements == true)
                         {
                             double x = double.Parse(args[2]);
                             double y = double.Parse(args[3]);
-
                             int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
-
-                            int tagId = -1;
-
-                            if (length == 5)
-                            {
-                                tagId = int.Parse(args[4]);
-                            }
+                            int tagId = (length == 5) ? int.Parse(args[4]) : -1;
 
                             counter.InputCount = Math.Max(counter.InputCount, id + 1);
 
-                            var element = creator.CreateInput(x + offsetX, y + offsetY, id, tagId, false);
+                            var element = creator.CreateElement(ModelConstants.TagElementInput,
+                                new object[] { id, tagId },
+                                x + offsetX, y + offsetY, false);
                             elements.Add(element);
 
                             tuple = new MapWires(element, new List<MapPin>());
 
                             if (dict.ContainsKey(name) == false)
-                            {
                                 dict.Add(name, tuple);
-                            }
                             else
-                            {
                                 System.Diagnostics.Debug.Print("Dictionary already contains name key: {0}", name);
-                            }
                         }
                     }
 
@@ -223,39 +224,30 @@ namespace CanvasDiagramEditor.Editor
                         (length == 4 || length == 5))
                     {
                         if (diagram != null)
-                        {
                             diagram.Push(line);
-                        }
+
+                        total.OutputCount++;
 
                         if (createElements == true)
                         {
                             double x = double.Parse(args[2]);
                             double y = double.Parse(args[3]);
-
                             int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
-
-                            int tagId = -1;
-
-                            if (length == 5)
-                            {
-                                tagId = int.Parse(args[4]);
-                            }
+                            int tagId = (length == 5) ? int.Parse(args[4]) : -1;
 
                             counter.OutputCount = Math.Max(counter.OutputCount, id + 1);
 
-                            var element = creator.CreateOutput(x + offsetX, y + offsetY, id, tagId, false);
+                            var element = creator.CreateElement(ModelConstants.TagElementOutput,
+                                new object[] { id, tagId },
+                                x + offsetX, y + offsetY, false);
                             elements.Add(element);
 
                             tuple = new MapWires(element, new List<MapPin>());
 
                             if (dict.ContainsKey(name) == false)
-                            {
                                 dict.Add(name, tuple);
-                            }
                             else
-                            {
                                 System.Diagnostics.Debug.Print("Dictionary already contains name key: {0}", name);
-                            }
                         }
                     }
 
@@ -264,32 +256,29 @@ namespace CanvasDiagramEditor.Editor
                         length == 4)
                     {
                         if (diagram != null)
-                        {
                             diagram.Push(line);
-                        }
+
+                        total.AndGateCount++;
 
                         if (createElements == true)
                         {
                             double x = double.Parse(args[2]);
                             double y = double.Parse(args[3]);
-
                             int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
 
                             counter.AndGateCount = Math.Max(counter.AndGateCount, id + 1);
 
-                            var element = creator.CreateAndGate(x + offsetX, y + offsetY, id, false);
+                            var element = creator.CreateElement(ModelConstants.TagElementAndGate,
+                                new object[] { id },
+                                x + offsetX, y + offsetY, false);
                             elements.Add(element);
 
                             tuple = new MapWires(element, new List<MapPin>());
 
                             if (dict.ContainsKey(name) == false)
-                            {
                                 dict.Add(name, tuple);
-                            }
                             else
-                            {
                                 System.Diagnostics.Debug.Print("Dictionary already contains name key: {0}", name);
-                            }
                         }
                     }
 
@@ -298,32 +287,29 @@ namespace CanvasDiagramEditor.Editor
                         length == 4)
                     {
                         if (diagram != null)
-                        {
                             diagram.Push(line);
-                        }
+
+                        total.OrGateCount++;
 
                         if (createElements == true)
                         {
                             double x = double.Parse(args[2]);
                             double y = double.Parse(args[3]);
-
                             int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
 
                             counter.OrGateCount = Math.Max(counter.OrGateCount, id + 1);
 
-                            var element = creator.CreateOrGate(x + offsetX, y + offsetY, id, false);
+                            var element = creator.CreateElement(ModelConstants.TagElementOrGate,
+                                new object[] { id },
+                                x + offsetX, y + offsetY, false);
                             elements.Add(element);
 
                             tuple = new MapWires(element, new List<MapPin>());
 
                             if (dict.ContainsKey(name) == false)
-                            {
                                 dict.Add(name, tuple);
-                            }
                             else
-                            {
                                 System.Diagnostics.Debug.Print("Dictionary already contains name key: {0}", name);
-                            }
                         }
                     }
 
@@ -332,9 +318,9 @@ namespace CanvasDiagramEditor.Editor
                         (length == 6 || length == 8 || length == 10))
                     {
                         if (diagram != null)
-                        {
                             diagram.Push(line);
-                        }
+
+                        total.WireCount++;
 
                         if (createElements == true)
                         {
@@ -342,61 +328,44 @@ namespace CanvasDiagramEditor.Editor
                             double y1 = double.Parse(args[3]);
                             double x2 = double.Parse(args[4]);
                             double y2 = double.Parse(args[5]);
-
-                            bool startVisible = false;
-                            bool endVisible = false;
-
-                            bool startIsIO = false;
-                            bool endIsIO = false;
-
-                            if (length == 8 || length == 10)
-                            {
-                                startVisible = bool.Parse(args[6]);
-                                endVisible = bool.Parse(args[7]);
-                            }
-
-                            if (length == 10)
-                            {
-                                startIsIO = bool.Parse(args[8]);
-                                endIsIO = bool.Parse(args[9]);
-                            }
-
+                            bool startVisible = (length == 8 || length == 10) ? bool.Parse(args[6]) : false;
+                            bool endVisible = (length == 8 || length == 10) ? bool.Parse(args[7]) : false;
+                            bool startIsIO = (length == 10) ? bool.Parse(args[8]) : false;
+                            bool endIsIO = (length == 10) ? bool.Parse(args[9]) : false;
                             int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
 
                             counter.WireCount = Math.Max(counter.WireCount, id + 1);
 
-                            var element = creator.CreateWire(x1 + offsetX, y1 + offsetY,
-                                x2 + offsetX, y2 + offsetY,
-                                startVisible, endVisible,
-                                startIsIO, endIsIO,
-                                id);
-
+                            var element = creator.CreateElement(ModelConstants.TagElementWire,
+                                new object[] 
+                                {
+                                    x1 + offsetX, y1 + offsetY,
+                                    x2 + offsetX, y2 + offsetY,
+                                    startVisible, endVisible,
+                                    startIsIO, endIsIO,
+                                    id
+                                },
+                                0.0, 0.0, false);
                             elements.Add(element);
 
                             tuple = new MapWires(element, new List<MapPin>());
 
                             if (dict.ContainsKey(name) == false)
-                            {
                                 dict.Add(name, tuple);
-                            }
                             else
-                            {
                                 System.Diagnostics.Debug.Print("Dictionary already contains name key: {0}", name);
-                            }
                         }
                     }
                 }
 
                 // child element
-                else if (StringUtil.Compare(args[0], ModelConstants.PrefixChild))
+                else if (StringUtil.Compare(root, ModelConstants.PrefixChild))
                 {
                     if (StringUtil.StartsWith(name, ModelConstants.TagElementWire) &&
                         length == 3)
                     {
                         if (diagram != null)
-                        {
                             diagram.Push(line);
-                        }
 
                         if (createElements == true && tuple != null)
                         {
@@ -413,20 +382,26 @@ namespace CanvasDiagramEditor.Editor
                 creator.UpdateConnections(dict);
 
                 if (appendIds == true)
-                {
                     creator.AppendIds(elements);
-                }
 
                 if (updateIds == true)
-                {
                     creator.UpdateCounter(options.Counter, counter);
-                }
 
-                creator.InsertElements(elements, select);
+                creator.InsertElements(elements, select, offsetX, offsetY);
             }
 
             sw.Stop();
+
             System.Diagnostics.Debug.Print("Parse() in {0}ms", sw.Elapsed.TotalMilliseconds);
+            System.Diagnostics.Debug.Print("> Solutions: {0}", total.SolutionCount);
+            System.Diagnostics.Debug.Print(">  Projects: {0}", total.ProjectCount);
+            System.Diagnostics.Debug.Print(">  Diagrams: {0}", total.DiagramCount);
+            System.Diagnostics.Debug.Print(">      Pins: {0}", total.PinCount);
+            System.Diagnostics.Debug.Print(">     Wires: {0}", total.WireCount);
+            System.Diagnostics.Debug.Print(">    Inputs: {0}", total.InputCount);
+            System.Diagnostics.Debug.Print(">   Outputs: {0}", total.OutputCount);
+            System.Diagnostics.Debug.Print(">  AndGates: {0}", total.AndGateCount);
+            System.Diagnostics.Debug.Print(">   OrGates: {0}", total.OrGateCount);
 
             return solution;
         }

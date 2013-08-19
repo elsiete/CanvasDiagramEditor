@@ -51,11 +51,23 @@ namespace CanvasDiagramEditor
 
         void TagEditorControl_Loaded(object sender, RoutedEventArgs e)
         {
+            Initialize();
+
+            TagList.Focus();
+        }
+
+        public void Initialize()
+        {
             if (Tags != null)
             {
                 InsertTags();
             }
 
+            UpdateSelected();
+        }
+
+        public void UpdateSelected()
+        {
             if (Selected != null)
             {
                 InsertSelected();
@@ -64,9 +76,11 @@ namespace CanvasDiagramEditor
             FilterTagList();
         } 
 
-        private void InsertSelected()
+        public void InsertSelected()
         {
             var list = SelectedList;
+
+            list.Items.Clear();
 
             foreach (var element in Selected)
             {
@@ -76,9 +90,11 @@ namespace CanvasDiagramEditor
             list.SelectedIndex = 0;
         }
 
-        private void InsertTags()
+        public void InsertTags()
         {
             var list = TagList;
+
+            list.Items.Clear();
 
             foreach (var tag in Tags)
             {
@@ -88,107 +104,7 @@ namespace CanvasDiagramEditor
             list.SelectedIndex = 0;
         }
 
-        #endregion
-
-        #region Button Events
-
-        private void ButtonNewTag_Click(object sender, RoutedEventArgs e)
-        {
-            CreateNewTag();
-        }
-
-        private bool IgnoreSelectionChange = false;
-
-        private void CreateNewTag()
-        {
-            int id = Tags.Count > 0 ? Tags.Cast<Tag>().Max(x => x.Id) + 1 : 0;
-            string strId = id.ToString();
-
-            var tag = new Tag()
-            {
-                Id = id,
-                Designation = "Designation" + strId,
-                Signal = "Signal" + strId,
-                Condition = "Condition" + strId,
-                Description = "Description" + strId
-            };
-
-            Tags.Add(tag);
-
-            IgnoreSelectionChange = true;
-
-            int index = TagList.Items.Add(tag);
-
-            TagList.SelectedIndex = index;
-
-            TagList.ScrollIntoView(TagList.SelectedItem);
-        }
-
-        #endregion
-
-        #region ListView Events
-
-        private void SelectedList_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            SelectedListSelected();
-        }
-
-        private void SelectedListSelected()
-        {
-            var item = SelectedList.SelectedItem;
-            var tuple = item as Tuple<FrameworkElement>;
-            var element = tuple.Item1;
-
-            var tag = ElementThumb.GetData(element) as Tag;
-
-            TagList.SelectedItem = tag;
-
-            TagList.ScrollIntoView(TagList.SelectedItem);
-        }
-
-        private void TagList_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (IgnoreSelectionChange == true)
-            {
-                IgnoreSelectionChange = false;
-                return;
-            }
-
-            UpdateSelectedElementTag();
-        }
-
-        private void TagList_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            UpdateSelectedElementTag();
-        }
-
-        private void TagList_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter)
-            {
-                UpdateSelectedElementTag();
-            }
-        }
-
-        private void UpdateSelectedElementTag()
-        {
-            var tag = TagList.SelectedItem as Tag;
-            var item = SelectedList.SelectedItem;
-
-            if (item != null)
-            {
-                var tuple = item as Tuple<FrameworkElement>;
-                var element = tuple.Item1;
-
-                ElementThumb.SetData(element, tag);
-            }
-        }
-
-        #endregion
-
-        #region Filter TagList
-
-        private void FilterTagList()
+        public void FilterTagList()
         {
             string designation = FilterByDesignation.Text.ToUpper();
             string signal = FilterBySignal.Text.ToUpper();
@@ -253,6 +169,118 @@ namespace CanvasDiagramEditor
                 }
             }
         }
+
+        #endregion
+
+        #region Button Events
+
+        private void ButtonNewTag_Click(object sender, RoutedEventArgs e)
+        {
+            CreateNewTag();
+        }
+
+        private bool IgnoreSelectionChange = false;
+
+        private void CreateNewTag()
+        {
+            int id = Tags.Count > 0 ? Tags.Cast<Tag>().Max(x => x.Id) + 1 : 0;
+            string strId = id.ToString();
+
+            var tag = new Tag()
+            {
+                Id = id,
+                Designation = "Designation" + strId,
+                Signal = "Signal" + strId,
+                Condition = "Condition" + strId,
+                Description = "Description" + strId
+            };
+
+            Tags.Add(tag);
+
+            IgnoreSelectionChange = true;
+
+            int index = TagList.Items.Add(tag);
+
+            TagList.SelectedIndex = index;
+
+            TagList.ScrollIntoView(TagList.SelectedItem);
+        }
+
+        private void ButtonResetFilter_Click(object sender, RoutedEventArgs e)
+        {
+            FilterByDesignation.Text = "";
+            FilterBySignal.Text = "";
+            FilterByCondition.Text = "";
+            FilterByDescription.Text = "";
+        }
+
+        #endregion
+
+        #region ListView Events
+
+        private void SelectedList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            SelectedListSelected();
+        }
+
+        private void SelectedListSelected()
+        {
+            var item = SelectedList.SelectedItem;
+            var tuple = item as Tuple<FrameworkElement>;
+
+            if (item == null || tuple == null)
+                return;
+
+            var element = tuple.Item1;
+
+            var tag = ElementThumb.GetData(element) as Tag;
+
+            TagList.SelectedItem = tag;
+
+            TagList.ScrollIntoView(TagList.SelectedItem);
+        }
+
+        private void TagList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (IgnoreSelectionChange == true)
+            {
+                IgnoreSelectionChange = false;
+                return;
+            }
+
+            UpdateSelectedElementTag();
+        }
+
+        private void TagList_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            UpdateSelectedElementTag();
+        }
+
+        private void TagList_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                UpdateSelectedElementTag();
+            }
+        }
+
+        private void UpdateSelectedElementTag()
+        {
+            var tag = TagList.SelectedItem as Tag;
+            var item = SelectedList.SelectedItem;
+
+            if (item != null)
+            {
+                var tuple = item as Tuple<FrameworkElement>;
+                var element = tuple.Item1;
+
+                ElementThumb.SetData(element, tag);
+            }
+        }
+
+        #endregion
+
+        #region Filter TagList
 
         private void FilterByDesignation_TextChanged(object sender, TextChangedEventArgs e)
         {

@@ -59,6 +59,15 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Controls\LineGuidesAdorner.cs" />
+    <Compile Include="Core\IClipboard.cs" />
+    <Compile Include="DxfInspect.cs" />
+    <Compile Include="DxfDiagramCreator.cs" />
+    <Compile Include="Editor\History.cs" />
+    <Compile Include="Util\PathUtil.cs" />
+    <Compile Include="Util\SnapUtil.cs" />
+    <Compile Include="Util\WindowsClipboard.cs" />
+    <Compile Include="WpfDiagramCreator.cs" />
     <Compile Include="Core\ICanvas.cs" />
     <Compile Include="Core\IData.cs" />
     <Compile Include="Core\IElement.cs" />
@@ -82,23 +91,20 @@
     <Compile Include="Core\IdCounter.cs" />
     <Compile Include="Core\DiagramProperties.cs" />
     <Compile Include="Core\ParseOptions.cs" />
+    <Compile Include="Dxf\Core\DxfRawTag.cs" />
     <Compile Include="Dxf\Core\DxfUtil.cs" />
     <Compile Include="Dxf\Enums\DxfDefaultColors.cs" />
     <Compile Include="Dxf\Enums\DxfDimstyleStandardFlags.cs" />
     <Compile Include="Dxf\Enums\DxfVportStandardFlags.cs" />
     <Compile Include="Editor\ModelConstants.cs" />
     <Compile Include="Editor\ResourceConstants.cs" />
-    <Compile Include="Editor\DiagramParser.cs" />
+    <Compile Include="Editor\Parser.cs" />
     <Compile Include="Editor\DiagramEditor.cs" />
-    <Compile Include="Editor\DiagramEditorOptions.cs" />
-    <Compile Include="Editor\Editor.cs" />
+    <Compile Include="Editor\Context.cs" />
     <Compile Include="Editor\Table.cs" />
-    <Compile Include="Editor\Elements.cs" />
     <Compile Include="Editor\Model.cs" />
     <Compile Include="Editor\Tags.cs" />
     <Compile Include="Editor\LineCalc.cs" />
-    <Compile Include="Editor\WpfDiagramCreator.cs" />
-    <Compile Include="Editor\DxfDiagramCreator.cs" />
     <Compile Include="Dxf\Core\DxfObject.cs" />
     <Compile Include="Dxf\Core\Vector2.cs" />
     <Compile Include="Dxf\Core\Vector3.cs" />
@@ -178,14 +184,8 @@
     <Compile Include="Views\TableEditorControl.xaml.cs">
       <DependentUpon>TableEditorControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\TableEditorWindow.xaml.cs">
-      <DependentUpon>TableEditorWindow.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\TagEditorControl.xaml.cs">
       <DependentUpon>TagEditorControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\TagEditorWindow.xaml.cs">
-      <DependentUpon>TagEditorWindow.xaml</DependentUpon>
     </Compile>
     <Page Include="Elements\AndGateControl.xaml">
       <SubType>Designer</SubType>
@@ -247,15 +247,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\TableEditorWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Views\TagEditorControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\TagEditorWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

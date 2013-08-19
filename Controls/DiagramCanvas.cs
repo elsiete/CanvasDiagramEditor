@@ -23,6 +23,9 @@ namespace CanvasDiagramEditor.Controls
     {
         #region ICanvas
 
+        private IdCounter Counter { get; set; }
+        private DiagramProperties Properties { get; set; }
+
         public IEnumerable<IElement> GetElements()
         {
             var elements = this.Children.Cast<FrameworkElement>();
@@ -32,12 +35,14 @@ namespace CanvasDiagramEditor.Controls
 
         public void Add(IElement element)
         {
-            this.Children.Add(element as FrameworkElement);
+            if (element != null)
+                this.Children.Add(element as FrameworkElement);
         }
 
         public void Remove(IElement element)
         {
-            this.Children.Remove(element as FrameworkElement);
+            if (element != null)
+                this.Children.Remove(element as FrameworkElement);
         }
 
         public void Clear()
@@ -63,6 +68,36 @@ namespace CanvasDiagramEditor.Controls
         public void SetHeight(double height)
         {
             this.Height = height;
+        }
+
+        public List<object> GetTags()
+        {
+            return ElementThumb.GetItems(this);
+        }
+
+        public void SetTags(List<object> tags)
+        {
+            ElementThumb.SetItems(this, tags);
+        }
+
+        public IdCounter GetCounter()
+        {
+            return this.Counter;
+        }
+
+        public void SetCounter(IdCounter counter)
+        {
+            this.Counter = counter;
+        }
+
+        public DiagramProperties GetProperties()
+        {
+            return this.Properties;
+        }
+
+        public void SetProperties(DiagramProperties properties)
+        {
+            this.Properties = properties;
         }
 
         #endregion

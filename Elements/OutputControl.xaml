@@ -8,18 +8,18 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:controls="clr-namespace:CanvasDiagramEditor.Controls"
              mc:Ignorable="d" 
-             d:DesignHeight="30" d:DesignWidth="285">
+             d:DesignHeight="30" d:DesignWidth="300">
 
-    <Canvas Width="285" Height="30" Style="{StaticResource ControlCanvasStyleKey}">
+    <Canvas Width="300" Height="30" Style="{StaticResource ControlCanvasStyleKey}">
 
-        <Canvas x:Name="RootElement" Width="285" Height="30" Style="{StaticResource RootCanvasStyleKey}">
-            <Path Data="M 0,0 L 285,0 M 285,30 L 0,30 M 0,30  L 0,0 M 210,0 L 210,30 M 285,30 L 285,0" Style="{StaticResource IOPathStyleKey}"/>
+        <Canvas x:Name="RootElement" Width="300" Height="30" Style="{StaticResource RootCanvasStyleKey}">
+            <Path Data="M 0,0 L 300,0 M 300,30 L 0,30 M 0,30  L 0,0 M 210,0 L 210,30 M 300,30 L 300,0" Style="{StaticResource IOPathStyleKey}"/>
 
             <!--
-            <Grid Width="285" Height="30">
+            <Grid Width="300" Height="30">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="210"/>
-                    <ColumnDefinition Width="75"/>
+                    <ColumnDefinition Width="90"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Column="0" Grid.Row="0" 
                            VerticalAlignment="Center" HorizontalAlignment="Center" 
@@ -28,10 +28,10 @@
             </Grid>
             -->
 
-            <Grid Width="285" Height="30">
+            <Grid Width="300" Height="30">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="210"/>
-                    <ColumnDefinition Width="75"/>
+                    <ColumnDefinition Width="90"/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="15"/>
