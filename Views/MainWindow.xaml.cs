@@ -83,14 +83,7 @@ namespace CanvasDiagramEditor
             FileSaveTags.Click += (sender, e) => Editor.TagsSave();
             FileImportTags.Click += (sender, e) => ImportTags();
             FileExportTags.Click += (sender, e) => Editor.TagsExport();
-
-            FileExportToDxf.Click += (sender, e) =>
-            {
-                Editor.DxfExport(ShortenStart.IsChecked.Value, 
-                    ShortenEnd.IsChecked.Value, 
-                    TableGrid.GetData(this) as DiagramTable);
-            };
-
+            FileExportToDxf.Click += (sender, e) => ExportDxf();
             FileInspectDxf.Click += (sender, e) => (new DxfInspect()).Inspect();
             FilePrint.Click += (sender, e) => Print();
             FilePrintHistory.Click += (sender, e) => PrintHistory();
@@ -405,6 +398,13 @@ namespace CanvasDiagramEditor
             InitializeTagEditor();
         }
 
+        private void ExportDxf()
+        {
+            Editor.DxfExport(ShortenStart.IsChecked.Value,
+                ShortenEnd.IsChecked.Value,
+                TableGrid.GetData(this) as DiagramTable);
+        }
+
         private void DeselectAll()
         {
             var canvas = Editor.Context.CurrentCanvas;
@@ -646,15 +646,9 @@ namespace CanvasDiagramEditor
                 case Key.E:
                     {
                         if (isControl == true)
-                        {
-                            Editor.DxfExport(ShortenStart.IsChecked.Value,
-                                ShortenEnd.IsChecked.Value,
-                                TableGrid.GetData(this) as DiagramTable);
-                        }
+                            ExportDxf();
                         else
-                        {
                             Editor.WireToggleEnd();
-                        }
                     }
                     break;
 
