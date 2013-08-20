@@ -44,7 +44,7 @@
                 <TextBox x:Name="FilterBySignal" Text="" Margin="4,1,0,1" Grid.Column="1" Grid.Row="1"/>
                 <TextBox x:Name="FilterByCondition" Text="" Margin="4,1,0,1" Grid.Column="1" Grid.Row="2"/>
                 <TextBox x:Name="FilterByDescription" Text="" Margin="4,1,0,1" Grid.Column="1" Grid.Row="3"/>
-                <Button Content="_Reset" x:Name="ButtonResetFilter" Width="100" HorizontalAlignment="Right" Margin="0,1,0,1" Grid.Column="1" Grid.Row="4" Click="ButtonResetFilter_Click"/>
+                <Button Content="_Reset Filters" x:Name="ButtonResetFilter" Width="100" HorizontalAlignment="Right" Margin="0,1,0,1" Grid.Column="1" Grid.Row="4" Click="ButtonResetFilter_Click"/>
             </Grid>
         </Expander>
             
@@ -73,7 +73,7 @@
                 <TextBox Text="{Binding ElementName=TagList, Path=SelectedItem.Signal, FallbackValue={x:Null}}" Margin="4,1,0,1" Grid.Column="1" Grid.Row="2"/>
                 <TextBox Text="{Binding ElementName=TagList, Path=SelectedItem.Condition, FallbackValue={x:Null}}" Margin="4,1,0,1" Grid.Column="1" Grid.Row="3"/>
                 <TextBox Text="{Binding ElementName=TagList, Path=SelectedItem.Description, FallbackValue={x:Null}}" Margin="4,1,0,1" Grid.Column="1" Grid.Row="4"/>
-                <Button Content="Create _New" x:Name="ButtonNewTag" Width="100" HorizontalAlignment="Right" Margin="0,1,0,1" Grid.Column="1" Grid.Row="5" Click="ButtonNewTag_Click"/>
+                <Button Content="Create _New Tag" x:Name="ButtonNewTag" Width="100" HorizontalAlignment="Right" Margin="0,1,0,1" Grid.Column="1" Grid.Row="5" Click="ButtonNewTag_Click"/>
             </Grid>
         </Expander>
         
