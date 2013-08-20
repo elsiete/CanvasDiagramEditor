@@ -202,7 +202,6 @@ namespace CanvasDiagramEditor
             Editor.Context.DiagramCreator = creator;
 
             // set checkbox states
-            EnableHistory.IsChecked = Editor.Context.EnableHistory;
             EnableInsertLast.IsChecked = Editor.Context.EnableInsertLast;
             EnableSnap.IsChecked = Editor.Context.EnableSnap;
             SnapOnRelease.IsChecked = Editor.Context.SnapOnRelease;
@@ -773,18 +772,6 @@ namespace CanvasDiagramEditor
         #endregion
 
         #region CheckBox Events
-
-        private void EnableHistory_Click(object sender, RoutedEventArgs e)
-        {
-            Editor.Context.EnableHistory = 
-                EnableHistory.IsChecked == true ? true : false;
-
-            if (Editor.Context.EnableHistory == false)
-            {
-                var canvas = Editor.Context.CurrentCanvas;
-                History.Clear(canvas);
-            }
-        }
 
         private void EnableSnap_Click(object sender, RoutedEventArgs e)
         {

@@ -205,8 +205,6 @@
                             <Separator Margin="2"/>
                             <Expander Header="_Options" IsExpanded="True">
                                 <StackPanel>
-                                    <CheckBox x:Name="EnableHistory" Content="Enable _History" Margin="2" Click="EnableHistory_Click"/>
-                                    <Separator Margin="2"/>
                                     <CheckBox x:Name="EnableSnap" Content="Enable S_nap to Grid" Margin="2" Click="EnableSnap_Click"/>
                                     <CheckBox x:Name="SnapOnRelease" Content="Snap to Gri_d on Release" Margin="2" Click="SnapOnRelease_Click"/>
                                     <Separator Margin="2"/>

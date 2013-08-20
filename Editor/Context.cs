@@ -38,8 +38,6 @@ namespace CanvasDiagramEditor.Editor
         public ITree CurrentTree = null;
         public ICanvas CurrentCanvas = null;
 
-        public bool EnableHistory = true;
-
         public ILine CurrentLine = null;
         public IElement CurrentRoot = null;
 

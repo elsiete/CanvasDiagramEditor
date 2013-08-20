@@ -625,9 +625,6 @@ namespace CanvasDiagramEditor.Editor
 
         public string HistoryAdd(ICanvas canvas, bool resetSelectedList)
         {
-            if (Context.EnableHistory != true)
-                return null;
-
             var model = History.Add(canvas);
 
             if (resetSelectedList == true)
@@ -638,24 +635,18 @@ namespace CanvasDiagramEditor.Editor
 
         public void HistoryUndo()
         {
-            if (Context.EnableHistory == true)
-            {
-                var canvas = Context.CurrentCanvas;
-                var creator = Context.DiagramCreator;
+            var canvas = Context.CurrentCanvas;
+            var creator = Context.DiagramCreator;
 
-                History.Undo(canvas, creator, true);
-            }
+            History.Undo(canvas, creator, true);
         }
 
         public void HistoryRedo()
         {
-            if (Context.EnableHistory == true)
-            {
-                var canvas = Context.CurrentCanvas;
-                var creator = Context.DiagramCreator;
+            var canvas = Context.CurrentCanvas;
+            var creator = Context.DiagramCreator;
 
-                History.Redo(canvas, creator, true);
-            }
+            History.Redo(canvas, creator, true);
         }
 
         #endregion
@@ -1569,16 +1560,9 @@ namespace CanvasDiagramEditor.Editor
             if (Context.CurrentRoot != null && 
                 Context.CurrentLine != null)
             {
-                if (Context.EnableHistory == true)
-                {
-                    var creator = Context.DiagramCreator;
-
-                    History.Undo(canvas, creator, false);
-                }
-                else
-                {
-                    MouseRemoveCurrentLine(canvas);
-                }
+                var creator = Context.DiagramCreator;
+                History.Undo(canvas, creator, false);
+                //MouseRemoveCurrentLine(canvas);
 
                 Context.CurrentLine = null;
                 Context.CurrentRoot = null;
