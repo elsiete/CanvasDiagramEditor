@@ -85,10 +85,9 @@ namespace CanvasDiagramEditor.Editor
         public static void Import(string fileName, List<object> tags, bool appedIds)
         {
             int count = 0;
+
             if (appedIds == true)
-            {
                 count = tags.Count > 0 ? tags.Cast<Tag>().Max(x => x.Id) + 1 : 0;
-            }
 
             using (var reader = new System.IO.StreamReader(fileName))
             {
@@ -102,10 +101,9 @@ namespace CanvasDiagramEditor.Editor
                     var args = line.Split(new char[] { ModelConstants.ArgumentSeparator, '\t' },
                         StringSplitOptions.RemoveEmptyEntries);
 
-                    int length = args.Length;
-
-                    if (length == 5)
+                    if (args.Length == 5)
                     {
+                        bool validId = true;
                         int id = -1;
 
                         if (appedIds == true)
@@ -115,19 +113,22 @@ namespace CanvasDiagramEditor.Editor
                         }
                         else
                         {
-                            id = int.Parse(args[0]);
+                            validId = int.TryParse(args[0], out id);
                         }
 
-                        var tag = new Tag()
+                        if (validId == true)
                         {
-                            Id = id,
-                            Designation = args[1],
-                            Signal = args[2],
-                            Condition = args[3],
-                            Description = args[4]
-                        };
+                            var tag = new Tag()
+                            {
+                                Id = id,
+                                Designation = args[1],
+                                Signal = args[2],
+                                Condition = args[3],
+                                Description = args[4]
+                            };
 
-                        tags.Add(tag);
+                            tags.Add(tag);
+                        }
                     }
                 }
             }
