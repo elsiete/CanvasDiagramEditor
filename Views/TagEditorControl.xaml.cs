@@ -218,11 +218,6 @@ namespace CanvasDiagramEditor
 
         #region Button Events
 
-        private void ButtonNewTag_Click(object sender, RoutedEventArgs e)
-        {
-            CreateNewTag();
-        }
-
         private void CreateNewTag()
         {
             int id = Tags.Count > 0 ? Tags.Cast<Tag>().Max(x => x.Id) + 1 : 0;
@@ -244,8 +239,12 @@ namespace CanvasDiagramEditor
             int index = TagList.Items.Add(tag);
 
             TagList.SelectedIndex = index;
-
             TagList.ScrollIntoView(TagList.SelectedItem);
+        }
+
+        private void ButtonNewTag_Click(object sender, RoutedEventArgs e)
+        {
+            CreateNewTag();
         }
 
         private void ButtonResetFilter_Click(object sender, RoutedEventArgs e)

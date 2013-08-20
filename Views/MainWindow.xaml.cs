@@ -147,8 +147,11 @@ namespace CanvasDiagramEditor
             this.Loaded += (sender, e) =>
             {
                 this.DiagramControl.PanScrollViewer.Focus();
+
                 SetCurrentTable();
+
                 InitializeTagEditor();
+                InitializeTableEditor();
             };
 
             this.MouseMove += (sender, e) =>
@@ -222,6 +225,12 @@ namespace CanvasDiagramEditor
                 false);
         }
 
+        private void UpdateEditors()
+        {
+            InitializeTagEditor();
+            InitializeTableEditor();
+        }
+
         private void SetCurrentTable()
         {
             var table = new DiagramTable()
@@ -247,6 +256,8 @@ namespace CanvasDiagramEditor
                 },
                 Logo1 = null,
                 Logo2 = null,
+                PathLogo1 = "",
+                PathLogo2 = "",
                 Drawn = new Person()
                 {
                     Name = "user",
@@ -263,14 +274,14 @@ namespace CanvasDiagramEditor
                     Date = DateTime.Today.ToString("yyyy-MM-dd")
                 },
                 Title = "LOGIC DIAGRAM",
-                SubTitle1 = "DIAGRAM TITLE",
+                SubTitle1 = "DIAGRAM",
                 SubTitle2 = "",
                 SubTitle3 = "",
                 Rev = "0",
                 Status = "-",
                 Page = "-",
                 Pages = "-",
-                Project = "sample",
+                Project = "Sample",
                 OrderNo = "",
                 DocumentNo = "",
                 ArchiveNo = ""
@@ -344,19 +355,19 @@ namespace CanvasDiagramEditor
         private void OpenSolution()
         {
             Editor.OpenSolution();
-            InitializeTagEditor();
+            UpdateEditors();
         }
 
         private void NewSolution()
         {
             Editor.TreeCreateNewSolution();
-            InitializeTagEditor();
+            UpdateEditors();
         }
 
         private void OpenTags()
         {
             Editor.TagsOpen();
-            InitializeTagEditor();
+            UpdateEditors();
         }
 
         private void ImportTags()
@@ -738,7 +749,7 @@ namespace CanvasDiagramEditor
 
                 // F6 -> table editor
                 case Key.F6:
-                    ShowTableEditor();
+                    InitializeTableEditor();
                     break;
 
                 // Ctrl+H -> show diagram history
@@ -1079,6 +1090,26 @@ namespace CanvasDiagramEditor
             {
                 control.Selected = GetSeletedIO();
                 control.UpdateSelected();
+            };
+        }
+
+        #endregion
+
+        #region Table Editor
+
+        private void InitializeTableEditor()
+        {
+            var control = this.TableEditorControl;
+
+            if (Editor.Context.Tables == null)
+                Editor.Context.Tables = new List<object>();
+
+            control.Tables = Editor.Context.Tables;
+            control.Initialize();
+
+            DiagramControl.SelectionChanged = () =>
+            {
+                // TODO: Updated current table.
             };
         }
 

@@ -43,6 +43,9 @@ namespace CanvasDiagramEditor.Editor
         public ImageSource Logo1 { get; set; }
         public ImageSource Logo2 { get; set; }
 
+        public string PathLogo1 { get; set; }
+        public string PathLogo2 { get; set; }
+
         public Person Drawn { get; set; }
         public Person Checked { get; set; }
         public Person Approved { get; set; }

@@ -652,7 +652,9 @@ namespace CanvasDiagramEditor
 
         private void DiagramCanvas_DragEnter(object sender, DragEventArgs e)
         {
-            if (!e.Data.GetDataPresent("Tag") || sender == e.Source)
+            if (!e.Data.GetDataPresent("Tag") || 
+                !e.Data.GetDataPresent("Table") ||
+                sender == e.Source)
             {
                 e.Effects = DragDropEffects.None;
             }
@@ -660,6 +662,7 @@ namespace CanvasDiagramEditor
 
         private void DiagramCanvas_Drop(object sender, DragEventArgs e)
         {
+            // Tag
             if (e.Data.GetDataPresent("Tag"))
             {
                 var tag = e.Data.GetData("Tag") as Tag;
@@ -689,6 +692,25 @@ namespace CanvasDiagramEditor
 
                         e.Handled = true;
                     }
+                }
+            }
+
+            // Table
+            else if (e.Data.GetDataPresent("Table"))
+            {
+                var table = e.Data.GetData("Table") as DiagramTable;
+                if (table != null)
+                {
+                    var canvas = Editor.Context.CurrentCanvas;
+
+                    Editor.HistoryAdd(canvas, true);
+
+                    canvas.SetData(table);
+
+                    // TODO:
+                    TableGrid.SetData(this, table);
+
+                    e.Handled = true;
                 }
             }
         }
