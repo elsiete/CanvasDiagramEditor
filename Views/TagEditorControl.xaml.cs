@@ -290,7 +290,8 @@ namespace CanvasDiagramEditor
             var tag = thumb.GetData() as Tag;
             var canvas = thumb.GetParent() as ICanvas;
 
-            History.Add(canvas);
+            if (canvas != null)
+                History.Add(canvas);
 
             TagList.SelectedItem = tag;
             TagList.ScrollIntoView(TagList.SelectedItem);

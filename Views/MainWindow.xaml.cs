@@ -497,6 +497,8 @@ namespace CanvasDiagramEditor
                     Editor.Delete(canvas, GetInsertionPoint());
                 }
             }
+
+            InitializeTagEditor();
         }
 
         #endregion
