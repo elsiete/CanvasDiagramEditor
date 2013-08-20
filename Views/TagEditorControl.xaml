@@ -22,70 +22,64 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Grid x:Name="FilterGrid" 
-              Grid.Column="0" Grid.Row="0" 
-              Margin="0,0,0,4"
-              VerticalAlignment="Bottom">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="80"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-
-            <TextBlock Text="Filter by:" Margin="4,2,4,2" VerticalAlignment="Center" Grid.Column="0" Grid.Row="0"/>
-            <TextBlock Text="Designation" Margin="4,2,4,2" VerticalAlignment="Center" Grid.Column="0" Grid.Row="1"/>
-            <TextBlock Text="Signal" Margin="4,2,4,2" VerticalAlignment="Center" Grid.Column="0" Grid.Row="2"/>
-            <TextBlock Text="Condition" Margin="4,2,4,2" VerticalAlignment="Center" Grid.Column="0" Grid.Row="3"/>
-            <TextBlock Text="Description" Margin="4,2,4,2" VerticalAlignment="Center" Grid.Column="0" Grid.Row="4"/>
-
-            <TextBox x:Name="FilterByDesignation" Text="" Margin="4,2,0,2" Grid.Column="1" Grid.Row="1" TextChanged="FilterByDesignation_TextChanged"/>
-            <TextBox x:Name="FilterBySignal" Text="" Margin="4,2,0,2" Grid.Column="1" Grid.Row="2" TextChanged="FilterBySignal_TextChanged"/>
-            <TextBox x:Name="FilterByCondition" Text="" Margin="4,2,0,2" Grid.Column="1" Grid.Row="3" TextChanged="FilterByCondition_TextChanged"/>
-            <TextBox x:Name="FilterByDescription" Text="" Margin="4,2,0,2" Grid.Column="1" Grid.Row="4" TextChanged="FilterByDescription_TextChanged"/>
-
-            <Button Content="_Reset" x:Name="ButtonResetFilter" Width="100" HorizontalAlignment="Right" Margin="0,2,0,0" Grid.Column="1" Grid.Row="5" Click="ButtonResetFilter_Click"/>
-
-        </Grid>
-
-        <Grid x:Name="TagGrid" 
-              Grid.Column="0" Grid.Row="1"
-              Margin="0,0,0,0"
-              VerticalAlignment="Bottom">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="80"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <TextBlock Text="TagId" Margin="4,0,4,2" VerticalAlignment="Center" Grid.Column="0" Grid.Row="0"/>
-            <TextBlock Text="Designation" Margin="4,2,4,2" VerticalAlignment="Center" Grid.Column="0" Grid.Row="1"/>
-            <TextBlock Text="Signal" Margin="4,2,4,2" VerticalAlignment="Center" Grid.Column="0" Grid.Row="2"/>
-            <TextBlock Text="Condition" Margin="4,2,4,2" VerticalAlignment="Center" Grid.Column="0" Grid.Row="3"/>
-            <TextBlock Text="Description" Margin="4,2,4,2" VerticalAlignment="Center" Grid.Column="0" Grid.Row="4"/>
-            <TextBox Text="{Binding ElementName=TagList, Path=SelectedItem.Id, FallbackValue={x:Null}}" Margin="4,0,0,2" Grid.Column="1" Grid.Row="0" IsReadOnly="True"/>
-            <TextBox Text="{Binding ElementName=TagList, Path=SelectedItem.Designation, FallbackValue={x:Null}}" Margin="4,2,0,2" Grid.Column="1" Grid.Row="1"/>
-            <TextBox Text="{Binding ElementName=TagList, Path=SelectedItem.Signal, FallbackValue={x:Null}}" Margin="4,2,0,2" Grid.Column="1" Grid.Row="2"/>
-            <TextBox Text="{Binding ElementName=TagList, Path=SelectedItem.Condition, FallbackValue={x:Null}}" Margin="4,2,0,2" Grid.Column="1" Grid.Row="3"/>
-            <TextBox Text="{Binding ElementName=TagList, Path=SelectedItem.Description, FallbackValue={x:Null}}" Margin="4,2,0,2" Grid.Column="1" Grid.Row="4"/>
-            <Button Content="Create _New" x:Name="ButtonNewTag" Width="100" HorizontalAlignment="Right" Margin="0,2,0,0" Grid.Column="1" Grid.Row="5" Click="ButtonNewTag_Click"/>
-        </Grid>
-
+        <Expander Header="Filter By" IsExpanded="True" Grid.Column="0" Grid.Row="0">
+            <Grid x:Name="FilterGrid" 
+                  VerticalAlignment="Bottom">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="80"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <TextBlock Text="Designation" Margin="4,1,4,1" VerticalAlignment="Center" Grid.Column="0" Grid.Row="0"/>
+                <TextBlock Text="Signal" Margin="4,1,4,1" VerticalAlignment="Center" Grid.Column="0" Grid.Row="1"/>
+                <TextBlock Text="Condition" Margin="4,1,4,1" VerticalAlignment="Center" Grid.Column="0" Grid.Row="2"/>
+                <TextBlock Text="Description" Margin="4,1,4,1" VerticalAlignment="Center" Grid.Column="0" Grid.Row="3"/>
+                <TextBox x:Name="FilterByDesignation" Text="" Margin="4,1,0,1" Grid.Column="1" Grid.Row="0"/>
+                <TextBox x:Name="FilterBySignal" Text="" Margin="4,1,0,1" Grid.Column="1" Grid.Row="1"/>
+                <TextBox x:Name="FilterByCondition" Text="" Margin="4,1,0,1" Grid.Column="1" Grid.Row="2"/>
+                <TextBox x:Name="FilterByDescription" Text="" Margin="4,1,0,1" Grid.Column="1" Grid.Row="3"/>
+                <Button Content="_Reset" x:Name="ButtonResetFilter" Width="100" HorizontalAlignment="Right" Margin="0,1,0,1" Grid.Column="1" Grid.Row="4" Click="ButtonResetFilter_Click"/>
+            </Grid>
+        </Expander>
+            
+        <Expander Header="Edit Tag" IsExpanded="True" Grid.Column="0" Grid.Row="1">
+            <Grid x:Name="TagGrid" 
+                  VerticalAlignment="Bottom">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="80"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <TextBlock Text="TagId" Margin="4,1,4,1" VerticalAlignment="Center" Grid.Column="0" Grid.Row="0"/>
+                <TextBlock Text="Designation" Margin="4,1,4,1" VerticalAlignment="Center" Grid.Column="0" Grid.Row="1"/>
+                <TextBlock Text="Signal" Margin="4,1,4,1" VerticalAlignment="Center" Grid.Column="0" Grid.Row="2"/>
+                <TextBlock Text="Condition" Margin="4,1,4,1" VerticalAlignment="Center" Grid.Column="0" Grid.Row="3"/>
+                <TextBlock Text="Description" Margin="4,1,4,1" VerticalAlignment="Center" Grid.Column="0" Grid.Row="4"/>
+                <TextBox Text="{Binding ElementName=TagList, Path=SelectedItem.Id, FallbackValue={x:Null}}" Margin="4,1,0,1" Grid.Column="1" Grid.Row="0" IsReadOnly="True"/>
+                <TextBox Text="{Binding ElementName=TagList, Path=SelectedItem.Designation, FallbackValue={x:Null}}" Margin="4,1,0,1" Grid.Column="1" Grid.Row="1"/>
+                <TextBox Text="{Binding ElementName=TagList, Path=SelectedItem.Signal, FallbackValue={x:Null}}" Margin="4,1,0,1" Grid.Column="1" Grid.Row="2"/>
+                <TextBox Text="{Binding ElementName=TagList, Path=SelectedItem.Condition, FallbackValue={x:Null}}" Margin="4,1,0,1" Grid.Column="1" Grid.Row="3"/>
+                <TextBox Text="{Binding ElementName=TagList, Path=SelectedItem.Description, FallbackValue={x:Null}}" Margin="4,1,0,1" Grid.Column="1" Grid.Row="4"/>
+                <Button Content="Create _New" x:Name="ButtonNewTag" Width="100" HorizontalAlignment="Right" Margin="0,1,0,1" Grid.Column="1" Grid.Row="5" Click="ButtonNewTag_Click"/>
+            </Grid>
+        </Expander>
+        
         <ListView x:Name="TagList" 
                   Grid.Column="0" Grid.Row="2"
-                  Margin="0,4,0,4"
+                  Margin="0,3,0,1"
                   HorizontalContentAlignment="Stretch"
                   ScrollViewer.HorizontalScrollBarVisibility="Auto"
                   ScrollViewer.VerticalScrollBarVisibility="Auto"
@@ -105,11 +99,10 @@
 
         <ListView x:Name="SelectedList" 
                   Grid.Column="0" Grid.Row="3" 
-                  Margin="0,0,0,0"
+                  Margin="0,3,0,0"
                   HorizontalContentAlignment="Stretch"
                   ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                  ScrollViewer.VerticalScrollBarVisibility="Auto"
-                  SelectionChanged="SelectedList_SelectionChanged">
+                  ScrollViewer.VerticalScrollBarVisibility="Auto">
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="Uid" DisplayMemberBinding="{Binding Path=Item1.Uid}" Width="80"/>

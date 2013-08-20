@@ -36,13 +36,32 @@ namespace CanvasDiagramEditor
 
         #endregion
 
+        #region Fields
+
+        private bool IgnoreSelectionChange = false;
+
+        private Point DragStartPoint;
+
+        #endregion
+
         #region Constructor
 
         public TagEditorControl()
         {
             InitializeComponent();
 
-            this.Loaded += TagEditorControl_Loaded;
+            FilterByDesignation.TextChanged += (sender, e) => FilterTagList();
+            FilterBySignal.TextChanged += (sender, e) => FilterTagList();
+            FilterByCondition.TextChanged += (sender, e) => FilterTagList();
+            FilterByDescription.TextChanged += (sender, e) => FilterTagList();
+
+            SelectedList.SelectionChanged += (sender, e) => SelectedListSelected();
+
+            this.Loaded += (sender, e) =>
+            {
+                Initialize();
+                TagList.Focus();
+            };
 
             this.TagList.PreviewMouseLeftButtonDown += TagList_PreviewMouseLeftButtonDown;
             this.TagList.PreviewMouseMove += TagList_PreviewMouseMove;
@@ -52,8 +71,6 @@ namespace CanvasDiagramEditor
 
         #region Drag & Drop
 
-        private Point dragStartPoint;
-
         public static T FindVisualParent<T>(DependencyObject child) where T : DependencyObject
         {
             DependencyObject parentObject = VisualTreeHelper.GetParent(child);
@@ -62,19 +79,15 @@ namespace CanvasDiagramEditor
 
             T parent = parentObject as T;
             if (parent != null)
-            {
                 return parent;
-            }
             else
-            {
                 return FindVisualParent<T>(parentObject);
-            }
         }
 
-        void TagList_PreviewMouseMove(object sender, MouseEventArgs e)
+        private void TagList_PreviewMouseMove(object sender, MouseEventArgs e)
         {
-            Point mousePos = e.GetPosition(null);
-            Vector diff = dragStartPoint - mousePos;
+            Point point = e.GetPosition(null);
+            Vector diff = DragStartPoint - point;
             if (e.LeftButton == MouseButtonState.Pressed && 
                 (Math.Abs(diff.X) > SystemParameters.MinimumHorizontalDragDistance ||
                  Math.Abs(diff.Y) > SystemParameters.MinimumVerticalDragDistance))
@@ -90,28 +103,19 @@ namespace CanvasDiagramEditor
             } 
         }
 
-        void TagList_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void TagList_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            dragStartPoint = e.GetPosition(null);
+            DragStartPoint = e.GetPosition(null);
         }
 
         #endregion
 
         #region UserControl Events
 
-        private void TagEditorControl_Loaded(object sender, RoutedEventArgs e)
-        {
-            Initialize();
-
-            TagList.Focus();
-        }
-
         public void Initialize()
         {
             if (Tags != null)
-            {
                 InsertTags();
-            }
 
             UpdateSelected();
         }
@@ -138,9 +142,7 @@ namespace CanvasDiagramEditor
             var list = SelectedList;
 
             foreach (var element in Selected)
-            {
                 list.Items.Add(new Tuple<FrameworkElement>(element as FrameworkElement));
-            }
 
             list.SelectedIndex = 0;
         }
@@ -152,9 +154,7 @@ namespace CanvasDiagramEditor
             list.Items.Clear();
 
             foreach (var tag in Tags)
-            {
                 list.Items.Add(tag);
-            }
 
             list.SelectedIndex = 0;
         }
@@ -185,43 +185,32 @@ namespace CanvasDiagramEditor
                 TagList.Items.Filter = null;
 
                 IgnoreSelectionChange = true;
-                TagList.Items.Filter = new Predicate<object>(
-                    (item) =>
-                    {
-                        bool filter1 = true;
-                        bool filter2 = true;
-                        bool filter3 = true;
-                        bool filter4 = true;
+                TagList.Items.Filter = new Predicate<object>((item) =>
+                {
+                    bool filter1 = true;
+                    bool filter2 = true;
+                    bool filter3 = true;
+                    bool filter4 = true;
 
-                        var tag = item as Tag;
+                    var tag = item as Tag;
 
-                        if (filterByDesignation == true)
-                        {
-                            filter1 = tag.Designation.ToUpper().Contains(designation) == true;
-                        }
+                    if (filterByDesignation == true)
+                        filter1 = tag.Designation.ToUpper().Contains(designation) == true;
 
-                        if (filterBySignal == true)
-                        {
-                            filter2 = tag.Signal.ToUpper().Contains(signal) == true;
-                        }
+                    if (filterBySignal == true)
+                        filter2 = tag.Signal.ToUpper().Contains(signal) == true;
 
-                        if (filterByCondition == true)
-                        {
-                            filter3 = tag.Condition.ToUpper().Contains(condition) == true;
-                        }
+                    if (filterByCondition == true)
+                        filter3 = tag.Condition.ToUpper().Contains(condition) == true;
 
-                        if (filterByDescription == true)
-                        {
-                            filter4 = tag.Description.ToUpper().Contains(description) == true;
-                        }
+                    if (filterByDescription == true)
+                        filter4 = tag.Description.ToUpper().Contains(description) == true;
 
-                        return filter1 && filter2 && filter3 && filter4;
-                    });
+                    return filter1 && filter2 && filter3 && filter4;
+                });
 
                 if (TagList.Items.Count > 0)
-                {
                     TagList.ScrollIntoView(TagList.Items[0]);
-                }
             }
         }
 
@@ -233,8 +222,6 @@ namespace CanvasDiagramEditor
         {
             CreateNewTag();
         }
-
-        private bool IgnoreSelectionChange = false;
 
         private void CreateNewTag()
         {
@@ -272,11 +259,6 @@ namespace CanvasDiagramEditor
         #endregion
 
         #region ListView Events
-
-        private void SelectedList_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            SelectedListSelected();
-        }
 
         private void SelectedListSelected()
         {
@@ -316,9 +298,7 @@ namespace CanvasDiagramEditor
         private void TagList_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
-            {
                 UpdateSelectedElementTag();
-            }
         }
 
         private void UpdateSelectedElementTag()
@@ -333,30 +313,6 @@ namespace CanvasDiagramEditor
 
                 ElementThumb.SetData(element, tag);
             }
-        }
-
-        #endregion
-
-        #region Filter TagList
-
-        private void FilterByDesignation_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            FilterTagList();
-        }
-
-        private void FilterBySignal_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            FilterTagList();
-        }
-
-        private void FilterByCondition_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            FilterTagList();
-        }
-
-        private void FilterByDescription_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            FilterTagList();
         }
 
         #endregion
