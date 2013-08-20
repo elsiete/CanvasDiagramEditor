@@ -106,7 +106,6 @@ namespace CanvasDiagramEditor
             EditClear.Click += (sender, e) => Editor.ModelClear();
             EditResetThumbTags.Click += (sender, e) => Editor.ModelResetThumbTags();
             EditConnect.Click += (sender, e) => Connect();
-            EditOptions.Click += (sender, e) => TabOptions.IsSelected = true;
         }
 
         private void InitializeViewMenuEvents()
@@ -742,14 +741,31 @@ namespace CanvasDiagramEditor
                     }
                     break;
 
-                // F5 -> tag editor
+                // F5 -> solution explorer
                 case Key.F5:
+                    TabExplorer.IsSelected = true;
+                    break;
+
+                // F6 -> tag editor
+                case Key.F6:
+                    TabTags.IsSelected = true;
                     InitializeTagEditor();
                     break;
 
-                // F6 -> table editor
-                case Key.F6:
+                // F7 -> table editor
+                case Key.F7:
+                    TabTables.IsSelected = true;
                     InitializeTableEditor();
+                    break;
+
+                // F8 -> model
+                case Key.F8:
+                    TabModel.IsSelected = true;
+                    break;
+
+                // F9 -> options
+                case Key.F9:
+                    TabOptions.IsSelected = true;
                     break;
 
                 // Ctrl+H -> show diagram history
@@ -758,16 +774,6 @@ namespace CanvasDiagramEditor
                         if (isControl == true)
                             ShowDiagramHistory();
                     }
-                    break;
-
-                // F7 -> show project diagrams
-                case Key.F7:
-                    ShowProjectDiagrams();
-                    break;
-
-                // F8 -> show solution diagrams
-                case Key.F8:
-                    ShowSolutionDiagrams();
                     break;
 
                 // G -> show/hide guides
