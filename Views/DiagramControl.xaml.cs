@@ -673,6 +673,8 @@ namespace CanvasDiagramEditor
 
                     if (type == TagDragAndDropType.Input)
                     {
+                        Editor.HistoryAdd(canvas, true);
+
                         var element = Editor.InsertInput(DiagramCanvas, insertPoint);
                         element.SetData(tag);
 
@@ -680,6 +682,8 @@ namespace CanvasDiagramEditor
                     }
                     else if (type == TagDragAndDropType.Output)
                     {
+                        Editor.HistoryAdd(canvas, true);
+
                         var element = Editor.InsertOutput(DiagramCanvas, insertPoint);
                         element.SetData(tag);
 

@@ -5,6 +5,7 @@
 
 using CanvasDiagramEditor.Controls;
 using CanvasDiagramEditor.Core;
+using CanvasDiagramEditor.Editor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,8 +47,11 @@ namespace CanvasDiagramEditor.Elements
                 if (tag != null)
                 {
                     var thumb = this.TemplatedParent as ElementThumb;
-                    thumb.SetData(tag);
+                    var canvas = thumb.GetParent() as ICanvas;
 
+                    History.Add(canvas);
+
+                    thumb.SetData(tag);
                     e.Handled = true;
                 }
             }

@@ -286,8 +286,11 @@ namespace CanvasDiagramEditor
             if (item == null || tuple == null)
                 return;
 
-            var element = tuple.Item1;
-            var tag = ElementThumb.GetData(element) as Tag;
+            var thumb = tuple.Item1 as IThumb;
+            var tag = thumb.GetData() as Tag;
+            var canvas = thumb.GetParent() as ICanvas;
+
+            History.Add(canvas);
 
             TagList.SelectedItem = tag;
             TagList.ScrollIntoView(TagList.SelectedItem);
