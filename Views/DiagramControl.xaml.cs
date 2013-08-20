@@ -628,6 +628,68 @@ namespace CanvasDiagramEditor
         }
 
         #endregion
+
+        #region Drag & Drop
+
+        private enum TagDragAndDropType
+        {
+            None,
+            Input,
+            Output
+        }
+
+        private TagDragAndDropType IsTagInputOrOutput(ICanvas canvas, IPoint point)
+        {
+            double x = point.X;
+            var prop = canvas.GetProperties();
+            double half = (double)prop.PageWidth / 2.0;
+
+            if (x < half)
+                return TagDragAndDropType.Input;
+            else
+                return TagDragAndDropType.Output;  
+        }
+
+        private void DiagramCanvas_DragEnter(object sender, DragEventArgs e)
+        {
+            if (!e.Data.GetDataPresent("Tag") || sender == e.Source)
+            {
+                e.Effects = DragDropEffects.None;
+            }
+        }
+
+        private void DiagramCanvas_Drop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent("Tag"))
+            {
+                var tag = e.Data.GetData("Tag") as Tag;
+                if (tag != null)
+                {
+                    var point = e.GetPosition(DiagramCanvas);
+
+                    var insertPoint = new PointEx(point.X, point.Y);
+                    var canvas = Editor.Context.CurrentCanvas;
+                    var type = IsTagInputOrOutput(canvas, insertPoint);
+
+                    if (type == TagDragAndDropType.Input)
+                    {
+                        var element = Editor.InsertInput(DiagramCanvas, insertPoint);
+                        element.SetData(tag);
+
+                        e.Handled = true;
+                    }
+                    else if (type == TagDragAndDropType.Output)
+                    {
+                        var element = Editor.InsertOutput(DiagramCanvas, insertPoint);
+                        element.SetData(tag);
+
+                        e.Handled = true;
+                    }
+                }
+            }
+        }
+
+        #endregion
     } 
 
     #endregion

@@ -43,13 +43,63 @@ namespace CanvasDiagramEditor
             InitializeComponent();
 
             this.Loaded += TagEditorControl_Loaded;
+
+            this.TagList.PreviewMouseLeftButtonDown += TagList_PreviewMouseLeftButtonDown;
+            this.TagList.PreviewMouseMove += TagList_PreviewMouseMove;
+        }
+
+        #endregion
+
+        #region Drag & Drop
+
+        private Point dragStartPoint;
+
+        public static T FindVisualParent<T>(DependencyObject child) where T : DependencyObject
+        {
+            DependencyObject parentObject = VisualTreeHelper.GetParent(child);
+            if (parentObject == null)
+                return null;
+
+            T parent = parentObject as T;
+            if (parent != null)
+            {
+                return parent;
+            }
+            else
+            {
+                return FindVisualParent<T>(parentObject);
+            }
+        }
+
+        void TagList_PreviewMouseMove(object sender, MouseEventArgs e)
+        {
+            Point mousePos = e.GetPosition(null);
+            Vector diff = dragStartPoint - mousePos;
+            if (e.LeftButton == MouseButtonState.Pressed && 
+                (Math.Abs(diff.X) > SystemParameters.MinimumHorizontalDragDistance ||
+                 Math.Abs(diff.Y) > SystemParameters.MinimumVerticalDragDistance))
+            {
+                var listView = sender as ListView;
+                var listViewItem = FindVisualParent<ListViewItem>((DependencyObject)e.OriginalSource);
+                if (listViewItem != null)
+                {
+                    Tag tag = (Tag)listView.ItemContainerGenerator.ItemFromContainer(listViewItem);
+                    DataObject dragData = new DataObject("Tag", tag);
+                    DragDrop.DoDragDrop(listViewItem, dragData, DragDropEffects.Move);
+                }
+            } 
+        }
+
+        void TagList_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            dragStartPoint = e.GetPosition(null);
         }
 
         #endregion
 
         #region UserControl Events
 
-        void TagEditorControl_Loaded(object sender, RoutedEventArgs e)
+        private void TagEditorControl_Loaded(object sender, RoutedEventArgs e)
         {
             Initialize();
 
@@ -68,19 +118,24 @@ namespace CanvasDiagramEditor
 
         public void UpdateSelected()
         {
+            ClearSelected();
+
             if (Selected != null)
-            {
                 InsertSelected();
-            }
 
             FilterTagList();
-        } 
+        }
 
-        public void InsertSelected()
+        public void ClearSelected()
         {
             var list = SelectedList;
 
             list.Items.Clear();
+        }
+
+        public void InsertSelected()
+        {
+            var list = SelectedList;
 
             foreach (var element in Selected)
             {
@@ -232,11 +287,9 @@ namespace CanvasDiagramEditor
                 return;
 
             var element = tuple.Item1;
-
             var tag = ElementThumb.GetData(element) as Tag;
 
             TagList.SelectedItem = tag;
-
             TagList.ScrollIntoView(TagList.SelectedItem);
         }
 

@@ -89,7 +89,10 @@
                         MouseMove="Canvas_MouseMove"
                         PreviewMouseRightButtonDown="Canvas_PreviewMouseRightButtonDown"
                         ContextMenu="{StaticResource DiagramCanvasContextMenuKey}"
-                        ContextMenuOpening="Canvas_ContextMenuOpening">
+                        ContextMenuOpening="Canvas_ContextMenuOpening"
+                        AllowDrop="True"
+                        Drop="DiagramCanvas_Drop"
+                        DragEnter="DiagramCanvas_DragEnter">
                 </controls:DiagramCanvas>
 
             </Grid>

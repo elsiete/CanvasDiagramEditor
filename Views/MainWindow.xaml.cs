@@ -1070,8 +1070,9 @@ namespace CanvasDiagramEditor
         public List<IElement> GetSeletedIO()
         {
             var selected = Editor.GetSelectedInputOutputElements();
-            return (selected.Count() == 0) ? 
-                Editor.GetAllInputOutputElements().ToList() : selected.ToList();
+            return (selected.Count() == 0) ? null : selected.ToList();
+            //return (selected.Count() == 0) ? 
+            //    Editor.GetAllInputOutputElements().ToList() : selected.ToList();
         }
 
         private void InitializeTagEditor()

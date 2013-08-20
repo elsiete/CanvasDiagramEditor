@@ -3,6 +3,8 @@
 
 #region References
 
+using CanvasDiagramEditor.Controls;
+using CanvasDiagramEditor.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,10 +27,41 @@ namespace CanvasDiagramEditor.Elements
 
     public partial class InputControl : UserControl
     {
+        #region Constructor
+
         public InputControl()
         {
             InitializeComponent();
+        } 
+
+        #endregion
+
+        #region Drag & Drop
+
+        private void UserControl_Drop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent("Tag"))
+            {
+                var tag = e.Data.GetData("Tag") as Tag;
+                if (tag != null)
+                {
+                    var thumb = this.TemplatedParent as ElementThumb;
+                    thumb.SetData(tag);
+
+                    e.Handled = true;
+                }
+            }
         }
+
+        private void UserControl_DragEnter(object sender, DragEventArgs e)
+        {
+            if (!e.Data.GetDataPresent("Tag") || sender == e.Source)
+            {
+                e.Effects = DragDropEffects.None;
+            }
+        }
+
+        #endregion
     } 
 
     #endregion
