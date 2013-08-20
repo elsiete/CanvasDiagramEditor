@@ -81,18 +81,19 @@
     Load and save diagrams
     Load and save tags
     Import and export tags
+    Drag & drop Tags on canvas to create new Input/Output
+    Drag & drop Tags on Input/Output to change associated tag
     Export diagrams to .DXF file format (compatible with CAD applications)
     Print solutions
-    Import models
     Undo and redo any change made (individually for each diagram)
-    Cut, copy, paste and delete any elements
+    Cut, copy, paste and delete any element
     Select all and none elements
     Edit and create new tags using built-in Tag Editor
     Use program with Keyboard shortcuts
     Zoom in and out using mouse wheel
     Pan using mouse middle button
     Create new elements using mouse right click (Context Menu)
-    Select any element(s) using selection rectable (mouse left click)
+    Select any element using selection rectable (mouse left click)
     Mode element single element or all selected elements using mouse or arrow keys
 
   Currently supported logic elements:
