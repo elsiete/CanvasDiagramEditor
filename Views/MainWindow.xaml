@@ -69,12 +69,10 @@
                 <MenuItem x:Name="EditResetThumbTags" Header="Reset Element Ta_gs" InputGestureText="Ctrl+R"/>
                 <Separator/>
                 <MenuItem x:Name="EditConnect" Header="Connect" InputGestureText="C"/>
-                <Separator/>
-                <MenuItem x:Name="EditOptions" Header="_Options"/>
             </MenuItem>
             <MenuItem Header="_View">
-                <MenuItem x:Name="ViewProjectDiagrams" Header="Pro_ject Diagrams..." InputGestureText="F7"/>
-                <MenuItem x:Name="ViewSolutionDiagrams" Header="So_lution Diagrams..." InputGestureText="F8"/>
+                <MenuItem x:Name="ViewProjectDiagrams" Header="Pro_ject Diagrams..."/>
+                <MenuItem x:Name="ViewSolutionDiagrams" Header="So_lution Diagrams..."/>
                 <Separator/>
                 <MenuItem x:Name="ViewDiagram" Header="Diagram..."/>
                 <MenuItem x:Name="ViewDiagramSelectedElements" Header="Diagram (Selected Elements)..."/>
@@ -106,26 +104,31 @@
 
             <TabControl Margin="0,4,4,4">
                 
-                <TabItem Header="Explorer" x:Name="TabExplorer">
-
+                <TabItem x:Name="TabExplorer" FocusVisualStyle="{x:Null}">
+                    <TabItem.Header>
+                        <TextBlock Text="Explorer" ToolTip="Solution Explorer (F5)"/>
+                    </TabItem.Header>
                     <local:ExplorerControl x:Name="ExplorerControl"/>
-
                 </TabItem>
 
-                <TabItem Header="Tags" x:Name="TabTags">
-
+                <TabItem x:Name="TabTags" FocusVisualStyle="{x:Null}">
+                    <TabItem.Header>
+                        <TextBlock Text="Tags" ToolTip="Tag Editor (F6)"/>
+                    </TabItem.Header>
                     <local:TagEditorControl x:Name="TagEditorControl"/>
-
                 </TabItem>
-                
-                <TabItem Header="Tables" x:Name="TabTables">
-                    
+
+                <TabItem x:Name="TabTables" FocusVisualStyle="{x:Null}">
+                    <TabItem.Header>
+                        <TextBlock Text="Tables" ToolTip="Table Editor (F7)"/>
+                    </TabItem.Header>
                     <local:TableEditorControl x:Name="TableEditorControl"/>
-                    
                 </TabItem>
 
-                <TabItem Header="Model" x:Name="TabModel">
-
+                <TabItem x:Name="TabModel" FocusVisualStyle="{x:Null}">
+                    <TabItem.Header>
+                        <TextBlock Text="Model" ToolTip="Model (F8)"/>
+                    </TabItem.Header>
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -168,11 +171,12 @@
                         </TextBox>
 
                     </Grid>
-
                 </TabItem>
 
-                <TabItem Header="Options" x:Name="TabOptions">
-                    
+                <TabItem x:Name="TabOptions" FocusVisualStyle="{x:Null}">
+                    <TabItem.Header>
+                        <TextBlock Text="Options" ToolTip="Options (F9)"/>
+                    </TabItem.Header>
                     <ScrollViewer VerticalScrollBarVisibility="Auto"
                                   HorizontalScrollBarVisibility="Auto">
                         <StackPanel>
@@ -266,7 +270,6 @@
                             </Expander>
                         </StackPanel>
                     </ScrollViewer>
-                    
                 </TabItem>
 
             </TabControl>
