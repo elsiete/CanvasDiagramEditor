@@ -10,7 +10,7 @@ using System.Windows;
 [assembly: AssemblyTitle("CanvasDiagramEditor")]
 [assembly: AssemblyDescription("Logic diagram editor written in WPF using Canvas panel.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Wiesław Šoltés")]
 [assembly: AssemblyProduct("Canvas Diagram Editor")]
 [assembly: AssemblyCopyright("Copyright © Wiesław Šoltés 2013")]
 [assembly: AssemblyTrademark("")]
