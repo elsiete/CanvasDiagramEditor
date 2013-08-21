@@ -112,6 +112,55 @@
   Data model is based on simple text syntax. You can cut and paste any part of diagram or entire diagram
   from clipboard. You can select part of diagram and generate model from it.
 
+  Keyboard shortcuts:
+
+    Ctrl+O      -> open solution
+    Ctrl+S      -> save solution
+    Ctrl+N      -> new solution
+    Ctrl+T      -> open tags
+    Ctrl+I      -> import tags
+    Ctrl+R      -> reset tags
+    Ctrl+E      -> export to dxf
+    Ctrl+P      -> print solution
+    Ctrl+Z      -> undo
+    Ctrl+Y      -> redo
+    Ctrl+X      -> cut elements to clipboard
+    Ctrl+C      -> copy elements to clipboard
+    Ctrl+V      -> paste elements from clipboard
+    Ctrl+A      -> select all elements
+    '['         -> select previous element
+                   - use control Key to select many element
+    ']'         -> select next element
+                   - use control Key to select many element
+    '|'         -> select connected elements
+    Esc         -> deselect all/cancel connection/hide guides
+    Del         -> delete selected elements
+    Up Arrow    -> move selected elements/line guides up
+    Down Arrow  -> move selected elements/line guides down
+    Left Arrow  -> move selected elements/line guides left
+    Right Arrow -> move selected elements/line guides right
+    I           -> insert Input
+    O           -> insert Output
+    R           -> insert OrGate
+    A           -> insert AndGate
+    S           -> invert wire start
+    E           -> invert wire end
+    C           -> connect pins
+    G           -> toggle guides
+    Ctrl+J      -> insert new solution tree item and paste from clipboard
+                   - add new project to selected solution
+                   - add new diagram to selected project
+                   - add new diagram after selected diagram and select it
+    Ctrl+M      -> insert new solution tree item
+    '<'         -> select previous solution tree item
+    '>'         -> select next solution tree item
+    F5          -> show solution explorer tab
+    F6          -> show tag editor tab
+    F7          -> show table editor tab
+    F8          -> show model tab
+    F9          -> show options tab
+    Ctrl+H      -> show diagram history
+
 ## Build
 
   CanvasDiagramEditor is built with Microsoft Visual Studio Express 2012 for Windows Desktop. 
