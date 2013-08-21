@@ -7,7 +7,6 @@ using CanvasDiagramEditor.Core;
 using CanvasDiagramEditor.Controls;
 using CanvasDiagramEditor.Editor;
 using CanvasDiagramEditor.Util;
-using CanvasDiagramEditor.Dxf.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,8 +21,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using System.Printing;
-using System.Windows.Markup;
 
 #endregion
 
@@ -48,7 +45,7 @@ namespace CanvasDiagramEditor
 
         private LineGuidesAdorner GuidesAdorner = null;
 
-        private double GuideSpeedUpLevel1 = 2.0;
+        private double GuideSpeedUpLevel1 = 1.0;
         private double GuideSpeedUpLevel2 = 2.0;
 
         #endregion
@@ -338,13 +335,11 @@ namespace CanvasDiagramEditor
         {
             prop.PageWidth = int.Parse(TextPageWidth.Text);
             prop.PageHeight = int.Parse(TextPageHeight.Text);
-
             prop.GridOriginX = int.Parse(TextGridOriginX.Text);
             prop.GridOriginY = int.Parse(TextGridOriginY.Text);
             prop.GridWidth = int.Parse(TextGridWidth.Text);
             prop.GridHeight = int.Parse(TextGridHeight.Text);
             prop.GridSize = int.Parse(TextGridSize.Text);
-
             prop.SnapX = double.Parse(TextSnapX.Text);
             prop.SnapY = double.Parse(TextSnapY.Text);
             prop.SnapOffsetX = double.Parse(TextSnapOffsetX.Text);
@@ -386,13 +381,9 @@ namespace CanvasDiagramEditor
         {
             var canvas = Editor.Context.CurrentCanvas;
 
-            // deselect all
             Editor.SelectNone();
-
-            // cancel connection
             Editor.MouseEventRightDown(canvas);
 
-            // hide guides
             if (GuidesAdorner != null)
                 HideGuides();
         }
@@ -488,7 +479,6 @@ namespace CanvasDiagramEditor
         {
             if (GuidesAdorner == null)
             {
-                // delete selected elements
                 Editor.EditDelete();
             }
             else
@@ -496,16 +486,10 @@ namespace CanvasDiagramEditor
                 var canvas = Editor.Context.CurrentCanvas;
                 var elements = Model.GetSelected(canvas);
 
-                // delete selected elements
                 if (elements.Count() > 0)
-                {
                     Editor.EditDelete(canvas, elements);
-                }
-                // delete single element using guides
                 else
-                {
                     Editor.Delete(canvas, GetInsertionPoint());
-                }
             }
 
             InitializeTagEditor();
@@ -523,268 +507,62 @@ namespace CanvasDiagramEditor
             int timeStamp = e.Timestamp;
             var key = e.Key;
 
-            switch (key)
+            if (isControl == true)
             {
-                // '<' -> select previous solution tree item
-                case Key.OemComma:
-                    Editor.TreeSelectPreviousItem(isControl);
-                    break;
-
-                // '>' -> select next solution tree item
-                case Key.OemPeriod:
-                    Editor.TreeSelectNextItem(isControl);
-                    break;
-
-                // '[' -> select previous element
-                // - use control Key to select many element
-                case Key.OemOpenBrackets:
-                    Editor.SelectPrevious(!isControl);
-                    break;
-
-                // ']' -> select next element
-                // - use control Key to select many element
-                case Key.OemCloseBrackets:
-                    Editor.SelectNext(!isControl);
-                    break;
-
-                // '|' -> select connected elements
-                case Key.OemPipe:
-                    Editor.SelectConnected();
-                    break;
-
-                // Ctrl+J -> // insert new item and paste from clipboard
-                // - add new project to selected solution
-                // - add new diagram to selected project
-                // - add new diagram after selected diagram and select new diagram
-                case Key.J:
-                    {
-                        if (isControl == true)
-                            Editor.TreeAddNewItemAndPaste();
-                    }
-                    break;
-
-                // Ctrl+M -> insert new item
-                case Key.M:
-                    {
-                        if (isControl == true)
-                            Editor.TreeAddNewItem();
-                    }
-                    break;
-
-                // Ctrl+O -> open solution
-                // O -> insert Output
-                case Key.O:
-                    {
-                        if (isControl == true)
-                            OpenSolution();
-                        else
-                            InsertOutput(canvas, GetInsertionPoint());
-                    }
-                    break;
-
-                // Ctrl+S -> save solution
-                // S -> invert wire start
-                case Key.S:
-                    {
-                        if (isControl == true)
-                            Editor.SaveSolution();
-                        else
-                            Editor.WireToggleStart();
-                    }
-                    break;
-
-                // Ctrl+N -> new solution
-                case Key.N:
-                    {
-                        if (isControl == true)
-                            NewSolution();
-                    }
-                    break;
-
-                // Ctrl+T -> open tags
-                case Key.T:
-                    {
-                        if (isControl == true)
-                            OpenTags();
-                    }
-                    break;
-
-                // Ctrl+I -> import Tags
-                // I -> insert Input
-                case Key.I:
-                    {
-                        if (isControl == true)
-                            ImportTags();
-                        else
-                            InsertInput(canvas, GetInsertionPoint());
-                    }
-                    break;
-
-                // Ctrl+E -> export to dxf
-                // E -> invert wire end
-                case Key.E:
-                    {
-                        if (isControl == true)
-                            ExportDxf();
-                        else
-                            Editor.WireToggleEnd();
-                    }
-                    break;
-
-                // Ctrl+P -> print
-                case Key.P:
-                    {
-                        if (isControl == true)
-                            Print();
-                    }
-                    break;
-
-                // Ctrl+R -> reset tags
-                // R -> insert OrGate
-                case Key.R:
-                    {
-                        if (isControl == true)
-                            Editor.ModelResetThumbTags();
-                        else
-                            InsertOrGate(canvas, GetInsertionPoint());
-                    }
-                    break;
-
-                // Ctrl+Z -> undo
-                case Key.Z:
-                    {
-                        if (isControl == true)
-                            Editor.HistoryUndo();
-                    }
-                    break;
-
-                // Ctrl+Y -> redo
-                case Key.Y:
-                    {
-                        if (isControl == true)
-                            Editor.HistoryRedo();
-                    }
-                    break;
-
-                // Ctrl+X -> cut
-                case Key.X:
-                    {
-                        if (isControl == true)
-                            Editor.EditCut();
-                    }
-                    break;
-
-                // Ctrl+C -> copy
-                // C -> connect
-                case Key.C:
-                    {
-                        if (isControl == true)
-                            Editor.EditCopy();
-                        else
-                            Connect();
-                    }
-                    break;
-
-                // Ctrl+V -> paste from clipboard
-                case Key.V:
-                    {
-                        if (isControl == true)
-                            Editor.EditPaste(new PointEx(0.0, 0.0), true);
-                    }
-                    break;
-
-                // Ctrl+A -> select all
-                // A -> insert AndGate
-                case Key.A:
-                    {
-                        if (isControl == true)
-                            Editor.SelectAll();
-                        else
-                            InsertAndGate(canvas, GetInsertionPoint());
-                    }
-                    break;
-
-                // Del -> delete
-                case Key.Delete:
-                    Delete();
-                    break;
-
-                // Up Arrow -> move selected elements/line guides up
-                case Key.Up:
-                    {
-                        if (canMove == true)
-                            MoveUp(timeStamp);
-                    }
-                    break;
-
-                // Down Arrow -> move selected elements/line guides down
-                case Key.Down:
-                    {
-                        if (canMove == true)
-                            MoveDown(timeStamp);
-                    }
-                    break;
-
-                // Left Arrow -> move selected elements/line guides left
-                case Key.Left:
-                    {
-                        if (canMove == true)
-                            MoveLeft(timeStamp);
-                    }
-                    break;
-
-                // Right Arrow -> move selected elements/line guides right
-                case Key.Right:
-                    {
-                        if (canMove == true)
-                            MoveRight(timeStamp);
-                    }
-                    break;
-
-                // F5 -> solution explorer
-                case Key.F5:
-                    TabExplorer.IsSelected = true;
-                    break;
-
-                // F6 -> tag editor
-                case Key.F6:
-                    TabTags.IsSelected = true;
-                    InitializeTagEditor();
-                    break;
-
-                // F7 -> table editor
-                case Key.F7:
-                    TabTables.IsSelected = true;
-                    InitializeTableEditor();
-                    break;
-
-                // F8 -> model
-                case Key.F8:
-                    TabModel.IsSelected = true;
-                    break;
-
-                // F9 -> options
-                case Key.F9:
-                    TabOptions.IsSelected = true;
-                    break;
-
-                // Ctrl+H -> show diagram history
-                case Key.H:
-                    {
-                        if (isControl == true)
-                            ShowDiagramHistory();
-                    }
-                    break;
-
-                // G -> show/hide guides
-                case Key.G:
-                    ToggleGuides();
-                    break;
-
-                // Esc -> deselect all/cancel connection/hide guides
-                case Key.Escape:
-                    DeselectAll();
-                    break;
+                switch (key)
+                {
+                    case Key.O: OpenSolution(); break;
+                    case Key.S: Editor.SaveSolution(); break;
+                    case Key.N: NewSolution(); break;
+                    case Key.T: OpenTags(); break;
+                    case Key.I: ImportTags(); break;
+                    case Key.R: Editor.ModelResetThumbTags(); break;
+                    case Key.E: ExportDxf(); break;
+                    case Key.P: Print(); break;
+                    case Key.Z: Editor.HistoryUndo(); break;
+                    case Key.Y: Editor.HistoryRedo(); break;
+                    case Key.X: Editor.EditCut(); break;
+                    case Key.C: Editor.EditCopy(); break;
+                    case Key.V: Editor.EditPaste(new PointEx(0.0, 0.0), true); break;
+                    case Key.A: Editor.SelectAll(); break;
+                    case Key.OemOpenBrackets: Editor.SelectPrevious(false); break;
+                    case Key.OemCloseBrackets: Editor.SelectNext(false); break;
+                    case Key.J: Editor.TreeAddNewItemAndPaste(); break;
+                    case Key.M: Editor.TreeAddNewItem(); break;
+                    case Key.OemComma: Editor.TreeSelectPreviousItem(true); break;
+                    case Key.OemPeriod: Editor.TreeSelectNextItem(true); break;
+                    case Key.H: ShowDiagramHistory(); break;
+                }
+            }
+            else
+            {
+                switch (key)
+                {
+                    case Key.OemOpenBrackets: Editor.SelectPrevious(true); break;
+                    case Key.OemCloseBrackets: Editor.SelectNext(true); break;
+                    case Key.OemPipe: Editor.SelectConnected(); break;
+                    case Key.Escape: DeselectAll(); break;
+                    case Key.Delete: Delete(); break;
+                    case Key.Up: if (canMove == true) MoveUp(timeStamp); break;
+                    case Key.Down: if (canMove == true) MoveDown(timeStamp); break;
+                    case Key.Left: if (canMove == true) MoveLeft(timeStamp); break;
+                    case Key.Right: if (canMove == true) MoveRight(timeStamp); break;
+                    case Key.I: InsertInput(canvas, GetInsertionPoint()); break;
+                    case Key.O: InsertOutput(canvas, GetInsertionPoint()); break;
+                    case Key.R: InsertOrGate(canvas, GetInsertionPoint()); break;
+                    case Key.A: InsertAndGate(canvas, GetInsertionPoint()); break;
+                    case Key.S: Editor.WireToggleStart(); break;
+                    case Key.E: Editor.WireToggleEnd(); break;
+                    case Key.C: Connect(); break;
+                    case Key.G: ToggleGuides(); break;
+                    case Key.OemComma: Editor.TreeSelectPreviousItem(false); break;
+                    case Key.OemPeriod: Editor.TreeSelectNextItem(false); break;
+                    case Key.F5: TabExplorer.IsSelected = true; break;
+                    case Key.F6: TabTags.IsSelected = true; InitializeTagEditor(); break;
+                    case Key.F7: TabTables.IsSelected = true; InitializeTableEditor(); break;
+                    case Key.F8: TabModel.IsSelected = true; break;
+                    case Key.F9: TabOptions.IsSelected = true; break;
+                }
             }
         }
 
@@ -892,15 +670,11 @@ namespace CanvasDiagramEditor
                 var prop = Editor.Context.CurrentCanvas.GetProperties();
 
                 if (point == null)
-                {
-                    ShowGuides(prop.SnapX + prop.SnapOffsetX,
+                    ShowGuides(prop.SnapX + prop.SnapOffsetX, 
                         prop.SnapY + prop.SnapOffsetY);
-                }
                 else
-                {
-                    ShowGuides(Editor.SnapOffsetX(point.X, true),
+                    ShowGuides(Editor.SnapOffsetX(point.X, true), 
                         Editor.SnapOffsetY(point.Y, true));
-                }
             }
             else
             {
@@ -1077,8 +851,6 @@ namespace CanvasDiagramEditor
         {
             var selected = Editor.GetSelectedInputOutputElements();
             return (selected.Count() == 0) ? null : selected.ToList();
-            //return (selected.Count() == 0) ? 
-            //    Editor.GetAllInputOutputElements().ToList() : selected.ToList();
         }
 
         private void InitializeTagEditor()
@@ -1121,7 +893,7 @@ namespace CanvasDiagramEditor
 
         #endregion
 
-        #region Table Logo
+        #region Set Table Logo
 
         public void SetLogo(int logoId)
         {
@@ -1200,17 +972,7 @@ namespace CanvasDiagramEditor
 
         #endregion
 
-        #region Table Editor
-
-        public void ShowTableEditor()
-        {
-            SetLogo(1);
-            SetLogo(2);
-        }
-
-        #endregion
-
-        #region Zoom Events
+        #region Slider Events
 
         private void ZoomSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
