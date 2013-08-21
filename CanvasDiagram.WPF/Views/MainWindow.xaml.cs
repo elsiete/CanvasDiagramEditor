@@ -51,11 +51,69 @@ namespace CanvasDiagram.WPF
 
     public partial class MainWindow : Window
     {
+        #region Window Title
+
+        private string WindowDefaultTitle = "Canvas Diagram Editor";
+        private string WindowTitleDirtyString = "*";
+        private string WindowTitleSeparator = " - ";
+
+        private string SolutionNewFileName = "Solution0";
+        private bool SolutionIsDirty = false;
+        private string SolutionFileName = null;
+
+        public void SetWindowTitle()
+        {
+            if (SolutionFileName == null && SolutionIsDirty == false)
+            {
+                string title = string.Format("{0}{1}{2}",
+                    SolutionNewFileName,
+                    WindowTitleSeparator,
+                    WindowDefaultTitle);
+
+                this.Title = title;
+            }
+            else if (SolutionFileName == null && SolutionIsDirty == true)
+            {
+                string title = string.Format("{0}{1}{2}{3}",
+                    SolutionNewFileName,
+                    WindowTitleDirtyString,
+                    WindowTitleSeparator,
+                    WindowDefaultTitle);
+
+                this.Title = title;
+            }
+            else if (SolutionFileName != null && SolutionIsDirty == false)
+            {
+                string title = string.Format("{0}{1}{2}",
+                    System.IO.Path.GetFileName(SolutionFileName),
+                    WindowTitleSeparator,
+                    WindowDefaultTitle);
+
+                this.Title = title;
+            }
+            else if (SolutionFileName != null && SolutionIsDirty == true)
+            {
+                string title = string.Format("{0}{1}{2}{3}",
+                    System.IO.Path.GetFileName(SolutionFileName),
+                    WindowTitleDirtyString,
+                    WindowTitleSeparator,
+                    WindowDefaultTitle);
+
+                this.Title = title;
+            }
+            else
+            {
+                this.Title = WindowDefaultTitle;
+            }
+        }
+
+        #endregion
+
         #region Fields
 
-        private DiagramEditor Editor { get; set; }
-
         private string ResourcesUri = "ElementsDictionary.xaml";
+
+        private DiagramEditor Editor { get; set; }
 
         private PointEx InsertPointInput = new PointEx(30, 30.0);
         private PointEx InsertPointOutput = new PointEx(930.0, 30.0);
@@ -78,6 +136,7 @@ namespace CanvasDiagram.WPF
             InitializeComponent();
 
             InitializeEditor();
+            InitializeHistory();
             InitializeDiagramControl();
             InitializeWindowEvents();
             InitializeFileMenuEvents();
@@ -242,6 +301,31 @@ namespace CanvasDiagram.WPF
                 false);
         }
 
+        private void InitializeHistory()
+        {
+            // handle canvas history changes
+            History.CanvasHistoryChanged += (sender, e) =>
+            {
+                var canvas = e.Canvas;
+                var undo = e.Undo;
+                var redo = e.Redo;
+                int undoCount = undo != null ? undo.Count : 0;
+                int redoCount = redo != null ? redo.Count : 0;
+
+                System.Diagnostics.Debug.Print("HistoryChanged, undo: {0}, redo: {1}", undoCount, redoCount);
+
+                if (undoCount > 0)
+                    SolutionIsDirty = true;
+                else
+                    SolutionIsDirty = false;
+
+                SetWindowTitle();
+            };
+
+            // update window title
+            SetWindowTitle();
+        }
+
         private void UpdateEditors()
         {
             InitializeTagEditor();
@@ -375,6 +459,10 @@ namespace CanvasDiagram.WPF
 
         private void NewSolution()
         {
+            SolutionIsDirty = false;
+            SolutionFileName = null;
+            SetWindowTitle();
+
             Editor.TreeCreateNewSolution();
             UpdateEditors();
         }
@@ -1227,6 +1315,10 @@ namespace CanvasDiagram.WPF
 
                 if (solution != null)
                 {
+                    SolutionIsDirty = false;
+                    SolutionFileName = fileName;
+                    SetWindowTitle();
+
                     var tree = Editor.Context.CurrentTree;
 
                     Editor.TreeClearSolution(tree);
@@ -1254,6 +1346,10 @@ namespace CanvasDiagram.WPF
                 TagsUpdate();
 
                 Editor.SaveSolution(fileName);
+
+                SolutionIsDirty = false;
+                SolutionFileName = fileName;
+                SetWindowTitle();
             }
         }
 

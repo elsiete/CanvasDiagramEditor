@@ -34,10 +34,36 @@ namespace CanvasDiagram.Editor
 
     #endregion
 
+    #region CanvasHistoryChanged
+
+    public class CanvasHistoryChangedEventArgs : EventArgs
+    {
+        public ICanvas Canvas { get; set; }
+        public Stack<string> Undo { get; set; }
+        public Stack<string> Redo { get; set; }
+    }
+
+    public delegate void CanvasHistoryChangedEventHandler(object sender, CanvasHistoryChangedEventArgs e);
+
+    #endregion
+
     #region History
 
     public static class History
     {
+        #region CanvasHistoryChanged
+
+        public static event CanvasHistoryChangedEventHandler CanvasHistoryChanged;
+
+        public static void NotifyCanvasHistoryChanged(CanvasHistoryChangedEventArgs e)
+        {
+            var handler = CanvasHistoryChanged;
+            if (handler != null)
+                handler(null, e);
+        } 
+
+        #endregion
+
         #region History
 
         public static UndoRedo Get(ICanvas canvas)
@@ -63,8 +89,14 @@ namespace CanvasDiagram.Editor
             var model = Model.GenerateDiagram(canvas, null, canvas.GetProperties());
 
             undoHistory.Push(model);
-
             redoHistory.Clear();
+
+            NotifyCanvasHistoryChanged(new CanvasHistoryChangedEventArgs() 
+            {
+                Canvas = canvas, 
+                Undo = undoHistory, 
+                Redo = redoHistory 
+            });
 
             return model;
         }
@@ -80,6 +112,13 @@ namespace CanvasDiagram.Editor
 
             // remove unused history
             undoHistory.Pop();
+
+            NotifyCanvasHistoryChanged(new CanvasHistoryChangedEventArgs()
+            {
+                Canvas = canvas,
+                Undo = undoHistory,
+                Redo = redoHistory
+            });
         }
 
         public static void RollbackRedo(ICanvas canvas)
@@ -93,6 +132,13 @@ namespace CanvasDiagram.Editor
 
             // remove unused history
             redoHistory.Pop();
+
+            NotifyCanvasHistoryChanged(new CanvasHistoryChangedEventArgs()
+            {
+                Canvas = canvas,
+                Undo = undoHistory,
+                Redo = redoHistory
+            });
         }
 
         public static void Clear(ICanvas canvas)
@@ -103,6 +149,13 @@ namespace CanvasDiagram.Editor
 
             undoHistory.Clear();
             redoHistory.Clear();
+
+            NotifyCanvasHistoryChanged(new CanvasHistoryChangedEventArgs()
+            {
+                Canvas = canvas,
+                Undo = undoHistory,
+                Redo = redoHistory
+            });
         }
 
         public static void Undo(ICanvas canvas, IDiagramCreator creator, bool pushRedo)
@@ -129,6 +182,13 @@ namespace CanvasDiagram.Editor
                 canvas, creator,
                 0, 0,
                 false, true, false, true);
+
+            NotifyCanvasHistoryChanged(new CanvasHistoryChangedEventArgs()
+            {
+                Canvas = canvas,
+                Undo = undoHistory,
+                Redo = redoHistory
+            });
         }
 
         public static void Redo(ICanvas canvas, IDiagramCreator creator, bool pushUndo)
@@ -155,6 +215,13 @@ namespace CanvasDiagram.Editor
                 canvas, creator,
                 0, 0,
                 false, true, false, true);
+
+            NotifyCanvasHistoryChanged(new CanvasHistoryChangedEventArgs()
+            {
+                Canvas = canvas,
+                Undo = undoHistory,
+                Redo = redoHistory
+            });
         } 
         
         #endregion
