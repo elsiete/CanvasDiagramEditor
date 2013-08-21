@@ -61,6 +61,8 @@ namespace CanvasDiagram.WPF
         private bool SolutionIsDirty = false;
         private string SolutionFileName = null;
 
+        private string TagsNewFileName = "Tags0";
+
         public void SetWindowTitle()
         {
             if (SolutionFileName == null && SolutionIsDirty == false)
@@ -1333,7 +1335,7 @@ namespace CanvasDiagram.WPF
             {
                 Filter = "Solution (*.txt)|*.txt|All Files (*.*)|*.*",
                 Title = "Save Solution",
-                FileName = "solution"
+                FileName = SolutionFileName != null ? SolutionNewFileName : System.IO.Path.GetFileName(SolutionFileName)
             };
 
             var res = dlg.ShowDialog();
@@ -1359,7 +1361,7 @@ namespace CanvasDiagram.WPF
             {
                 Filter = "Diagram (*.txt)|*.txt|All Files (*.*)|*.*",
                 Title = "Save Diagram",
-                FileName = "diagram"
+                FileName = "Diagram0"
             };
 
             var res = dlg.ShowDialog();
@@ -1453,7 +1455,7 @@ namespace CanvasDiagram.WPF
             {
                 Filter = "Tags (*.txt)|*.txt|All Files (*.*)|*.*",
                 Title = "Save Tags",
-                FileName = Editor.Context.TagFileName == null ? "tags" : System.IO.Path.GetFileName(Editor.Context.TagFileName)
+                FileName = Editor.Context.TagFileName == null ? TagsNewFileName : System.IO.Path.GetFileName(Editor.Context.TagFileName)
             };
 
             var res = dlg.ShowDialog();
