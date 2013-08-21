@@ -1,7 +1,24 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Express 2012 for Windows Desktop
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CanvasDiagramEditor", "CanvasDiagramEditor.csproj", "{E3BDD453-3D59-4CA6-90FC-270CEED7923D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CanvasDiagram.Editor", "CanvasDiagram.Editor\CanvasDiagram.Editor.csproj", "{82AE0288-DD8A-45E9-9695-2A7BD0B1F6C5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2BFD4E03-45E2-4546-A343-B94B6640B912} = {2BFD4E03-45E2-4546-A343-B94B6640B912}
+		{A6B6E7BA-9D5C-44F2-9D41-8451A95B7BDE} = {A6B6E7BA-9D5C-44F2-9D41-8451A95B7BDE}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CanvasDiagram.Core", "CanvasDiagram.Core\CanvasDiagram.Core.csproj", "{A6B6E7BA-9D5C-44F2-9D41-8451A95B7BDE}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2BFD4E03-45E2-4546-A343-B94B6640B912} = {2BFD4E03-45E2-4546-A343-B94B6640B912}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CanvasDiagram.Dxf", "CanvasDiagram.Dxf\CanvasDiagram.Dxf.csproj", "{8E424600-C315-4202-8E1E-C93699973EC1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CanvasDiagram.Util", "CanvasDiagram.Util\CanvasDiagram.Util.csproj", "{2BFD4E03-45E2-4546-A343-B94B6640B912}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CanvasDiagram.WPF.Controls", "CanvasDiagram.WPF.Controls\CanvasDiagram.WPF.Controls.csproj", "{D8E53B21-939D-4BF6-95E0-98410CFA0396}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CanvasDiagram.WPF", "CanvasDiagram.WPF\CanvasDiagram.WPF.csproj", "{EF836EFF-B45E-410F-8754-EF8770A45D69}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -9,10 +26,30 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{E3BDD453-3D59-4CA6-90FC-270CEED7923D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E3BDD453-3D59-4CA6-90FC-270CEED7923D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E3BDD453-3D59-4CA6-90FC-270CEED7923D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E3BDD453-3D59-4CA6-90FC-270CEED7923D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{82AE0288-DD8A-45E9-9695-2A7BD0B1F6C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{82AE0288-DD8A-45E9-9695-2A7BD0B1F6C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{82AE0288-DD8A-45E9-9695-2A7BD0B1F6C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{82AE0288-DD8A-45E9-9695-2A7BD0B1F6C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A6B6E7BA-9D5C-44F2-9D41-8451A95B7BDE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6B6E7BA-9D5C-44F2-9D41-8451A95B7BDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A6B6E7BA-9D5C-44F2-9D41-8451A95B7BDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6B6E7BA-9D5C-44F2-9D41-8451A95B7BDE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8E424600-C315-4202-8E1E-C93699973EC1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E424600-C315-4202-8E1E-C93699973EC1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E424600-C315-4202-8E1E-C93699973EC1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E424600-C315-4202-8E1E-C93699973EC1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2BFD4E03-45E2-4546-A343-B94B6640B912}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2BFD4E03-45E2-4546-A343-B94B6640B912}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2BFD4E03-45E2-4546-A343-B94B6640B912}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2BFD4E03-45E2-4546-A343-B94B6640B912}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D8E53B21-939D-4BF6-95E0-98410CFA0396}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D8E53B21-939D-4BF6-95E0-98410CFA0396}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D8E53B21-939D-4BF6-95E0-98410CFA0396}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D8E53B21-939D-4BF6-95E0-98410CFA0396}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EF836EFF-B45E-410F-8754-EF8770A45D69}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EF836EFF-B45E-410F-8754-EF8770A45D69}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EF836EFF-B45E-410F-8754-EF8770A45D69}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EF836EFF-B45E-410F-8754-EF8770A45D69}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

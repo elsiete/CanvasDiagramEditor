@@ -1,0 +1,118 @@
+﻿<!-- Copyright (C) Wiesław Šoltés 2013. -->
+<!-- All Rights Reserved -->
+    
+<UserControl x:Class="CanvasDiagram.WPF.TagEditorControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:controls="clr-namespace:CanvasDiagram.WPF.Controls;assembly=CanvasDiagram.WPF.Controls"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="330"
+             Background="Transparent">
+
+    <Grid Margin="2">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Expander Header="Filter By" IsExpanded="True" Grid.Column="0" Grid.Row="0">
+            <Grid x:Name="FilterGrid" 
+                  VerticalAlignment="Bottom">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="80"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <TextBlock Text="Designation" Margin="4,1,4,1" VerticalAlignment="Center" Grid.Column="0" Grid.Row="0"/>
+                <TextBlock Text="Signal" Margin="4,1,4,1" VerticalAlignment="Center" Grid.Column="0" Grid.Row="1"/>
+                <TextBlock Text="Condition" Margin="4,1,4,1" VerticalAlignment="Center" Grid.Column="0" Grid.Row="2"/>
+                <TextBlock Text="Description" Margin="4,1,4,1" VerticalAlignment="Center" Grid.Column="0" Grid.Row="3"/>
+                <TextBox x:Name="FilterByDesignation" Text="" Margin="4,1,0,1" Grid.Column="1" Grid.Row="0"/>
+                <TextBox x:Name="FilterBySignal" Text="" Margin="4,1,0,1" Grid.Column="1" Grid.Row="1"/>
+                <TextBox x:Name="FilterByCondition" Text="" Margin="4,1,0,1" Grid.Column="1" Grid.Row="2"/>
+                <TextBox x:Name="FilterByDescription" Text="" Margin="4,1,0,1" Grid.Column="1" Grid.Row="3"/>
+                <Button Content="_Reset Filters" x:Name="ButtonResetFilter" Width="120" HorizontalAlignment="Right" Margin="0,1,0,1" Grid.Column="1" Grid.Row="4" Click="ButtonResetFilter_Click"/>
+            </Grid>
+        </Expander>
+            
+        <Expander Header="Edit Tag" IsExpanded="True" Grid.Column="0" Grid.Row="1">
+            <Grid x:Name="TagGrid" 
+                  VerticalAlignment="Bottom">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="80"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <TextBlock Text="TagId" Margin="4,1,4,1" VerticalAlignment="Center" Grid.Column="0" Grid.Row="0"/>
+                <TextBlock Text="Designation" Margin="4,1,4,1" VerticalAlignment="Center" Grid.Column="0" Grid.Row="1"/>
+                <TextBlock Text="Signal" Margin="4,1,4,1" VerticalAlignment="Center" Grid.Column="0" Grid.Row="2"/>
+                <TextBlock Text="Condition" Margin="4,1,4,1" VerticalAlignment="Center" Grid.Column="0" Grid.Row="3"/>
+                <TextBlock Text="Description" Margin="4,1,4,1" VerticalAlignment="Center" Grid.Column="0" Grid.Row="4"/>
+                <TextBox Text="{Binding ElementName=TagList, Path=SelectedItem.Id, FallbackValue={x:Null}}" Margin="4,1,0,1" Grid.Column="1" Grid.Row="0" IsReadOnly="True"/>
+                <TextBox Text="{Binding ElementName=TagList, Path=SelectedItem.Designation, FallbackValue={x:Null}}" Margin="4,1,0,1" Grid.Column="1" Grid.Row="1"/>
+                <TextBox Text="{Binding ElementName=TagList, Path=SelectedItem.Signal, FallbackValue={x:Null}}" Margin="4,1,0,1" Grid.Column="1" Grid.Row="2"/>
+                <TextBox Text="{Binding ElementName=TagList, Path=SelectedItem.Condition, FallbackValue={x:Null}}" Margin="4,1,0,1" Grid.Column="1" Grid.Row="3"/>
+                <TextBox Text="{Binding ElementName=TagList, Path=SelectedItem.Description, FallbackValue={x:Null}}" Margin="4,1,0,1" Grid.Column="1" Grid.Row="4"/>
+                <Button Content="Create _New Tag" x:Name="ButtonNewTag" Width="120" HorizontalAlignment="Right" Margin="0,1,0,1" Grid.Column="1" Grid.Row="5" Click="ButtonNewTag_Click"/>
+            </Grid>
+        </Expander>
+        
+        <ListView x:Name="TagList" 
+                  Grid.Column="0" Grid.Row="2"
+                  Margin="0,3,0,1"
+                  HorizontalContentAlignment="Stretch"
+                  ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                  ScrollViewer.VerticalScrollBarVisibility="Auto"
+                  SelectionChanged="TagList_SelectionChanged"
+                  MouseDoubleClick="TagList_MouseDoubleClick"
+                  KeyDown="TagList_KeyDown">
+            <ListView.View>
+                <GridView>
+                    <!--<GridViewColumn Header="TagId" DisplayMemberBinding="{Binding Path=Id}" Width="50"/>-->
+                    <GridViewColumn Header="Designation" DisplayMemberBinding="{Binding Path=Designation}" Width="110"/>
+                    <GridViewColumn Header="Signal" DisplayMemberBinding="{Binding Path=Signal}" Width="80"/>
+                    <GridViewColumn Header="Condition" DisplayMemberBinding="{Binding Path=Condition}" Width="90"/>
+                    <!--<GridViewColumn Header="Description" DisplayMemberBinding="{Binding Path=Description}" Width="180"/>-->
+                </GridView>
+            </ListView.View>
+        </ListView>
+
+        <ListView x:Name="SelectedList" 
+                  Grid.Column="0" Grid.Row="3" 
+                  Margin="0,3,0,0"
+                  HorizontalContentAlignment="Stretch"
+                  ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                  ScrollViewer.VerticalScrollBarVisibility="Auto">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Uid" DisplayMemberBinding="{Binding Path=Item1.Uid}" Width="80"/>
+                    <!--<GridViewColumn Header="TagId" DisplayMemberBinding="{Binding Path=Item1.(controls:ElementThumb.Data).Id, FallbackValue=&lt;tag&gt;}" Width="40"/>-->
+                    <GridViewColumn Header="Designation" DisplayMemberBinding="{Binding Path=Item1.(controls:ElementThumb.Data).Designation, FallbackValue=&lt;tag&gt;}" Width="100"/>
+                    <GridViewColumn Header="Signal" DisplayMemberBinding="{Binding Path=Item1.(controls:ElementThumb.Data).Signal, FallbackValue=&lt;tag&gt;}" Width="70"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+
+    </Grid>
+
+</UserControl>
