@@ -20,6 +20,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CanvasDiagram.WPF.Controls"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CanvasDiagram.WPF", "CanvasDiagram.WPF\CanvasDiagram.WPF.csproj", "{EF836EFF-B45E-410F-8754-EF8770A45D69}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CanvasDiagram.WPF.Resources", "CanvasDiagram.WPF.Resources\CanvasDiagram.WPF.Resources.csproj", "{EBC08054-F094-4EC9-813D-1D1447A3D6A9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -50,6 +52,10 @@ Global
 		{EF836EFF-B45E-410F-8754-EF8770A45D69}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EF836EFF-B45E-410F-8754-EF8770A45D69}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EF836EFF-B45E-410F-8754-EF8770A45D69}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EBC08054-F094-4EC9-813D-1D1447A3D6A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EBC08054-F094-4EC9-813D-1D1447A3D6A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EBC08054-F094-4EC9-813D-1D1447A3D6A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EBC08054-F094-4EC9-813D-1D1447A3D6A9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

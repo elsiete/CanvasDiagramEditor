@@ -57,6 +57,24 @@
     <Compile Include="DipUtil.cs" />
     <Compile Include="DxfDiagramCreator.cs" />
     <Compile Include="DxfInspect.cs" />
+    <Compile Include="Elements\AndGateControl.xaml.cs">
+      <DependentUpon>AndGateControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Elements\InputControl.xaml.cs">
+      <DependentUpon>InputControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Elements\OrGateControl.xaml.cs">
+      <DependentUpon>OrGateControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Elements\OutputControl.xaml.cs">
+      <DependentUpon>OutputControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Elements\PageControl.xaml.cs">
+      <DependentUpon>PageControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Elements\PinControl.xaml.cs">
+      <DependentUpon>PinControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ResourceConstants.cs" />
     <Compile Include="Views\DiagramControl.xaml.cs">
       <DependentUpon>DiagramControl.xaml</DependentUpon>
@@ -83,6 +101,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="ElementsDictionary.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Elements\AndGateControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -107,24 +129,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Compile Include="Elements\AndGateControl.xaml.cs">
-      <DependentUpon>AndGateControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Elements\InputControl.xaml.cs">
-      <DependentUpon>InputControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Elements\OrGateControl.xaml.cs">
-      <DependentUpon>OrGateControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Elements\OutputControl.xaml.cs">
-      <DependentUpon>OutputControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Elements\PageControl.xaml.cs">
-      <DependentUpon>PageControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Elements\PinControl.xaml.cs">
-      <DependentUpon>PinControl.xaml</DependentUpon>
-    </Compile>
     <Page Include="Views\DiagramControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -134,10 +138,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\HtmlWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Views\LogicDictionary.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -203,12 +203,10 @@
       <Project>{d8e53b21-939d-4bf6-95e0-98410cfa0396}</Project>
       <Name>CanvasDiagram.WPF.Controls</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\TransparentLogo.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\WhiteLogo.png" />
+    <ProjectReference Include="..\CanvasDiagram.WPF.Resources\CanvasDiagram.WPF.Resources.csproj">
+      <Project>{ebc08054-f094-4ec9-813d-1d1447a3d6a9}</Project>
+      <Name>CanvasDiagram.WPF.Resources</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

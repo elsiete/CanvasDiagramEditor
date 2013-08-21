@@ -42,5 +42,4 @@ namespace CanvasDiagram.WPF
     }
 
     #endregion
-
 }

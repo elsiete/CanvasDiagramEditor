@@ -12,10 +12,10 @@
         Style="{StaticResource MainWindowStyleKey}">
 
     <Grid Background="{DynamicResource LogicBackgroundColorKey}">
-        
+
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="18*"/>
+            <RowDefinition Height="661*"/>
         </Grid.RowDefinitions>
 
         <Grid.ColumnDefinitions>
@@ -99,11 +99,11 @@
                               controls:LineEx.ShortenEnd="{Binding ElementName=ShortenEnd, Path=IsChecked}"/>
 
         <GridSplitter Grid.Column="1" Grid.Row="1" Background="Transparent" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-        
+
         <Grid Background="{DynamicResource LogicBackgroundColorKey}" Grid.Column="2" Grid.Row="1">
 
             <TabControl Margin="0,4,4,4">
-                
+
                 <TabItem x:Name="TabExplorer" FocusVisualStyle="{x:Null}">
                     <TabItem.Header>
                         <TextBlock Text="Explorer" ToolTip="Solution Explorer (F5)"/>

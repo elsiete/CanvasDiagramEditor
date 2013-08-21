@@ -55,7 +55,7 @@ namespace CanvasDiagram.WPF
 
         private DiagramEditor Editor { get; set; }
 
-        private string ResourcesUri = "Views/LogicDictionary.xaml";
+        private string ResourcesUri = "ElementsDictionary.xaml";
 
         private PointEx InsertPointInput = new PointEx(30, 30.0);
         private PointEx InsertPointOutput = new PointEx(930.0, 30.0);

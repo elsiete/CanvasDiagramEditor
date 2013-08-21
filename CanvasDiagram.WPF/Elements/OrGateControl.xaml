@@ -9,7 +9,7 @@
              xmlns:controls="clr-namespace:CanvasDiagram.WPF.Controls;assembly=CanvasDiagram.WPF.Controls"
              mc:Ignorable="d" 
              d:DesignHeight="30" d:DesignWidth="30">
-    
+
     <Canvas Width="30" Height="30" Style="{StaticResource ControlCanvasStyleKey}">
 
         <Canvas x:Name="RootElement" Width="30" Height="30" Style="{StaticResource RootCanvasStyleKey}">

@@ -10,7 +10,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="30" d:DesignWidth="300"
              AllowDrop="True" Drop="UserControl_Drop" DragEnter="UserControl_DragEnter">
-    
+
     <Canvas Width="300" Height="30" Style="{StaticResource ControlCanvasStyleKey}">
 
         <Canvas x:Name="RootElement" Width="300" Height="30" Style="{StaticResource RootCanvasStyleKey}">

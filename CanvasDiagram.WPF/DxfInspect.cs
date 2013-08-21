@@ -29,7 +29,7 @@ using System.Windows.Markup;
 
 namespace CanvasDiagram.WPF
 {
-    #region MainWindow
+    #region DxfInspect
 
     public class DxfInspect
     {
