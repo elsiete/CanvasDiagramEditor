@@ -1,49 +1,49 @@
 {
-	"folders":
-	[
-		{
-			"follow_symlinks": true,
-			"path": ".\\",
-			"folder_exclude_patterns": ["bin", "obj"],
-			"file_include_patterns": 
-			[
-			"*.cs","*.xaml","*.txt","*.dxf", "*.sln", "*.csproj", "*.cmd", "*.md"
-			],
-			"name": "CanvasDiagramEditor"
-		}
-	],
+    "folders":
+    [
+        {
+            "follow_symlinks": true,
+            "path": ".\\",
+            "folder_exclude_patterns": ["bin", "obj"],
+            "file_include_patterns": 
+            [
+                "*.cs","*.xaml","*.txt","*.dxf", "*.sln", "*.csproj", "*.cmd", "*.md"
+            ],
+            "name": "CanvasDiagramEditor"
+        }
+    ],
 
     "build_systems":
     [
         {
             "name": "Build - Debug",
             "path":"C:\\WINDOWS\\Microsoft.NET\\Framework\\v3.5",
-		    "cmd": 
-		    [
-		    	"MSBuild", 
-		    	"$project_base_name.sln",
-		    	"/m",
-		    	"/t:Rebuild",
-		    	"/verbosity:quiet",
-		    	"/p:Configuration=Debug;TargetFrameworkVersion=v3.5"
-		    ],
-		    "encoding": "cp852",
-		    "working_dir": "${project_path:${folder}}",
+            "cmd": 
+            [
+                "MSBuild", 
+                "$project_base_name.sln",
+                "/m",
+                "/t:Rebuild",
+                "/verbosity:quiet",
+                "/p:Configuration=Debug;TargetFrameworkVersion=v3.5"
+            ],
+            "encoding": "cp852",
+            "working_dir": "${project_path:${folder}}",
         },
         {
             "name": "Build - Release",
             "path":"C:\\WINDOWS\\Microsoft.NET\\Framework\\v3.5",
-		    "cmd": 
-		    [
-		    	"MSBuild", 
-		    	"$project_base_name.sln",
-		    	"/m",
-		    	"/t:Rebuild",
-		    	"/verbosity:quiet",
-		    	"/p:Configuration=Release;TargetFrameworkVersion=v3.5"
-		    ],
-		    "encoding": "cp852",
-		    "working_dir": "${project_path:${folder}}",
+            "cmd": 
+            [
+                "MSBuild", 
+                "$project_base_name.sln",
+                "/m",
+                "/t:Rebuild",
+                "/verbosity:quiet",
+                "/p:Configuration=Release;TargetFrameworkVersion=v3.5"
+            ],
+            "encoding": "cp852",
+            "working_dir": "${project_path:${folder}}",
         },
     ]
 }
