@@ -26,7 +26,7 @@ namespace CanvasDiagram.Editor
     using TreeDiagrams = Stack<Stack<string>>;
     using TreeProject = Tuple<string, Stack<Stack<string>>>;
     using TreeProjects = Stack<Tuple<string, Stack<Stack<string>>>>;
-    using TreeSolution = Tuple<string, string, Stack<Tuple<string, Stack<Stack<string>>>>>;
+    using TreeSolution = Tuple<string, string, string, Stack<Tuple<string, Stack<Stack<string>>>>>;
     using Position = Tuple<double, double>;
     using Connection = Tuple<IElement, List<Tuple<object, object, object>>>;
     using Connections = List<Tuple<IElement, List<Tuple<object, object, object>>>>;
@@ -88,7 +88,7 @@ namespace CanvasDiagram.Editor
                 {
                     // Solution
                     if (StringUtil.StartsWith(name, ModelConstants.TagHeaderSolution) &&
-                        (length == 2 || length == 3))
+                        (length == 2 || length == 3 || length == 4))
                     {
                         int id = int.Parse(name.Split(ModelConstants.TagNameSeparator)[1]);
                         counter.SolutionCount = Math.Max(counter.SolutionCount, id + 1);
@@ -96,9 +96,10 @@ namespace CanvasDiagram.Editor
                         total.SolutionCount++;
 
                         string tagFileName = (length == 3) ? args[2] : null;
+                        string tableFileName = (length == 4) ? args[3] : null;
 
                         projects = new TreeProjects();
-                        solution = new TreeSolution(name, tagFileName, projects);
+                        solution = new TreeSolution(name, tagFileName, tableFileName, projects);
                     }
 
                     // Project

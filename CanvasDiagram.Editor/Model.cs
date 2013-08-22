@@ -26,7 +26,7 @@ namespace CanvasDiagram.Editor
     using TreeDiagrams = Stack<Stack<string>>;
     using TreeProject = Tuple<string, Stack<Stack<string>>>;
     using TreeProjects = Stack<Tuple<string, Stack<Stack<string>>>>;
-    using TreeSolution = Tuple<string, string, Stack<Tuple<string, Stack<Stack<string>>>>>;
+    using TreeSolution = Tuple<string, string, string, Stack<Tuple<string, Stack<Stack<string>>>>>;
     using Position = Tuple<double, double>;
     using Connection = Tuple<IElement, List<Tuple<object, object, object>>>;
     using Connections = List<Tuple<IElement, List<Tuple<object, object, object>>>>;
@@ -151,15 +151,10 @@ namespace CanvasDiagram.Editor
 
         public static string GenerateDiagram(ICanvas canvas, string uid, DiagramProperties properties)
         {
-            if (canvas == null)
-            {
-                return null;
-            }
-
             //var sw = System.Diagnostics.Stopwatch.StartNew();
 
             var sb = new StringBuilder();
-            var elements = canvas.GetElements();
+            var elements = (canvas == null) ? null : canvas.GetElements();
 
             string defaultUid = ModelConstants.TagHeaderDiagram + ModelConstants.TagNameSeparator + (-1).ToString();
 
@@ -177,9 +172,11 @@ namespace CanvasDiagram.Editor
             sb.AppendLine(header);
             //System.Diagnostics.Debug.Print(header);
 
-            string model = Generate(elements);
-
-            sb.Append(model);
+            if (elements != null)
+            {
+                string model = Generate(elements);
+                sb.Append(model);
+            }
 
             var result = sb.ToString();
 
@@ -192,27 +189,33 @@ namespace CanvasDiagram.Editor
         public static Solution GenerateSolution(ITree tree,
             string fileName,
             string tagFileName,
+            string tableFileName,
             bool includeHistory)
         {
             var models = new List<string>();
             var solution = tree.GetItems().First();
             var projects = solution.GetItems();
+            string relativeTagFileName = tagFileName;
+            string relativeTableFileName = tableFileName;
 
             string line = null;
             var sb = new StringBuilder();
 
             // tags file path is relative to solution file path
             if (tagFileName != null && fileName != null)
-            {
-                tagFileName = PathUtil.GetRelativeFileName(fileName, tagFileName);
-            }
+                relativeTagFileName = PathUtil.GetRelativeFileName(fileName, tagFileName);
+
+            // table file path is relative to solution file path
+            if (tableFileName != null && fileName != null)
+                relativeTableFileName = PathUtil.GetRelativeFileName(fileName, tableFileName);
 
             // Solution
-            line = string.Format("{0}{1}{2}{1}{3}",
+            line = string.Format("{0}{1}{2}{1}{3}{1}{4}",
                 ModelConstants.PrefixRoot,
                 ModelConstants.ArgumentSeparator,
                 solution.GetUid(),
-                tagFileName);
+                relativeTagFileName,
+                relativeTableFileName);
 
             sb.AppendLine(line);
 
@@ -265,7 +268,16 @@ namespace CanvasDiagram.Editor
                     var model = _diagram.Item1;
                     var history = _diagram.Item2;
 
-                    models.Add(model);
+                    if (model == null)
+                    {
+                        model = GenerateItemModel(null, diagram, true);
+                        models.Add(model);
+                    }
+                    else
+                    {
+                        models.Add(model);
+                    }
+
                     sb.Append(model);
 
                     if (includeHistory == true && history != null)
@@ -283,6 +295,33 @@ namespace CanvasDiagram.Editor
             }
 
             return sb.ToString();
+        }
+
+        public static string GenerateItemModel(ICanvas canvas, ITreeItem item, bool update)
+        {
+            string model = null;
+
+            if (item != null)
+            {
+                string uid = item.GetUid();
+                bool isDiagram = StringUtil.StartsWith(uid, ModelConstants.TagHeaderDiagram);
+
+                if (isDiagram == true)
+                {
+                    var prop = (canvas == null) ? DiagramProperties.Default : canvas.GetProperties();
+                    model = GenerateDiagram(canvas, uid, prop);
+                    if (update == true)
+                    {
+                        UndoRedo undoRedo = (canvas == null) ? 
+                            new UndoRedo(new Stack<string>(), new Stack<string>()) :
+                            canvas.GetTag() as UndoRedo;
+
+                        item.SetTag(new Diagram(model, undoRedo));
+                    }
+                }
+            }
+
+            return model;
         }
 
         #endregion
@@ -369,11 +408,8 @@ namespace CanvasDiagram.Editor
 
         #region Grid
 
-        public static void SetGrid(ICanvas canvas, IDiagramCreator creator, bool undo)
+        public static void SetGrid(ICanvas canvas, IDiagramCreator creator)
         {
-            if (undo == true)
-                History.Add(canvas);
-
             var prop = canvas.GetProperties();
 
             creator.CreateGrid(prop.GridOriginX,
@@ -394,18 +430,17 @@ namespace CanvasDiagram.Editor
         {
             var tag = item.GetTag();
 
-            Model.Clear(canvas);
+            Clear(canvas);
 
             if (tag != null)
             {
                 LoadFromTag(canvas, creator, tag);
             }
-            else
-            {
-                canvas.SetTag(new UndoRedo(new Stack<string>(), new Stack<string>()));
-
-                SetGrid(canvas, creator, false);
-            }
+            //else
+            //{
+            //    canvas.SetTag(new UndoRedo(new Stack<string>(), new Stack<string>()));
+            //    SetGrid(canvas, creator, false);
+            //}
         }
 
         public static void LoadFromTag(ICanvas canvas, IDiagramCreator creator, object tag)
@@ -417,7 +452,7 @@ namespace CanvasDiagram.Editor
 
             canvas.SetTag(history);
 
-            Model.Parse(model,
+            Parse(model,
                 canvas, creator,
                 0, 0,
                 false, true, false, true);
@@ -430,12 +465,14 @@ namespace CanvasDiagram.Editor
         public static void Store(ICanvas canvas, ITreeItem item)
         {
             var uid = item.GetUid();
-            var model = Model.GenerateDiagram(canvas, uid, canvas == null ? null : canvas.GetProperties());
+            string model = null;
 
-            if (item != null)
-            {
-                item.SetTag(new Diagram(model, canvas != null ? canvas.GetTag() as UndoRedo : null));
-            }
+            if (canvas == null)
+                model = GenerateItemModel(null, item, true);
+            else
+                model = GenerateDiagram(canvas, uid, canvas == null ? null : canvas.GetProperties());
+  
+            item.SetTag(new Diagram(model, canvas != null ? canvas.GetTag() as UndoRedo : null));
         } 
 
         #endregion

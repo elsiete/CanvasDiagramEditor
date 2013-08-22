@@ -39,7 +39,7 @@ namespace CanvasDiagram.WPF
     using TreeDiagrams = Stack<Stack<string>>;
     using TreeProject = Tuple<string, Stack<Stack<string>>>;
     using TreeProjects = Stack<Tuple<string, Stack<Stack<string>>>>;
-    using TreeSolution = Tuple<string, string, Stack<Tuple<string, Stack<Stack<string>>>>>;
+    using TreeSolution = Tuple<string, string, string, Stack<Tuple<string, Stack<Stack<string>>>>>;
     using Position = Tuple<double, double>;
     using Connection = Tuple<IElement, List<Tuple<object, object, object>>>;
     using Connections = List<Tuple<IElement, List<Tuple<object, object, object>>>>;
@@ -155,7 +155,8 @@ namespace CanvasDiagram.WPF
         {
             FileNew.Click += (sender, e) => NewSolution();
             FileOpen.Click += (sender, e) => OpenSolution();
-            FileSave.Click += (sender, e) => SaveSolutionDlg();;
+            FileSave.Click += (sender, e) => SaveSolutionAsDlg(false);
+            FileSaveAs.Click += (sender, e) => SaveSolutionAsDlg(true);
             FileOpenDiagram.Click += (sender, e) => OpenDiagramDlg();
             FileSaveDiagram.Click += (sender, e) => SaveDiagramDlg();
             FileOpenTags.Click += (sender, e) => OpenTags();
@@ -269,11 +270,13 @@ namespace CanvasDiagram.WPF
             counter.DiagramCount = 1;
             this.DiagramControl.DiagramCanvas.SetCounter(counter);
 
-            var properties = new DiagramProperties();
-            this.DiagramControl.DiagramCanvas.SetProperties(properties);
+            var prop = DiagramProperties.Default;
+            this.DiagramControl.DiagramCanvas.SetProperties(prop);
+            SetProperties(prop);
 
             Editor.Context.IsControlPressed = () => Keyboard.Modifiers == ModifierKeys.Control;
             Editor.Context.UpdateProperties = () => UpdateProperties(Editor.Context.CurrentCanvas.GetProperties());
+            Editor.Context.SetProperties = (p) => SetProperties(p);
 
             Editor.Context.Clipboard = new WindowsClipboard();
 
@@ -297,10 +300,7 @@ namespace CanvasDiagram.WPF
             Editor.Context.CreateTreeDiagramItem = () => this.ExplorerControl.CreateTreeDiagramItem();
 
             // update canvas grid
-            Editor.Context.UpdateProperties();
-            Model.SetGrid(Editor.Context.CurrentCanvas, 
-                Editor.Context.DiagramCreator,
-                false);
+            UpdateDiagramGrid(false);
         }
 
         private void InitializeHistory()
@@ -453,6 +453,33 @@ namespace CanvasDiagram.WPF
             prop.SnapOffsetY = double.Parse(TextSnapOffsetY.Text);
         }
 
+        private void SetProperties(DiagramProperties prop)
+        {
+            TextPageWidth.Text = prop.PageWidth.ToString();
+            TextPageHeight.Text = prop.PageHeight.ToString();
+            TextGridOriginX.Text = prop.GridOriginX.ToString();
+            TextGridOriginY.Text = prop.GridOriginY.ToString();
+            TextGridWidth.Text = prop.GridWidth.ToString();
+            TextGridHeight.Text = prop.GridHeight.ToString();
+            TextGridSize.Text = prop.GridSize.ToString();
+            TextSnapX.Text = prop.SnapX.ToString();
+            TextSnapY.Text = prop.SnapY.ToString();
+            TextSnapOffsetX.Text = prop.SnapOffsetX.ToString();
+            TextSnapOffsetY.Text = prop.SnapOffsetY.ToString();
+        }
+
+        private void UpdateDiagramGrid(bool undo)
+        {
+            var canvas = Editor.Context.CurrentCanvas;
+            var creator = Editor.Context.DiagramCreator;
+
+            if (undo == true)
+                History.Add(canvas);
+
+            Editor.Context.UpdateProperties();
+            Model.SetGrid(canvas, creator);
+        }
+
         private void OpenSolution()
         {
             OpenSolutionDlg();
@@ -464,6 +491,9 @@ namespace CanvasDiagram.WPF
             SolutionIsDirty = false;
             SolutionFileName = null;
             SetWindowTitle();
+
+            SetProperties(DiagramProperties.Default);
+            UpdateDiagramGrid(false);
 
             Editor.TreeCreateNewSolution();
             UpdateEditors();
@@ -623,7 +653,7 @@ namespace CanvasDiagram.WPF
                 switch (key)
                 {
                     case Key.O: OpenSolution(); break;
-                    case Key.S: SaveSolutionDlg(); break;
+                    case Key.S: SaveSolutionAsDlg(false); break;
                     case Key.N: NewSolution(); break;
                     case Key.T: OpenTags(); break;
                     case Key.I: ImportTags(); break;
@@ -761,11 +791,7 @@ namespace CanvasDiagram.WPF
 
         private void UpdateGrid_Click(object sender, RoutedEventArgs e)
         {
-            Editor.Context.UpdateProperties();
-
-            Model.SetGrid(Editor.Context.CurrentCanvas,
-                Editor.Context.DiagramCreator,
-                true);
+            UpdateDiagramGrid(true);
         }
 
         #endregion
@@ -1329,7 +1355,15 @@ namespace CanvasDiagram.WPF
             }
         }
 
-        private void SaveSolutionDlg()
+        private void SaveSolutionAsDlg(bool saveAs)
+        {
+            if (SolutionFileName == null || saveAs == true)
+                SaveSolutionDlg(saveAs);
+            else if (SolutionFileName != null)
+                SaveSolution(SolutionFileName, false);
+        }
+
+        private void SaveSolutionDlg(bool saveAs)
         {
             var dlg = new Microsoft.Win32.SaveFileDialog()
             {
@@ -1342,17 +1376,21 @@ namespace CanvasDiagram.WPF
             if (res == true)
             {
                 var fileName = dlg.FileName;
-
-                var tree = Editor.Context.CurrentTree;
-
-                TagsUpdate();
-
-                Editor.SaveSolution(fileName);
-
-                SolutionIsDirty = false;
-                SolutionFileName = fileName;
-                SetWindowTitle();
+                SaveSolution(fileName, saveAs);
             }
+        }
+
+        private void SaveSolution(string fileName, bool saveAs)
+        {
+            var tree = Editor.Context.CurrentTree;
+
+            TagsUpdate(saveAs);
+
+            Editor.SaveSolution(fileName);
+
+            SolutionIsDirty = false;
+            SolutionFileName = fileName;
+            SetWindowTitle();
         }
 
         private void SaveDiagramDlg()
@@ -1434,16 +1472,16 @@ namespace CanvasDiagram.WPF
             }
         }
 
-        private void TagsUpdate()
+        private void TagsUpdate(bool saveAs)
         {
             string tagFileName = Editor.Context.TagFileName;
             var tags = Editor.Context.Tags;
 
-            if (tagFileName != null && tags != null)
+            if (tagFileName != null && tags != null && saveAs == false)
             {
                 Tags.Export(tagFileName, tags);
             }
-            else if (tagFileName == null && tags != null)
+            else if ((tagFileName == null && tags != null) || saveAs == true)
             {
                 TagsSaveDlg();
             }

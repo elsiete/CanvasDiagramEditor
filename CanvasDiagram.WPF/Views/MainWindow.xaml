@@ -28,6 +28,7 @@
             <MenuItem Header="_File">
                 <MenuItem x:Name="FileOpen" Header="_Open Solution..." InputGestureText="Ctrl+O"/>
                 <MenuItem x:Name="FileSave" Header="_Save Solution..." InputGestureText="Ctrl+S"/>
+                <MenuItem x:Name="FileSaveAs" Header="_Save Solution As..."/>
                 <Separator/>
                 <MenuItem x:Name="FileNew" Header="_New Solution" InputGestureText="Ctrl+N"/>
                 <Separator/>
@@ -244,27 +245,27 @@
                                         <RowDefinition/>
                                     </Grid.RowDefinitions>
                                     <TextBlock Text="Page Width:" Grid.Column="0" Grid.Row="0" Margin="2" HorizontalAlignment="Right"/>
-                                    <TextBox x:Name="TextPageWidth" Text="1260" Grid.Column="1" Grid.Row="0" Margin="2"/>
+                                    <TextBox x:Name="TextPageWidth" Text="" Grid.Column="1" Grid.Row="0" Margin="2"/>
                                     <TextBlock Text="Page Height:" Grid.Column="0" Grid.Row="1" Margin="2" HorizontalAlignment="Right"/>
-                                    <TextBox x:Name="TextPageHeight" Text="891" Grid.Column="1" Grid.Row="1" Margin="2"/>
+                                    <TextBox x:Name="TextPageHeight" Text="" Grid.Column="1" Grid.Row="1" Margin="2"/>
                                     <TextBlock Text="Grid Origin X:" Grid.Column="0" Grid.Row="2" Margin="2" HorizontalAlignment="Right"/>
-                                    <TextBox x:Name="TextGridOriginX" Text="330" Grid.Column="1" Grid.Row="2" Margin="2"/>
+                                    <TextBox x:Name="TextGridOriginX" Text="" Grid.Column="1" Grid.Row="2" Margin="2"/>
                                     <TextBlock Text="Grid Origin Y:" Grid.Column="0" Grid.Row="3" Margin="2" HorizontalAlignment="Right"/>
-                                    <TextBox x:Name="TextGridOriginY" Text="31" Grid.Column="1" Grid.Row="3" Margin="2"/>
+                                    <TextBox x:Name="TextGridOriginY" Text="" Grid.Column="1" Grid.Row="3" Margin="2"/>
                                     <TextBlock Text="Grid Width:" Grid.Column="0" Grid.Row="4" Margin="2" HorizontalAlignment="Right"/>
-                                    <TextBox x:Name="TextGridWidth" Text="600" Grid.Column="1" Grid.Row="4" Margin="2"/>
+                                    <TextBox x:Name="TextGridWidth" Text="" Grid.Column="1" Grid.Row="4" Margin="2"/>
                                     <TextBlock Text="Grid Height:" Grid.Column="0" Grid.Row="5" Margin="2" HorizontalAlignment="Right"/>
-                                    <TextBox x:Name="TextGridHeight" Text="750" Grid.Column="1" Grid.Row="5" Margin="2"/>
+                                    <TextBox x:Name="TextGridHeight" Text="" Grid.Column="1" Grid.Row="5" Margin="2"/>
                                     <TextBlock Text="Grid Size:" Grid.Column="0" Grid.Row="6" Margin="2" HorizontalAlignment="Right"/>
-                                    <TextBox x:Name="TextGridSize" Text="30" Grid.Column="1" Grid.Row="6" Margin="2"/>
+                                    <TextBox x:Name="TextGridSize" Text="" Grid.Column="1" Grid.Row="6" Margin="2"/>
                                     <TextBlock Text="SnapX:" Grid.Column="0" Grid.Row="7" Margin="2" HorizontalAlignment="Right"/>
-                                    <TextBox x:Name="TextSnapX" Text="15" Grid.Column="1" Grid.Row="7" Margin="2"/>
+                                    <TextBox x:Name="TextSnapX" Text="" Grid.Column="1" Grid.Row="7" Margin="2"/>
                                     <TextBlock Text="SnapY:" Grid.Column="0" Grid.Row="8" Margin="2" HorizontalAlignment="Right"/>
-                                    <TextBox x:Name="TextSnapY" Text="15" Grid.Column="1" Grid.Row="8" Margin="2"/>
+                                    <TextBox x:Name="TextSnapY" Text="" Grid.Column="1" Grid.Row="8" Margin="2"/>
                                     <TextBlock Text="SnapOffsetX:" Grid.Column="0" Grid.Row="9" Margin="2" HorizontalAlignment="Right"/>
-                                    <TextBox x:Name="TextSnapOffsetX" Text="0" Grid.Column="1" Grid.Row="9" Margin="2"/>
+                                    <TextBox x:Name="TextSnapOffsetX" Text="" Grid.Column="1" Grid.Row="9" Margin="2"/>
                                     <TextBlock Text="SnapOffsetY:" Grid.Column="0" Grid.Row="10" Margin="2" HorizontalAlignment="Right"/>
-                                    <TextBox x:Name="TextSnapOffsetY" Text="1" Grid.Column="1" Grid.Row="10" Margin="2"/>
+                                    <TextBox x:Name="TextSnapOffsetY" Text="" Grid.Column="1" Grid.Row="10" Margin="2"/>
                                     <Button x:Name="UpdateGrid" Content="_Update Properties" Grid.Column="1" Grid.Row="11" Margin="2" Click="UpdateGrid_Click"/>
                                 </Grid>
                             </Expander>

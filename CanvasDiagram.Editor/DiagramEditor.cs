@@ -26,7 +26,7 @@ namespace CanvasDiagram.Editor
     using TreeDiagrams = Stack<Stack<string>>;
     using TreeProject = Tuple<string, Stack<Stack<string>>>;
     using TreeProjects = Stack<Tuple<string, Stack<Stack<string>>>>;
-    using TreeSolution = Tuple<string, string, Stack<Tuple<string, Stack<Stack<string>>>>>;
+    using TreeSolution = Tuple<string, string, string, Stack<Tuple<string, Stack<Stack<string>>>>>;
     using Position = Tuple<double, double>;
     using Connection = Tuple<IElement, List<Tuple<object, object, object>>>;
     using Connections = List<Tuple<IElement, List<Tuple<object, object, object>>>>;
@@ -105,25 +105,7 @@ namespace CanvasDiagram.Editor
             var canvas = Context.CurrentCanvas;
             var item = tree.GetSelectedItem() as ITreeItem;
 
-            if (item != null)
-            {
-                string uid = item.GetUid();
-                bool isDiagram = StringUtil.StartsWith(uid, ModelConstants.TagHeaderDiagram);
-
-                if (isDiagram == true)
-                {
-                    var model = Model.GenerateDiagram(canvas, uid, canvas.GetProperties());
-
-                    if (update == true)
-                    {
-                        item.SetTag(new Diagram(model, canvas.GetTag() as UndoRedo));
-                    }
-
-                    return model;
-                }
-            }
-
-            return null;
+            return Model.GenerateItemModel(canvas, item, update);
         }
 
         public string ModelUpdateSelectedDiagram()
@@ -140,8 +122,9 @@ namespace CanvasDiagram.Editor
         {
             var tree = Context.CurrentTree;
             var tagFileName = Context.TagFileName;
+            var tableFileName = Context.TableFileName;
 
-            return Model.GenerateSolution(tree, fileName, tagFileName, includeHistory);
+            return Model.GenerateSolution(tree, fileName, tagFileName, tableFileName, includeHistory);
         }
 
         public IEnumerable<string> ModelGetCurrentProjectDiagrams()
@@ -1699,10 +1682,13 @@ namespace CanvasDiagram.Editor
 
             if (newItemType == TreeItemType.Diagram)
             {
-                if (Context.UpdateProperties != null)
-                    Context.UpdateProperties();
+                //if (Context.UpdateProperties != null)
+                //    Context.UpdateProperties();
 
                 Model.Load(canvas, creator, newItem);
+
+                if (Context.SetProperties != null)
+                    Context.SetProperties(canvas.GetProperties());
             }
 
             //System.Diagnostics.Debug.Print("Old Uid: {0}, new Uid: {1}", oldUid, newUid);
@@ -1887,7 +1873,7 @@ namespace CanvasDiagram.Editor
 
             string solutionName = solution.Item1;
             tagFileName = solution.Item2;
-            var projects = solution.Item3.Reverse();
+            var projects = solution.Item4.Reverse();
 
             TagsLoad(tagFileName);
 
