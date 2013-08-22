@@ -79,6 +79,7 @@ namespace CanvasDiagram.Editor
         #region Hooks
 
         public Action UpdateProperties { get; set; }
+        public Action<DiagramProperties> SetProperties { get; set; }
 
         public Func<ITreeItem> CreateTreeSolutionItem { get; set; }
         public Func<ITreeItem> CreateTreeProjectItem { get; set; }
