@@ -1335,7 +1335,7 @@ namespace CanvasDiagram.WPF
             {
                 Filter = "Solution (*.txt)|*.txt|All Files (*.*)|*.*",
                 Title = "Save Solution",
-                FileName = SolutionFileName != null ? SolutionNewFileName : System.IO.Path.GetFileName(SolutionFileName)
+                FileName = SolutionFileName == null ? SolutionNewFileName : System.IO.Path.GetFileName(SolutionFileName)
             };
 
             var res = dlg.ShowDialog();
