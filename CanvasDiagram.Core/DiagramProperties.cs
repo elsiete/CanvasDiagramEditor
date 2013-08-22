@@ -39,6 +39,31 @@ namespace CanvasDiagram.Core
         public double SnapOffsetY { get; set; }
 
         #endregion
+
+        #region Defaults
+
+        public static DiagramProperties Default
+        {
+            get
+            {
+                return new DiagramProperties()
+                {
+                    PageWidth = 1260,
+                    PageHeight = 891,
+                    GridOriginX = 330,
+                    GridOriginY = 31,
+                    GridWidth = 600,
+                    GridHeight = 750,
+                    GridSize = 30,
+                    SnapX = 15,
+                    SnapY = 15,
+                    SnapOffsetX = 0,
+                    SnapOffsetY = 1
+                };
+            }
+        }
+
+        #endregion
     } 
 
     #endregion
