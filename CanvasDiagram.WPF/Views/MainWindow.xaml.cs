@@ -63,7 +63,7 @@ namespace CanvasDiagram.WPF
 
         private string TagsNewFileName = "Tags0";
 
-        public void SetWindowTitle()
+        private void UpdateWindowTitle()
         {
             if (SolutionFileName == null && SolutionIsDirty == false)
             {
@@ -107,6 +107,14 @@ namespace CanvasDiagram.WPF
             {
                 this.Title = WindowDefaultTitle;
             }
+        }
+
+        private void UpdateSolutionState(bool isDirty, string fileName)
+        {
+            SolutionIsDirty = isDirty;
+            SolutionFileName = fileName;
+
+            UpdateWindowTitle();
         }
 
         #endregion
@@ -305,7 +313,6 @@ namespace CanvasDiagram.WPF
 
         private void InitializeHistory()
         {
-            // handle canvas history changes
             History.CanvasHistoryChanged += (sender, e) =>
             {
                 var canvas = e.Canvas;
@@ -316,16 +323,10 @@ namespace CanvasDiagram.WPF
 
                 System.Diagnostics.Debug.Print("HistoryChanged, undo: {0}, redo: {1}", undoCount, redoCount);
 
-                if (undoCount > 0)
-                    SolutionIsDirty = true;
-                else
-                    SolutionIsDirty = false;
-
-                SetWindowTitle();
+                UpdateSolutionState(undoCount > 0 ? true : false, SolutionFileName);
             };
 
-            // update window title
-            SetWindowTitle();
+            UpdateWindowTitle();
         }
 
         private void UpdateEditors()
@@ -488,9 +489,7 @@ namespace CanvasDiagram.WPF
 
         private void NewSolution()
         {
-            SolutionIsDirty = false;
-            SolutionFileName = null;
-            SetWindowTitle();
+            UpdateSolutionState(false, null);
 
             SetProperties(DiagramProperties.Default);
             UpdateDiagramGrid(false);
@@ -1343,9 +1342,7 @@ namespace CanvasDiagram.WPF
 
                 if (solution != null)
                 {
-                    SolutionIsDirty = false;
-                    SolutionFileName = fileName;
-                    SetWindowTitle();
+                    UpdateSolutionState(false, fileName);
 
                     var tree = Editor.Context.CurrentTree;
 
@@ -1388,9 +1385,7 @@ namespace CanvasDiagram.WPF
 
             Editor.SaveSolution(fileName);
 
-            SolutionIsDirty = false;
-            SolutionFileName = fileName;
-            SetWindowTitle();
+            UpdateSolutionState(false, fileName);
         }
 
         private void SaveDiagramDlg()
