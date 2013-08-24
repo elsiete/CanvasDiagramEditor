@@ -50,16 +50,6 @@ namespace CanvasDiagram.WPF
 
     public class DxfDiagramCreator : IDiagramCreator
     {
-        #region Lineweights in Millimeters
-
-        public static double LogicThicknessMm = 0.18;
-        public static double WireThicknessMm = 0.18;
-        public static double ElementThicknessMm = 0.35;
-        public static double IOThicknessMm = 0.25;
-        public static double PageThicknessMm = 0.13;
-
-        #endregion
-
         #region Properties
 
         public bool ShortenStart { get; set; }
@@ -130,11 +120,8 @@ namespace CanvasDiagram.WPF
             if (tags != null)
             {
                 var tag = tags.Cast<Tag>().Where(t => t.Id == tagId).FirstOrDefault();
-
                 if (tag != null)
-                {
                     return tag;
-                }
             }
 
             return null;
@@ -912,9 +899,7 @@ namespace CanvasDiagram.WPF
             entities.Add(Line(0, 750, 329, 750, left, top, layer));
 
             for (double y = 30; y <= 720; y += 30)
-            {
                 entities.Add(Line(0, y, 329, y, left, top, layer));
-            }
 
             // outputs
 
@@ -927,9 +912,7 @@ namespace CanvasDiagram.WPF
             entities.Add(Line(0, 750, 329, 750, left, top, layer));
 
             for (double y = 30; y <= 720; y += 30)
-            {
                 entities.Add(Line(0, y, 329, y, left, top, layer));
-            }
 
             // TODO: text headers
 
@@ -1857,18 +1840,14 @@ namespace CanvasDiagram.WPF
             dxf.Header(header.End(GetNextHandle()));
 
             if (Version > DxfAcadVer.AC1009)
-            {
                 dxf.Classes(classes);
-            }
 
             dxf.Tables(tables);
             dxf.Blocks(blocks);
             dxf.Entities(Entities);
 
             if (Version > DxfAcadVer.AC1009)
-            {
                 dxf.Objects(objects);
-            }
 
             dxf.Eof();
 

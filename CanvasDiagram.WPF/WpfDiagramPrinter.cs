@@ -22,6 +22,23 @@ using System.Windows.Media;
 
 namespace CanvasDiagram.WPF
 {
+    #region Lineweights
+
+    public static class Lineweights
+    {
+        #region StrokeThicknes / Lineweights in Millimeters
+
+        public static double LogicThicknessMm = 0.18;
+        public static double WireThicknessMm = 0.18;
+        public static double ElementThicknessMm = 0.35;
+        public static double IOThicknessMm = 0.25;
+        public static double PageThicknessMm = 0.13;
+
+        #endregion
+    } 
+
+    #endregion
+
     #region WpfDiagramPrinter
 
     public class WpfDiagramPrinter
@@ -44,11 +61,11 @@ namespace CanvasDiagram.WPF
             if (resources == null)
                 return;
 
-            resources[ResourceConstants.KeyLogicStrokeThickness] = DipUtil.MmToDip(DxfDiagramCreator.LogicThicknessMm);
-            resources[ResourceConstants.KeyWireStrokeThickness] = DipUtil.MmToDip(DxfDiagramCreator.WireThicknessMm);
-            resources[ResourceConstants.KeyElementStrokeThickness] = DipUtil.MmToDip(DxfDiagramCreator.ElementThicknessMm);
-            resources[ResourceConstants.KeyIOStrokeThickness] = DipUtil.MmToDip(DxfDiagramCreator.IOThicknessMm);
-            resources[ResourceConstants.KeyPageStrokeThickness] = DipUtil.MmToDip(DxfDiagramCreator.PageThicknessMm);
+            resources[ResourceConstants.KeyLogicStrokeThickness] = DipUtil.MmToDip(Lineweights.LogicThicknessMm);
+            resources[ResourceConstants.KeyWireStrokeThickness] = DipUtil.MmToDip(Lineweights.WireThicknessMm);
+            resources[ResourceConstants.KeyElementStrokeThickness] = DipUtil.MmToDip(Lineweights.ElementThicknessMm);
+            resources[ResourceConstants.KeyIOStrokeThickness] = DipUtil.MmToDip(Lineweights.IOThicknessMm);
+            resources[ResourceConstants.KeyPageStrokeThickness] = DipUtil.MmToDip(Lineweights.PageThicknessMm);
         }
 
         private void SetPrintColors(ResourceDictionary resources)

@@ -197,9 +197,7 @@ namespace CanvasDiagram.WPF
                 var tag = tags.Cast<Tag>().Where(t => t.Id == tagId).FirstOrDefault();
 
                 if (tag != null)
-                {
                     ElementThumb.SetData(thumb, tag);
-                }
             }
 
             return thumb;
@@ -230,9 +228,7 @@ namespace CanvasDiagram.WPF
                 var tag = tags.Cast<Tag>().Where(t => t.Id == tagId).FirstOrDefault();
 
                 if (tag != null)
-                {
                     ElementThumb.SetData(thumb, tag);
-                }
             }
 
             return thumb;

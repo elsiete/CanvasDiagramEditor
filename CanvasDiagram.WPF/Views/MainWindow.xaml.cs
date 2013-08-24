@@ -51,7 +51,23 @@ namespace CanvasDiagram.WPF
 
     public partial class MainWindow : Window
     {
-        #region Window Title
+        #region Fields
+
+        private string ResourcesUri = "ElementsDictionary.xaml";
+
+        private DiagramEditor Editor { get; set; }
+
+        private PointEx InsertPointInput = new PointEx(30, 30.0);
+        private PointEx InsertPointOutput = new PointEx(930.0, 30.0);
+        private PointEx InsertPointGate = new PointEx(325.0, 30.0);
+
+        private double PageWidth = 1260;
+        private double PageHeight = 891;
+
+        private LineGuidesAdorner GuidesAdorner = null;
+
+        private double GuideSpeedUpLevel1 = 1.0;
+        private double GuideSpeedUpLevel2 = 2.0;
 
         private string WindowDefaultTitle = "Canvas Diagram Editor";
         private string WindowTitleDirtyString = "*";
@@ -62,6 +78,28 @@ namespace CanvasDiagram.WPF
         private string SolutionFileName = null;
 
         private string TagsNewFileName = "Tags0";
+
+        #endregion
+
+        #region Constructor
+
+        public MainWindow()
+        {
+            InitializeComponent();
+
+            InitializeEditor();
+            InitializeHistory();
+            InitializeDiagramControl();
+            InitializeWindowEvents();
+            InitializeFileMenuEvents();
+            InitializeEditMenuEvents();
+            InitializeViewMenuEvents();
+            InitializeHelpMenuEvents();
+        }
+
+        #endregion
+
+        #region Window Title
 
         private void UpdateWindowTitle()
         {
@@ -115,44 +153,6 @@ namespace CanvasDiagram.WPF
             SolutionFileName = fileName;
 
             UpdateWindowTitle();
-        }
-
-        #endregion
-
-        #region Fields
-
-        private string ResourcesUri = "ElementsDictionary.xaml";
-
-        private DiagramEditor Editor { get; set; }
-
-        private PointEx InsertPointInput = new PointEx(30, 30.0);
-        private PointEx InsertPointOutput = new PointEx(930.0, 30.0);
-        private PointEx InsertPointGate = new PointEx(325.0, 30.0);
-
-        private double PageWidth = 1260;
-        private double PageHeight = 891;
-
-        private LineGuidesAdorner GuidesAdorner = null;
-
-        private double GuideSpeedUpLevel1 = 1.0;
-        private double GuideSpeedUpLevel2 = 2.0;
-
-        #endregion
-
-        #region Constructor
-
-        public MainWindow()
-        {
-            InitializeComponent();
-
-            InitializeEditor();
-            InitializeHistory();
-            InitializeDiagramControl();
-            InitializeWindowEvents();
-            InitializeFileMenuEvents();
-            InitializeEditMenuEvents();
-            InitializeViewMenuEvents();
-            InitializeHelpMenuEvents();
         }
 
         #endregion
@@ -870,9 +870,7 @@ namespace CanvasDiagram.WPF
 
             bool result = Editor.MouseEventPreviewLeftDown(canvas, point, pin as IThumb);
             if (result == false)
-            {
                 Editor.MouseEventLeftDown(canvas, point);
-            }
         }
 
         public List<DependencyObject> HitTest(Visual visual, IPoint point, double radius)
@@ -1091,9 +1089,7 @@ namespace CanvasDiagram.WPF
 
         private DiagramTable GetCurrentTable()
         {
-            var table = TableGrid.GetData(this) as DiagramTable;
-
-            return table;
+            return TableGrid.GetData(this) as DiagramTable;
         }
 
         private BitmapImage CreateBitmapImage(string fileName)
@@ -1164,9 +1160,7 @@ namespace CanvasDiagram.WPF
             var diagrams = Editor.ModelGetCurrentProjectDiagrams();
 
             if (diagrams != null)
-            {
                 ShowDiagramsWindow(diagrams, "Project Diagrams");
-            }
         }
 
         public void ShowSolutionDiagrams()
@@ -1434,17 +1428,13 @@ namespace CanvasDiagram.WPF
 
         private DxfAcadVer FilterToAcadVer(int filter)
         {
-            DxfAcadVer version;
-
             switch (filter)
             {
-                case 1: version = DxfAcadVer.AC1009; break;
-                case 2: version = DxfAcadVer.AC1015; break;
-                case 3: version = DxfAcadVer.AC1015; break;
-                default: version = DxfAcadVer.AC1015; break;
+                case 1: return DxfAcadVer.AC1009;
+                case 2: return DxfAcadVer.AC1015;
+                case 3: return DxfAcadVer.AC1015;
+                default: return DxfAcadVer.AC1015;
             }
-
-            return version;
         }
 
         private void TagsOpenDlg()
@@ -1459,7 +1449,6 @@ namespace CanvasDiagram.WPF
             if (res == true)
             {
                 var tagFileName = dlg.FileName;
-
                 var tags = Tags.Open(tagFileName);
 
                 Editor.Context.TagFileName = tagFileName;
@@ -1473,13 +1462,9 @@ namespace CanvasDiagram.WPF
             var tags = Editor.Context.Tags;
 
             if (tagFileName != null && tags != null && saveAs == false)
-            {
                 Tags.Export(tagFileName, tags);
-            }
             else if ((tagFileName == null && tags != null) || saveAs == true)
-            {
                 TagsSaveDlg();
-            }
         }
 
         private void TagsSaveDlg()
@@ -1516,9 +1501,7 @@ namespace CanvasDiagram.WPF
                 var tagFileName = dlg.FileName;
 
                 if (Editor.Context.Tags == null)
-                {
                     Editor.Context.Tags = new List<object>();
-                }
 
                 Tags.Import(tagFileName, Editor.Context.Tags, true);
             }

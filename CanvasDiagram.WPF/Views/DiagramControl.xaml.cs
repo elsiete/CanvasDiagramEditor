@@ -88,9 +88,7 @@ namespace CanvasDiagram.WPF
         private void UpdateSelectedTags()
         {
             if (SelectionChanged != null)
-            {
                 SelectionChanged();
-            }
         }
 
         #endregion
@@ -295,9 +293,7 @@ namespace CanvasDiagram.WPF
             PanToOffset(offsetX, offsetY);
 
             if (Adorner != null)
-            {
                 Adorner.Zoom = zoom;
-            }
         }
 
         private void ZoomIn()
@@ -307,9 +303,7 @@ namespace CanvasDiagram.WPF
             zoom += Editor.Context.ZoomInFactor;
 
             if (zoom >= ZoomSlider.Minimum && zoom <= ZoomSlider.Maximum)
-            {
                 ZoomSlider.Value = zoom;
-            }
         }
 
         private void ZoomOut()
@@ -319,9 +313,7 @@ namespace CanvasDiagram.WPF
             zoom -= Editor.Context.ZoomOutFactor;
 
             if (zoom >= ZoomSlider.Minimum && zoom <= ZoomSlider.Maximum)
-            {
                 ZoomSlider.Value = zoom;
-            }
         }
 
         #endregion
@@ -335,9 +327,7 @@ namespace CanvasDiagram.WPF
             zoom = Math.Round(zoom, 1);
 
             if (e.OldValue != e.NewValue)
-            {
                 Zoom(zoom);
-            }
         }
 
         private void Border_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
@@ -352,13 +342,11 @@ namespace CanvasDiagram.WPF
             if (e.Delta > 0)
             {
                 ZoomIn();
-
                 e.Handled = true;
             }
             else if (e.Delta < 0)
             {
                 ZoomOut();
-
                 e.Handled = true;
             }
         }
@@ -370,29 +358,19 @@ namespace CanvasDiagram.WPF
         private void PanScrollViewer_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ChangedButton == MouseButton.Middle)
-            {
-                var point = e.GetPosition(this);
-
-                BeginPan(point);
-            }
+                BeginPan(e.GetPosition(this));
         }
 
         private void PanScrollViewer_MouseUp(object sender, MouseButtonEventArgs e)
         {
             if (e.ChangedButton == MouseButton.Middle)
-            {
                 EndPan();
-            }
         }
 
         private void PanScrollViewer_MouseMove(object sender, MouseEventArgs e)
         {
             if (this.PanScrollViewer.IsMouseCaptured == true)
-            {
-                var point = e.GetPosition(this);
-
-                PanToPoint(point);
-            }
+                PanToPoint(e.GetPosition(this));
         }
 
         #endregion
@@ -411,9 +389,7 @@ namespace CanvasDiagram.WPF
                 Editor.Context.SelectionOrigin = new PointEx(point.X, point.Y);
 
                 if (Keyboard.Modifiers != ModifierKeys.Control)
-                {
                     Editor.SelectNone();
-                }
 
                 UpdateSelectedTags();
 
@@ -443,13 +419,9 @@ namespace CanvasDiagram.WPF
                         foreach (var element in elements)
                         {
                             if (element.GetSelected() == false)
-                            {
                                 element.SetSelected(true);
-                            }
                             else
-                            {
                                 element.SetSelected(false);
-                            }
                         }
                     }
 
