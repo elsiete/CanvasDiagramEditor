@@ -18,6 +18,13 @@ namespace CanvasDiagram.WPF
     {
         #region Resource String Constants
 
+        public const string KeyLogicBackgroundColor = "LogicBackgroundColorKey";
+        public const string KeLogicGridColory = "LogicGridColorKey";
+        public const string KeyLogicTemplateColor = "LogicTemplateColorKey";
+        public const string KeyLogicColor = "LogicColorKey";
+        public const string KeyLogicSelectedColor = "LogicSelectedColorKey";
+        public const string KeyLogicTransparent = "LogicTransparentColorKey";
+
         public const string KeyLogicStrokeThickness = "LogicStrokeThicknessKey";
         public const string KeyWireStrokeThickness = "WireStrokeThicknessKey";
         public const string KeyElementStrokeThickness = "ElementStrokeThicknessKey";
@@ -29,6 +36,8 @@ namespace CanvasDiagram.WPF
         public const string KeyTemplateOutput = "OutputControlTemplateKey";
         public const string KeyTemplateAndGate = "AndGateControlTemplateKey";
         public const string KeyTemplateOrGate = "OrGateControlTemplateKey";
+
+        public const string KeyLandscapePageTemplate = "LandscapePageTemplateKey";
 
         public const string KeySyleRootThumb = "RootThumbStyleKey";
         public const string KeyStyleWireLine = "LineStyleKey";

@@ -73,22 +73,22 @@ namespace CanvasDiagram.WPF
             if (resources == null)
                 return;
 
-            var backgroundColor = resources["LogicBackgroundColorKey"] as SolidColorBrush;
+            var backgroundColor = resources[ResourceConstants.KeyLogicBackgroundColor] as SolidColorBrush;
             backgroundColor.Color = Colors.White;
 
-            var gridColor = resources["LogicGridColorKey"] as SolidColorBrush;
+            var gridColor = resources[ResourceConstants.KeLogicGridColory] as SolidColorBrush;
             gridColor.Color = Colors.Transparent;
 
-            var pageColor = resources["LogicTemplateColorKey"] as SolidColorBrush;
+            var pageColor = resources[ResourceConstants.KeyLogicTemplateColor] as SolidColorBrush;
             pageColor.Color = Colors.Black;
 
-            var logicColor = resources["LogicColorKey"] as SolidColorBrush;
+            var logicColor = resources[ResourceConstants.KeyLogicColor] as SolidColorBrush;
             logicColor.Color = Colors.Black;
 
-            var logicSelectedColor = resources["LogicSelectedColorKey"] as SolidColorBrush;
+            var logicSelectedColor = resources[ResourceConstants.KeyLogicSelectedColor] as SolidColorBrush;
             logicSelectedColor.Color = Colors.Black;
 
-            var helperColor = resources["LogicTransparentColorKey"] as SolidColorBrush;
+            var helperColor = resources[ResourceConstants.KeyLogicTransparent] as SolidColorBrush;
             helperColor.Color = Colors.Transparent;
         }
 
@@ -118,7 +118,7 @@ namespace CanvasDiagram.WPF
 
             var template = new Control()
             {
-                Template = grid.Resources["LandscapePageTemplateKey"] as ControlTemplate
+                Template = grid.Resources[ResourceConstants.KeyLandscapePageTemplate] as ControlTemplate
             };
 
             var canvas = new DiagramCanvas()
