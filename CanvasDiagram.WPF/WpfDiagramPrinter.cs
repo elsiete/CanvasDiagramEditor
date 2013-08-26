@@ -262,16 +262,11 @@ namespace CanvasDiagram.WPF
             var areaExtent = new Size(caps.PageImageableArea.ExtentWidth, caps.PageImageableArea.ExtentHeight);
             var areaOrigin = new Size(caps.PageImageableArea.OriginWidth, caps.PageImageableArea.OriginHeight);
 
-            //var sw = System.Diagnostics.Stopwatch.StartNew();
-
             var fixedDocument = CreateFixedDocument(diagrams,
                 areaExtent,
                 areaOrigin,
                 false,
                 table);
-
-            //sw.Stop();
-            //System.Diagnostics.Debug.Print("CreateFixedDocument in {0}ms", sw.Elapsed.TotalMilliseconds);
 
             dlg.PrintDocument(fixedDocument.DocumentPaginator, name);
         }
@@ -288,16 +283,11 @@ namespace CanvasDiagram.WPF
             var areaExtent = new Size(caps.PageImageableArea.ExtentWidth, caps.PageImageableArea.ExtentHeight);
             var areaOrigin = new Size(caps.PageImageableArea.OriginWidth, caps.PageImageableArea.OriginHeight);
 
-            //var sw = System.Diagnostics.Stopwatch.StartNew();
-
             var fixedDocumentSeq = CreateFixedDocumentSequence(projects,
                 areaExtent,
                 areaOrigin,
                 false,
                 table);
-
-            //sw.Stop();
-            //System.Diagnostics.Debug.Print("CreateFixedDocumentSequence in {0}ms", sw.Elapsed.TotalMilliseconds);
 
             dlg.PrintDocument(fixedDocumentSeq.DocumentPaginator, name);
         }
