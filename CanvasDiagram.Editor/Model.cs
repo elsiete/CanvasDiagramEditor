@@ -219,8 +219,6 @@ namespace CanvasDiagram.Editor
 
             sb.AppendLine(line);
 
-            //System.Diagnostics.Debug.Print(line);
-
             foreach (var project in projects)
             {
                 var model = GenerateProject(project, models, includeHistory);
