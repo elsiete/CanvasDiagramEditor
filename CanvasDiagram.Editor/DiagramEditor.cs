@@ -66,7 +66,6 @@ namespace CanvasDiagram.Editor
         public string ModelGenerate()
         {
             var canvas = Context.CurrentCanvas;
-
             var diagram = Model.GenerateDiagram(canvas, null, canvas.GetProperties());
 
             return diagram;
@@ -148,7 +147,6 @@ namespace CanvasDiagram.Editor
                 Model.GenerateProject(project, models, false);
 
                 return models;
-
             }
             else if (isSelectedProject == true)
             {
@@ -206,9 +204,7 @@ namespace CanvasDiagram.Editor
 
             var firstDiagram = diagramList.FirstOrDefault();
             if (firstDiagram != null)
-            {
                 firstDiagram.SetSelected(true);
-            }
 
             return diagramList;
         }
@@ -220,9 +216,7 @@ namespace CanvasDiagram.Editor
         {
             // create diagrams
             foreach (var diagram in diagrams)
-            {
                 ModelParseDiagram(counter, diagram, projectItem, diagramList);
-            }
         }
 
         private void ModelParseDiagram(IdCounter counter,
@@ -241,9 +235,7 @@ namespace CanvasDiagram.Editor
             string diagramName = firstLine.Length >= 1 ? firstLine[1] : null;
 
             foreach (var line in lines)
-            {
                 sb.AppendLine(line);
-            }
 
             string model = sb.ToString();
 
@@ -272,21 +264,15 @@ namespace CanvasDiagram.Editor
 
             Context.CurrentRoot = pin.GetParent() as IThumb;
 
-            //System.Diagnostics.Debug.Print("ConnectPins, pin: {0}, {1}", pin.GetType(), pin.Name);
-
             var position = Model.GetPinPosition(Context.CurrentRoot, pin);
             double x = position.Item1;
             double y = position.Item2;
-
-            //System.Diagnostics.Debug.Print("x: {0}, y: {0}", x, y);
 
             ConnectionCreate(canvas, x, y);
         }
 
         private ILine ConnectionCreate(ICanvas canvas, double x, double y)
         {
-            ILine result = null;
-
             var rootTag = Context.CurrentRoot.GetTag();
             if (rootTag == null)
             {
@@ -297,15 +283,9 @@ namespace CanvasDiagram.Editor
             var tuples = selection.Item2;
 
             if (Context.CurrentLine == null)
-            {
-                result = ConnectionCreateFirst(canvas, x, y, tuples);
-            }
+                return ConnectionCreateFirst(canvas, x, y, tuples);
             else
-            {
-                result = ConnectionCreateSecond(x, y, tuples);
-            }
-
-            return result;
+                return ConnectionCreateSecond(x, y, tuples);
         }
 
         private ILine ConnectionCreateFirst(ICanvas canvas, double x, double y, List<MapWire> tuples)
@@ -412,11 +392,6 @@ namespace CanvasDiagram.Editor
             var endRoot = (map1.Item3 != null ? map1.Item3 : map2.Item3) as IElement;
             var location = GetLineExStartAndEnd(map1, map2);
 
-            //System.Diagnostics.Debug.Print("c1: {0}", c1.Item1.Uid);
-            //System.Diagnostics.Debug.Print("c2: {0}", c2.Item1.Uid);
-            //System.Diagnostics.Debug.Print("startRoot: {0}", startRoot.Uid);
-            //System.Diagnostics.Debug.Print("endRoot: {0}", endRoot.Uid);
-
             if (location.Item1 != null && location.Item2 != null)
             {
                 PointEx start = location.Item1;
@@ -430,11 +405,6 @@ namespace CanvasDiagram.Editor
                 bool isStartIO = line.GetStartIO();
                 bool isEndIO = line.GetEndIO();
 
-                //System.Diagnostics.Debug.Print("start: {0}", start);
-                //System.Diagnostics.Debug.Print("end: {0}", end);
-                //System.Diagnostics.Debug.Print("x1,y1: {0},{1}", x1, y1);
-                //System.Diagnostics.Debug.Print("x2,y2: {0},{1}", x2, y2);
-
                 Context.CurrentRoot = startRoot;
                 var startLine = ConnectionCreate(canvas, x1, y1);
 
@@ -447,10 +417,6 @@ namespace CanvasDiagram.Editor
                 Context.CurrentRoot = endRoot;
                 ConnectionCreate(canvas, x2, y2);
 
-                // restore orignal line flags
-                //System.Diagnostics.Debug.Print("startLine: {0}", startLine.Uid);
-                //System.Diagnostics.Debug.Print("endLine: {0}", endLine.Uid);
-
                 startLine.SetStartVisible(isStartVisible);
                 startLine.SetStartIO(isStartIO);
                 endLine.SetEndVisible(isEndVisible);
@@ -458,7 +424,8 @@ namespace CanvasDiagram.Editor
             }
             else
             {
-                throw new InvalidOperationException("LineEx should have corrent location info for Start and End.");
+                throw new InvalidOperationException(
+                    "LineEx should have corrent location info for Start and End.");
             }
         }
 
@@ -492,7 +459,8 @@ namespace CanvasDiagram.Editor
             }
             else
             {
-                throw new InvalidOperationException("LineEx should have only two connections: Start and End.");
+                throw new InvalidOperationException(
+                    "LineEx should have only two connections: Start and End.");
             }
 
             return true;
@@ -697,7 +665,6 @@ namespace CanvasDiagram.Editor
             double top = element.GetY() + dY;
 
             SetPosition(element, left, top, snap);
-
             MoveLines(element, dX, dY, snap);
         }
 
@@ -707,11 +674,8 @@ namespace CanvasDiagram.Editor
             {
                 var selection = element.GetTag() as Selection;
                 var tuples = selection.Item2;
-
                 foreach (var tuple in tuples)
-                {
                     MoveLine(dX, dY, snap, tuple);
-                }
             }
         }
 
@@ -761,11 +725,8 @@ namespace CanvasDiagram.Editor
         public void MoveSelectedElements(ICanvas canvas, double dX, double dY, bool snap)
         {
             var thumbs = canvas.GetElements().OfType<IThumb>().Where(x => x.GetSelected());
-
             foreach (var thumb in thumbs)
-            {
                 MoveRoot(thumb, dX, dY, snap);
-            }
         }
 
         public void MoveLeft(ICanvas canvas)
@@ -843,13 +804,9 @@ namespace CanvasDiagram.Editor
             bool snap = IsSnapOnDragEnabled();
 
             if (Context.MoveAllSelected == true)
-            {
                 MoveSelectedElements(canvas, dX, dY, snap);
-            }
             else
-            {
                 MoveRoot(element, dX, dY, snap);
-            }
         }
 
         public void DragStart(ICanvas canvas, IThumb element)
@@ -919,9 +876,7 @@ namespace CanvasDiagram.Editor
                 HistoryAdd(canvas, false);
 
                 foreach (var wire in wires.Cast<ILine>())
-                {
                     wire.SetStartVisible(wire.GetStartVisible() == true ? false : true);
-                }
             }
         }
 
@@ -935,9 +890,7 @@ namespace CanvasDiagram.Editor
                 HistoryAdd(canvas, false);
 
                 foreach (var wire in wires.Cast<ILine>())
-                {
                     wire.SetEndVisible(wire.GetEndVisible() == true ? false : true);
-                }
             }
         }
 
@@ -949,14 +902,10 @@ namespace CanvasDiagram.Editor
 
             string uid = element.GetUid();
 
-            //System.Diagnostics.Debug.Print("FindLineEx, element: {0}, uid: {1}, parent: {2}", 
-            //    element.GetType(), element.GetUid(), element.Parent.GetType());
-
             if (element is ILine && uid != null &&
                 StringUtil.StartsWith(uid, ModelConstants.TagElementWire))
             {
-                var line = element as ILine;
-                return line;
+                return element as ILine;
             }
 
             return null;
@@ -1075,9 +1024,7 @@ namespace CanvasDiagram.Editor
             string model = ModelGenerateFromSelected(canvas);
 
             if (model.Length == 0)
-            {
                 model = Model.GenerateDiagram(canvas, null, canvas.GetProperties());
-            }
 
             ClipboardSetText(model);
         }
@@ -1113,9 +1060,7 @@ namespace CanvasDiagram.Editor
         private void EditDeleteThumbsAndLines(ICanvas canvas, IEnumerable<IElement> elements)
         {
             foreach (var element in elements)
-            {
                 Model.DeleteElement(canvas, element);
-            }
         }
 
         #endregion
@@ -1187,13 +1132,9 @@ namespace CanvasDiagram.Editor
         public void SelectPrevious(bool deselect)
         {
             if (Context.SelectedThumbList == null)
-            {
                 SelectPreviousInitialize(deselect);
-            }
             else
-            {
                 SelectPreviousElement(deselect);
-            }
         }
 
         private void SelectPreviousInitialize(bool deselect)
@@ -1207,9 +1148,7 @@ namespace CanvasDiagram.Editor
 
                 Context.CurrentThumbNode = Context.SelectedThumbList.Last;
                 if (Context.CurrentThumbNode != null)
-                {
                     SelectOneElement(Context.CurrentThumbNode.Value, deselect);
-                }
             }
         }
 
@@ -1219,9 +1158,7 @@ namespace CanvasDiagram.Editor
             {
                 Context.CurrentThumbNode = Context.CurrentThumbNode.Previous;
                 if (Context.CurrentThumbNode == null)
-                {
                     Context.CurrentThumbNode = Context.SelectedThumbList.Last;
-                }
 
                 SelectOneElement(Context.CurrentThumbNode.Value, deselect);
             }
@@ -1230,13 +1167,9 @@ namespace CanvasDiagram.Editor
         public void SelectNext(bool deselect)
         {
             if (Context.SelectedThumbList == null)
-            {
                 SelectNextInitialize(deselect);
-            }
             else
-            {
                 SelectNextElement(deselect);
-            }
         }
 
         private void SelectNextInitialize(bool deselect)
@@ -1251,9 +1184,7 @@ namespace CanvasDiagram.Editor
                 Context.CurrentThumbNode = Context.SelectedThumbList.First;
 
                 if (Context.CurrentThumbNode != null)
-                {
                     SelectOneElement(Context.CurrentThumbNode.Value, deselect);
-                }
             }
         }
 
@@ -1264,9 +1195,7 @@ namespace CanvasDiagram.Editor
                 Context.CurrentThumbNode = Context.CurrentThumbNode.Next;
 
                 if (Context.CurrentThumbNode == null)
-                {
                     Context.CurrentThumbNode = Context.SelectedThumbList.First;
-                }
 
                 SelectOneElement(Context.CurrentThumbNode.Value, deselect);
             }
@@ -1374,12 +1303,8 @@ namespace CanvasDiagram.Editor
 
             Context.CurrentRoot = root;
 
-            //System.Diagnostics.Debug.Print("Canvas_MouseLeftButtonDown, root: {0}", root.GetType());
-
             double x = Context.CurrentRoot.GetX();
             double y = Context.CurrentRoot.GetY();
-
-            //System.Diagnostics.Debug.Print("x: {0}, y: {0}", x, y);
 
             ConnectionCreate(canvas, x, y);
 
@@ -1412,13 +1337,9 @@ namespace CanvasDiagram.Editor
             var element = canvas.HitTest(point, 6.0).FirstOrDefault() as IElement;
 
             if (element != null)
-            {
                 Model.SelectionToggleWire(element);
-            }
             else
-            {
                 Model.SetLinesSelection(canvas, false);
-            }
         }
 
         #endregion
@@ -1453,9 +1374,6 @@ namespace CanvasDiagram.Editor
             else if (Context.CurrentLine != null)
             {
                 var element = MouseGetElementAtPoint(canvas, point);
-
-                //System.Diagnostics.Debug.Print("Split wire: {0}", element == null ? "<null>" : element.GetUid());
-
                 if (CanSplitWire(element))
                     return WireSplit(canvas, element as ILine, point);
             }
@@ -1495,7 +1413,6 @@ namespace CanvasDiagram.Editor
             {
                 var creator = Context.DiagramCreator;
                 History.Undo(canvas, creator, false);
-                //MouseRemoveCurrentLine(canvas);
 
                 Context.CurrentLine = null;
                 Context.CurrentRoot = null;
@@ -1573,9 +1490,7 @@ namespace CanvasDiagram.Editor
             int parentCount = parentParent.GetItemsCount();
 
             if (parentCount > 0 && parentIndex > 0)
-            {
                 TreeSelectLastItemInPreviousProject(parentParent, parentIndex);
-            }
         }
 
         private static void TreeSelectLastItemInPreviousProject(ITreeItem parentParent, int parentIndex)
@@ -1641,9 +1556,7 @@ namespace CanvasDiagram.Editor
             int parentCount = parentParent.GetItemsCount();
 
             if (parentCount > 0 && parentIndex < parentCount - 1)
-            {
                 TreeSelectFirstItemInNextProject(parentParent, parentIndex);
-            }
         }
 
         private static void TreeSelectFirstItemInNextProject(ITreeItem parentParent, int parentIndex)
@@ -1682,16 +1595,11 @@ namespace CanvasDiagram.Editor
 
             if (newItemType == TreeItemType.Diagram)
             {
-                //if (Context.UpdateProperties != null)
-                //    Context.UpdateProperties();
-
                 Model.Load(canvas, creator, newItem);
 
                 if (Context.SetProperties != null)
                     Context.SetProperties(canvas.GetProperties());
             }
-
-            //System.Diagnostics.Debug.Print("Old Uid: {0}, new Uid: {1}", oldUid, newUid);
 
             return newItemType;
         }
@@ -1799,10 +1707,6 @@ namespace CanvasDiagram.Editor
             var project = TreeCreateProjectItem(null);
 
             solution.Add(project);
-
-            //System.Diagnostics.Debug.Print("Added project: {0} to solution: {1}",
-            //    project.GetUid(), 
-            //    solution.GetUid());
         }
 
         public void TreeAddDiagram(ITreeItem project, bool select)
@@ -1814,19 +1718,12 @@ namespace CanvasDiagram.Editor
             Model.Store(null, diagram);
 
             if (select == true)
-            {
                 diagram.SetSelected(true);
-            }
-
-            //System.Diagnostics.Debug.Print("Added diagram: {0} to project: {1}", 
-            //    diagram.GetUid(), 
-            //    project.GetUid());
         }
 
         private void TreeDeleteSolution(ITreeItem solution)
         {
             var tree = solution.GetParent() as ITree;
-
             var projects = solution.GetItems().ToList();
 
             foreach (var project in projects)
@@ -1834,9 +1731,7 @@ namespace CanvasDiagram.Editor
                 var diagrams = project.GetItems().ToList();
 
                 foreach (var diagram in diagrams)
-                {
                     project.Remove(diagram);
-                }
 
                 solution.Remove(project);
             }
@@ -1850,9 +1745,7 @@ namespace CanvasDiagram.Editor
             var diagrams = project.GetItems().ToList();
 
             foreach (var diagram in diagrams)
-            {
                 project.Remove(diagram);
-            }
 
             solution.Remove(project);
         }
@@ -1877,8 +1770,6 @@ namespace CanvasDiagram.Editor
 
             TagsLoad(tagFileName);
 
-            //System.Diagnostics.Debug.Print("Solution: {0}", name);
-
             var solutionItem = TreeCreateSolutionItem(solutionName);
             tree.Add(solutionItem);
 
@@ -1894,7 +1785,6 @@ namespace CanvasDiagram.Editor
             Context.CurrentCanvas.GetCounter().ResetAll();
 
             TagsReset();
-
             SelectedListReset();
 
             Context.CurrentCanvas.SetTags(null);
@@ -1905,9 +1795,7 @@ namespace CanvasDiagram.Editor
             var items = tree.GetItems().ToList();
 
             foreach (var item in items)
-            {
                 TreeDeleteSolution(item);
-            }
         }
 
         public void TreeCreateNewSolution()
@@ -1918,7 +1806,6 @@ namespace CanvasDiagram.Editor
             Model.Clear(canvas);
 
             TreeClearSolution(tree);
-
             TreeCreateDefaultSolution(tree);
         }
 
@@ -1949,17 +1836,13 @@ namespace CanvasDiagram.Editor
             {
                 // reset selected tags
                 foreach (var thumb in selectedThumbs)
-                {
                     thumb.SetData(null);
-                }
             }
             else
             {
                 // reset all tags
                 foreach (var thumb in thumbs)
-                {
                     thumb.SetData(null);
-                }
             }
         }
 
@@ -1976,12 +1859,12 @@ namespace CanvasDiagram.Editor
                     var tags = Tags.Open(tagFileName);
 
                     Context.Tags = tags;
-
                     Context.CurrentCanvas.SetTags(tags);
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.Print("Failed to load tags from file: {0}, error: {1}", tagFileName, ex.Message);
+                    System.Diagnostics.Debug.Print("Failed to load tags from file: {0}, error: {1}",
+                        tagFileName, ex.Message);
                 }
             }
         }
@@ -2006,14 +1889,11 @@ namespace CanvasDiagram.Editor
             try
             {
                 if (Context.Clipboard.ContainsText())
-                {
                     return Context.Clipboard.GetText();
-                }
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.Print(ex.Message);
-
                 return Context.ClipboardText;
             }
 
@@ -2025,7 +1905,6 @@ namespace CanvasDiagram.Editor
             try
             {
                 Context.ClipboardText = model;
-
                 Context.Clipboard.SetText(model);
             }
             catch (Exception ex)
