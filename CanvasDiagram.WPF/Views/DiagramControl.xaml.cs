@@ -56,10 +56,9 @@ namespace CanvasDiagram.WPF
             Adorner = new SelectionAdorner(canvas);
             Adorner.Zoom = GetZoomScaleTransform().ScaleX;
             Adorner.SelectionOrigin = new Point(origin.X, origin.Y);
-
             Adorner.SelectionRect = new RectEx(origin.X, origin.Y, point.X, point.Y);
-
             Adorner.SnapsToDevicePixels = false;
+
             RenderOptions.SetEdgeMode(Adorner, EdgeMode.Aliased);
 
             layer.Add(Adorner);
@@ -98,7 +97,6 @@ namespace CanvasDiagram.WPF
         private void BeginPan(Point point)
         {
             Editor.Context.PanStart = new PointEx(point.X, point.Y);
-
             Editor.Context.PreviousScrollOffsetX = -1.0;
             Editor.Context.PreviousScrollOffsetY = -1.0;
 
@@ -120,32 +118,24 @@ namespace CanvasDiagram.WPF
             /*
             double dX = point.X - Editor.CurrentOptions.PanStart.X;
             double dY = point.Y - Editor.CurrentOptions.PanStart.Y;
-
             var st = GetZoomTranslateTransform();
-
             st.X += dX;
             st.Y += dY;
-
             Editor.CurrentOptions.PanStart = point;
             */
 
             double scrollOffsetX = point.X - Editor.Context.PanStart.X;
             double scrollOffsetY = point.Y - Editor.Context.PanStart.Y;
-
             double horizontalOffset = this.PanScrollViewer.HorizontalOffset;
             double verticalOffset = this.PanScrollViewer.VerticalOffset;
-
             double scrollableWidth = this.PanScrollViewer.ScrollableWidth;
             double scrollableHeight = this.PanScrollViewer.ScrollableHeight;
-
             double zoom = ZoomSlider.Value;
 
             scrollOffsetX = Math.Round(horizontalOffset + (scrollOffsetX * 1.0) * Editor.Context.ReversePanDirection, 0);
             scrollOffsetY = Math.Round(verticalOffset + (scrollOffsetY * 1.0) * Editor.Context.ReversePanDirection, 0);
-
             scrollOffsetX = scrollOffsetX > scrollableWidth ? scrollableWidth : scrollOffsetX;
             scrollOffsetY = scrollOffsetY > scrollableHeight ? scrollableHeight : scrollOffsetY;
-
             scrollOffsetX = scrollOffsetX < 0 ? 0.0 : scrollOffsetX;
             scrollOffsetY = scrollOffsetY < 0 ? 0.0 : scrollOffsetY;
 
@@ -168,16 +158,13 @@ namespace CanvasDiagram.WPF
         {
             double horizontalOffset = this.PanScrollViewer.HorizontalOffset;
             double verticalOffset = this.PanScrollViewer.VerticalOffset;
-
             double scrollableWidth = this.PanScrollViewer.ScrollableWidth;
             double scrollableHeight = this.PanScrollViewer.ScrollableHeight;
-
             double scrollOffsetX = Math.Round(horizontalOffset + offsetX, 0);
             double scrollOffsetY = Math.Round(verticalOffset + offsetY, 0);
 
             scrollOffsetX = scrollOffsetX > scrollableWidth ? scrollableWidth : scrollOffsetX;
             scrollOffsetY = scrollOffsetY > scrollableHeight ? scrollableHeight : scrollOffsetY;
-
             scrollOffsetX = scrollOffsetX < 0 ? 0.0 : scrollOffsetX;
             scrollOffsetY = scrollOffsetY < 0 ? 0.0 : scrollOffsetY;
 
@@ -221,8 +208,6 @@ namespace CanvasDiagram.WPF
 
             double zoom_fx = CalculateZoom(zoom);
 
-            //System.Diagnostics.Debug.Print("Zoom: {0}, zoom_fx: {1}", zoom, zoom_fx);
-
             var st = GetZoomScaleTransform();
 
             double oldZoom = st.ScaleX; // ScaleX == ScaleY
@@ -260,29 +245,17 @@ namespace CanvasDiagram.WPF
         {
             double offsetX = 0;
             double offsetY = 0;
-
             double scrollableWidth = this.PanScrollViewer.ScrollableWidth;
             double scrollableHeight = this.PanScrollViewer.ScrollableHeight;
-
             double scrollOffsetX = this.PanScrollViewer.HorizontalOffset;
             double scrollOffsetY = this.PanScrollViewer.VerticalOffset;
-
             double oldX = Editor.Context.ZoomPoint.X * oldZoom;
             double oldY = Editor.Context.ZoomPoint.Y * oldZoom;
-
             double newX = Editor.Context.ZoomPoint.X * zoom;
             double newY = Editor.Context.ZoomPoint.Y * zoom;
 
             offsetX = newX - oldX;
             offsetY = newY - oldY;
-
-            //System.Diagnostics.Debug.Print("");
-            //System.Diagnostics.Debug.Print("zoomPoint: {0},{1}", Math.Round(zoomPoint.X, 0), Math.Round(zoomPoint.Y, 0));
-            //System.Diagnostics.Debug.Print("scrollableWidth/Height: {0},{1}", scrollableWidth, scrollableHeight);
-            //System.Diagnostics.Debug.Print("scrollOffsetX/Y: {0},{1}", scrollOffsetX, scrollOffsetY);
-            //System.Diagnostics.Debug.Print("oldX/Y: {0},{1}", oldX, oldY);
-            //System.Diagnostics.Debug.Print("newX/Y: {0},{1}", newX, newY);
-            //System.Diagnostics.Debug.Print("offsetX/Y: {0},{1}", offsetX, offsetY);
 
             if (scrollableWidth <= 0)
                 offsetX = 0.0;
@@ -452,7 +425,6 @@ namespace CanvasDiagram.WPF
         private void Canvas_MouseMove(object sender, MouseEventArgs e)
         {
             var canvas = sender as DiagramCanvas;
-
             var point = e.GetPosition(canvas);
 
             if (canvas.IsMouseCaptured)
@@ -475,8 +447,8 @@ namespace CanvasDiagram.WPF
         private void Canvas_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
             var canvas = sender as DiagramCanvas;
-
             var point = e.GetPosition(canvas);
+
             Editor.Context.RightClick = new PointEx(point.X, point.Y);
 
             var result = Editor.MouseEventRightDown(canvas);
@@ -641,7 +613,6 @@ namespace CanvasDiagram.WPF
                 if (tag != null)
                 {
                     var point = e.GetPosition(DiagramCanvas);
-
                     var insertPoint = new PointEx(point.X, point.Y);
                     var canvas = Editor.Context.CurrentCanvas;
                     var type = IsTagInputOrOutput(canvas, insertPoint);
