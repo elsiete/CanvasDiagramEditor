@@ -65,8 +65,6 @@ namespace CanvasDiagram.Editor
                         line.GetStartIO(), line.GetEndIO());
 
                     sb.AppendLine("".PadLeft(4, ' ') + str);
-
-                    //System.Diagnostics.Debug.Print(str);
                 }
                 else if (StringUtil.StartsWith(uid, ModelConstants.TagElementInput) ||
                     StringUtil.StartsWith(uid, ModelConstants.TagElementOutput))
@@ -75,9 +73,7 @@ namespace CanvasDiagram.Editor
                     Tag tag = null;
 
                     if (data != null && data is Tag)
-                    {
                         tag = data as Tag;
-                    }
 
                     string str = string.Format("{4}{3}{0}{3}{1}{3}{2}{3}{5}",
                         uid,
@@ -88,8 +84,6 @@ namespace CanvasDiagram.Editor
                         tag != null ? tag.Id : -1);
 
                     sb.AppendLine("".PadLeft(4, ' ') + str);
-
-                    //System.Diagnostics.Debug.Print(str);
                 }
                 else
                 {
@@ -100,8 +94,6 @@ namespace CanvasDiagram.Editor
                         ModelConstants.PrefixRoot);
 
                     sb.AppendLine("".PadLeft(4, ' ') + str);
-
-                    //System.Diagnostics.Debug.Print(str);
                 }
 
                 var elementTag = element.GetTag();
@@ -126,8 +118,6 @@ namespace CanvasDiagram.Editor
                                 ModelConstants.PrefixChild);
 
                             sb.AppendLine("".PadLeft(8, ' ') + str);
-
-                            //System.Diagnostics.Debug.Print(str);
                         }
                         else if (end != null)
                         {
@@ -139,8 +129,6 @@ namespace CanvasDiagram.Editor
                                 ModelConstants.PrefixChild);
 
                             sb.AppendLine("".PadLeft(8, ' ') + str);
-
-                            //System.Diagnostics.Debug.Print(str);
                         }
                     }
                 }
@@ -151,11 +139,8 @@ namespace CanvasDiagram.Editor
 
         public static string GenerateDiagram(ICanvas canvas, string uid, DiagramProperties properties)
         {
-            //var sw = System.Diagnostics.Stopwatch.StartNew();
-
             var sb = new StringBuilder();
             var elements = (canvas == null) ? null : canvas.GetElements();
-
             string defaultUid = ModelConstants.TagHeaderDiagram + ModelConstants.TagNameSeparator + (-1).ToString();
 
             string header = string.Format("{0}{1}{2}{1}{3}{1}{4}{1}{5}{1}{6}{1}{7}{1}{8}{1}{9}{1}{10}{1}{11}{1}{12}{1}{13}",
@@ -170,7 +155,6 @@ namespace CanvasDiagram.Editor
                 properties.SnapOffsetX, properties.SnapOffsetY);
 
             sb.AppendLine(header);
-            //System.Diagnostics.Debug.Print(header);
 
             if (elements != null)
             {
@@ -178,12 +162,7 @@ namespace CanvasDiagram.Editor
                 sb.Append(model);
             }
 
-            var result = sb.ToString();
-
-            //sw.Stop();
-            //System.Diagnostics.Debug.Print("GenerateDiagram() in {0}ms", sw.Elapsed.TotalMilliseconds);
-
-            return result;
+            return sb.ToString();
         }
 
         public static Solution GenerateSolution(ITree tree,
@@ -197,7 +176,6 @@ namespace CanvasDiagram.Editor
             var projects = solution.GetItems();
             string relativeTagFileName = tagFileName;
             string relativeTableFileName = tableFileName;
-
             string line = null;
             var sb = new StringBuilder();
 
@@ -245,19 +223,8 @@ namespace CanvasDiagram.Editor
 
             sb.AppendLine(line);
 
-            //System.Diagnostics.Debug.Print(line);
-
             foreach (var diagram in diagrams)
             {
-                // Diagram
-
-                //line = string.Format("{0}{1}{2}",
-                //    ModelConstants.PrefixRootElement,
-                //    ModelConstants.ArgumentSeparator,
-                //    diagram.Uid);
-                //sb.AppendLine(line);
-                //System.Diagnostics.Debug.Print(line);
-
                 // Diagram Elements
                 if (diagram.GetTag() != null)
                 {
@@ -431,20 +398,12 @@ namespace CanvasDiagram.Editor
             Clear(canvas);
 
             if (tag != null)
-            {
                 LoadFromTag(canvas, creator, tag);
-            }
-            //else
-            //{
-            //    canvas.SetTag(new UndoRedo(new Stack<string>(), new Stack<string>()));
-            //    SetGrid(canvas, creator, false);
-            //}
         }
 
         public static void LoadFromTag(ICanvas canvas, IDiagramCreator creator, object tag)
         {
             var diagram = tag as Diagram;
-
             var model = diagram.Item1;
             var history = diagram.Item2;
 
@@ -480,15 +439,12 @@ namespace CanvasDiagram.Editor
         public static IEnumerable<IElement> GetSelected(ICanvas canvas)
         {
             var selected = new List<IElement>();
-
             var elements = canvas.GetElements().OfType<IElement>();
 
             foreach (var element in elements)
             {
                 if (element.GetSelected() == true)
-                {
                     selected.Add(element);
-                }
             }
 
             return selected;
@@ -497,15 +453,12 @@ namespace CanvasDiagram.Editor
         public static IEnumerable<IElement> GetSelectedThumbs(ICanvas canvas)
         {
             var elements = new List<IElement>();
-
             var thumbs = canvas.GetElements().OfType<IThumb>();
 
             foreach (var thumb in thumbs)
             {
                 if (thumb.GetSelected() == true)
-                {
                     elements.Add(thumb);
-                }
             }
 
             return elements;
@@ -514,15 +467,12 @@ namespace CanvasDiagram.Editor
         public static IEnumerable<IElement> GetSelectedWires(ICanvas canvas)
         {
             var elements = new List<IElement>();
-
             var wires = canvas.GetElements().OfType<ILine>();
 
             foreach (var wire in wires)
             {
                 if (wire.GetSelected() == true)
-                {
                     elements.Add(wire);
-                }
             }
 
             return elements;
@@ -531,13 +481,10 @@ namespace CanvasDiagram.Editor
         public static IEnumerable<IElement> GetAll(ICanvas canvas)
         {
             var elements = new List<IElement>();
-
             var all = canvas.GetElements().OfType<IElement>();
 
             foreach (var element in all)
-            {
                 elements.Add(element);
-            }
 
             return elements;
         }
@@ -545,13 +492,10 @@ namespace CanvasDiagram.Editor
         public static IEnumerable<IElement> GetThumbs(ICanvas canvas)
         {
             var elements = new List<IElement>();
-
             var thumbs = canvas.GetElements().OfType<IThumb>();
 
             foreach (var thumb in thumbs)
-            {
                 elements.Add(thumb);
-            }
 
             return elements;
         }
@@ -559,13 +503,10 @@ namespace CanvasDiagram.Editor
         public static IEnumerable<IElement> GetWires(ICanvas canvas)
         {
             var elements = new List<IElement>();
-
             var wires = canvas.GetElements().OfType<ILine>();
 
             foreach (var wire in wires)
-            {
                 elements.Add(wire);
-            }
 
             return elements;
         }
@@ -577,14 +518,10 @@ namespace CanvasDiagram.Editor
         private static void MoveElement(IElement element, double dX, double dY)
         {
             if (dX != 0.0)
-            {
                 element.SetX(element.GetX() - dX);
-            }
 
             if (dY != 0.0)
-            {
                 element.SetY(element.GetY() - dY);
-            }
         }
 
         public static void MoveLine(ILine line, double dX, double dY)
@@ -640,9 +577,6 @@ namespace CanvasDiagram.Editor
             double dX = offsetX != 0.0 ? minX - offsetX : 0.0;
             double dY = offsetY != 0.0 ? minY - offsetY : 0.0;
 
-            //System.Diagnostics.Debug.Print("minX: {0}, offsetX: {1}, dX: {2}", minX, offsetX, dX);
-            //System.Diagnostics.Debug.Print("minY: {0}, offsetY: {1}, dY: {2}", minY, offsetY, dY);
-
             foreach (var element in elements)
             {
                 canvas.Add(element);
@@ -670,9 +604,6 @@ namespace CanvasDiagram.Editor
         {
             string uid = element.GetUid();
 
-            //System.Diagnostics.Debug.Print("ToggleLineSelection: {0}, uid: {1}, parent: {2}",
-            //    element.GetType(), element.Uid, element.Parent.GetType());
-
             if (element is ILine && uid != null &&
                 StringUtil.StartsWith(uid, ModelConstants.TagElementWire))
             {
@@ -689,21 +620,15 @@ namespace CanvasDiagram.Editor
             var thumbs = canvas.GetElements().OfType<IThumb>();
 
             foreach (var thumb in thumbs)
-            {
-                // select
                 thumb.SetSelected(isSelected);
-            }
         }
 
         public static void SetLinesSelection(ICanvas canvas, bool isSelected)
         {
             var lines = canvas.GetElements().OfType<ILine>();
 
-            // deselect all lines
             foreach (var line in lines)
-            {
                 line.SetSelected(isSelected);
-            }
         }
 
         public static void SelectAll(ICanvas canvas)
@@ -746,9 +671,7 @@ namespace CanvasDiagram.Editor
         public static void SelectConnected(IElement element, HashSet<string> visited)
         {
             if (element == null)
-            {
                 return;
-            }
 
             var elmentTag = element.GetTag();
             if (elmentTag != null)
@@ -760,9 +683,7 @@ namespace CanvasDiagram.Editor
                 var tuples = selection.Item2;
 
                 foreach (var tuple in tuples)
-                {
                     SelectConnected(tuple, element, visited);
-                }
             }
         }
 
@@ -774,9 +695,7 @@ namespace CanvasDiagram.Editor
             line.SetSelected(true);
 
             if (tag == null)
-            {
                 return;
-            }
 
             var startRoot = tag.Item1 as IElement;
             var endRoot = tag.Item2 as IElement;
@@ -872,7 +791,6 @@ namespace CanvasDiagram.Editor
             original.SolutionCount = Math.Max(original.SolutionCount, counter.SolutionCount);
             original.ProjectCount = Math.Max(original.ProjectCount, counter.ProjectCount);
             original.DiagramCount = Math.Max(original.DiagramCount, counter.DiagramCount);
-
             original.PinCount = Math.Max(original.PinCount, counter.PinCount);
             original.WireCount = Math.Max(original.WireCount, counter.WireCount);
             original.InputCount = Math.Max(original.InputCount, counter.InputCount);
@@ -897,9 +815,7 @@ namespace CanvasDiagram.Editor
                 var wires = item.Value.Item2;
 
                 if (element.GetTag() == null)
-                {
                     element.SetTag(new Selection(false, new List<MapWire>()));
-                }
 
                 if (wires.Count > 0)
                 {
@@ -1026,14 +942,10 @@ namespace CanvasDiagram.Editor
         {
             string uid = element.GetUid();
 
-            //System.Diagnostics.Debug.Print("DeleteElement, element: {0}, uid: {1}, parent: {2}", 
-            //    element.GetType(), element.Uid, element.Parent.GetType());
-
             if (element is ILine && uid != null &&
                 StringUtil.StartsWith(uid, ModelConstants.TagElementWire))
             {
                 var line = element as ILine;
-
                 DeleteWire(canvas, line);
             }
             else
@@ -1047,7 +959,6 @@ namespace CanvasDiagram.Editor
             canvas.Remove(line);
 
             RemoveWireConnections(canvas, line);
-
             DeleteEmptyPins(canvas);
         }
 
@@ -1057,9 +968,7 @@ namespace CanvasDiagram.Editor
 
             // remove empty pins
             foreach (var pin in pins)
-            {
                 canvas.Remove(pin);
-            }
         }
 
         public static List<IElement> FindEmptyPins(ICanvas canvas)
@@ -1078,11 +987,9 @@ namespace CanvasDiagram.Editor
                         var selection = elementTag as Selection;
                         var tuples = selection.Item2;
 
+                        // empty pin
                         if (tuples.Count <= 0)
-                        {
-                            // empty pin
                             pins.Add(element);
-                        }
                     }
                     else
                     {
@@ -1109,9 +1016,7 @@ namespace CanvasDiagram.Editor
             {
                 var elementTag = element.GetTag();
                 if (elementTag != null && !(element is ILine))
-                {
                     RemoveWireConnections(line, connections, element);
-                }
             }
 
             return connections;
@@ -1121,18 +1026,13 @@ namespace CanvasDiagram.Editor
         {
             var selection = element.GetTag() as Selection;
             var tuples = selection.Item2;
-
             var map = CreateMapWire(line, tuples);
 
             if (map.Count > 0)
-            {
                 connections.Add(new Connection(element, map));
-            }
 
             foreach (var tuple in map)
-            {
                 tuples.Remove(tuple);
-            }
         }
 
         private static List<MapWire> CreateMapWire(ILine line, List<MapWire> tuples)
@@ -1144,9 +1044,7 @@ namespace CanvasDiagram.Editor
                 var _line = tuple.Item1 as ILine;
 
                 if (StringUtil.Compare(_line.GetUid(), line.GetUid()))
-                {
                     map.Add(tuple);
-                }
             }
 
             return map;
