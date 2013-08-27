@@ -71,9 +71,7 @@ namespace CanvasDiagram.WPF
             var window = new HtmlWindow();
 
             window.Title = title;
-
             window.Html.NavigateToString(html);
-
             window.Show();
         }
 
