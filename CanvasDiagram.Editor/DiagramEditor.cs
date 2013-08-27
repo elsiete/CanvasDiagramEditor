@@ -168,7 +168,6 @@ namespace CanvasDiagram.Editor
                     if (project != null)
                     {
                         Model.GenerateProject(project, models, false);
-
                         return models;
                     }
                 }
@@ -188,8 +187,6 @@ namespace CanvasDiagram.Editor
             {
                 string projectName = project.Item1;
                 var diagrams = project.Item2.Reverse();
-
-                //System.Diagnostics.Debug.Print("Project: {0}", name);
 
                 // create project
                 var projectItem = TreeCreateProjectItem(projectName);
@@ -238,8 +235,6 @@ namespace CanvasDiagram.Editor
                 sb.AppendLine(line);
 
             string model = sb.ToString();
-
-            //System.Diagnostics.Debug.Print(model);
 
             var diagramItem = TreeCreateDiagramItem(diagramName);
             diagramItem.SetTag(new Diagram(model, null));
