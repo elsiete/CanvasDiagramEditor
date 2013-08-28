@@ -1422,14 +1422,14 @@ namespace CanvasDiagram.WPF
             bool endIsIO = (bool)data[7];
             int id = (int)data[8];
 
-            double startX = x1;
-            double startY = y1;
-            double endX = x2;
-            double endY = y2;
+            double sx = x1;
+            double sy = y1;
+            double ex = x2;
+            double ey = y2;
 
-            double zet = LineCalc.CalculateZet(startX, startY, endX, endY);
-            double sizeX = LineCalc.CalculateSizeX(InvertedCircleRadius, InvertedCircleThickness, zet);
-            double sizeY = LineCalc.CalculateSizeY(InvertedCircleRadius, InvertedCircleThickness, zet);
+            double zet = LineUtil.Zet(sx, sy, ex, ey);
+            double width = LineUtil.Width(InvertedCircleRadius, InvertedCircleThickness, zet);
+            double height = LineUtil.Height(InvertedCircleRadius, InvertedCircleThickness, zet);
 
             bool shortenStart = ShortenStart;
             bool shortenEnd = ShortenEnd;
@@ -1437,34 +1437,30 @@ namespace CanvasDiagram.WPF
             bool isEndIO = endIsIO;
 
             // shorten start
-            if (isStartIO == true &&
-                isEndIO == false &&
-                shortenStart == true &&
-                (Math.Round(startY, 1) == Math.Round(endY, 1)))
+            if (isStartIO == true && isEndIO == false && shortenStart == true &&
+                (Math.Round(sy, 1) == Math.Round(ey, 1)))
             {
-                startX = endX - ShortenLineSize;
+                sx = ex - ShortenLineSize;
             }
 
             // shorten end
-            if (isStartIO == false &&
-                isEndIO == true &&
-                shortenEnd == true &&
-                 (Math.Round(startY, 1) == Math.Round(endY, 1)))
+            if (isStartIO == false && isEndIO == true && shortenEnd == true &&
+                 (Math.Round(sy, 1) == Math.Round(ey, 1)))
             {
-                endX = startX + ShortenLineSize;
+                ex = sx + ShortenLineSize;
             }
 
-            // get start and end ellipse position
-            PointEx ellipseStartCenter = LineCalc.GetEllipseStartCenter(startX, startY, sizeX, sizeY, startVisible);
-            PointEx ellipseEndCenter = LineCalc.GetEllipseEndCenter(endX, endY, sizeX, sizeY, endVisible);
+            // get ellipse position
+            IPoint ellipseStart = LineUtil.EllipseStart(sx, sy, width, height, startVisible);
+            IPoint ellipseEnd = LineUtil.EllipseEnd(ex, ey, width, height, endVisible);
 
             // get line position
-            PointEx lineStart = LineCalc.GetLineStart(startX, startY, sizeX, sizeY, startVisible);
-            PointEx lineEnd = LineCalc.GetLineEnd(endX, endY, sizeX, sizeY, endVisible);
+            IPoint lineStart = LineUtil.LineStart(sx, sy, width, height, startVisible);
+            IPoint lineEnd = LineUtil.LineEnd(ex, ey, width, height, endVisible);
 
             if (startVisible == true)
             {
-                var circle = Circle(ellipseStartCenter.X, ellipseStartCenter.Y,
+                var circle = Circle(ellipseStart.X, ellipseStart.Y,
                     InvertedCircleRadius,
                     0, 0,
                     LayerWires);
@@ -1474,7 +1470,7 @@ namespace CanvasDiagram.WPF
 
             if (endVisible == true)
             {
-                var circle = Circle(ellipseEndCenter.X, ellipseEndCenter.Y,
+                var circle = Circle(ellipseEnd.X, ellipseEnd.Y,
                     InvertedCircleRadius,
                     0, 0,
                     LayerWires);

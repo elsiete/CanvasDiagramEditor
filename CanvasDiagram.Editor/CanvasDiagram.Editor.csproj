@@ -42,7 +42,7 @@
     <Compile Include="Context.cs" />
     <Compile Include="DiagramEditor.cs" />
     <Compile Include="History.cs" />
-    <Compile Include="LineCalc.cs" />
+    <Compile Include="LineUtil.cs" />
     <Compile Include="Model.cs" />
     <Compile Include="ModelConstants.cs" />
     <Compile Include="Parser.cs" />

@@ -176,14 +176,14 @@ namespace CanvasDiagram.WPF.Controls
             double radius = Radius;
             double thickness = GetThickness();
 
-            double startX = X1;
-            double startY = Y1;
-            double endX = X2;
-            double endY = Y2;
+            double sx = X1;
+            double sy = Y1;
+            double ex = X2;
+            double ey = Y2;
 
-            double zet = LineCalc.CalculateZet(startX, startY, endX, endY);
-            double sizeX = LineCalc.CalculateSizeX(radius, thickness, zet);
-            double sizeY = LineCalc.CalculateSizeY(radius, thickness, zet);
+            double zet = LineUtil.Zet(sx, sy, ex, ey);
+            double width = LineUtil.Width(radius, thickness, zet);
+            double height = LineUtil.Height(radius, thickness, zet);
 
             bool shortenStart = GetShortenStart(this);
             bool shortenEnd = GetShortenEnd(this);
@@ -193,35 +193,31 @@ namespace CanvasDiagram.WPF.Controls
             // shorten start
             if (isStartIO == true && isEndIO == false && shortenStart == true)
             {
-                if (Math.Round(startY, 1) == Math.Round(endY, 1))
-                {
-                    startX = endX - ShortenLineSize;
-                }
+                if (Math.Round(sy, 1) == Math.Round(ey, 1))
+                    sx = ex - ShortenLineSize;
             }
 
             // shorten end
             if (isStartIO == false && isEndIO == true && shortenEnd == true)
             {
-                if (Math.Round(startY, 1) == Math.Round(endY, 1))
-                {
-                    endX = startX + ShortenLineSize;
-                }
+                if (Math.Round(sy, 1) == Math.Round(ey, 1))
+                    ex = sx + ShortenLineSize;
             }
 
-            // get start and end ellipse position
-            PointEx ellipseStartCenter = LineCalc.GetEllipseStartCenter(startX, startY, sizeX, sizeY, isStartVisible);
-            PointEx ellipseEndCenter = LineCalc.GetEllipseEndCenter(endX, endY, sizeX, sizeY, isEndVisible);
+            // get ellipse position
+            IPoint ellipseStart = LineUtil.EllipseStart(sx, sy, width, height, isStartVisible);
+            IPoint ellipseEnd = LineUtil.EllipseEnd(ex, ey, width, height, isEndVisible);
 
             // get line position
-            PointEx lineStart = LineCalc.GetLineStart(startX, startY, sizeX, sizeY, isStartVisible);
-            PointEx lineEnd = LineCalc.GetLineEnd(endX, endY, sizeX, sizeY, isEndVisible);
+            IPoint lineStart = LineUtil.LineStart(sx, sy, width, height, isStartVisible);
+            IPoint lineEnd = LineUtil.LineEnd(ex, ey, width, height, isEndVisible);
 
             var g = new GeometryGroup() { FillRule = FillRule.Nonzero };
 
             if (isStartVisible == true)
             {
                 var startEllipse = new EllipseGeometry(
-                    new Point(ellipseStartCenter.X, ellipseStartCenter.Y),
+                    new Point(ellipseStart.X, ellipseStart.Y),
                     radius, radius);
 
                 g.Children.Add(startEllipse);
@@ -230,7 +226,7 @@ namespace CanvasDiagram.WPF.Controls
             if (isEndVisible == true)
             {
                 var endEllipse = new EllipseGeometry(
-                    new Point(ellipseEndCenter.X, ellipseEndCenter.Y), 
+                    new Point(ellipseEnd.X, ellipseEnd.Y), 
                     radius, radius);
 
                 g.Children.Add(endEllipse);
