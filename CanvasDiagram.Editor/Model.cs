@@ -721,9 +721,6 @@ namespace CanvasDiagram.Editor
 
         public static void IdsAppend(IEnumerable<object> elements, IdCounter counter)
         {
-            // append ids to the existing elements in canvas
-            //System.Diagnostics.Debug.Print("Appending Ids:");
-
             foreach (var element in elements.Cast<IElement>())
             {
                 string[] uid = element.GetUid().Split(ModelConstants.TagNameSeparator);
@@ -733,19 +730,8 @@ namespace CanvasDiagram.Editor
 
                 int appendedId = IdsGetUpdatedElement(counter, type);
 
-                //System.Diagnostics.Debug.Print("+{0}, id: {1} -> {2} ", type, id, appendedId);
-
                 string appendedUid = string.Concat(type, ModelConstants.TagNameSeparator, appendedId.ToString());
                 element.SetUid(appendedUid);
-
-                //if (element.Tag != null)
-                //{
-                //    var _tuples = element.Tag as List<TagMap>;
-                //    foreach (var _tuple in _tuples)
-                //    {
-                //        System.Diagnostics.Debug.Print("  -{0}", _tuple.Item1.Uid);
-                //    }
-                //}
             }
         }
 
@@ -860,10 +846,6 @@ namespace CanvasDiagram.Editor
                             {
                                 System.Diagnostics.Debug.Print("Failed to map wire Start: {0}", _name);
                             }
-
-                            //var line = dict[_name].Item1 as LineEx;
-                            //var _tuple = new MapTag(line, element, null);
-                            //tuples.Add(_tuple);
                         }
                         else if (StringUtil.Compare(_type, ModelConstants.WireEndType))
                         {
@@ -898,10 +880,6 @@ namespace CanvasDiagram.Editor
                             {
                                 System.Diagnostics.Debug.Print("Failed to map wire End: {0}", _name);
                             }
-
-                            //var line = dict[_name].Item1 as LineEx;
-                            //var _tuple = new MapWire(line, null, element);
-                            //tuples.Add(_tuple);
                         }
                     }
                 }
@@ -945,8 +923,7 @@ namespace CanvasDiagram.Editor
             if (element is ILine && uid != null &&
                 StringUtil.StartsWith(uid, ModelConstants.TagElementWire))
             {
-                var line = element as ILine;
-                DeleteWire(canvas, line);
+                DeleteWire(canvas, element as ILine);
             }
             else
             {
@@ -1042,7 +1019,6 @@ namespace CanvasDiagram.Editor
             foreach (var tuple in tuples)
             {
                 var _line = tuple.Item1 as ILine;
-
                 if (StringUtil.Compare(_line.GetUid(), line.GetUid()))
                     map.Add(tuple);
             }

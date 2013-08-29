@@ -1841,7 +1841,6 @@ namespace CanvasDiagram.Editor
             }
         }
 
-
         private void TagsLoad(string tagFileName)
         {
             // load tags

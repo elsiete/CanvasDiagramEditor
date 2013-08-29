@@ -101,46 +101,6 @@ namespace CanvasDiagram.Editor
             return model;
         }
 
-        public static void RollbackUndo(ICanvas canvas)
-        {
-            var tuple = Get(canvas);
-            var undoHistory = tuple.Item1;
-            var redoHistory = tuple.Item2;
-
-            if (undoHistory.Count <= 0)
-                return;
-
-            // remove unused history
-            undoHistory.Pop();
-
-            NotifyCanvasHistoryChanged(new CanvasHistoryChangedEventArgs()
-            {
-                Canvas = canvas,
-                Undo = undoHistory,
-                Redo = redoHistory
-            });
-        }
-
-        public static void RollbackRedo(ICanvas canvas)
-        {
-            var tuple = Get(canvas);
-            var undoHistory = tuple.Item1;
-            var redoHistory = tuple.Item2;
-
-            if (redoHistory.Count <= 0)
-                return;
-
-            // remove unused history
-            redoHistory.Pop();
-
-            NotifyCanvasHistoryChanged(new CanvasHistoryChangedEventArgs()
-            {
-                Canvas = canvas,
-                Undo = undoHistory,
-                Redo = redoHistory
-            });
-        }
-
         public static void Clear(ICanvas canvas)
         {
             var tuple = Get(canvas);

@@ -402,7 +402,6 @@ namespace CanvasDiagram.WPF
             creator.SetPosition = (element, left, top, snap) => Editor.SetPosition(element, left, top, snap);
             creator.GetTags = () => Editor.Context.Tags;
             creator.GetCounter = () => Editor.Context.CurrentCanvas.GetCounter();
-
             creator.SetCanvas(this.DiagramControl.DiagramCanvas);
             creator.ParserPath = this.DiagramControl.PathGrid;
 
