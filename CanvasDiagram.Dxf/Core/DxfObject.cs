@@ -108,25 +108,25 @@ namespace CanvasDiagram.Dxf.Core
 
         public virtual T Comment(string comment)
         {
-            Add("999", comment);
+            Add(999, comment);
             return this as T;
         }
 
         public virtual T Handle(string handle)
         {
-            Add("5", handle);
+            Add(5, handle);
             return this as T;
         }
 
         public virtual T Handle(int handle)
         {
-            Add("5", handle.ToDxfHandle());
+            Add(5, handle.ToDxfHandle());
             return this as T;
         }
 
         public virtual T Subclass(string subclass)
         {
-            Add("100", subclass);
+            Add(100, subclass);
             return this as T;
         }
 

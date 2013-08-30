@@ -25,8 +25,8 @@ namespace CanvasDiagram.Dxf.Tables
 
         public DxfTables Begin()
         {
-            Add("0", "SECTION");
-            Add("2", "TABLES");
+            Add(0, "SECTION");
+            Add(2, "TABLES");
             return this;
         }
 
@@ -120,7 +120,7 @@ namespace CanvasDiagram.Dxf.Tables
 
         public DxfTables End()
         {
-            Add("0", "ENDSEC");
+            Add(0, "ENDSEC");
             return this;
         }
 
@@ -130,8 +130,8 @@ namespace CanvasDiagram.Dxf.Tables
 
             if (Version > DxfAcadVer.AC1009)
             {
-                Subclass("AcDbDimStyleTable");
-                Add("71", count);
+                Subclass(SubclassMarker.DimStyleTable);
+                Add(71, count);
             }
         }
 
@@ -222,21 +222,21 @@ namespace CanvasDiagram.Dxf.Tables
 
         private void BeginTable(string name, int count, int id)
         {
-            Add("0", "TABLE");
-            Add("2", name);
+            Add(0, "TABLE");
+            Add(2, name);
 
             if (Version > DxfAcadVer.AC1009)
             {
                 Handle(id);
-                Subclass("AcDbSymbolTable");
+                Subclass(SubclassMarker.SymbolTable);
             }
 
-            Add("70", count);
+            Add(70, count);
         }
 
         private void EndTable()
         {
-            Add("0", "ENDTAB");
+            Add(0, "ENDTAB");
         }
     }
 

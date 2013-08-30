@@ -27,7 +27,6 @@ namespace CanvasDiagram.Dxf.Entities
     #endregion
 
     /*
-    #region DxfLwpolylineVertex
 
     public class DxfLwpolylineVertex
     {
@@ -48,12 +47,6 @@ namespace CanvasDiagram.Dxf.Entities
         }
     }
 
-    #endregion
-    */
-
-    /*
-    #region DxfLwpolyline
- 
     public static string DxfLwpolyline(int numberOfVertices,
         DxfLwpolylineFlags lwpolylineFlags,
         double constantWidth,
@@ -67,97 +60,69 @@ namespace CanvasDiagram.Dxf.Entities
         var b = new DxfBuilder();
 
         // lwpolyline
-        b.Add("0", "LWPOLYLINE");
+        b.Add(0, "LWPOLYLINE");
 
         // layer
         if (layer != null)
-        {
-            b.Add("8", layer);
-        }
+            b.Add(8, layer);
 
         // color
         if (color != null)
-        {
-            b.Add("62", color);
-        }
+            b.Add(62, color);
 
         // number of vertices
-        b.Add("90", numberOfVertices);
+        b.Add(90, numberOfVertices);
 
         // polyline flags
         if (lwpolylineFlags != DxfLwpolylineFlags.Default)
-        {
-            b.Add("70", (int)lwpolylineFlags);
-        }
+            b.Add(70, (int)lwpolylineFlags);
 
         // constant width
         if (constantWidth != 0.0)
-        {
-            b.Add("43", constantWidth);
-        }
+            b.Add(43, constantWidth);
 
         // elevation 
         if (elevation != 0.0)
-        {
-            b.Add("38", elevation);
-        }
+            b.Add(38, elevation);
 
         // thickness 
         if (thickness != 0.0)
-        {
-            b.Add("39", thickness);
-        }
-
+            b.Add(39, thickness);
+ 
         if (vertices != null)
         {
             // vertices
             foreach(var vertex in vertices)
             {
-                // vertex coordinates: X
-                b.Add("10", vertex.Coordinates.X);
-
-                // vertex coordinates: Y
-                b.Add("20", vertex.Coordinates.Y);
+                b.Add(10, vertex.Coordinates.X);
+                b.Add(20, vertex.Coordinates.Y);
 
                 if (constantWidth == 0.0)
                 {
                     // starting width
                     if (vertex.StartWidth != 0.0)
-                    {
-                    b.Add("40", vertex.StartWidth);
-                    }
+                        b.Add(40, vertex.StartWidth);
 
                     // end width
                     if (vertex.EndWidth != 0.0)
-                    {
-                        b.Add("41", vertex.EndWidth);
-                    }
+                        b.Add(41, vertex.EndWidth);
                 }
 
                 // bulge
                 if (vertex.Bulge != 0.0)
-                {
-                    b.Add("42", vertex.Bulge);
-                }
+                    b.Add(42, vertex.Bulge);
             }
         }
 
         if (extrusionDirection != null)
         {
-            // extrusion direction: X
-            b.Add("210", extrusionDirection.X);
-
-            // extrusion direction: Y
-            b.Add("220", extrusionDirection.Y);
-
-            // extrusion direction: Z
-            b.Add("230", extrusionDirection.Z);
+            b.Add(210, extrusionDirection.X);
+            b.Add(220, extrusionDirection.Y);
+            b.Add(230, extrusionDirection.Z);
         }
 
         return b.Build();
     }
-
-    #endregion
+     * 
     */
-
 }

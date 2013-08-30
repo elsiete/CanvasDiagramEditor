@@ -25,8 +25,8 @@ namespace CanvasDiagram.Dxf.Blocks
 
         public DxfBlocks Begin()
         {
-            Add("0", "SECTION");
-            Add("2", "BLOCKS");
+            Add(0, "SECTION");
+            Add(2, "BLOCKS");
             return this;
         }
 
@@ -39,16 +39,14 @@ namespace CanvasDiagram.Dxf.Blocks
         public DxfBlocks Add(IEnumerable<DxfBlock> blocks)
         {
             foreach (var block in blocks)
-            {
                 Add(block);
-            }
 
             return this;
         }
 
         public DxfBlocks End()
         {
-            Add("0", "ENDSEC");
+            Add(0, "ENDSEC");
             return this;
         }
     }

@@ -599,19 +599,19 @@ namespace CanvasDiagram.Dxf
 
             // insertion base 
             VarName("$INSBASE");
-            Add("10", "0.0");
-            Add("20", "0.0");
-            Add("30", "0.0");
+            Add(10, "0.0");
+            Add(20, "0.0");
+            Add(30, "0.0");
 
             // drawing limits upper-right corner 
             VarName("$LIMMAX");
-            Add("10", "1260.0");
-            Add("20", "891.0");
+            Add(10, "1260.0");
+            Add(20, "891.0");
 
             // drawing limits lower-left corner 
             VarName("$LIMMIN");
-            Add("10", "0.0");
-            Add("20", "0.0");
+            Add(10, "0.0");
+            Add(20, "0.0");
 
             // default drawing units for AutoCAD DesignCenter blocks
             /* 
@@ -640,19 +640,19 @@ namespace CanvasDiagram.Dxf
 
             // units format for coordinates and distances
             VarName("$INSUNITS");
-            Add("70", (int)4);
+            Add(70, (int)4);
 
             // units format for coordinates and distances
             VarName("$LUNITS");
-            Add("70", (int)2);
+            Add(70, (int)2);
 
             // units precision for coordinates and distances
             VarName("$LUPREC");
-            Add("70", (int)4);
+            Add(70, (int)4);
 
             // sets drawing units
             VarName("$MEASUREMENT");
-            Add("70", (int)1); // 0 = English; 1 = Metric
+            Add(70, (int)1); // 0 = English; 1 = Metric
 
             // VPORT header variables
 
@@ -722,7 +722,7 @@ namespace CanvasDiagram.Dxf
                 Add(5, nextAvailableHandle.ToDxfHandle());
             }
 
-            Add("0", "ENDSEC");
+            Add(0, "ENDSEC");
 
             return this;
         }

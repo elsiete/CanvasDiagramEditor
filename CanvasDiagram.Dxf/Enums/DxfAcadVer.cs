@@ -19,7 +19,7 @@ namespace CanvasDiagram.Dxf.Enums
     // AC1009 - supported
     // AC1012 - not supported
     // AC1014 - not supported
-    // AC1015 - ?
+    // AC1015 - supported
 
     // AutoCAD drawing database version number: 
     // AC1006 = R10

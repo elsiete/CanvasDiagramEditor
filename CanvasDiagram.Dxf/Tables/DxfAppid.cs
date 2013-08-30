@@ -21,25 +21,25 @@ namespace CanvasDiagram.Dxf.Tables
         public DxfAppid(DxfAcadVer version, int id)
             : base(version, id  )
         {
-            Add("0", "APPID");
+            Add(0, "APPID");
 
             if (version > DxfAcadVer.AC1009)
             {
                 Handle(id);
-                Subclass("AcDbSymbolTableRecord");
-                Subclass("AcDbRegAppTableRecord");
+                Subclass(SubclassMarker.SymbolTableRecord);
+                Subclass(SubclassMarker.RegAppTableRecord);
             }
         }
 
         public DxfAppid Application(string name)
         {
-            Add("2", name);
+            Add(2, name);
             return this;
         }
 
         public DxfAppid StandardFlags(DxfAppidStandardFlags flags)
         {
-            Add("70", (int)flags);
+            Add(70, (int)flags);
             return this;
         }
     }

@@ -25,8 +25,8 @@ namespace CanvasDiagram.Dxf.Classes
 
         public DxfClasses Begin()
         {
-            Add("0", "SECTION");
-            Add("2", "CLASSES");
+            Add(0, "SECTION");
+            Add(2, "CLASSES");
             return this;
         }
 
@@ -48,7 +48,7 @@ namespace CanvasDiagram.Dxf.Classes
 
         public DxfClasses End()
         {
-            Add("0", "ENDSEC");
+            Add(0, "ENDSEC");
             return this;
         }
     }

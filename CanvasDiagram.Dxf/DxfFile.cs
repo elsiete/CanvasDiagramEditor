@@ -66,7 +66,7 @@ namespace CanvasDiagram.Dxf
 
         public DxfFile Eof()
         {
-            Add("0", "EOF");
+            Add(0, "EOF");
             return this;
         }
     }

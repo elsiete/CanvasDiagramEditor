@@ -21,67 +21,67 @@ namespace CanvasDiagram.Dxf.Tables
         public DxfStyle(DxfAcadVer version, int id)
             : base(version, id)
         {
-            Add("0", "STYLE");
+            Add(0, "STYLE");
 
             if (version > DxfAcadVer.AC1009)
             {
                 Handle(id);
-                Subclass("AcDbSymbolTableRecord");
-                Subclass("AcDbTextStyleTableRecord");
+                Subclass(SubclassMarker.SymbolTableRecord);
+                Subclass(SubclassMarker.TextStyleTableRecord);
             }
         }
 
         public DxfStyle Name(string name)
         {
-            Add("2", name);
+            Add(2, name);
             return this;
         }
 
         public DxfStyle StandardFlags(DxfStyleFlags flags)
         {
-            Add("70", (int)flags);
+            Add(70, (int)flags);
             return this;
         }
 
         public DxfStyle FixedTextHeight(double height)
         {
-            Add("40", height);
+            Add(40, height);
             return this;
         }
 
         public DxfStyle WidthFactor(double factor)
         {
-            Add("41", factor);
+            Add(41, factor);
             return this;
         }
 
         public DxfStyle ObliqueAngle(double angle)
         {
-            Add("50", angle);
+            Add(50, angle);
             return this;
         }
 
         public DxfStyle TextGenerationFlags(DxfTextGenerationFlags flags)
         {
-            Add("71", (int)flags);
+            Add(71, (int)flags);
             return this;
         }
 
         public DxfStyle LastHeightUsed(double height)
         {
-            Add("42", height);
+            Add(42, height);
             return this;
         }
 
         public DxfStyle PrimaryFontFile(string name)
         {
-            Add("3", name);
+            Add(3, name);
             return this;
         }
 
         public DxfStyle BifFontFile(string name)
         {
-            Add("4", name);
+            Add(4, name);
             return this;
         }
     }

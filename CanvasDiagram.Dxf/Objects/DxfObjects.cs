@@ -25,8 +25,8 @@ namespace CanvasDiagram.Dxf.Objects
 
         public DxfObjects Begin()
         {
-            Add("0", "SECTION");
-            Add("2", "OBJECTS");
+            Add(0, "SECTION");
+            Add(2, "OBJECTS");
             return this;
         }
 
@@ -48,7 +48,7 @@ namespace CanvasDiagram.Dxf.Objects
 
         public DxfObjects End()
         {
-            Add("0", "ENDSEC");
+            Add(0, "ENDSEC");
             return this;
         }
     }

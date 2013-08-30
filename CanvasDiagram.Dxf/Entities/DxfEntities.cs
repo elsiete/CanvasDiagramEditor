@@ -25,8 +25,8 @@ namespace CanvasDiagram.Dxf.Entities
 
         public DxfEntities Begin()
         {
-            Add("0", "SECTION");
-            Add("2", "ENTITIES");
+            Add(0, CodeName.Section);
+            Add(2, CodeName.Entities);
             return this;
         }
 
@@ -48,7 +48,7 @@ namespace CanvasDiagram.Dxf.Entities
 
         public DxfEntities End()
         {
-            Add("0", "ENDSEC");
+            Add(0, CodeName.EndSec);
             return this;
         }
     }

@@ -49,8 +49,8 @@ namespace CanvasDiagram.Dxf.Tables
             if (Version > DxfAcadVer.AC1009)
             {
                 Handle(Id);
-                Subclass("AcDbSymbolTableRecord");
-                Subclass("AcDbLinetypeTableRecord");
+                Subclass(SubclassMarker.SymbolTableRecord);
+                Subclass(SubclassMarker.LinetypeTableRecord);
             }
 
             Add(2, Name);
