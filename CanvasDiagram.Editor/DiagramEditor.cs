@@ -141,7 +141,6 @@ namespace CanvasDiagram.Editor
             if (isSelectedDiagram == true)
             {
                 var project = selected.GetParent() as ITreeItem;
-
                 var models = new List<string>();
 
                 Model.GenerateProject(project, models, false);
@@ -164,7 +163,6 @@ namespace CanvasDiagram.Editor
                 {
                     var models = new List<string>();
                     var project = solution.GetItems().FirstOrDefault();
-
                     if (project != null)
                     {
                         Model.GenerateProject(project, models, false);
@@ -270,9 +268,7 @@ namespace CanvasDiagram.Editor
         {
             var rootTag = Context.CurrentRoot.GetTag();
             if (rootTag == null)
-            {
                 Context.CurrentRoot.SetTag(new Selection(false, new List<MapWire>()));
-            }
 
             var selection = Context.CurrentRoot.GetTag() as Selection;
             var tuples = selection.Item2;
@@ -314,11 +310,8 @@ namespace CanvasDiagram.Editor
             canvas.Add(Context.CurrentLine);
 
             // line Tag is start root element
-            if (Context.CurrentLine != null || 
-                !(Context.CurrentLine is ILine))
-            {
+            if (Context.CurrentLine != null || !(Context.CurrentLine is ILine))
                 Context.CurrentLine.SetTag(Context.CurrentRoot);
-            }
 
             return line;
         }
@@ -347,7 +340,6 @@ namespace CanvasDiagram.Editor
             if (line != null)
             {
                 var lineTag = line.GetTag();
-
                 if (lineTag != null)
                 {
                     // line Tag is start root element
@@ -427,9 +419,7 @@ namespace CanvasDiagram.Editor
         private bool WireSplit(ICanvas canvas, ILine line, IPoint point)
         {
             if (Context.CurrentLine == null)
-            {
                 HistoryAdd(canvas, true);
-            }
 
             // create split pin
             var splitPin = InsertPin(canvas, point);
@@ -728,60 +718,32 @@ namespace CanvasDiagram.Editor
         {
             HistoryAdd(canvas, false);
 
-            if (Context.EnableSnap == true)
-            {
-                double delta = canvas.GetProperties().GridSize;
-                MoveSelectedElements(canvas, -delta, 0.0, false);
-            }
-            else
-            {
-                MoveSelectedElements(canvas, -1.0, 0.0, false);
-            }
+            double delta = Context.EnableSnap ? -canvas.GetProperties().GridSize : -1.0;
+            MoveSelectedElements(canvas, delta, 0.0, false);
         }
 
         public void MoveRight(ICanvas canvas)
         {
             HistoryAdd(canvas, false);
 
-            if (Context.EnableSnap == true)
-            {
-                double delta = canvas.GetProperties().GridSize;
-                MoveSelectedElements(canvas, delta, 0.0, false);
-            }
-            else
-            {
-                MoveSelectedElements(canvas, 1.0, 0.0, false);
-            }
+            double delta = Context.EnableSnap ? canvas.GetProperties().GridSize : 1.0;
+            MoveSelectedElements(canvas, delta, 0.0, false);
         }
 
         public void MoveUp(ICanvas canvas)
         {
             HistoryAdd(canvas, false);
 
-            if (Context.EnableSnap == true)
-            {
-                double delta = canvas.GetProperties().GridSize;
-                MoveSelectedElements(canvas, 0.0, -delta, false);
-            }
-            else
-            {
-                MoveSelectedElements(canvas, 0.0, -1.0, false);
-            }
+            double delta = Context.EnableSnap ? -canvas.GetProperties().GridSize : -1.0;
+            MoveSelectedElements(canvas, 0.0, delta, false);
         }
 
         public void MoveDown(ICanvas canvas)
         {
             HistoryAdd(canvas, false);
 
-            if (Context.EnableSnap == true)
-            {
-                double delta = canvas.GetProperties().GridSize;
-                MoveSelectedElements(canvas, 0.0, delta, false);
-            }
-            else
-            {
-                MoveSelectedElements(canvas, 0.0, 1.0, false);
-            }
+            double delta = Context.EnableSnap ? canvas.GetProperties().GridSize : 1.0;
+            MoveSelectedElements(canvas, 0.0, delta, false);
         }
 
         #endregion
