@@ -50,91 +50,120 @@ namespace CanvasDiagram.Editor
                 double y = element.GetY();
                 string uid = element.GetUid();
 
-                if (StringUtil.StartsWith(uid, ModelConstants.TagElementWire))
-                {
-                    var line = element as ILine;
-                    var margin = line.GetMargin();
-
-                    string str = string.Format("{6}{5}{0}{5}{1}{5}{2}{5}{3}{5}{4}{5}{7}{5}{8}{5}{9}{5}{10}",
-                        uid,
-                        margin.Left, margin.Top, //line.X1, line.Y1,
-                        line.GetX2() + margin.Left, line.GetY2() + margin.Top,
-                        ModelConstants.ArgumentSeparator,
-                        ModelConstants.PrefixRoot,
-                        line.GetStartVisible(), line.GetEndVisible(),
-                        line.GetStartIO(), line.GetEndIO());
-
-                    sb.AppendLine("".PadLeft(4, ' ') + str);
-                }
-                else if (StringUtil.StartsWith(uid, ModelConstants.TagElementInput) ||
-                    StringUtil.StartsWith(uid, ModelConstants.TagElementOutput))
-                {
-                    var data = element.GetData();
-                    Tag tag = null;
-
-                    if (data != null && data is Tag)
-                        tag = data as Tag;
-
-                    string str = string.Format("{4}{3}{0}{3}{1}{3}{2}{3}{5}",
-                        uid,
-                        x,
-                        y,
-                        ModelConstants.ArgumentSeparator,
-                        ModelConstants.PrefixRoot,
-                        tag != null ? tag.Id : -1);
-
-                    sb.AppendLine("".PadLeft(4, ' ') + str);
-                }
+                if (IsWire(uid))
+                    GenerateWire(sb, element, uid);
+                else if (IsInputOutput(uid))
+                    GenerateInputOutput(sb, element, x, y, uid);
                 else
-                {
-                    string str = string.Format("{4}{3}{0}{3}{1}{3}{2}",
-                        uid,
-                        x, y,
-                        ModelConstants.ArgumentSeparator,
-                        ModelConstants.PrefixRoot);
+                    GenerateElement(sb, x, y, uid);
 
-                    sb.AppendLine("".PadLeft(4, ' ') + str);
-                }
-
-                var elementTag = element.GetTag();
-                if (elementTag != null && !(element is ILine))
-                {
-                    var selection = elementTag as Selection;
-                    var tuples = selection.Item2;
-
-                    foreach (var tuple in tuples)
-                    {
-                        var line = tuple.Item1 as ILine;
-                        var start = tuple.Item2;
-                        var end = tuple.Item3;
-
-                        if (start != null)
-                        {
-                            // Start
-                            string str = string.Format("{3}{2}{0}{2}{1}",
-                                line.GetUid(),
-                                ModelConstants.WireStartType,
-                                ModelConstants.ArgumentSeparator,
-                                ModelConstants.PrefixChild);
-
-                            sb.AppendLine("".PadLeft(8, ' ') + str);
-                        }
-                        else if (end != null)
-                        {
-                            // End
-                            string str = string.Format("{3}{2}{0}{2}{1}",
-                                line.GetUid(),
-                                ModelConstants.WireEndType,
-                                ModelConstants.ArgumentSeparator,
-                                ModelConstants.PrefixChild);
-
-                            sb.AppendLine("".PadLeft(8, ' ') + str);
-                        }
-                    }
-                }
+                GenerateChildren(sb, element);
             }
 
             return sb.ToString();
+        }
+
+        private static bool IsWire(string uid)
+        {
+            return StringUtil.StartsWith(uid, ModelConstants.TagElementWire);
+        }
+
+        private static bool IsInputOutput(string uid)
+        {
+            return StringUtil.StartsWith(uid, ModelConstants.TagElementInput) ||
+                StringUtil.StartsWith(uid, ModelConstants.TagElementOutput);
+        }
+
+        private static void GenerateElement(StringBuilder sb, double x, double y, string uid)
+        {
+            string str = string.Format("{4}{3}{0}{3}{1}{3}{2}",
+                uid,
+                x, y,
+                ModelConstants.ArgumentSeparator,
+                ModelConstants.PrefixRoot);
+
+            sb.AppendLine("".PadLeft(4, ' ') + str);
+        }
+
+        private static void GenerateInputOutput(StringBuilder sb, IElement element, double x, double y, string uid)
+        {
+            var data = element.GetData();
+            Tag tag = null;
+
+            if (data != null && data is Tag)
+                tag = data as Tag;
+
+            string str = string.Format("{4}{3}{0}{3}{1}{3}{2}{3}{5}",
+                uid,
+                x,
+                y,
+                ModelConstants.ArgumentSeparator,
+                ModelConstants.PrefixRoot,
+                tag != null ? tag.Id : -1);
+
+            sb.AppendLine("".PadLeft(4, ' ') + str);
+        }
+
+        private static void GenerateWire(StringBuilder sb, IElement element, string uid)
+        {
+            var line = element as ILine;
+            var margin = line.GetMargin();
+
+            string str = string.Format("{6}{5}{0}{5}{1}{5}{2}{5}{3}{5}{4}{5}{7}{5}{8}{5}{9}{5}{10}",
+                uid,
+                margin.Left, margin.Top, //line.X1, line.Y1,
+                line.GetX2() + margin.Left, line.GetY2() + margin.Top,
+                ModelConstants.ArgumentSeparator,
+                ModelConstants.PrefixRoot,
+                line.GetStartVisible(), line.GetEndVisible(),
+                line.GetStartIO(), line.GetEndIO());
+
+            sb.AppendLine("".PadLeft(4, ' ') + str);
+        }
+
+        private static void GenerateChildren(StringBuilder sb, IElement element)
+        {
+            var elementTag = element.GetTag();
+            if (elementTag != null && !(element is ILine))
+            {
+                var selection = elementTag as Selection;
+                var tuples = selection.Item2;
+
+                foreach (var tuple in tuples)
+                {
+                    var line = tuple.Item1 as ILine;
+                    var start = tuple.Item2;
+                    var end = tuple.Item3;
+
+                    if (start != null)
+                        GenerateWireStart(sb, line);
+                    
+                    if (end != null)
+                        GenerateWireEnd(sb, line);
+                }
+            }
+        }
+    
+        private static void GenerateWireStart(StringBuilder sb, ILine line)
+        {
+            string str = string.Format("{3}{2}{0}{2}{1}",
+                line.GetUid(),
+                ModelConstants.WireStartType,
+                ModelConstants.ArgumentSeparator,
+                ModelConstants.PrefixChild);
+
+            sb.AppendLine("".PadLeft(8, ' ') + str);
+        }
+
+        private static void GenerateWireEnd(StringBuilder sb, ILine line)
+        {
+            string str = string.Format("{3}{2}{0}{2}{1}",
+                line.GetUid(),
+                ModelConstants.WireEndType,
+                ModelConstants.ArgumentSeparator,
+                ModelConstants.PrefixChild);
+
+            sb.AppendLine("".PadLeft(8, ' ') + str);
         }
 
         public static string GenerateDiagram(ICanvas canvas, string uid, DiagramProperties properties)
@@ -157,10 +186,7 @@ namespace CanvasDiagram.Editor
             sb.AppendLine(header);
 
             if (elements != null)
-            {
-                string model = Generate(elements);
-                sb.Append(model);
-            }
+                sb.Append(Generate(elements));
 
             return sb.ToString();
         }
@@ -198,10 +224,7 @@ namespace CanvasDiagram.Editor
             sb.AppendLine(line);
 
             foreach (var project in projects)
-            {
-                var model = GenerateProject(project, models, includeHistory);
-                sb.Append(model);
-            }
+                sb.Append(GenerateProject(project, models, includeHistory));
 
             return new Solution(sb.ToString(), models);
         }
@@ -211,7 +234,6 @@ namespace CanvasDiagram.Editor
             bool includeHistory)
         {
             var diagrams = project.GetItems();
-
             string line = null;
             var sb = new StringBuilder();
 
@@ -229,19 +251,13 @@ namespace CanvasDiagram.Editor
                 if (diagram.GetTag() != null)
                 {
                     var _diagram = diagram.GetTag() as Diagram;
-
                     var model = _diagram.Item1;
                     var history = _diagram.Item2;
 
                     if (model == null)
-                    {
                         model = GenerateItemModel(null, diagram, true);
-                        models.Add(model);
-                    }
-                    else
-                    {
-                        models.Add(model);
-                    }
+
+                    models.Add(model);
 
                     sb.Append(model);
 
@@ -438,77 +454,57 @@ namespace CanvasDiagram.Editor
 
         public static IEnumerable<IElement> GetSelected(ICanvas canvas)
         {
-            var selected = new List<IElement>();
-            var elements = canvas.GetElements().OfType<IElement>();
-
-            foreach (var element in elements)
-            {
-                if (element.GetSelected() == true)
-                    selected.Add(element);
-            }
-
-            return selected;
+             return canvas
+                 .GetElements()
+                 .OfType<IElement>()
+                 .Where(x => x.GetSelected() == true)
+                 .ToList();
         }
 
         public static IEnumerable<IElement> GetSelectedThumbs(ICanvas canvas)
         {
-            var elements = new List<IElement>();
-            var thumbs = canvas.GetElements().OfType<IThumb>();
-
-            foreach (var thumb in thumbs)
-            {
-                if (thumb.GetSelected() == true)
-                    elements.Add(thumb);
-            }
-
-            return elements;
+            return canvas
+                .GetElements()
+                .OfType<IThumb>()
+                .Where(x => x.GetSelected() == true)
+                .Cast<IElement>()
+                .ToList();
         }
 
         public static IEnumerable<IElement> GetSelectedWires(ICanvas canvas)
         {
-            var elements = new List<IElement>();
-            var wires = canvas.GetElements().OfType<ILine>();
-
-            foreach (var wire in wires)
-            {
-                if (wire.GetSelected() == true)
-                    elements.Add(wire);
-            }
-
-            return elements;
+            return canvas
+                .GetElements()
+                .OfType<ILine>()
+                .Where(x => x.GetSelected() == true)
+                .Cast<IElement>()
+                .ToList();
         }
 
         public static IEnumerable<IElement> GetAll(ICanvas canvas)
         {
-            var elements = new List<IElement>();
-            var all = canvas.GetElements().OfType<IElement>();
-
-            foreach (var element in all)
-                elements.Add(element);
-
-            return elements;
+            return canvas
+                .GetElements()
+                .OfType<IElement>()
+                .ToList();
         }
 
         public static IEnumerable<IElement> GetThumbs(ICanvas canvas)
         {
-            var elements = new List<IElement>();
-            var thumbs = canvas.GetElements().OfType<IThumb>();
-
-            foreach (var thumb in thumbs)
-                elements.Add(thumb);
-
-            return elements;
+            return canvas
+                .GetElements()
+                .OfType<IThumb>()
+                .Cast<IElement>()
+                .ToList();
         }
 
         public static IEnumerable<IElement> GetWires(ICanvas canvas)
         {
-            var elements = new List<IElement>();
-            var wires = canvas.GetElements().OfType<ILine>();
-
-            foreach (var wire in wires)
-                elements.Add(wire);
-
-            return elements;
+            return canvas
+                .GetElements()
+                .OfType<ILine>()
+                .Cast<IElement>()
+                .ToList();
         }
 
         #endregion
@@ -608,17 +604,13 @@ namespace CanvasDiagram.Editor
                 StringUtil.StartsWith(uid, ModelConstants.TagElementWire))
             {
                 var line = element as ILine;
-
-                // select/deselect line
-                bool isSelected = line.GetSelected();
-                line.SetSelected(isSelected ? false : true);
+                line.SetSelected(line.GetSelected() ? false : true);
             }
         }
 
         public static void SetThumbsSelection(ICanvas canvas, bool isSelected)
         {
             var thumbs = canvas.GetElements().OfType<IThumb>();
-
             foreach (var thumb in thumbs)
                 thumb.SetSelected(isSelected);
         }
@@ -626,7 +618,6 @@ namespace CanvasDiagram.Editor
         public static void SetLinesSelection(ICanvas canvas, bool isSelected)
         {
             var lines = canvas.GetElements().OfType<ILine>();
-
             foreach (var line in lines)
                 line.SetSelected(isSelected);
         }
@@ -654,7 +645,6 @@ namespace CanvasDiagram.Editor
             if (elements != null)
             {
                 var element = elements.FirstOrDefault();
-
                 if (element != null)
                 {
                     SelectNone(canvas);
@@ -804,85 +794,94 @@ namespace CanvasDiagram.Editor
                     element.SetTag(new Selection(false, new List<MapWire>()));
 
                 if (wires.Count > 0)
+                    UpdateWires(dict, element, wires);
+            }
+        }
+
+        private static void UpdateWires(IDictionary<string, MapWires> dict, IElement element, List<MapPin> wires)
+        {
+            var selection = element.GetTag() as Selection;
+            var tuples = selection.Item2;
+
+            foreach (var wire in wires)
+            {
+                string _name = wire.Item1;
+                string _type = wire.Item2;
+
+                if (StringUtil.Compare(_type, ModelConstants.WireStartType))
                 {
-                    var selection = element.GetTag() as Selection;
-                    var tuples = selection.Item2;
-
-                    foreach (var wire in wires)
+                    MapWires mapWires = null;
+                    if (dict.TryGetValue(_name, out mapWires) == true)
                     {
-                        string _name = wire.Item1;
-                        string _type = wire.Item2;
+                        var line = mapWires.Item1;
+                        if (line == null)
+                            continue;
 
-                        if (StringUtil.Compare(_type, ModelConstants.WireStartType))
-                        {
-                            MapWires mapWires = null;
-                            if (dict.TryGetValue(_name, out mapWires) == true)
-                            {
-                                var line = mapWires.Item1;
-                                if (line == null)
-                                    continue;
-
-                                var mapWire = new MapWire(line, element, null);
-
-                                tuples.Add(mapWire);
-
-                                var lineEx = line as ILine;
-                                if (lineEx.GetTag() != null)
-                                {
-                                    var endRoot = lineEx.GetTag() as IElement;
-                                    if (endRoot != null)
-                                    {
-                                        // set line Tag as Tuple of start & end root element
-                                        lineEx.SetTag(new Tuple<object, object>(element, endRoot));
-                                    }
-                                }
-                                else
-                                {
-                                    // set line Tag as start root element
-                                    lineEx.SetTag(element);
-                                }
-                            }
-                            else
-                            {
-                                System.Diagnostics.Debug.Print("Failed to map wire Start: {0}", _name);
-                            }
-                        }
-                        else if (StringUtil.Compare(_type, ModelConstants.WireEndType))
-                        {
-                            MapWires mapWires = null;
-                            if (dict.TryGetValue(_name, out mapWires) == true)
-                            {
-                                var line = mapWires.Item1;
-                                if (line == null)
-                                    continue;
-
-                                var mapWire = new MapWire(line, null, element);
-
-                                tuples.Add(mapWire);
-
-                                var lineEx = line as ILine;
-                                if (lineEx.GetTag() != null)
-                                {
-                                    var startRoot = lineEx.GetTag() as IElement;
-                                    if (startRoot != null)
-                                    {
-                                        // set line Tag as Tuple of start & end root element
-                                        lineEx.SetTag(new Tuple<object, object>(startRoot, element));
-                                    }
-                                }
-                                else
-                                {
-                                    // set line Tag as end root element
-                                    lineEx.SetTag(element);
-                                }
-                            }
-                            else
-                            {
-                                System.Diagnostics.Debug.Print("Failed to map wire End: {0}", _name);
-                            }
-                        }
+                        UpdateStartTag(element, tuples, line);
                     }
+                    else
+                        System.Diagnostics.Debug.Print("Failed to map wire Start: {0}", _name);
                 }
+                else if (StringUtil.Compare(_type, ModelConstants.WireEndType))
+                {
+                    MapWires mapWires = null;
+                    if (dict.TryGetValue(_name, out mapWires) == true)
+                    {
+                        var line = mapWires.Item1;
+                        if (line == null)
+                            continue;
+
+                        UpdateEndTag(element, tuples, line);
+                    }
+                    else
+                        System.Diagnostics.Debug.Print("Failed to map wire End: {0}", _name);
+                }
+            }
+        }
+
+        private static void UpdateStartTag(IElement element, List<MapWire> tuples, object line)
+        {
+            var mapWire = new MapWire(line, element, null);
+
+            tuples.Add(mapWire);
+
+            var lineEx = line as ILine;
+            if (lineEx.GetTag() != null)
+            {
+                var endRoot = lineEx.GetTag() as IElement;
+                if (endRoot != null)
+                {
+                    // set line Tag as Tuple of start & end root element
+                    lineEx.SetTag(new Tuple<object, object>(element, endRoot));
+                }
+            }
+            else
+            {
+                // set line Tag as start root element
+                lineEx.SetTag(element);
+            }
+        }
+
+        private static void UpdateEndTag(IElement element, List<MapWire> tuples, object line)
+        {
+            var mapWire = new MapWire(line, null, element);
+
+            tuples.Add(mapWire);
+
+            var lineEx = line as ILine;
+            if (lineEx.GetTag() != null)
+            {
+                var startRoot = lineEx.GetTag() as IElement;
+                if (startRoot != null)
+                {
+                    // set line Tag as Tuple of start & end root element
+                    lineEx.SetTag(new Tuple<object, object>(startRoot, element));
+                }
+            }
+            else
+            {
+                // set line Tag as end root element
+                lineEx.SetTag(element);
             }
         }
 
@@ -920,15 +919,10 @@ namespace CanvasDiagram.Editor
         {
             string uid = element.GetUid();
 
-            if (element is ILine && uid != null &&
-                StringUtil.StartsWith(uid, ModelConstants.TagElementWire))
-            {
+            if (element is ILine && uid != null && StringUtil.StartsWith(uid, ModelConstants.TagElementWire))
                 DeleteWire(canvas, element as ILine);
-            }
             else
-            {
                 canvas.Remove(element);
-            }
         }
 
         public static void DeleteWire(ICanvas canvas, ILine line)
@@ -942,8 +936,6 @@ namespace CanvasDiagram.Editor
         public static void DeleteEmptyPins(ICanvas canvas)
         {
             var pins = FindEmptyPins(canvas);
-
-            // remove empty pins
             foreach (var pin in pins)
                 canvas.Remove(pin);
         }
