@@ -52,10 +52,8 @@ namespace CanvasDiagram.WPF
 
         public Action<ElementThumb> SetThumbEvents { get; set; }
         public Action<IElement, double, double, bool> SetPosition { get; set; }
-
         public Func<List<object>> GetTags { get; set; }
         public Func<IdCounter> GetCounter { get; set; }
-
         private ICanvas ParserCanvas { get; set; }
         public Path ParserPath { get; set; }
 
@@ -190,7 +188,6 @@ namespace CanvasDiagram.WPF
             SetThumbEvents(thumb);
             SetPosition(thumb, x, y, snap);
 
-            // set element Tag
             var tags = this.GetTags();
             if (tags != null)
             {
@@ -220,7 +217,6 @@ namespace CanvasDiagram.WPF
             SetThumbEvents(thumb);
             SetPosition(thumb, x, y, snap);
 
-            // set element Tag
             var tags = this.GetTags();
             if (tags != null)
             {
@@ -290,7 +286,6 @@ namespace CanvasDiagram.WPF
         {
             FactoryFunc func;
             bool result = Factory.TryGetValue(type, out func);
-
             if (result == true && func != null)
                 return func(data, x, y, snap);
 
