@@ -245,7 +245,7 @@ namespace CanvasDiagram.Editor
             var projects = solution.GetItems();
             string relativeTagFileName = tagFileName;
             string relativeTableFileName = tableFileName;
-            string line = null;
+            //string line = null;
             var sb = new StringBuilder();
 
             // tags file path is relative to solution file path
@@ -257,14 +257,14 @@ namespace CanvasDiagram.Editor
                 relativeTableFileName = PathUtil.GetRelativeFileName(fileName, tableFileName);
 
             // Solution
-            line = string.Format("{0}{1}{2}{1}{3}{1}{4}",
-                ModelConstants.PrefixRoot,
-                ModelConstants.ArgumentSeparator,
-                solution.GetUid(),
-                relativeTagFileName,
-                relativeTableFileName);
-
-            sb.AppendLine(line);
+            sb.Append(ModelConstants.PrefixRoot);
+            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(solution.GetUid());
+            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(relativeTagFileName);
+            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(relativeTableFileName);
+            sb.Append(Environment.NewLine);
 
             foreach (var project in projects)
                 sb.Append(GenerateProject(project, models, includeHistory));
@@ -277,16 +277,13 @@ namespace CanvasDiagram.Editor
             bool includeHistory)
         {
             var diagrams = project.GetItems();
-            string line = null;
             var sb = new StringBuilder();
 
             // Project
-            line = string.Format("{0}{1}{2}",
-                ModelConstants.PrefixRoot,
-                ModelConstants.ArgumentSeparator,
-                project.GetUid());
-
-            sb.AppendLine(line);
+            sb.Append(ModelConstants.PrefixRoot);
+            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(project.GetUid());
+            sb.Append(Environment.NewLine);
 
             foreach (var diagram in diagrams)
             {
