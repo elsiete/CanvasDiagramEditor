@@ -76,13 +76,15 @@ namespace CanvasDiagram.Editor
 
         private static void GenerateElement(StringBuilder sb, double x, double y, string uid)
         {
-            string str = string.Format("{4}{3}{0}{3}{1}{3}{2}",
-                uid,
-                x, y,
-                ModelConstants.ArgumentSeparator,
-                ModelConstants.PrefixRoot);
-
-            sb.AppendLine("".PadLeft(4, ' ') + str);
+            sb.Append("    ");
+            sb.Append(ModelConstants.PrefixRoot);
+            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(uid);
+            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(x);
+            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(y);
+            sb.Append(Environment.NewLine);
         }
 
         private static void GenerateInputOutput(StringBuilder sb, IElement element, double x, double y, string uid)
@@ -93,15 +95,17 @@ namespace CanvasDiagram.Editor
             if (data != null && data is Tag)
                 tag = data as Tag;
 
-            string str = string.Format("{4}{3}{0}{3}{1}{3}{2}{3}{5}",
-                uid,
-                x,
-                y,
-                ModelConstants.ArgumentSeparator,
-                ModelConstants.PrefixRoot,
-                tag != null ? tag.Id : -1);
-
-            sb.AppendLine("".PadLeft(4, ' ') + str);
+            sb.Append("    ");
+            sb.Append(ModelConstants.PrefixRoot);
+            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(uid);
+            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(x);
+            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(y);
+            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(tag != null ? tag.Id : -1);
+            sb.Append(Environment.NewLine);
         }
 
         private static void GenerateWire(StringBuilder sb, IElement element, string uid)
@@ -109,16 +113,27 @@ namespace CanvasDiagram.Editor
             var line = element as ILine;
             var margin = line.GetMargin();
 
-            string str = string.Format("{6}{5}{0}{5}{1}{5}{2}{5}{3}{5}{4}{5}{7}{5}{8}{5}{9}{5}{10}",
-                uid,
-                margin.Left, margin.Top, //line.X1, line.Y1,
-                line.GetX2() + margin.Left, line.GetY2() + margin.Top,
-                ModelConstants.ArgumentSeparator,
-                ModelConstants.PrefixRoot,
-                line.GetStartVisible(), line.GetEndVisible(),
-                line.GetStartIO(), line.GetEndIO());
-
-            sb.AppendLine("".PadLeft(4, ' ') + str);
+            sb.Append("    ");
+            sb.Append(ModelConstants.PrefixRoot);
+            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(uid);
+            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(margin.Left); // line.X1
+            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(margin.Top); // line.Y1
+            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(line.GetX2() + margin.Left);
+            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(line.GetY2() + margin.Top);
+            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(line.GetStartVisible());
+            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(line.GetEndVisible());
+            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(line.GetStartIO());
+            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(line.GetEndIO());
+            sb.Append(Environment.NewLine);
         }
 
         private static void GenerateChildren(StringBuilder sb, IElement element)
@@ -146,49 +161,77 @@ namespace CanvasDiagram.Editor
     
         private static void GenerateWireStart(StringBuilder sb, ILine line)
         {
-            string str = string.Format("{3}{2}{0}{2}{1}",
-                line.GetUid(),
-                ModelConstants.WireStartType,
-                ModelConstants.ArgumentSeparator,
-                ModelConstants.PrefixChild);
-
-            sb.AppendLine("".PadLeft(8, ' ') + str);
+            sb.Append("        ");
+            sb.Append(ModelConstants.PrefixChild);
+            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(line.GetUid());
+            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(ModelConstants.WireStartType);
+            sb.Append(Environment.NewLine);
         }
 
         private static void GenerateWireEnd(StringBuilder sb, ILine line)
         {
-            string str = string.Format("{3}{2}{0}{2}{1}",
-                line.GetUid(),
-                ModelConstants.WireEndType,
-                ModelConstants.ArgumentSeparator,
-                ModelConstants.PrefixChild);
+            sb.Append("        ");
+            sb.Append(ModelConstants.PrefixChild);
+            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(line.GetUid());
+            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(ModelConstants.WireEndType);
+            sb.Append(Environment.NewLine);
+        }
 
-            sb.AppendLine("".PadLeft(8, ' ') + str);
+        private static string DefaultUid = ModelConstants.TagHeaderDiagram + ModelConstants.TagNameSeparator + (-1).ToString();
+
+        private static void GenerateHeader(StringBuilder sb, string uid, DiagramProperties prop)
+        {
+            sb.Append(ModelConstants.PrefixRoot);
+            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(uid == null ? DefaultUid : uid);
+            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(prop.PageWidth);
+            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(prop.PageHeight);
+            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(prop.GridOriginX);
+            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(prop.GridOriginY);
+            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(prop.GridWidth);
+            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(prop.GridHeight);
+            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(prop.GridSize);
+            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(prop.SnapX);
+            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(prop.SnapY);
+            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(prop.SnapOffsetX);
+            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(prop.SnapOffsetY);
+            sb.Append(Environment.NewLine);
         }
 
         public static string GenerateDiagram(ICanvas canvas, string uid, DiagramProperties properties)
         {
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+
             var sb = new StringBuilder();
             var elements = (canvas == null) ? null : canvas.GetElements();
-            string defaultUid = ModelConstants.TagHeaderDiagram + ModelConstants.TagNameSeparator + (-1).ToString();
 
-            string header = string.Format("{0}{1}{2}{1}{3}{1}{4}{1}{5}{1}{6}{1}{7}{1}{8}{1}{9}{1}{10}{1}{11}{1}{12}{1}{13}",
-                ModelConstants.PrefixRoot,
-                ModelConstants.ArgumentSeparator,
-                uid == null ? defaultUid : uid,
-                properties.PageWidth, properties.PageHeight,
-                properties.GridOriginX, properties.GridOriginY,
-                properties.GridWidth, properties.GridHeight,
-                properties.GridSize,
-                properties.SnapX, properties.SnapY,
-                properties.SnapOffsetX, properties.SnapOffsetY);
-
-            sb.AppendLine(header);
+            GenerateHeader(sb, uid, properties);
 
             if (elements != null)
                 sb.Append(Generate(elements));
 
-            return sb.ToString();
+            var str = sb.ToString();
+
+            sw.Stop();
+            System.Diagnostics.Debug.Print("GenerateDiagram() in {0}ms", sw.Elapsed.TotalMilliseconds);
+
+
+            return str;
         }
 
         public static Solution GenerateSolution(ITree tree,
