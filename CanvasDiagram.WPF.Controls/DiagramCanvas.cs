@@ -27,9 +27,7 @@ namespace CanvasDiagram.WPF.Controls
 
         public IEnumerable<IElement> GetElements()
         {
-            var elements = this.Children.Cast<FrameworkElement>();
-
-            return elements.Cast<IElement>();
+            return this.Children.Cast<FrameworkElement>().Cast<IElement>();
         }
 
         public void Add(IElement element)

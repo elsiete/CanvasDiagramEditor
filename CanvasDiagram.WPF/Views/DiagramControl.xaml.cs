@@ -485,7 +485,7 @@ namespace CanvasDiagram.WPF
             var point = new PointEx(Editor.Context.RightClick.X, Editor.Context.RightClick.Y);
             Editor.InsertInput(canvas, point);
 
-            Editor.Context.LastInsert = ModelConstants.TagElementInput;
+            Editor.Context.LastInsert = Constants.TagElementInput;
             Editor.Context.SkipLeftClick = false;
         }
 
@@ -498,7 +498,7 @@ namespace CanvasDiagram.WPF
             var point = new PointEx(Editor.Context.RightClick.X, Editor.Context.RightClick.Y);
             Editor.InsertOutput(canvas, point);
 
-            Editor.Context.LastInsert = ModelConstants.TagElementOutput;
+            Editor.Context.LastInsert = Constants.TagElementOutput;
             Editor.Context.SkipLeftClick = false;
         }
 
@@ -511,7 +511,7 @@ namespace CanvasDiagram.WPF
             var point = new PointEx(Editor.Context.RightClick.X, Editor.Context.RightClick.Y);
             Editor.InsertAndGate(canvas, point);
 
-            Editor.Context.LastInsert = ModelConstants.TagElementAndGate;
+            Editor.Context.LastInsert = Constants.TagElementAndGate;
             Editor.Context.SkipLeftClick = false;
         }
 
@@ -524,7 +524,7 @@ namespace CanvasDiagram.WPF
             var point = new PointEx(Editor.Context.RightClick.X, Editor.Context.RightClick.Y);
             Editor.InsertOrGate(canvas, point);
 
-            Editor.Context.LastInsert = ModelConstants.TagElementOrGate;
+            Editor.Context.LastInsert = Constants.TagElementOrGate;
             Editor.Context.SkipLeftClick = false;
         }
 

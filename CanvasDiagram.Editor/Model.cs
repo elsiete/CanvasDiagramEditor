@@ -65,24 +65,24 @@ namespace CanvasDiagram.Editor
 
         private static bool IsWire(string uid)
         {
-            return StringUtil.StartsWith(uid, ModelConstants.TagElementWire);
+            return StringUtil.StartsWith(uid, Constants.TagElementWire);
         }
 
         private static bool IsInputOutput(string uid)
         {
-            return StringUtil.StartsWith(uid, ModelConstants.TagElementInput) ||
-                StringUtil.StartsWith(uid, ModelConstants.TagElementOutput);
+            return StringUtil.StartsWith(uid, Constants.TagElementInput) ||
+                StringUtil.StartsWith(uid, Constants.TagElementOutput);
         }
 
         private static void GenerateElement(StringBuilder sb, double x, double y, string uid)
         {
             sb.Append("    ");
-            sb.Append(ModelConstants.PrefixRoot);
-            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(Constants.PrefixRoot);
+            sb.Append(Constants.ArgumentSeparator);
             sb.Append(uid);
-            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(Constants.ArgumentSeparator);
             sb.Append(x);
-            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(Constants.ArgumentSeparator);
             sb.Append(y);
             sb.Append(Environment.NewLine);
         }
@@ -96,14 +96,14 @@ namespace CanvasDiagram.Editor
                 tag = data as Tag;
 
             sb.Append("    ");
-            sb.Append(ModelConstants.PrefixRoot);
-            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(Constants.PrefixRoot);
+            sb.Append(Constants.ArgumentSeparator);
             sb.Append(uid);
-            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(Constants.ArgumentSeparator);
             sb.Append(x);
-            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(Constants.ArgumentSeparator);
             sb.Append(y);
-            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(Constants.ArgumentSeparator);
             sb.Append(tag != null ? tag.Id : -1);
             sb.Append(Environment.NewLine);
         }
@@ -114,24 +114,24 @@ namespace CanvasDiagram.Editor
             var margin = line.GetMargin();
 
             sb.Append("    ");
-            sb.Append(ModelConstants.PrefixRoot);
-            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(Constants.PrefixRoot);
+            sb.Append(Constants.ArgumentSeparator);
             sb.Append(uid);
-            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(Constants.ArgumentSeparator);
             sb.Append(margin.Left); // line.X1
-            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(Constants.ArgumentSeparator);
             sb.Append(margin.Top); // line.Y1
-            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(Constants.ArgumentSeparator);
             sb.Append(line.GetX2() + margin.Left);
-            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(Constants.ArgumentSeparator);
             sb.Append(line.GetY2() + margin.Top);
-            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(Constants.ArgumentSeparator);
             sb.Append(line.GetStartVisible());
-            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(Constants.ArgumentSeparator);
             sb.Append(line.GetEndVisible());
-            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(Constants.ArgumentSeparator);
             sb.Append(line.GetStartIO());
-            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(Constants.ArgumentSeparator);
             sb.Append(line.GetEndIO());
             sb.Append(Environment.NewLine);
         }
@@ -162,53 +162,53 @@ namespace CanvasDiagram.Editor
         private static void GenerateWireStart(StringBuilder sb, ILine line)
         {
             sb.Append("        ");
-            sb.Append(ModelConstants.PrefixChild);
-            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(Constants.PrefixChild);
+            sb.Append(Constants.ArgumentSeparator);
             sb.Append(line.GetUid());
-            sb.Append(ModelConstants.ArgumentSeparator);
-            sb.Append(ModelConstants.WireStartType);
+            sb.Append(Constants.ArgumentSeparator);
+            sb.Append(Constants.WireStartType);
             sb.Append(Environment.NewLine);
         }
 
         private static void GenerateWireEnd(StringBuilder sb, ILine line)
         {
             sb.Append("        ");
-            sb.Append(ModelConstants.PrefixChild);
-            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(Constants.PrefixChild);
+            sb.Append(Constants.ArgumentSeparator);
             sb.Append(line.GetUid());
-            sb.Append(ModelConstants.ArgumentSeparator);
-            sb.Append(ModelConstants.WireEndType);
+            sb.Append(Constants.ArgumentSeparator);
+            sb.Append(Constants.WireEndType);
             sb.Append(Environment.NewLine);
         }
 
-        private static string DefaultUid = ModelConstants.TagHeaderDiagram + ModelConstants.TagNameSeparator + (-1).ToString();
+        private static string DefaultUid = Constants.TagHeaderDiagram + Constants.TagNameSeparator + (-1).ToString();
 
         private static void GenerateHeader(StringBuilder sb, string uid, DiagramProperties prop)
         {
-            sb.Append(ModelConstants.PrefixRoot);
-            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(Constants.PrefixRoot);
+            sb.Append(Constants.ArgumentSeparator);
             sb.Append(uid == null ? DefaultUid : uid);
-            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(Constants.ArgumentSeparator);
             sb.Append(prop.PageWidth);
-            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(Constants.ArgumentSeparator);
             sb.Append(prop.PageHeight);
-            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(Constants.ArgumentSeparator);
             sb.Append(prop.GridOriginX);
-            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(Constants.ArgumentSeparator);
             sb.Append(prop.GridOriginY);
-            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(Constants.ArgumentSeparator);
             sb.Append(prop.GridWidth);
-            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(Constants.ArgumentSeparator);
             sb.Append(prop.GridHeight);
-            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(Constants.ArgumentSeparator);
             sb.Append(prop.GridSize);
-            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(Constants.ArgumentSeparator);
             sb.Append(prop.SnapX);
-            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(Constants.ArgumentSeparator);
             sb.Append(prop.SnapY);
-            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(Constants.ArgumentSeparator);
             sb.Append(prop.SnapOffsetX);
-            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(Constants.ArgumentSeparator);
             sb.Append(prop.SnapOffsetY);
             sb.Append(Environment.NewLine);
         }
@@ -257,12 +257,12 @@ namespace CanvasDiagram.Editor
                 relativeTableFileName = PathUtil.GetRelativeFileName(fileName, tableFileName);
 
             // Solution
-            sb.Append(ModelConstants.PrefixRoot);
-            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(Constants.PrefixRoot);
+            sb.Append(Constants.ArgumentSeparator);
             sb.Append(solution.GetUid());
-            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(Constants.ArgumentSeparator);
             sb.Append(relativeTagFileName);
-            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(Constants.ArgumentSeparator);
             sb.Append(relativeTableFileName);
             sb.Append(Environment.NewLine);
 
@@ -280,8 +280,8 @@ namespace CanvasDiagram.Editor
             var sb = new StringBuilder();
 
             // Project
-            sb.Append(ModelConstants.PrefixRoot);
-            sb.Append(ModelConstants.ArgumentSeparator);
+            sb.Append(Constants.PrefixRoot);
+            sb.Append(Constants.ArgumentSeparator);
             sb.Append(project.GetUid());
             sb.Append(Environment.NewLine);
 
@@ -325,7 +325,7 @@ namespace CanvasDiagram.Editor
             if (item != null)
             {
                 string uid = item.GetUid();
-                bool isDiagram = StringUtil.StartsWith(uid, ModelConstants.TagHeaderDiagram);
+                bool isDiagram = StringUtil.StartsWith(uid, Constants.TagHeaderDiagram);
 
                 if (isDiagram == true)
                 {
@@ -641,7 +641,7 @@ namespace CanvasDiagram.Editor
             string uid = element.GetUid();
 
             if (element is ILine && uid != null &&
-                StringUtil.StartsWith(uid, ModelConstants.TagElementWire))
+                StringUtil.StartsWith(uid, Constants.TagElementWire))
             {
                 var line = element as ILine;
                 line.SetSelected(line.GetSelected() ? false : true);
@@ -753,14 +753,12 @@ namespace CanvasDiagram.Editor
         {
             foreach (var element in elements.Cast<IElement>())
             {
-                string[] uid = element.GetUid().Split(ModelConstants.TagNameSeparator);
-
+                string[] uid = element.GetUid().Split(Constants.TagNameSeparator);
                 string type = uid[0];
                 int id = int.Parse(uid[1]);
-
                 int appendedId = IdsGetUpdatedElement(counter, type);
+                string appendedUid = string.Concat(type, Constants.TagNameSeparator, appendedId.ToString());
 
-                string appendedUid = string.Concat(type, ModelConstants.TagNameSeparator, appendedId.ToString());
                 element.SetUid(appendedUid);
             }
         }
@@ -771,27 +769,27 @@ namespace CanvasDiagram.Editor
 
             switch (type)
             {
-                case ModelConstants.TagElementWire:
+                case Constants.TagElementWire:
                     appendedId = counter.WireCount;
                     counter.WireCount += 1;
                     break;
-                case ModelConstants.TagElementInput:
+                case Constants.TagElementInput:
                     appendedId = counter.InputCount;
                     counter.InputCount += 1;
                     break;
-                case ModelConstants.TagElementOutput:
+                case Constants.TagElementOutput:
                     appendedId = counter.OutputCount;
                     counter.OutputCount += 1;
                     break;
-                case ModelConstants.TagElementAndGate:
+                case Constants.TagElementAndGate:
                     appendedId = counter.AndGateCount;
                     counter.AndGateCount += 1;
                     break;
-                case ModelConstants.TagElementOrGate:
+                case Constants.TagElementOrGate:
                     appendedId = counter.OrGateCount;
                     counter.OrGateCount += 1;
                     break;
-                case ModelConstants.TagElementPin:
+                case Constants.TagElementPin:
                     appendedId = counter.PinCount;
                     counter.PinCount += 1;
                     break;
@@ -848,7 +846,7 @@ namespace CanvasDiagram.Editor
                 string _name = wire.Item1;
                 string _type = wire.Item2;
 
-                if (StringUtil.Compare(_type, ModelConstants.WireStartType))
+                if (StringUtil.Compare(_type, Constants.WireStartType))
                 {
                     MapWires mapWires = null;
                     if (dict.TryGetValue(_name, out mapWires) == true)
@@ -862,7 +860,7 @@ namespace CanvasDiagram.Editor
                     else
                         System.Diagnostics.Debug.Print("Failed to map wire Start: {0}", _name);
                 }
-                else if (StringUtil.Compare(_type, ModelConstants.WireEndType))
+                else if (StringUtil.Compare(_type, Constants.WireEndType))
                 {
                     MapWires mapWires = null;
                     if (dict.TryGetValue(_name, out mapWires) == true)
@@ -959,7 +957,7 @@ namespace CanvasDiagram.Editor
         {
             string uid = element.GetUid();
 
-            if (element is ILine && uid != null && StringUtil.StartsWith(uid, ModelConstants.TagElementWire))
+            if (element is ILine && uid != null && StringUtil.StartsWith(uid, Constants.TagElementWire))
                 DeleteWire(canvas, element as ILine);
             else
                 canvas.Remove(element);
@@ -1014,7 +1012,7 @@ namespace CanvasDiagram.Editor
         public static bool IsElementPin(string uid)
         {
             return uid != null &&
-                   StringUtil.StartsWith(uid, ModelConstants.TagElementPin);
+                   StringUtil.StartsWith(uid, Constants.TagElementPin);
         }
 
         public static Connections RemoveWireConnections(ICanvas canvas, ILine line)

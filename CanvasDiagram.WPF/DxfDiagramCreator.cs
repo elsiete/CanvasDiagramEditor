@@ -1386,12 +1386,12 @@ namespace CanvasDiagram.WPF
         {
             Factory = new Dictionary<string, FactoryFunc>()
             {
-                {  ModelConstants.TagElementPin, CreatePin },
-                {  ModelConstants.TagElementWire, CreateWire },
-                {  ModelConstants.TagElementInput, CreateInput },
-                {  ModelConstants.TagElementOutput, CreateOutput },
-                {  ModelConstants.TagElementAndGate, CreateAndGate },
-                {  ModelConstants.TagElementOrGate, CreateOrGate },
+                {  Constants.TagElementPin, CreatePin },
+                {  Constants.TagElementWire, CreateWire },
+                {  Constants.TagElementInput, CreateInput },
+                {  Constants.TagElementOutput, CreateOutput },
+                {  Constants.TagElementAndGate, CreateAndGate },
+                {  Constants.TagElementOrGate, CreateOrGate },
             };
         }
 

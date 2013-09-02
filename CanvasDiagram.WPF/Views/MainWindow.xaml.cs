@@ -764,7 +764,7 @@ namespace CanvasDiagram.WPF
 
         private void GenerateModel_Click(object sender, RoutedEventArgs e)
         {
-            Editor.ModelUpdateSelectedDiagram();
+            Editor.ModelGetCurrent();
 
             var solution = Editor.ModelGenerateSolution(System.IO.Directory.GetCurrentDirectory(), false);
 
@@ -1134,7 +1134,7 @@ namespace CanvasDiagram.WPF
 
         public void ShowDiagram()
         {
-            var model = Editor.ModelUpdateSelectedDiagram();
+            var model = Editor.ModelGetCurrent();
 
             var diagrams = new List<string>();
             diagrams.Add(model);
@@ -1154,7 +1154,7 @@ namespace CanvasDiagram.WPF
 
         public void ShowProjectDiagrams()
         {
-            Editor.ModelUpdateSelectedDiagram();
+            Editor.ModelGetCurrent();
 
             var diagrams = Editor.ModelGetCurrentProjectDiagrams();
 
@@ -1164,7 +1164,7 @@ namespace CanvasDiagram.WPF
 
         public void ShowSolutionDiagrams()
         {
-            Editor.ModelUpdateSelectedDiagram();
+            Editor.ModelGetCurrent();
 
             var diagrams = Editor.ModelGenerateSolution(null, false).Item2;
 
@@ -1173,7 +1173,7 @@ namespace CanvasDiagram.WPF
 
         public void ShowDiagramHistory()
         {
-            Editor.ModelUpdateSelectedDiagram();
+            Editor.ModelGetCurrent();
 
             var diagrams = Editor.ModelGenerateSolution(null, true).Item2;
 
@@ -1184,7 +1184,6 @@ namespace CanvasDiagram.WPF
         {
             var areaExtent = new Size(PageWidth, PageHeight);
             var areaOrigin = new Size(0, 0);
-
             var printer = GetDefaultPrinter();
             var table = TableGrid.GetData(this) as DiagramTable;
 
@@ -1231,7 +1230,7 @@ namespace CanvasDiagram.WPF
             var printer = GetDefaultPrinter();
             var table = TableGrid.GetData(this) as DiagramTable;
 
-            Editor.ModelUpdateSelectedDiagram();
+            Editor.ModelGetCurrent();
 
             var diagrams = Editor.ModelGenerateSolution(null, false).Item2;
 
@@ -1243,7 +1242,7 @@ namespace CanvasDiagram.WPF
             var printer = GetDefaultPrinter();
             var table = TableGrid.GetData(this) as DiagramTable;
 
-            Editor.ModelUpdateSelectedDiagram();
+            Editor.ModelGetCurrent();
 
             var diagrams = Editor.ModelGenerateSolution(null, true).Item2;
 

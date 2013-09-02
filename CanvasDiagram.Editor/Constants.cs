@@ -12,9 +12,9 @@ using System.Text;
 
 namespace CanvasDiagram.Editor
 {
-    #region ModelConstants
+    #region Constants
 
-    public static class ModelConstants
+    public static class Constants
     {
         #region Model String Constants
 

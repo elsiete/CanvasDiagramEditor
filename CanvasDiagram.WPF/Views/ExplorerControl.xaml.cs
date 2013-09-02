@@ -52,7 +52,7 @@ namespace CanvasDiagram.WPF
         {
             var diagram = new SolutionTreeViewItem();
 
-            diagram.Header = ModelConstants.TagHeaderDiagram;
+            diagram.Header = Constants.TagHeaderDiagram;
             diagram.ContextMenu = this.Resources["DiagramContextMenuKey"] as ContextMenu;
             diagram.MouseRightButtonDown += TreeViewItem_MouseRightButtonDown;
 
@@ -63,7 +63,7 @@ namespace CanvasDiagram.WPF
         {
             var project = new SolutionTreeViewItem();
 
-            project.Header = ModelConstants.TagHeaderProject;
+            project.Header = Constants.TagHeaderProject;
             project.ContextMenu = this.Resources["ProjectContextMenuKey"] as ContextMenu;
             project.MouseRightButtonDown += TreeViewItem_MouseRightButtonDown;
             project.IsExpanded = true;
@@ -75,7 +75,7 @@ namespace CanvasDiagram.WPF
         {
             var solution = new SolutionTreeViewItem();
 
-            solution.Header = ModelConstants.TagHeaderSolution;
+            solution.Header = Constants.TagHeaderSolution;
             solution.ContextMenu = this.Resources["SolutionContextMenuKey"] as ContextMenu;
             solution.MouseRightButtonDown += TreeViewItem_MouseRightButtonDown;
             solution.IsExpanded = true;

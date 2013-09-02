@@ -44,14 +44,6 @@ namespace CanvasDiagram.Editor
 
         #endregion
 
-        #region Constructor
-
-        public DiagramEditor()
-        {
-        }
-
-        #endregion
-
         #region Model
 
         public void ModelClear()
@@ -61,14 +53,6 @@ namespace CanvasDiagram.Editor
             HistoryAdd(canvas, true);
 
             Model.Clear(canvas);
-        }
-
-        public string ModelGenerate()
-        {
-            var canvas = Context.CurrentCanvas;
-            var diagram = Model.GenerateDiagram(canvas, null, canvas.GetProperties());
-
-            return diagram;
         }
 
         public string ModelGenerateFromSelected(ICanvas canvas)
@@ -98,23 +82,13 @@ namespace CanvasDiagram.Editor
             TagsResetThumbs(canvas);
         }
 
-        public string ModelGetCurrent(bool update)
+        public string ModelGetCurrent()
         {
             var tree = Context.CurrentTree;
             var canvas = Context.CurrentCanvas;
             var item = tree.GetSelectedItem() as ITreeItem;
 
-            return Model.GenerateItemModel(canvas, item, update);
-        }
-
-        public string ModelUpdateSelectedDiagram()
-        {
-            return ModelGetCurrent(true);
-        }
-
-        public string ModelGetSelectedDiagram()
-        {
-            return ModelGetCurrent(false);
+            return Model.GenerateItemModel(canvas, item, true);
         }
 
         public Solution ModelGenerateSolution(string fileName, bool includeHistory)
@@ -134,9 +108,9 @@ namespace CanvasDiagram.Editor
                 return null;
 
             string uid = selected.GetUid();
-            bool isSelectedSolution = StringUtil.StartsWith(uid, ModelConstants.TagHeaderSolution);
-            bool isSelectedProject = StringUtil.StartsWith(uid, ModelConstants.TagHeaderProject);
-            bool isSelectedDiagram = StringUtil.StartsWith(uid, ModelConstants.TagHeaderDiagram);
+            bool isSelectedSolution = StringUtil.StartsWith(uid, Constants.TagHeaderSolution);
+            bool isSelectedProject = StringUtil.StartsWith(uid, Constants.TagHeaderProject);
+            bool isSelectedDiagram = StringUtil.StartsWith(uid, Constants.TagHeaderDiagram);
 
             if (isSelectedDiagram == true)
             {
@@ -158,7 +132,6 @@ namespace CanvasDiagram.Editor
             else if (isSelectedSolution == true)
             {
                 var solution = tree.GetItems().FirstOrDefault();
-
                 if (solution != null)
                 {
                     var models = new List<string>();
@@ -191,7 +164,7 @@ namespace CanvasDiagram.Editor
                 solutionItem.Add(projectItem);
 
                 // update project count
-                int projectId = int.Parse(projectName.Split(ModelConstants.TagNameSeparator)[1]);
+                int projectId = int.Parse(projectName.Split(Constants.TagNameSeparator)[1]);
                 counter.ProjectCount = Math.Max(counter.ProjectCount, projectId + 1);
 
                 ModelParseDiagrams(counter, diagrams, projectItem, diagramList);
@@ -224,7 +197,7 @@ namespace CanvasDiagram.Editor
             // create diagram model
             var lines = diagram.Reverse();
             var firstLine = lines.First()
-                .Split(new char[] { ModelConstants.ArgumentSeparator, '\t', ' ' },
+                .Split(new char[] { Constants.ArgumentSeparator, '\t', ' ' },
                 StringSplitOptions.RemoveEmptyEntries);
 
             string diagramName = firstLine.Length >= 1 ? firstLine[1] : null;
@@ -242,7 +215,7 @@ namespace CanvasDiagram.Editor
             diagramList.Add(diagramItem);
 
             // update diagram count
-            int diagramId = int.Parse(diagramName.Split(ModelConstants.TagNameSeparator)[1]);
+            int diagramId = int.Parse(diagramName.Split(Constants.TagNameSeparator)[1]);
             counter.DiagramCount = Math.Max(counter.DiagramCount, diagramId + 1);
         }
 
@@ -286,10 +259,10 @@ namespace CanvasDiagram.Editor
             var counter = canvas.GetCounter();
             string rootUid = Context.CurrentRoot.GetUid();
 
-            bool startIsIO = StringUtil.StartsWith(rootUid, ModelConstants.TagElementInput) 
-                || StringUtil.StartsWith(rootUid, ModelConstants.TagElementOutput);
+            bool startIsIO = StringUtil.StartsWith(rootUid, Constants.TagElementInput) 
+                || StringUtil.StartsWith(rootUid, Constants.TagElementOutput);
 
-            var line = creator.CreateElement(ModelConstants.TagElementWire,
+            var line = creator.CreateElement(Constants.TagElementWire,
                 new object[] 
                 {
                     x, y,
@@ -326,8 +299,8 @@ namespace CanvasDiagram.Editor
             // update IsEndIO flag
             string rootUid = Context.CurrentRoot.GetUid();
 
-            bool endIsIO = StringUtil.StartsWith(rootUid, ModelConstants.TagElementInput) ||
-                StringUtil.StartsWith(rootUid, ModelConstants.TagElementOutput);
+            bool endIsIO = StringUtil.StartsWith(rootUid, Constants.TagElementInput) ||
+                StringUtil.StartsWith(rootUid, Constants.TagElementOutput);
 
             Context.CurrentLine.SetEndIO(endIsIO);
 
@@ -439,14 +412,9 @@ namespace CanvasDiagram.Editor
 
             // connected original root element to split pin
             if (connections != null && connections.Count == 2)
-            {
                 WireRecreateConnections(canvas, line, splitPin, x, y, connections);
-            }
             else
-            {
-                throw new InvalidOperationException(
-                    "LineEx should have only two connections: Start and End.");
-            }
+                throw new InvalidOperationException("LineEx should have only two connections: Start and End.");
 
             return true;
         }
@@ -460,7 +428,7 @@ namespace CanvasDiagram.Editor
             var creator = Context.DiagramCreator;
             var counter = canvas.GetCounter();
 
-            var thumb = creator.CreateElement(ModelConstants.TagElementPin,
+            var thumb = creator.CreateElement(Constants.TagElementPin,
                 new object[] { counter.PinCount },
                 point.X, point.Y, Context.EnableSnap) as IThumb;
 
@@ -476,7 +444,7 @@ namespace CanvasDiagram.Editor
             var creator = Context.DiagramCreator;
             var counter = canvas.GetCounter();
 
-            var thumb = creator.CreateElement(ModelConstants.TagElementInput,
+            var thumb = creator.CreateElement(Constants.TagElementInput,
                 new object[] { counter.InputCount, -1 },
                 point.X, point.Y, Context.EnableSnap) as IThumb;
 
@@ -492,7 +460,7 @@ namespace CanvasDiagram.Editor
             var creator = Context.DiagramCreator;
             var counter = canvas.GetCounter();
 
-            var thumb = creator.CreateElement(ModelConstants.TagElementOutput,
+            var thumb = creator.CreateElement(Constants.TagElementOutput,
                 new object[] { counter.OutputCount, -1 },
                 point.X, point.Y, Context.EnableSnap) as IThumb;
 
@@ -508,7 +476,7 @@ namespace CanvasDiagram.Editor
             var creator = Context.DiagramCreator;
             var counter = canvas.GetCounter();
 
-            var thumb = creator.CreateElement(ModelConstants.TagElementAndGate,
+            var thumb = creator.CreateElement(Constants.TagElementAndGate,
                 new object[] { counter.AndGateCount },
                 point.X, point.Y, Context.EnableSnap) as IThumb;
 
@@ -524,7 +492,7 @@ namespace CanvasDiagram.Editor
             var creator = Context.DiagramCreator;
             var counter = canvas.GetCounter();
 
-            var thumb = creator.CreateElement(ModelConstants.TagElementOrGate,
+            var thumb = creator.CreateElement(Constants.TagElementOrGate,
                 new object[] { counter.OrGateCount },
                 point.X, point.Y, Context.EnableSnap) as IThumb;
 
@@ -539,15 +507,15 @@ namespace CanvasDiagram.Editor
         {
             switch (type)
             {
-                case ModelConstants.TagElementInput:
+                case Constants.TagElementInput:
                     return InsertInput(canvas, point);
-                case ModelConstants.TagElementOutput:
+                case Constants.TagElementOutput:
                     return InsertOutput(canvas, point);
-                case ModelConstants.TagElementAndGate:
+                case Constants.TagElementAndGate:
                     return InsertAndGate(canvas, point);
-                case ModelConstants.TagElementOrGate:
+                case Constants.TagElementOrGate:
                     return InsertOrGate(canvas, point);
-                case ModelConstants.TagElementPin:
+                case Constants.TagElementPin:
                     return InsertPin(canvas, point);
                 default:
                     return null;
@@ -593,11 +561,9 @@ namespace CanvasDiagram.Editor
             var line1 = map1.Item1 as ILine;
             var start1 = map1.Item2;
             var end1 = map1.Item3;
-
             var line2 = map2.Item1 as ILine;
             var start2 = map2.Item2;
             var end2 = map2.Item3;
-
             PointEx startPoint = null;
             PointEx endPoint = null;
 
@@ -777,7 +743,6 @@ namespace CanvasDiagram.Editor
             else
             {
                 Context.MoveAllSelected = false;
-
                 element.SetSelected(true);
             }
         }
@@ -860,7 +825,7 @@ namespace CanvasDiagram.Editor
             string uid = element.GetUid();
 
             if (element is ILine && uid != null &&
-                StringUtil.StartsWith(uid, ModelConstants.TagElementWire))
+                StringUtil.StartsWith(uid, Constants.TagElementWire))
             {
                 return element as ILine;
             }
@@ -943,7 +908,7 @@ namespace CanvasDiagram.Editor
 
         public void SaveSolution(string fileName)
         {
-            ModelUpdateSelectedDiagram();
+            ModelGetCurrent();
 
             var model = ModelGenerateSolution(fileName, false).Item1;
 
@@ -1057,8 +1022,8 @@ namespace CanvasDiagram.Editor
             return GetElementsAll().Where(x =>
             {
                 string uid = x.GetUid();
-                return StringUtil.StartsWith(uid, ModelConstants.TagElementInput) ||
-                    StringUtil.StartsWith(uid, ModelConstants.TagElementOutput);
+                return StringUtil.StartsWith(uid, Constants.TagElementInput) ||
+                    StringUtil.StartsWith(uid, Constants.TagElementOutput);
             });
         }
 
@@ -1067,8 +1032,8 @@ namespace CanvasDiagram.Editor
             return GetElementsSelected().Where(x =>
             {
                 string uid = x.GetUid();
-                return StringUtil.StartsWith(uid, ModelConstants.TagElementInput) ||
-                    StringUtil.StartsWith(uid, ModelConstants.TagElementOutput);
+                return StringUtil.StartsWith(uid, Constants.TagElementInput) ||
+                    StringUtil.StartsWith(uid, Constants.TagElementOutput);
             });
         }
 
@@ -1102,8 +1067,8 @@ namespace CanvasDiagram.Editor
             if (elements != null)
             {
                 Context.SelectedThumbList = new LinkedList<IElement>(elements);
-
                 Context.CurrentThumbNode = Context.SelectedThumbList.Last;
+
                 if (Context.CurrentThumbNode != null)
                     SelectOneElement(Context.CurrentThumbNode.Value, deselect);
             }
@@ -1137,7 +1102,6 @@ namespace CanvasDiagram.Editor
             if (elements != null)
             {
                 Context.SelectedThumbList = new LinkedList<IElement>(elements);
-
                 Context.CurrentThumbNode = Context.SelectedThumbList.First;
 
                 if (Context.CurrentThumbNode != null)
@@ -1179,8 +1143,7 @@ namespace CanvasDiagram.Editor
                 }
                 else
                 {
-                    bool isSelected = element.GetSelected();
-                    element.SetSelected(!isSelected);
+                    element.SetSelected(!element.GetSelected());
                 }
             }
         }
@@ -1203,7 +1166,7 @@ namespace CanvasDiagram.Editor
 
         public bool IsWire(string elementUid)
         {
-            return StringUtil.StartsWith(elementUid, ModelConstants.TagElementWire) == true;
+            return StringUtil.StartsWith(elementUid, Constants.TagElementWire) == true;
         }
 
         public bool CanConnect()
@@ -1239,7 +1202,7 @@ namespace CanvasDiagram.Editor
         {
             return pin != null &&
             (
-                !StringUtil.Compare(pin.GetUid(), ModelConstants.PinStandalone)
+                !StringUtil.Compare(pin.GetUid(), Constants.PinStandalone)
                 || (Context.IsControlPressed != null && Context.IsControlPressed())
             );
         }
@@ -1389,13 +1352,13 @@ namespace CanvasDiagram.Editor
             if (string.IsNullOrEmpty(uid))
                 return TreeItemType.None;
 
-            if (StringUtil.StartsWith(uid, ModelConstants.TagHeaderSolution))
+            if (StringUtil.StartsWith(uid, Constants.TagHeaderSolution))
                 return TreeItemType.Solution;
 
-            if (StringUtil.StartsWith(uid, ModelConstants.TagHeaderProject))
+            if (StringUtil.StartsWith(uid, Constants.TagHeaderProject))
                 return TreeItemType.Project;
 
-            if (StringUtil.StartsWith(uid, ModelConstants.TagHeaderDiagram))
+            if (StringUtil.StartsWith(uid, Constants.TagHeaderDiagram))
                 return TreeItemType.Diagram;
 
             return TreeItemType.None;
@@ -1409,7 +1372,7 @@ namespace CanvasDiagram.Editor
             var selected = tree.GetSelectedItem() as ITreeItem;
 
             if (selected != null && 
-                StringUtil.StartsWith(selected.GetUid(), ModelConstants.TagHeaderDiagram))
+                StringUtil.StartsWith(selected.GetUid(), Constants.TagHeaderDiagram))
             {
                 // get current project
                 var parent = selected.GetParent() as ITreeItem;
@@ -1475,7 +1438,7 @@ namespace CanvasDiagram.Editor
             var selected = tree.GetSelectedItem() as ITreeItem;
 
             if (selected != null && 
-                StringUtil.StartsWith(selected.GetUid(), ModelConstants.TagHeaderDiagram))
+                StringUtil.StartsWith(selected.GetUid(), Constants.TagHeaderDiagram))
             {
                 // get current project
                 var parent = selected.GetParent() as ITreeItem;
@@ -1540,10 +1503,8 @@ namespace CanvasDiagram.Editor
 
             string oldUid = oldItem == null ? null : oldItem.GetUid();
             string newUid = newItem == null ? null : newItem.GetUid();
-
-            bool isOldItemDiagram = oldUid == null ? false : StringUtil.StartsWith(oldUid, ModelConstants.TagHeaderDiagram);
-            bool isNewItemDiagram = newUid == null ? false : StringUtil.StartsWith(newUid, ModelConstants.TagHeaderDiagram);
-
+            bool isOldItemDiagram = oldUid == null ? false : StringUtil.StartsWith(oldUid, Constants.TagHeaderDiagram);
+            bool isNewItemDiagram = newUid == null ? false : StringUtil.StartsWith(newUid, Constants.TagHeaderDiagram);
             var oldItemType = GetTreeItemType(oldUid);
             var newItemType = GetTreeItemType(newUid);
 
@@ -1570,7 +1531,7 @@ namespace CanvasDiagram.Editor
                 var counter = Context.CurrentCanvas.GetCounter();
                 int id = 0; // there is only one solution allowed
 
-                solution.SetUid(ModelConstants.TagHeaderSolution + ModelConstants.TagNameSeparator + id.ToString());
+                solution.SetUid(Constants.TagHeaderSolution + Constants.TagNameSeparator + id.ToString());
                 counter.SolutionCount = id++;
             }
             else
@@ -1590,7 +1551,7 @@ namespace CanvasDiagram.Editor
                 var counter = Context.CurrentCanvas.GetCounter();
                 int id = counter.ProjectCount;
 
-                project.SetUid(ModelConstants.TagHeaderProject + ModelConstants.TagNameSeparator + id.ToString());
+                project.SetUid(Constants.TagHeaderProject + Constants.TagNameSeparator + id.ToString());
                 counter.ProjectCount++;
             }
             else
@@ -1610,7 +1571,7 @@ namespace CanvasDiagram.Editor
                 var counter = Context.CurrentCanvas.GetCounter();
                 int id = counter.DiagramCount;
 
-                diagram.SetUid(ModelConstants.TagHeaderDiagram + ModelConstants.TagNameSeparator + id.ToString());
+                diagram.SetUid(Constants.TagHeaderDiagram + Constants.TagNameSeparator + id.ToString());
                 counter.DiagramCount++;
             }
             else
@@ -1623,7 +1584,7 @@ namespace CanvasDiagram.Editor
 
         public TreeItemType TreeAddNewItem()
         {
-            var tree= Context.CurrentTree;
+            var tree = Context.CurrentTree;
             var selected = tree.GetSelectedItem() as ITreeItem;
 
             string uid = selected.GetUid();

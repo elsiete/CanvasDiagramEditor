@@ -108,12 +108,12 @@ namespace CanvasDiagram.WPF
         {
             Factory = new Dictionary<string, FactoryFunc>()
             {
-                {  ModelConstants.TagElementPin, CreatePin },
-                {  ModelConstants.TagElementWire, CreateWire },
-                {  ModelConstants.TagElementInput, CreateInput },
-                {  ModelConstants.TagElementOutput, CreateOutput },
-                {  ModelConstants.TagElementAndGate, CreateAndGate },
-                {  ModelConstants.TagElementOrGate, CreateOrGate },
+                {  Constants.TagElementPin, CreatePin },
+                {  Constants.TagElementWire, CreateWire },
+                {  Constants.TagElementInput, CreateInput },
+                {  Constants.TagElementOutput, CreateOutput },
+                {  Constants.TagElementAndGate, CreateAndGate },
+                {  Constants.TagElementOrGate, CreateOrGate },
             };
         }
 
@@ -128,7 +128,7 @@ namespace CanvasDiagram.WPF
             {
                 Template = Application.Current.Resources[ResourceConstants.KeyTemplatePin] as ControlTemplate,
                 Style = Application.Current.Resources[ResourceConstants.KeySyleRootThumb] as Style,
-                Uid = ModelConstants.TagElementPin + ModelConstants.TagNameSeparator + id.ToString()
+                Uid = Constants.TagElementPin + Constants.TagNameSeparator + id.ToString()
             };
 
             SetThumbEvents(thumb);
@@ -164,7 +164,7 @@ namespace CanvasDiagram.WPF
                 IsEndVisible = endVisible,
                 IsStartIO = startIsIO,
                 IsEndIO = endIsIO,
-                Uid = ModelConstants.TagElementWire + ModelConstants.TagNameSeparator + id.ToString()
+                Uid = Constants.TagElementWire + Constants.TagNameSeparator + id.ToString()
             };
 
             return line;
@@ -182,7 +182,7 @@ namespace CanvasDiagram.WPF
             {
                 Template = Application.Current.Resources[ResourceConstants.KeyTemplateInput] as ControlTemplate,
                 Style = Application.Current.Resources[ResourceConstants.KeySyleRootThumb] as Style,
-                Uid = ModelConstants.TagElementInput + ModelConstants.TagNameSeparator + id.ToString()
+                Uid = Constants.TagElementInput + Constants.TagNameSeparator + id.ToString()
             };
 
             SetThumbEvents(thumb);
@@ -211,7 +211,7 @@ namespace CanvasDiagram.WPF
             {
                 Template = Application.Current.Resources[ResourceConstants.KeyTemplateOutput] as ControlTemplate,
                 Style = Application.Current.Resources[ResourceConstants.KeySyleRootThumb] as Style,
-                Uid = ModelConstants.TagElementOutput + ModelConstants.TagNameSeparator + id.ToString()
+                Uid = Constants.TagElementOutput + Constants.TagNameSeparator + id.ToString()
             };
 
             SetThumbEvents(thumb);
@@ -239,7 +239,7 @@ namespace CanvasDiagram.WPF
             {
                 Template = Application.Current.Resources[ResourceConstants.KeyTemplateAndGate] as ControlTemplate,
                 Style = Application.Current.Resources[ResourceConstants.KeySyleRootThumb] as Style,
-                Uid = ModelConstants.TagElementAndGate + ModelConstants.TagNameSeparator + id.ToString()
+                Uid = Constants.TagElementAndGate + Constants.TagNameSeparator + id.ToString()
             };
 
             SetThumbEvents(thumb);
@@ -259,7 +259,7 @@ namespace CanvasDiagram.WPF
             {
                 Template = Application.Current.Resources[ResourceConstants.KeyTemplateOrGate] as ControlTemplate,
                 Style = Application.Current.Resources[ResourceConstants.KeySyleRootThumb] as Style,
-                Uid = ModelConstants.TagElementOrGate + ModelConstants.TagNameSeparator + id.ToString()
+                Uid = Constants.TagElementOrGate + Constants.TagNameSeparator + id.ToString()
             };
 
             SetThumbEvents(thumb);

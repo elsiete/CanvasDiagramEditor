@@ -43,7 +43,7 @@ namespace CanvasDiagram.Editor
         public PointEx RightClick;
 
         public bool EnableInsertLast = false;
-        public string LastInsert = ModelConstants.TagElementInput;
+        public string LastInsert = Constants.TagElementInput;
 
         public double DefaultGridSize = 30;
 

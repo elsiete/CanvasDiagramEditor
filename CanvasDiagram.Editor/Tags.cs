@@ -51,7 +51,7 @@ namespace CanvasDiagram.Editor
                 foreach (var tag in tags.Cast<Tag>())
                 {
                     line = string.Format("{1}{0}{2}{0}{3}{0}{4}{0}{5}",
-                        ModelConstants.ArgumentSeparator,
+                        Constants.ArgumentSeparator,
                         tag.Id,
                         tag.Designation,
                         tag.Signal,
@@ -98,7 +98,7 @@ namespace CanvasDiagram.Editor
 
                 foreach (var line in lines)
                 {
-                    var args = line.Split(new char[] { ModelConstants.ArgumentSeparator, '\t' },
+                    var args = line.Split(new char[] { Constants.ArgumentSeparator, '\t' },
                         StringSplitOptions.RemoveEmptyEntries);
 
                     if (args.Length == 5)
