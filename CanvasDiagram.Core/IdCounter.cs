@@ -16,51 +16,23 @@ namespace CanvasDiagram.Core
 
     public class IdCounter
     {
-        #region Constructor
+        private int count = 0;
+        public int Count { get { return count; } }
 
-        public IdCounter()
+        public void Reset()
         {
-            ResetAll();
+            count = 0;
         }
 
-        #endregion
-
-        #region Reset
-
-        public void ResetDiagram()
+        public int Next()
         {
-            PinCount = 0;
-            WireCount = 0;
-            InputCount = 0;
-            OutputCount = 0;
-            AndGateCount = 0;
-            OrGateCount = 0;
+            return count++;
         }
 
-        public void ResetAll()
+        public void Set(int count)
         {
-            SolutionCount = 0;
-            ProjectCount = 0;
-            DiagramCount = 0;
-
-            ResetDiagram();
+            this.count = count;
         }
-
-        #endregion
-
-        #region Properties
-
-        public int SolutionCount { get; set; }
-        public int ProjectCount { get; set; }
-        public int DiagramCount { get; set; }
-        public int PinCount { get; set; }
-        public int WireCount { get; set; }
-        public int InputCount { get; set; }
-        public int OutputCount { get; set; }
-        public int AndGateCount { get; set; }
-        public int OrGateCount { get; set; }
-
-        #endregion
     } 
 
     #endregion

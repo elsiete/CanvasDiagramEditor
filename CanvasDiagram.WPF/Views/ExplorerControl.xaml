@@ -44,8 +44,8 @@
                                    SelectedItemChanged="SolutionTree_SelectedItemChanged">
 
             <controls:SolutionTreeViewItem Header="Solution" IsExpanded="True" x:Uid="Solution|0" ContextMenu="{StaticResource SolutionContextMenuKey}" MouseRightButtonDown="TreeViewItem_MouseRightButtonDown">
-                <controls:SolutionTreeViewItem Header="Project" IsExpanded="True" x:Uid="Project|0" ContextMenu="{StaticResource ProjectContextMenuKey}" MouseRightButtonDown="TreeViewItem_MouseRightButtonDown">
-                    <controls:SolutionTreeViewItem IsSelected="True" Header="Diagram" x:Uid="Diagram|0" ContextMenu="{StaticResource DiagramContextMenuKey}" MouseRightButtonDown="TreeViewItem_MouseRightButtonDown"/>
+                <controls:SolutionTreeViewItem Header="Project" IsExpanded="True" x:Uid="Project|1" ContextMenu="{StaticResource ProjectContextMenuKey}" MouseRightButtonDown="TreeViewItem_MouseRightButtonDown">
+                    <controls:SolutionTreeViewItem IsSelected="True" Header="Diagram" x:Uid="Diagram|2" ContextMenu="{StaticResource DiagramContextMenuKey}" MouseRightButtonDown="TreeViewItem_MouseRightButtonDown"/>
                 </controls:SolutionTreeViewItem>
             </controls:SolutionTreeViewItem>
 

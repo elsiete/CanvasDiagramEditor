@@ -394,7 +394,7 @@ namespace CanvasDiagram.Editor
         public static void Clear(ICanvas canvas)
         {
             canvas.Clear();
-            canvas.GetCounter().ResetDiagram();
+            //canvas.GetCounter().Reset();
         }
 
         #endregion
@@ -756,61 +756,16 @@ namespace CanvasDiagram.Editor
                 string[] uid = element.GetUid().Split(Constants.TagNameSeparator);
                 string type = uid[0];
                 int id = int.Parse(uid[1]);
-                int appendedId = IdsGetUpdatedElement(counter, type);
+                int appendedId = counter.Next();
                 string appendedUid = string.Concat(type, Constants.TagNameSeparator, appendedId.ToString());
 
                 element.SetUid(appendedUid);
             }
         }
 
-        public static int IdsGetUpdatedElement(IdCounter counter, string type)
-        {
-            int appendedId = -1;
-
-            switch (type)
-            {
-                case Constants.TagElementWire:
-                    appendedId = counter.WireCount;
-                    counter.WireCount += 1;
-                    break;
-                case Constants.TagElementInput:
-                    appendedId = counter.InputCount;
-                    counter.InputCount += 1;
-                    break;
-                case Constants.TagElementOutput:
-                    appendedId = counter.OutputCount;
-                    counter.OutputCount += 1;
-                    break;
-                case Constants.TagElementAndGate:
-                    appendedId = counter.AndGateCount;
-                    counter.AndGateCount += 1;
-                    break;
-                case Constants.TagElementOrGate:
-                    appendedId = counter.OrGateCount;
-                    counter.OrGateCount += 1;
-                    break;
-                case Constants.TagElementPin:
-                    appendedId = counter.PinCount;
-                    counter.PinCount += 1;
-                    break;
-                default:
-                    throw new Exception("Unknown element type.");
-            }
-
-            return appendedId;
-        }
-
         public static void IdsUpdateCounter(IdCounter original, IdCounter counter)
         {
-            original.SolutionCount = Math.Max(original.SolutionCount, counter.SolutionCount);
-            original.ProjectCount = Math.Max(original.ProjectCount, counter.ProjectCount);
-            original.DiagramCount = Math.Max(original.DiagramCount, counter.DiagramCount);
-            original.PinCount = Math.Max(original.PinCount, counter.PinCount);
-            original.WireCount = Math.Max(original.WireCount, counter.WireCount);
-            original.InputCount = Math.Max(original.InputCount, counter.InputCount);
-            original.OutputCount = Math.Max(original.OutputCount, counter.OutputCount);
-            original.AndGateCount = Math.Max(original.AndGateCount, counter.AndGateCount);
-            original.OrGateCount = Math.Max(original.OrGateCount, counter.OrGateCount);
+            original.Set(Math.Max(original.Count, counter.Count));
         }
 
         #endregion

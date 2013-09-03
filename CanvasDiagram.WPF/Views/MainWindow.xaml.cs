@@ -274,8 +274,7 @@ namespace CanvasDiagram.WPF
             Editor.Context.CurrentCanvas = this.DiagramControl.DiagramCanvas;
 
             var counter = new IdCounter();
-            counter.ProjectCount = 1;
-            counter.DiagramCount = 1;
+            counter.Set(3);
             this.DiagramControl.DiagramCanvas.SetCounter(counter);
 
             var prop = DiagramProperties.Default;

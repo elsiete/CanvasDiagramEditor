@@ -160,7 +160,7 @@ namespace CanvasDiagram.Editor
 
                 // update project count
                 int projectId = int.Parse(projectName.Split(Constants.TagNameSeparator)[1]);
-                counter.ProjectCount = Math.Max(counter.ProjectCount, projectId + 1);
+                counter.Set(Math.Max(counter.Count, projectId + 1));
 
                 ModelParseDiagrams(counter, diagrams, projectItem, diagramList);
             }
@@ -211,7 +211,7 @@ namespace CanvasDiagram.Editor
 
             // update diagram count
             int diagramId = int.Parse(diagramName.Split(Constants.TagNameSeparator)[1]);
-            counter.DiagramCount = Math.Max(counter.DiagramCount, diagramId + 1);
+            counter.Set(Math.Max(counter.Count, diagramId + 1));
         }
 
         #endregion
@@ -264,11 +264,10 @@ namespace CanvasDiagram.Editor
                     x, y,
                     false, false,
                     startIsIO, false,
-                    counter.WireCount
+                    counter.Next()
                 },
                 0.0, 0.0, false) as ILine;
 
-            counter.WireCount += 1;
             Context.CurrentLine = line;
 
             // update connections
@@ -424,10 +423,8 @@ namespace CanvasDiagram.Editor
             var counter = canvas.GetCounter();
 
             var thumb = creator.CreateElement(Constants.TagElementPin,
-                new object[] { counter.PinCount },
+                new object[] { counter.Next() },
                 point.X, point.Y, Context.EnableSnap) as IThumb;
-
-            counter.PinCount += 1;
 
             canvas.Add(thumb);
 
@@ -440,10 +437,8 @@ namespace CanvasDiagram.Editor
             var counter = canvas.GetCounter();
 
             var thumb = creator.CreateElement(Constants.TagElementInput,
-                new object[] { counter.InputCount, -1 },
+                new object[] { counter.Next(), -1 },
                 point.X, point.Y, Context.EnableSnap) as IThumb;
-
-            counter.InputCount += 1;
 
             canvas.Add(thumb);
 
@@ -456,10 +451,8 @@ namespace CanvasDiagram.Editor
             var counter = canvas.GetCounter();
 
             var thumb = creator.CreateElement(Constants.TagElementOutput,
-                new object[] { counter.OutputCount, -1 },
+                new object[] { counter.Next(), -1 },
                 point.X, point.Y, Context.EnableSnap) as IThumb;
-
-            counter.OutputCount += 1;
 
             canvas.Add(thumb);
 
@@ -472,10 +465,8 @@ namespace CanvasDiagram.Editor
             var counter = canvas.GetCounter();
 
             var thumb = creator.CreateElement(Constants.TagElementAndGate,
-                new object[] { counter.AndGateCount },
+                new object[] { counter.Next() },
                 point.X, point.Y, Context.EnableSnap) as IThumb;
-
-            counter.AndGateCount += 1;
 
             canvas.Add(thumb);
 
@@ -488,10 +479,8 @@ namespace CanvasDiagram.Editor
             var counter = canvas.GetCounter();
 
             var thumb = creator.CreateElement(Constants.TagElementOrGate,
-                new object[] { counter.OrGateCount },
+                new object[] { counter.Next() },
                 point.X, point.Y, Context.EnableSnap) as IThumb;
-
-            counter.OrGateCount += 1;
 
             canvas.Add(thumb);
 
@@ -1524,10 +1513,9 @@ namespace CanvasDiagram.Editor
             if (uid == null)
             {
                 var counter = Context.CurrentCanvas.GetCounter();
-                int id = 0; // there is only one solution allowed
+                int id = counter.Next();
 
                 solution.SetUid(Constants.TagHeaderSolution + Constants.TagNameSeparator + id.ToString());
-                counter.SolutionCount = id++;
             }
             else
             {
@@ -1544,10 +1532,9 @@ namespace CanvasDiagram.Editor
             if (uid == null)
             {
                 var counter = Context.CurrentCanvas.GetCounter();
-                int id = counter.ProjectCount;
+                int id = counter.Next();
 
                 project.SetUid(Constants.TagHeaderProject + Constants.TagNameSeparator + id.ToString());
-                counter.ProjectCount++;
             }
             else
             {
@@ -1564,10 +1551,9 @@ namespace CanvasDiagram.Editor
             if (uid == null)
             {
                 var counter = Context.CurrentCanvas.GetCounter();
-                int id = counter.DiagramCount;
+                int id = counter.Next();
 
                 diagram.SetUid(Constants.TagHeaderDiagram + Constants.TagNameSeparator + id.ToString());
-                counter.DiagramCount++;
             }
             else
             {
@@ -1695,7 +1681,7 @@ namespace CanvasDiagram.Editor
             TreeClear(tree);
 
             // reset counter
-            Context.CurrentCanvas.GetCounter().ResetAll();
+            Context.CurrentCanvas.GetCounter().Reset();
 
             TagsReset();
             SelectedListReset();
