@@ -773,7 +773,7 @@ namespace CanvasDiagram.WPF
 
         private void GenerateModelFromSelected_Click(object sender, RoutedEventArgs e)
         {
-            var diagram = Editor.ModelGenerateFromSelected(Editor.Context.CurrentCanvas);
+            var diagram = Model.Generate(Model.GetSelected(Editor.Context.CurrentCanvas));
 
             this.TextModel.Text = diagram;
         }
@@ -1144,8 +1144,8 @@ namespace CanvasDiagram.WPF
 
         public void ShowDiagramSelectedElements()
         {
-            var model = Editor.ModelGenerateFromSelected(Editor.Context.CurrentCanvas);
-
+            var model = Model.Generate(Model.GetSelected(Editor.Context.CurrentCanvas));
+            
             var diagrams = new List<string>();
             diagrams.Add(model);
 

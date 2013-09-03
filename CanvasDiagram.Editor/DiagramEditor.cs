@@ -55,11 +55,6 @@ namespace CanvasDiagram.Editor
             Model.Clear(canvas);
         }
 
-        public string ModelGenerateFromSelected(ICanvas canvas)
-        {
-            return Model.Generate(Model.GetSelected(canvas));
-        }
-
         public void ModelInsert(string diagram, double offsetX, double offsetY, bool select)
         {
             var canvas = Context.CurrentCanvas;
@@ -922,7 +917,7 @@ namespace CanvasDiagram.Editor
         public void EditCut()
         {
             var canvas = Context.CurrentCanvas;
-            string model = ModelGenerateFromSelected(canvas);
+            string model = Model.Generate(Model.GetSelected(canvas));
 
             if (model.Length == 0)
             {
@@ -943,7 +938,7 @@ namespace CanvasDiagram.Editor
         public void EditCopy()
         {
             var canvas = Context.CurrentCanvas;
-            string model = ModelGenerateFromSelected(canvas);
+            string model = Model.Generate(Model.GetSelected(canvas));
 
             if (model.Length == 0)
                 model = Model.GenerateDiagram(canvas, null, canvas.GetProperties());
