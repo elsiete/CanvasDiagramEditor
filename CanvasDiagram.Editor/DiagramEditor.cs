@@ -776,73 +776,26 @@ namespace CanvasDiagram.Editor
         {
             var canvas = Context.CurrentCanvas;
             var wires = Model.GetSelectedWires(canvas);
+            if (wires.Count() <= 0)
+                return;
 
-            if (wires.Count() > 0)
-            {
-                HistoryAdd(canvas, false);
+            HistoryAdd(canvas, false);
 
-                foreach (var wire in wires.Cast<ILine>())
-                    wire.SetStartVisible(wire.GetStartVisible() == true ? false : true);
-            }
+            foreach (var wire in wires.Cast<ILine>())
+                wire.SetStartVisible(wire.GetStartVisible() == true ? false : true);
         }
 
         public void WireToggleEnd()
         {
             var canvas = Context.CurrentCanvas;
             var wires = Model.GetSelectedWires(canvas);
+            if (wires.Count() <= 0)
+                return;
 
-            if (wires.Count() > 0)
-            {
-                HistoryAdd(canvas, false);
+            HistoryAdd(canvas, false);
 
-                foreach (var wire in wires.Cast<ILine>())
-                    wire.SetEndVisible(wire.GetEndVisible() == true ? false : true);
-            }
-        }
-
-        public ILine WireFind(ICanvas canvas, IPoint point)
-        {
-            var element = canvas.HitTest(point, 6.0).FirstOrDefault();
-            if (element == null)
-                return null;
-
-            string uid = element.GetUid();
-
-            if (element is ILine && uid != null &&
-                StringUtil.StartsWith(uid, Constants.TagElementWire))
-            {
-                return element as ILine;
-            }
-
-            return null;
-        }
-
-        public void WireToggleStart(ICanvas canvas, IPoint point)
-        {
-            var line = WireFind(canvas, point);
-
-            if (line != null)
-            {
-                HistoryAdd(canvas, false);
-
-                line.SetStartVisible(line.GetStartVisible() == true ? false : true);
-
-                Context.SkipLeftClick = false;
-            }
-        }
-
-        public void WireToggleEnd(ICanvas canvas, IPoint point)
-        {
-            var line = WireFind(canvas, point);
-
-            if (line != null)
-            {
-                HistoryAdd(canvas, false);
-
-                line.SetEndVisible(line.GetEndVisible() == true ? false : true);
-
-                Context.SkipLeftClick = false;
-            }
+            foreach (var wire in wires.Cast<ILine>())
+                wire.SetEndVisible(wire.GetEndVisible() == true ? false : true);
         }
 
         #endregion
