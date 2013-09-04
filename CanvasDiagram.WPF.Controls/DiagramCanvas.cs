@@ -161,14 +161,7 @@ namespace CanvasDiagram.WPF.Controls
         {
             var canvas = this;
             var selectedElements = new List<DependencyObject>();
-
-            var elippse = new EllipseGeometry()
-            {
-                RadiusX = radius,
-                RadiusY = radius,
-                Center = new Point(point.X, point.Y),
-            };
-
+            var elippse = new EllipseGeometry() { RadiusX = radius, RadiusY = radius, Center = new Point(point.X, point.Y) };
             var hitTestParams = new GeometryHitTestParameters(elippse);
             var resultCallback = new HitTestResultCallback(result => HitTestResultBehavior.Continue);
 
@@ -176,9 +169,8 @@ namespace CanvasDiagram.WPF.Controls
                 element =>
                 {
                     if (VisualTreeHelper.GetParent(element) == canvas)
-                    {
                         selectedElements.Add(element);
-                    }
+
                     return HitTestFilterBehavior.Continue;
                 });
 
@@ -190,9 +182,7 @@ namespace CanvasDiagram.WPF.Controls
         public IEnumerable<IElement> HitTest(IRect rect)
         {
             var canvas = this;
-
             var r = new Rect(new Point(rect.X1, rect.Y1), new Point(rect.X2, rect.Y2));
-
             var selectedElements = new List<DependencyObject>();
             var rectangle = new RectangleGeometry(r, 0.0, 0.0);
             var hitTestParams = new GeometryHitTestParameters(rectangle);
@@ -202,9 +192,8 @@ namespace CanvasDiagram.WPF.Controls
                 element =>
                 {
                     if (VisualTreeHelper.GetParent(element) == canvas)
-                    {
                         selectedElements.Add(element);
-                    }
+
                     return HitTestFilterBehavior.Continue;
                 });
 
