@@ -1012,6 +1012,27 @@ namespace CanvasDiagram.Editor
         }
 
         #endregion
+
+        #region Find
+
+        public static T Find<T>(ICanvas canvas, IPoint point, double radius) where T : class
+        {
+            var element = canvas.HitTest(point, radius).FirstOrDefault();
+            if (element == null)
+                return null;
+
+            string uid = element.GetUid();
+
+            if (element is T && uid != null &&
+                StringUtil.StartsWith(uid, Constants.TagElementWire))
+            {
+                return element as T;
+            }
+
+            return null;
+        }
+
+        #endregion
     }
 
     #endregion
