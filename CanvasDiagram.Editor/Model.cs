@@ -394,7 +394,6 @@ namespace CanvasDiagram.Editor
         public static void Clear(ICanvas canvas)
         {
             canvas.Clear();
-            //canvas.GetCounter().Reset();
         }
 
         #endregion
