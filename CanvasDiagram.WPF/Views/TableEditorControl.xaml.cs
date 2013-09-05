@@ -150,8 +150,6 @@ namespace CanvasDiagram.WPF
                     Date = "",
                     Remarks = "",
                 },
-                //Logo1 = null,
-                //Logo2 = null,
                 PathLogo1 = "",
                 PathLogo2 = "",
                 Drawn = new Person()
