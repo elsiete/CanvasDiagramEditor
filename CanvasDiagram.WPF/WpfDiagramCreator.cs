@@ -84,15 +84,29 @@ namespace CanvasDiagram.WPF
             // horizontal lines
             for (double y = sizeY + originY; y < height + originY; y += size)
             {
-                sb.AppendFormat("M{0},{1}", originX, y);
-                sb.AppendFormat("L{0},{1}", width + originX, y);
+                sb.Append('M');
+                sb.Append(originX);
+                sb.Append(',');
+                sb.Append(y);
+
+                sb.Append('L');
+                sb.Append(width + originX);
+                sb.Append(',');
+                sb.Append(y);
             }
 
             // vertical lines
             for (double x = sizeX + originX; x < width + originX; x += size)
             {
-                sb.AppendFormat("M{0},{1}", x, originY);
-                sb.AppendFormat("L{0},{1}", x, height + originY);
+                sb.Append('M');
+                sb.Append(x);
+                sb.Append(',');
+                sb.Append(originY);
+
+                sb.Append('L');
+                sb.Append(x);
+                sb.Append(',');
+                sb.Append(height + originY);
             }
 
             return sb.ToString();
