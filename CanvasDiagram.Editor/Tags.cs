@@ -50,15 +50,16 @@ namespace CanvasDiagram.Editor
             {
                 foreach (var tag in tags.Cast<Tag>())
                 {
-                    line = string.Format("{1}{0}{2}{0}{3}{0}{4}{0}{5}",
-                        Constants.ArgumentSeparator,
-                        tag.Id,
-                        tag.Designation,
-                        tag.Signal,
-                        tag.Condition,
-                        tag.Description);
-
-                    sb.AppendLine(line);
+                    sb.Append(tag.Id);
+                    sb.Append(Constants.ArgumentSeparator);
+                    sb.Append(tag.Designation);
+                    sb.Append(Constants.ArgumentSeparator);
+                    sb.Append(tag.Signal);
+                    sb.Append(Constants.ArgumentSeparator);
+                    sb.Append(tag.Condition);
+                    sb.Append(Constants.ArgumentSeparator);
+                    sb.Append(tag.Description);
+                    sb.Append(Environment.NewLine);
                 }
             }
 
