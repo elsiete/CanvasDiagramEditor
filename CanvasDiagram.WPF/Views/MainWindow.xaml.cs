@@ -105,8 +105,7 @@ namespace CanvasDiagram.WPF
         {
             if (SolutionFileName == null && SolutionIsDirty == false)
             {
-                string title = string.Format("{0}{1}{2}",
-                    SolutionNewFileName,
+                string title = string.Concat(SolutionNewFileName,
                     WindowTitleSeparator,
                     WindowDefaultTitle);
 
@@ -114,8 +113,7 @@ namespace CanvasDiagram.WPF
             }
             else if (SolutionFileName == null && SolutionIsDirty == true)
             {
-                string title = string.Format("{0}{1}{2}{3}",
-                    SolutionNewFileName,
+                string title = string.Concat(SolutionNewFileName,
                     WindowTitleDirtyString,
                     WindowTitleSeparator,
                     WindowDefaultTitle);
@@ -124,8 +122,7 @@ namespace CanvasDiagram.WPF
             }
             else if (SolutionFileName != null && SolutionIsDirty == false)
             {
-                string title = string.Format("{0}{1}{2}",
-                    System.IO.Path.GetFileName(SolutionFileName),
+                string title = string.Concat(System.IO.Path.GetFileName(SolutionFileName),
                     WindowTitleSeparator,
                     WindowDefaultTitle);
 
