@@ -42,8 +42,6 @@ namespace CanvasDiagram.Editor
 
         public static string Generate(List<object> tags)
         {
-            string line = null;
-
             var sb = new StringBuilder();
 
             if (tags != null)
