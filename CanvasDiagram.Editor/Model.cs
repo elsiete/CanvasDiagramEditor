@@ -215,8 +215,6 @@ namespace CanvasDiagram.Editor
 
         public static string GenerateDiagram(ICanvas canvas, string uid, DiagramProperties properties)
         {
-            var sw = System.Diagnostics.Stopwatch.StartNew();
-
             var sb = new StringBuilder();
             var elements = (canvas == null) ? null : canvas.GetElements();
 
@@ -225,13 +223,7 @@ namespace CanvasDiagram.Editor
             if (elements != null)
                 sb.Append(Generate(elements));
 
-            var str = sb.ToString();
-
-            sw.Stop();
-            System.Diagnostics.Debug.Print("GenerateDiagram() in {0}ms", sw.Elapsed.TotalMilliseconds);
-
-
-            return str;
+            return sb.ToString();
         }
 
         public static Solution GenerateSolution(ITree tree,
@@ -245,7 +237,6 @@ namespace CanvasDiagram.Editor
             var projects = solution.GetItems();
             string relativeTagFileName = tagFileName;
             string relativeTableFileName = tableFileName;
-            //string line = null;
             var sb = new StringBuilder();
 
             // tags file path is relative to solution file path
