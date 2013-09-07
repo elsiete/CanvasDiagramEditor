@@ -316,8 +316,6 @@ namespace CanvasDiagram.WPF
                 int undoCount = undo != null ? undo.Count : 0;
                 int redoCount = redo != null ? redo.Count : 0;
 
-                System.Diagnostics.Debug.Print("HistoryChanged, undo: {0}, redo: {1}", undoCount, redoCount);
-
                 UpdateSolutionState(undoCount > 0 ? true : false, SolutionFileName);
             };
 
@@ -353,8 +351,6 @@ namespace CanvasDiagram.WPF
                     Date = "",
                     Remarks = "",
                 },
-                //Logo1 = null,
-                //Logo2 = null,
                 PathLogo1 = "",
                 PathLogo2 = "",
                 Drawn = new Person()
@@ -768,9 +764,7 @@ namespace CanvasDiagram.WPF
 
         private void GenerateModelFromSelected_Click(object sender, RoutedEventArgs e)
         {
-            var diagram = Model.Generate(Model.GetSelected(Editor.Context.CurrentCanvas));
-
-            this.TextModel.Text = diagram;
+            this.TextModel.Text = Model.Generate(Model.GetSelected(Editor.Context.CurrentCanvas));
         }
 
         private void InsertModel_Click(object sender, RoutedEventArgs e)
@@ -793,23 +787,10 @@ namespace CanvasDiagram.WPF
 
         private void ToggleGuides()
         {
-            var point = GetInsertionPoint();
-
             if (GuidesAdorner == null)
-            {
-                var prop = Editor.Context.CurrentCanvas.GetProperties();
-
-                if (point == null)
-                    ShowGuides(prop.SnapX + prop.SnapOffsetX, 
-                        prop.SnapY + prop.SnapOffsetY);
-                else
-                    ShowGuides(Editor.SnapOffsetX(point.X, true), 
-                        Editor.SnapOffsetY(point.Y, true));
-            }
+                ShowGuides();
             else
-            {
                 HideGuides();
-            }
         }
 
         private void ShowGuides(double x, double y)
@@ -837,6 +818,16 @@ namespace CanvasDiagram.WPF
             canvas.Cursor = Cursors.None;
         }
 
+        private void ShowGuides()
+        {
+            var prop = Editor.Context.CurrentCanvas.GetProperties();
+            var point = GetInsertionPoint();
+            if (point == null)
+                ShowGuides(prop.SnapX + prop.SnapOffsetX, prop.SnapY + prop.SnapOffsetY);
+            else
+                ShowGuides(Editor.SnapOffsetX(point.X, true), Editor.SnapOffsetY(point.Y, true));
+        }
+
         private void HideGuides()
         {
             var canvas = DiagramControl.DiagramCanvas;
@@ -854,7 +845,6 @@ namespace CanvasDiagram.WPF
         private void Connect()
         {
             var canvas = DiagramControl.DiagramCanvas;
-
             var point = GetInsertionPoint();
             if (point == null)
                 return;
@@ -870,7 +860,6 @@ namespace CanvasDiagram.WPF
         public List<DependencyObject> HitTest(Visual visual, IPoint point, double radius)
         {
             var elements = new List<DependencyObject>();
-
             var elippse = new EllipseGeometry()
             {
                 RadiusX = radius,
@@ -1114,12 +1103,10 @@ namespace CanvasDiagram.WPF
 
             zoom = Math.Round(zoom, 1);
 
-            if (e.OldValue != e.NewValue)
+            if (e.OldValue != e.NewValue && GuidesAdorner != null)
             {
                 double zoom_fx = this.DiagramControl.Zoom(zoom);
-
-                if (GuidesAdorner != null)
-                    GuidesAdorner.StrokeThickness = 1.0 / zoom_fx;
+                GuidesAdorner.StrokeThickness = 1.0 / zoom_fx;
             }
         }
 
@@ -1130,8 +1117,8 @@ namespace CanvasDiagram.WPF
         public void ShowDiagram()
         {
             var model = Editor.ModelGetCurrent();
-
             var diagrams = new List<string>();
+
             diagrams.Add(model);
 
             ShowDiagramsWindow(diagrams, "Diagram");
@@ -1140,8 +1127,8 @@ namespace CanvasDiagram.WPF
         public void ShowDiagramSelectedElements()
         {
             var model = Model.Generate(Model.GetSelected(Editor.Context.CurrentCanvas));
-            
             var diagrams = new List<string>();
+
             diagrams.Add(model);
 
             ShowDiagramsWindow(diagrams, "Diagram (Selected Elements)");
@@ -1152,7 +1139,6 @@ namespace CanvasDiagram.WPF
             Editor.ModelGetCurrent();
 
             var diagrams = Editor.ModelGetCurrentProjectDiagrams();
-
             if (diagrams != null)
                 ShowDiagramsWindow(diagrams, "Project Diagrams");
         }
