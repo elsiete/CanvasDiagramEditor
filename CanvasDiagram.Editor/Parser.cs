@@ -64,8 +64,6 @@ namespace CanvasDiagram.Editor
             TreeDiagrams diagrams = null;
             TreeDiagram diagram = null;
 
-            //var sw = System.Diagnostics.Stopwatch.StartNew();
-
             var lines = model.Split(Environment.NewLine.ToCharArray(),
                 StringSplitOptions.RemoveEmptyEntries);
 
@@ -387,10 +385,6 @@ namespace CanvasDiagram.Editor
 
                 creator.InsertElements(elements, select, offsetX, offsetY);
             }
-
-            //sw.Stop();
-
-            //System.Diagnostics.Debug.Print("Parse() in {0}ms, total count: {1}", sw.Elapsed.TotalMilliseconds, total.Count);
 
             return solution;
         }
