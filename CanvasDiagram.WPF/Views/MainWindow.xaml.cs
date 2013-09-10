@@ -4,6 +4,7 @@
 #region References
 
 using CanvasDiagram.Core;
+using CanvasDiagram.Dxf;
 using CanvasDiagram.WPF.Controls;
 using CanvasDiagram.Editor;
 using CanvasDiagram.Util;
@@ -153,6 +154,45 @@ namespace CanvasDiagram.WPF
 
         #endregion
 
+        #region Dxf Inspect
+
+        private void ShowHtml(string html, string title)
+        {
+            var window = new HtmlWindow();
+
+            window.Title = title;
+            window.Html.NavigateToString(html);
+            window.Show();
+        }
+
+        public void DxfInspect()
+        {
+            var dlg = new Microsoft.Win32.OpenFileDialog()
+            {
+                Filter = "Dxf (*.dxf)|*.dxf|All Files (*.*)|*.*",
+                Title = "Inspect Dxf"
+            };
+
+            var res = dlg.ShowDialog();
+            if (res == true)
+            {
+                try
+                {
+                    var inspect = new DxfInspect();
+                    var html = inspect.GetHtml(dlg.FileName);
+
+                    ShowHtml(html, "Dxf Inspect");
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.Print(ex.Message);
+                    System.Diagnostics.Debug.Print(ex.StackTrace);
+                }
+            }
+        }
+
+        #endregion
+
         #region Initialize
 
         private void InitializeFileMenuEvents()
@@ -168,7 +208,7 @@ namespace CanvasDiagram.WPF
             FileImportTags.Click += (sender, e) => ImportTags();
             FileExportTags.Click += (sender, e) => TagsExportDlg();
             FileExportToDxf.Click += (sender, e) => ExportDxf();
-            FileInspectDxf.Click += (sender, e) => (new DxfInspect()).Inspect();
+            FileInspectDxf.Click += (sender, e) => DxfInspect();
             FilePrint.Click += (sender, e) => Print();
             FilePrintHistory.Click += (sender, e) => PrintHistory();
             FileExit.Click += (sender, e) => Application.Current.Shutdown();
