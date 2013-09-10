@@ -56,7 +56,6 @@
     </Compile>
     <Compile Include="DipUtil.cs" />
     <Compile Include="DxfDiagramCreator.cs" />
-    <Compile Include="DxfInspect.cs" />
     <Compile Include="Elements\AndGateControl.xaml.cs">
       <DependentUpon>AndGateControl.xaml</DependentUpon>
     </Compile>

@@ -52,6 +52,7 @@
     <Compile Include="Core\Vector3.cs" />
     <Compile Include="DxfFile.cs" />
     <Compile Include="DxfHeader.cs" />
+    <Compile Include="DxfInspect.cs" />
     <Compile Include="Entities\Dxf3Dface.cs" />
     <Compile Include="Entities\DxfArc.cs" />
     <Compile Include="Entities\DxfAttdef.cs" />
