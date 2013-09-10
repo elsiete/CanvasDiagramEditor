@@ -3,31 +3,15 @@
 
 #region References
 
-using CanvasDiagram.Core;
-using CanvasDiagram.WPF.Controls;
-using CanvasDiagram.Editor;
-using CanvasDiagram.Util;
 using CanvasDiagram.Dxf.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Printing;
-using System.Windows.Markup;
 
 #endregion
 
-namespace CanvasDiagram.WPF
+namespace CanvasDiagram.Dxf
 {
     #region DxfInspect
 
@@ -42,37 +26,17 @@ namespace CanvasDiagram.WPF
 
         #region Inspect
 
-        public void Inspect()
+        public string GetHtml(string fileName)
         {
-            var dlg = new Microsoft.Win32.OpenFileDialog()
-            {
-                Filter = "Dxf (*.dxf)|*.dxf|All Files (*.*)|*.*",
-                Title = "Inspect Dxf"
-            };
+            var sb = new StringBuilder();
 
-            var res = dlg.ShowDialog();
-            if (res == true)
-            {
-                try
-                {
-                    var html = ParseDxf(dlg.FileName);
+            string data = GetDxfData(fileName);
+            if (data == null)
+                return null;
 
-                    ShowHtmlWindow(html, "Dxf Inspect");
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
-                }
-            }
-        }
+            ParseDxfData(sb, fileName, data);
 
-        private void ShowHtmlWindow(string html, string title)
-        {
-            var window = new HtmlWindow();
-
-            window.Title = title;
-            window.Html.NavigateToString(html);
-            window.Show();
+            return sb.ToString();
         }
 
         private string GetDxfData(string fileName)
@@ -88,23 +52,11 @@ namespace CanvasDiagram.WPF
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace);
+                System.Diagnostics.Debug.Print(ex.Message);
+                System.Diagnostics.Debug.Print(ex.StackTrace);
             }
 
             return data;
-        }
-
-        private string ParseDxf(string fileName)
-        {
-            var sb = new StringBuilder();
-
-            string data = GetDxfData(fileName);
-            if (data == null)
-                return null;
-
-            ParseDxfData(sb, fileName, data);
-
-            return sb.ToString();
         }
 
         private void ParseDxfData(StringBuilder sb, string fileName, string data)
