@@ -1219,12 +1219,9 @@ namespace CanvasDiagram.WPF
                 Width = PageWidth + 80,
                 Height = PageHeight + 120,
                 WindowStartupLocation = WindowStartupLocation.CenterScreen,
-                WindowState = WindowState.Maximized
+                WindowState = WindowState.Maximized,
+                Content = new DocumentViewer() { Document = fixedDocument }
             };
-
-            var viewer = new DocumentViewer() { Document = fixedDocument };
-
-            window.Content = viewer;
 
             window.Show();
         }
