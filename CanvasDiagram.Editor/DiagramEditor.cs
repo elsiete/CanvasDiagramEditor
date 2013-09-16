@@ -40,7 +40,7 @@ namespace CanvasDiagram.Editor
     {
         #region Connect
 
-        public static ILine ConnectionCreate(ICanvas canvas, IElement root, ILine line, double x, double y, IDiagramCreator creator)
+        public static ILine Connect(ICanvas canvas, IElement root, ILine line, double x, double y, IDiagramCreator creator)
         {
             var rootTag = root.GetTag();
             if (rootTag == null)
@@ -50,12 +50,12 @@ namespace CanvasDiagram.Editor
             var tuples = selection.Item2;
 
             if (line == null)
-                return ConnectionCreateFirst(canvas, root, x, y, tuples, creator);
+                return FirstConnection(canvas, root, x, y, tuples, creator);
             else
-                return ConnectionCreateSecond(root, line, x, y, tuples);
+                return SecondConnection(root, line, x, y, tuples);
         }
 
-        private static ILine ConnectionCreateFirst(ICanvas canvas, IElement root, double x, double y, List<MapWire> tuples, IDiagramCreator creator)
+        private static ILine FirstConnection(ICanvas canvas, IElement root, double x, double y, List<MapWire> tuples, IDiagramCreator creator)
         {
             var counter = canvas.GetCounter();
             string rootUid = root.GetUid();
@@ -87,7 +87,7 @@ namespace CanvasDiagram.Editor
             return line;
         }
 
-        private static ILine ConnectionCreateSecond(IElement root, ILine line, double x, double y, List<MapWire> tuples)
+        private static ILine SecondConnection(IElement root, ILine line, double x, double y, List<MapWire> tuples)
         {
             var margin = line.GetMargin();
 
@@ -323,7 +323,7 @@ namespace CanvasDiagram.Editor
             double x = position.Item1;
             double y = position.Item2;
 
-            Context.CurrentLine = Wire.ConnectionCreate(canvas, Context.CurrentRoot, Context.CurrentLine, x, y, creator);
+            Context.CurrentLine = Wire.Connect(canvas, Context.CurrentRoot, Context.CurrentLine, x, y, creator);
             if (Context.CurrentLine == null)
                 Context.CurrentRoot = null;
         }
@@ -359,18 +359,18 @@ namespace CanvasDiagram.Editor
                 bool isEndIO = line.GetEndIO();
 
                 Context.CurrentRoot = startRoot;
-                var startLine = Wire.ConnectionCreate(canvas, Context.CurrentRoot, Context.CurrentLine, x1, y1, Context.DiagramCreator);
+                var startLine = Wire.Connect(canvas, Context.CurrentRoot, Context.CurrentLine, x1, y1, Context.DiagramCreator);
 
                 Context.CurrentLine = startLine;
                 Context.CurrentRoot = splitPin;
-                Context.CurrentLine = Wire.ConnectionCreate(canvas, Context.CurrentRoot, Context.CurrentLine, x, y, Context.DiagramCreator);
+                Context.CurrentLine = Wire.Connect(canvas, Context.CurrentRoot, Context.CurrentLine, x, y, Context.DiagramCreator);
 
                 Context.CurrentRoot = splitPin;
-                var endLine = Wire.ConnectionCreate(canvas, Context.CurrentRoot, Context.CurrentLine, x, y, Context.DiagramCreator);
+                var endLine = Wire.Connect(canvas, Context.CurrentRoot, Context.CurrentLine, x, y, Context.DiagramCreator);
 
                 Context.CurrentLine = endLine;
                 Context.CurrentRoot = endRoot;
-                Context.CurrentLine = Wire.ConnectionCreate(canvas, Context.CurrentRoot, Context.CurrentLine, x2, y2, Context.DiagramCreator);
+                Context.CurrentLine = Wire.Connect(canvas, Context.CurrentRoot, Context.CurrentLine, x2, y2, Context.DiagramCreator);
                 if (Context.CurrentLine == null)
                     Context.CurrentRoot = null;
 
@@ -399,7 +399,7 @@ namespace CanvasDiagram.Editor
             double x = Context.CurrentRoot.GetX();
             double y = Context.CurrentRoot.GetY();
 
-            Context.CurrentLine = Wire.ConnectionCreate(canvas, Context.CurrentRoot, Context.CurrentLine, x, y, Context.DiagramCreator);
+            Context.CurrentLine = Wire.Connect(canvas, Context.CurrentRoot, Context.CurrentLine, x, y, Context.DiagramCreator);
             if (Context.CurrentLine == null)
                 Context.CurrentRoot = null;
 
@@ -1171,12 +1171,12 @@ namespace CanvasDiagram.Editor
             double x = Context.CurrentRoot.GetX();
             double y = Context.CurrentRoot.GetY();
 
-            Context.CurrentLine = Wire.ConnectionCreate(canvas, Context.CurrentRoot, Context.CurrentLine, x, y, Context.DiagramCreator);
+            Context.CurrentLine = Wire.Connect(canvas, Context.CurrentRoot, Context.CurrentLine, x, y, Context.DiagramCreator);
             if (Context.CurrentLine == null)
                 Context.CurrentRoot = null;
 
             Context.CurrentRoot = root;
-            Context.CurrentLine = Wire.ConnectionCreate(canvas, Context.CurrentRoot, Context.CurrentLine, x, y, Context.DiagramCreator);
+            Context.CurrentLine = Wire.Connect(canvas, Context.CurrentRoot, Context.CurrentLine, x, y, Context.DiagramCreator);
         }
 
         private IElement MouseGetElementAtPoint(ICanvas canvas, IPoint point)
