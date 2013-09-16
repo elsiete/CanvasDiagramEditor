@@ -185,8 +185,9 @@ namespace CanvasDiagram.Editor
 
         public static TreeItemType SwitchItems(ICanvas canvas,
             IDiagramCreator creator,
-            ITreeItem oldItem, ITreeItem newItem,
-            Action<DiagramProperties> SetProperties)
+            ITreeItem oldItem, 
+            ITreeItem newItem,
+            Action<DiagramProperties> setProperties)
         {
             if (newItem == null)
                 return TreeItemType.None;
@@ -205,16 +206,18 @@ namespace CanvasDiagram.Editor
             {
                 Model.Load(canvas, creator, newItem);
 
-                if (SetProperties != null)
-                    SetProperties(canvas.GetProperties());
+                if (setProperties != null)
+                    setProperties(canvas.GetProperties());
             }
 
             return newItemType;
         }
 
-        public static ITreeItem CreateSolutionItem(string uid, Func<ITreeItem> CreateTreeSolutionItem, IdCounter counter)
+        public static ITreeItem CreateSolutionItem(string uid, 
+            Func<ITreeItem> createSolution, 
+            IdCounter counter)
         {
-            var solution = CreateTreeSolutionItem();
+            var solution = createSolution();
 
             if (uid == null)
             {
@@ -230,9 +233,11 @@ namespace CanvasDiagram.Editor
             return solution;
         }
 
-        public static ITreeItem CreateProjectItem(string uid, Func<ITreeItem> CreateTreeProjectItem, IdCounter counter)
+        public static ITreeItem CreateProjectItem(string uid,
+            Func<ITreeItem> createProject, 
+            IdCounter counter)
         {
-            var project = CreateTreeProjectItem();
+            var project = createProject();
 
             if (uid == null)
             {
@@ -248,9 +253,11 @@ namespace CanvasDiagram.Editor
             return project;
         }
 
-        public static ITreeItem CreateDiagramItem(string uid, Func<ITreeItem> CreateTreeDiagramItem, IdCounter counter)
+        public static ITreeItem CreateDiagramItem(string uid,
+            Func<ITreeItem> createDiagram, 
+            IdCounter counter)
         {
-            var diagram = CreateTreeDiagramItem();
+            var diagram = createDiagram();
 
             if (uid == null)
             {
@@ -267,8 +274,8 @@ namespace CanvasDiagram.Editor
         }
 
         public static TreeItemType AddNewItem(ITree tree,
-            Func<ITreeItem> CreateTreeProjectItem,
-            Func<ITreeItem> CreateTreeDiagramItem,
+            Func<ITreeItem> createProject,
+            Func<ITreeItem> createDiagram,
             IdCounter counter)
         {
             var selected = tree.GetSelectedItem() as ITreeItem;
@@ -279,17 +286,17 @@ namespace CanvasDiagram.Editor
             if (type == TreeItemType.Diagram)
             {
                 var project = selected.GetParent() as ITreeItem;
-                AddDiagram(project, true, CreateTreeDiagramItem, counter);
+                AddDiagram(project, true, createDiagram, counter);
                 return TreeItemType.Diagram;
             }
             else if (type == TreeItemType.Project)
             {
-                AddDiagram(selected, false, CreateTreeDiagramItem, counter);
+                AddDiagram(selected, false, createDiagram, counter);
                 return TreeItemType.Diagram;
             }
             else if (type == TreeItemType.Solution)
             {
-                AddProject(selected, CreateTreeProjectItem, counter);
+                AddProject(selected, createProject, counter);
                 return TreeItemType.Project;
             }
 
@@ -297,20 +304,20 @@ namespace CanvasDiagram.Editor
         }
 
         public static void AddProject(ITreeItem solution,
-            Func<ITreeItem> CreateTreeProjectItem,
+            Func<ITreeItem> createProject,
             IdCounter counter)
         {
-            var project = CreateProjectItem(null, CreateTreeProjectItem, counter);
+            var project = CreateProjectItem(null, createProject, counter);
 
             solution.Add(project);
         }
 
         public static void AddDiagram(ITreeItem project,
             bool select,
-            Func<ITreeItem> CreateTreeDiagramItem,
+            Func<ITreeItem> createDiagram,
             IdCounter counter)
         {
-            var diagram = CreateDiagramItem(null, CreateTreeDiagramItem, counter);
+            var diagram = CreateDiagramItem(null, createDiagram, counter);
 
             project.Add(diagram);
 
@@ -366,31 +373,31 @@ namespace CanvasDiagram.Editor
 
         public static void CreateNewSolution(ITree tree,
             ICanvas canvas,
-            Func<ITreeItem> CreateTreeSolutionItem,
-            Func<ITreeItem> CreateTreeProjectItem,
-            Func<ITreeItem> CreateTreeDiagramItem,
+            Func<ITreeItem> createSolution,
+            Func<ITreeItem> createProject,
+            Func<ITreeItem> createDiagram,
             IdCounter counter)
         {
             CreateDefaultSolution(tree,
-                CreateTreeSolutionItem,
-                CreateTreeProjectItem,
-                CreateTreeDiagramItem,
+                createSolution,
+                createProject,
+                createDiagram,
                 counter);
         }
 
         public static void CreateDefaultSolution(ITree tree,
-            Func<ITreeItem> CreateTreeSolutionItem,
-            Func<ITreeItem> CreateTreeProjectItem,
-            Func<ITreeItem> CreateTreeDiagramItem,
+            Func<ITreeItem> createSolution,
+            Func<ITreeItem> createProject,
+            Func<ITreeItem> createDiagram,
             IdCounter counter)
         {
-            var solutionItem = CreateSolutionItem(null, CreateTreeSolutionItem, counter);
+            var solutionItem = CreateSolutionItem(null, createSolution, counter);
             tree.Add(solutionItem);
 
-            var projectItem = CreateProjectItem(null, CreateTreeProjectItem, counter);
+            var projectItem = CreateProjectItem(null, createProject, counter);
             solutionItem.Add(projectItem);
 
-            var diagramItem = CreateDiagramItem(null, CreateTreeDiagramItem, counter);
+            var diagramItem = CreateDiagramItem(null, createDiagram, counter);
             projectItem.Add(diagramItem);
 
             diagramItem.SetSelected(true);
