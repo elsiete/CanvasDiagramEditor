@@ -42,6 +42,7 @@
     <Compile Include="Context.cs" />
     <Compile Include="DiagramEditor.cs" />
     <Compile Include="History.cs" />
+    <Compile Include="Insert.cs" />
     <Compile Include="LineUtil.cs" />
     <Compile Include="Model.cs" />
     <Compile Include="Constants.cs" />
@@ -50,6 +51,7 @@
     <Compile Include="Table.cs" />
     <Compile Include="Tags.cs" />
     <Compile Include="Tree.cs" />
+    <Compile Include="Wire.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CanvasDiagram.Core\CanvasDiagram.Core.csproj">
