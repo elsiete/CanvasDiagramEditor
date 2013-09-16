@@ -273,7 +273,59 @@ namespace CanvasDiagram.Editor
             canvas.Add(thumb);
 
             return thumb;
-        } 
+        }
+
+        public static IElement InsertInput(ICanvas canvas, IPoint point, IDiagramCreator creator, bool snap)
+        {
+            var counter = canvas.GetCounter();
+
+            var thumb = creator.CreateElement(Constants.TagElementInput,
+                new object[] { counter.Next(), -1 },
+                point.X, point.Y, snap) as IThumb;
+
+            canvas.Add(thumb);
+
+            return thumb;
+        }
+
+        public static IElement InsertOutput(ICanvas canvas, IPoint point, IDiagramCreator creator, bool snap)
+        {
+            var counter = canvas.GetCounter();
+
+            var thumb = creator.CreateElement(Constants.TagElementOutput,
+                new object[] { counter.Next(), -1 },
+                point.X, point.Y, snap) as IThumb;
+
+            canvas.Add(thumb);
+
+            return thumb;
+        }
+
+        public static IElement InsertAndGate(ICanvas canvas, IPoint point, IDiagramCreator creator, bool snap)
+        {
+            var counter = canvas.GetCounter();
+
+            var thumb = creator.CreateElement(Constants.TagElementAndGate,
+                new object[] { counter.Next() },
+                point.X, point.Y, snap) as IThumb;
+
+            canvas.Add(thumb);
+
+            return thumb;
+        }
+
+        public static IElement InsertOrGate(ICanvas canvas, IPoint point, IDiagramCreator creator, bool snap)
+        {
+            var counter = canvas.GetCounter();
+
+            var thumb = creator.CreateElement(Constants.TagElementOrGate,
+                new object[] { counter.Next() },
+                point.X, point.Y, snap) as IThumb;
+
+            canvas.Add(thumb);
+
+            return thumb;
+        }
 
         #endregion
     }
@@ -484,74 +536,18 @@ namespace CanvasDiagram.Editor
 
         #region Insert
 
-        public IElement InsertInput(ICanvas canvas, IPoint point)
-        {
-            var creator = Context.DiagramCreator;
-            var counter = canvas.GetCounter();
-
-            var thumb = creator.CreateElement(Constants.TagElementInput,
-                new object[] { counter.Next(), -1 },
-                point.X, point.Y, Context.EnableSnap) as IThumb;
-
-            canvas.Add(thumb);
-
-            return thumb;
-        }
-
-        public IElement InsertOutput(ICanvas canvas, IPoint point)
-        {
-            var creator = Context.DiagramCreator;
-            var counter = canvas.GetCounter();
-
-            var thumb = creator.CreateElement(Constants.TagElementOutput,
-                new object[] { counter.Next(), -1 },
-                point.X, point.Y, Context.EnableSnap) as IThumb;
-
-            canvas.Add(thumb);
-
-            return thumb;
-        }
-
-        public IElement InsertAndGate(ICanvas canvas, IPoint point)
-        {
-            var creator = Context.DiagramCreator;
-            var counter = canvas.GetCounter();
-
-            var thumb = creator.CreateElement(Constants.TagElementAndGate,
-                new object[] { counter.Next() },
-                point.X, point.Y, Context.EnableSnap) as IThumb;
-
-            canvas.Add(thumb);
-
-            return thumb;
-        }
-
-        public IElement InsertOrGate(ICanvas canvas, IPoint point)
-        {
-            var creator = Context.DiagramCreator;
-            var counter = canvas.GetCounter();
-
-            var thumb = creator.CreateElement(Constants.TagElementOrGate,
-                new object[] { counter.Next() },
-                point.X, point.Y, Context.EnableSnap) as IThumb;
-
-            canvas.Add(thumb);
-
-            return thumb;
-        }
-
         public IElement InsertLast(ICanvas canvas, string type, IPoint point)
         {
             switch (type)
             {
                 case Constants.TagElementInput:
-                    return InsertInput(canvas, point);
+                    return Insert.InsertInput(canvas, point, Context.DiagramCreator, Context.EnableSnap);
                 case Constants.TagElementOutput:
-                    return InsertOutput(canvas, point);
+                    return Insert.InsertOutput(canvas, point, Context.DiagramCreator, Context.EnableSnap);
                 case Constants.TagElementAndGate:
-                    return InsertAndGate(canvas, point);
+                    return Insert.InsertAndGate(canvas, point, Context.DiagramCreator, Context.EnableSnap);
                 case Constants.TagElementOrGate:
-                    return InsertOrGate(canvas, point);
+                    return Insert.InsertOrGate(canvas, point, Context.DiagramCreator, Context.EnableSnap);
                 case Constants.TagElementPin:
                     return Insert.InsertPin(canvas, point, Context.DiagramCreator, Context.EnableSnap);
                 default:

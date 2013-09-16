@@ -988,8 +988,8 @@ namespace CanvasDiagram.WPF
         {
             Editor.HistoryAdd(canvas, true);
             
-            var element = Editor.InsertInput(canvas, 
-                point != null ? point : InsertPointInput);
+            var element = Insert.InsertInput(canvas,
+                point != null ? point : InsertPointInput, Editor.Context.DiagramCreator, Editor.Context.EnableSnap);
 
             if (GuidesAdorner == null)
                 Editor.SelectOneElement(element, true);
@@ -999,8 +999,8 @@ namespace CanvasDiagram.WPF
         {
             Editor.HistoryAdd(canvas, true);
 
-            var element = Editor.InsertOutput(canvas, 
-                point != null ? point : InsertPointOutput);
+            var element = Insert.InsertOutput(canvas,
+                point != null ? point : InsertPointOutput, Editor.Context.DiagramCreator, Editor.Context.EnableSnap);
 
             if (GuidesAdorner == null)
                 Editor.SelectOneElement(element, true);
@@ -1010,8 +1010,8 @@ namespace CanvasDiagram.WPF
         {
             Editor.HistoryAdd(canvas, true);
 
-            var element = Editor.InsertOrGate(canvas, 
-                point != null ? point : InsertPointGate);
+            var element = Insert.InsertOrGate(canvas,
+                point != null ? point : InsertPointGate, Editor.Context.DiagramCreator, Editor.Context.EnableSnap);
 
             if (GuidesAdorner == null)
                 Editor.SelectOneElement(element, true);
@@ -1021,8 +1021,8 @@ namespace CanvasDiagram.WPF
         {
             Editor.HistoryAdd(canvas, true);
 
-            var element = Editor.InsertAndGate(canvas, 
-                point != null ? point : InsertPointGate);
+            var element = Insert.InsertAndGate(canvas,
+                point != null ? point : InsertPointGate, Editor.Context.DiagramCreator, Editor.Context.EnableSnap);
 
             if (GuidesAdorner == null)
                 Editor.SelectOneElement(element, true);
