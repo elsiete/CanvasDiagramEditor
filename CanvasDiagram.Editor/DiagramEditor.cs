@@ -225,7 +225,7 @@ namespace CanvasDiagram.Editor
 
         #region Split
 
-        public static bool WireSplit(ICanvas canvas, ILine line, ILine currentLine, IPoint point, IDiagramCreator creator, bool snap)
+        public static bool Split(ICanvas canvas, ILine line, ILine currentLine, IPoint point, IDiagramCreator creator, bool snap)
         {
             // create split pin
             var splitPin = Insert.InsertPin(canvas, point, creator, snap);
@@ -1243,7 +1243,7 @@ namespace CanvasDiagram.Editor
                     if (Context.CurrentLine == null)
                         HistoryAdd(canvas, true);
 
-                    return Wire.WireSplit(canvas, element as ILine, Context.CurrentLine,point, Context.DiagramCreator, Context.EnableSnap);
+                    return Wire.Split(canvas, element as ILine, Context.CurrentLine,point, Context.DiagramCreator, Context.EnableSnap);
                 }
             }
 
