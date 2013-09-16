@@ -155,11 +155,11 @@ namespace CanvasDiagram.Editor
                 bool isStartIO = line.GetStartIO();
                 bool isEndIO = line.GetEndIO();
 
-                var startLine = Wire.Connect(canvas, startRoot, currentLine, x1, y1, creator);
-                var splitLine = Wire.Connect(canvas, splitPin, startLine, x, y, creator);
-                var endLine = Wire.Connect(canvas, splitPin, splitLine, x, y, creator);
+                var startLine = Connect(canvas, startRoot, currentLine, x1, y1, creator);
+                var splitLine = Connect(canvas, splitPin, startLine, x, y, creator);
+                var endLine = Connect(canvas, splitPin, splitLine, x, y, creator);
 
-                Wire.Connect(canvas, endRoot, endLine, x2, y2, creator);
+                Connect(canvas, endRoot, endLine, x2, y2, creator);
 
                 startLine.SetStartVisible(isStartVisible);
                 startLine.SetStartIO(isStartIO);
@@ -234,7 +234,7 @@ namespace CanvasDiagram.Editor
             double x = splitPin.GetX();
             double y = splitPin.GetY();
 
-            var _currentLine = Wire.Connect(canvas, splitPin, currentLine, x, y, creator);
+            var _currentLine = Connect(canvas, splitPin, currentLine, x, y, creator);
 
             // remove original hit tested line
             canvas.Remove(line);
@@ -244,7 +244,7 @@ namespace CanvasDiagram.Editor
 
             // connected original root element to split pin
             if (connections != null && connections.Count == 2)
-                Wire.Reconnect(canvas, line, splitPin, x, y, connections, _currentLine, creator);
+                Reconnect(canvas, line, splitPin, x, y, connections, _currentLine, creator);
             else
                 throw new InvalidOperationException("LineEx should have only two connections: Start and End.");
 
@@ -1243,7 +1243,12 @@ namespace CanvasDiagram.Editor
                     if (Context.CurrentLine == null)
                         HistoryAdd(canvas, true);
 
-                    return Wire.Split(canvas, element as ILine, Context.CurrentLine,point, Context.DiagramCreator, Context.EnableSnap);
+                    bool result = Wire.Split(canvas, element as ILine, Context.CurrentLine, point, Context.DiagramCreator, Context.EnableSnap);
+
+                    Context.CurrentRoot = null;
+                    Context.CurrentLine = null;
+
+                    return result;
                 }
             }
 
