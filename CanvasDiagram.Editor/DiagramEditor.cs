@@ -124,6 +124,101 @@ namespace CanvasDiagram.Editor
         }
 
         #endregion
+
+        public static void WireRecreateConnections(ICanvas canvas,
+            ILine line, IElement splitPin,
+            double x, double y,
+            Connections connections,
+            ILine currentLine,
+            IDiagramCreator creator)
+        {
+            var c1 = connections[0];
+            var c2 = connections[1];
+            var map1 = c1.Item2.FirstOrDefault();
+            var map2 = c2.Item2.FirstOrDefault();
+            var startRoot = (map1.Item2 != null ? map1.Item2 : map2.Item2) as IElement;
+            var endRoot = (map1.Item3 != null ? map1.Item3 : map2.Item3) as IElement;
+            var location = Wire.GetLineExStartAndEnd(map1, map2);
+
+            if (location.Item1 != null && location.Item2 != null)
+            {
+                PointEx start = location.Item1;
+                PointEx end = location.Item2;
+                double x1 = start.X;
+                double y1 = start.Y;
+                double x2 = x1 + end.X;
+                double y2 = y1 + end.Y;
+                bool isStartVisible = line.GetStartVisible();
+                bool isEndVisible = line.GetEndVisible();
+                bool isStartIO = line.GetStartIO();
+                bool isEndIO = line.GetEndIO();
+
+                var startLine = Wire.Connect(canvas, startRoot, currentLine, x1, y1, creator);
+                var splitLine = Wire.Connect(canvas, splitPin, startLine, x, y, creator);
+                var endLine = Wire.Connect(canvas, splitPin, splitLine, x, y, creator);
+
+                Wire.Connect(canvas, endRoot, endLine, x2, y2, creator);
+
+                startLine.SetStartVisible(isStartVisible);
+                startLine.SetStartIO(isStartIO);
+                endLine.SetEndVisible(isEndVisible);
+                endLine.SetEndIO(isEndIO);
+            }
+            else
+            {
+                throw new InvalidOperationException(
+                    "LineEx should have corrent location info for Start and End.");
+            }
+        }
+
+        public static Tuple<PointEx, PointEx> GetLineExStartAndEnd(MapWire map1, MapWire map2)
+        {
+            var line1 = map1.Item1 as ILine;
+            var start1 = map1.Item2;
+            var end1 = map1.Item3;
+            var line2 = map2.Item1 as ILine;
+            var start2 = map2.Item2;
+            var end2 = map2.Item3;
+            PointEx startPoint = null;
+            PointEx endPoint = null;
+
+            if (start1 != null)
+            {
+                var margin = line1.GetMargin();
+                double left = margin.Left;
+                double top = margin.Top;
+
+                startPoint = new PointEx(left, top);
+            }
+
+            if (end1 != null)
+            {
+                double left = line1.GetX2();
+                double top = line1.GetY2();
+
+                endPoint = new PointEx(left, top);
+            }
+
+            if (start2 != null)
+            {
+                var margin = line2.GetMargin();
+                double left = margin.Left;
+                double top = margin.Top;
+
+                startPoint = new PointEx(left, top);
+            }
+
+            if (end2 != null)
+            {
+                double left = line2.GetX2();
+                double top = line2.GetY2();
+
+                endPoint = new PointEx(left, top);
+            }
+
+            return new Tuple<PointEx, PointEx>(startPoint, endPoint);
+        }
+
     }
 
     #endregion
@@ -332,59 +427,7 @@ namespace CanvasDiagram.Editor
 
         #region Wire Split
 
-        private void WireRecreateConnections(ICanvas canvas,
-            ILine line, IElement splitPin,
-            double x, double y,
-            Connections connections)
-        {
-            var c1 = connections[0];
-            var c2 = connections[1];
-            var map1 = c1.Item2.FirstOrDefault();
-            var map2 = c2.Item2.FirstOrDefault();
-            var startRoot = (map1.Item2 != null ? map1.Item2 : map2.Item2) as IElement;
-            var endRoot = (map1.Item3 != null ? map1.Item3 : map2.Item3) as IElement;
-            var location = GetLineExStartAndEnd(map1, map2);
 
-            if (location.Item1 != null && location.Item2 != null)
-            {
-                PointEx start = location.Item1;
-                PointEx end = location.Item2;
-                double x1 = start.X;
-                double y1 = start.Y;
-                double x2 = x1 + end.X;
-                double y2 = y1 + end.Y;
-                bool isStartVisible = line.GetStartVisible();
-                bool isEndVisible = line.GetEndVisible();
-                bool isStartIO = line.GetStartIO();
-                bool isEndIO = line.GetEndIO();
-
-                Context.CurrentRoot = startRoot;
-                var startLine = Wire.Connect(canvas, Context.CurrentRoot, Context.CurrentLine, x1, y1, Context.DiagramCreator);
-
-                Context.CurrentLine = startLine;
-                Context.CurrentRoot = splitPin;
-                Context.CurrentLine = Wire.Connect(canvas, Context.CurrentRoot, Context.CurrentLine, x, y, Context.DiagramCreator);
-
-                Context.CurrentRoot = splitPin;
-                var endLine = Wire.Connect(canvas, Context.CurrentRoot, Context.CurrentLine, x, y, Context.DiagramCreator);
-
-                Context.CurrentLine = endLine;
-                Context.CurrentRoot = endRoot;
-                Context.CurrentLine = Wire.Connect(canvas, Context.CurrentRoot, Context.CurrentLine, x2, y2, Context.DiagramCreator);
-                if (Context.CurrentLine == null)
-                    Context.CurrentRoot = null;
-
-                startLine.SetStartVisible(isStartVisible);
-                startLine.SetStartIO(isStartIO);
-                endLine.SetEndVisible(isEndVisible);
-                endLine.SetEndIO(isEndIO);
-            }
-            else
-            {
-                throw new InvalidOperationException(
-                    "LineEx should have corrent location info for Start and End.");
-            }
-        }
 
         private bool WireSplit(ICanvas canvas, ILine line, IPoint point)
         {
@@ -411,7 +454,7 @@ namespace CanvasDiagram.Editor
 
             // connected original root element to split pin
             if (connections != null && connections.Count == 2)
-                WireRecreateConnections(canvas, line, splitPin, x, y, connections);
+                Wire.WireRecreateConnections(canvas, line, splitPin, x, y, connections, Context.CurrentLine, Context.DiagramCreator);
             else
                 throw new InvalidOperationException("LineEx should have only two connections: Start and End.");
 
@@ -547,54 +590,6 @@ namespace CanvasDiagram.Editor
         #endregion
 
         #region Move
-
-        private static Tuple<PointEx, PointEx> GetLineExStartAndEnd(MapWire map1, MapWire map2)
-        {
-            var line1 = map1.Item1 as ILine;
-            var start1 = map1.Item2;
-            var end1 = map1.Item3;
-            var line2 = map2.Item1 as ILine;
-            var start2 = map2.Item2;
-            var end2 = map2.Item3;
-            PointEx startPoint = null;
-            PointEx endPoint = null;
-
-            if (start1 != null)
-            {
-                var margin = line1.GetMargin();
-                double left = margin.Left;
-                double top = margin.Top;
-
-                startPoint = new PointEx(left, top);
-            }
-
-            if (end1 != null)
-            {
-                double left = line1.GetX2();
-                double top = line1.GetY2();
-
-                endPoint = new PointEx(left, top);
-            }
-
-            if (start2 != null)
-            {
-                var margin = line2.GetMargin();
-                double left = margin.Left;
-                double top = margin.Top;
-
-                startPoint = new PointEx(left, top);
-            }
-
-            if (end2 != null)
-            {
-                double left = line2.GetX2();
-                double top = line2.GetY2();
-
-                endPoint = new PointEx(left, top);
-            }
-
-            return new Tuple<PointEx, PointEx>(startPoint, endPoint);
-        }
 
         public void SetPosition(IElement element, double left, double top, bool snap)
         {
