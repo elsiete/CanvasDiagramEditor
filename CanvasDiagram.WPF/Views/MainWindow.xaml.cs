@@ -809,11 +809,16 @@ namespace CanvasDiagram.WPF
 
         #region Button Events
 
-        private void ResetZoom_Click(object sender, RoutedEventArgs e)
+        private void DefaultZoom()
         {
             LogBaseSlider.Value = 1.9;
             ExpFactorSlider.Value = 1.3;
             ZoomSlider.Value = 1.0;
+        }
+
+        private void ResetZoom_Click(object sender, RoutedEventArgs e)
+        {
+            DefaultZoom();
         }
 
         private void GenerateModel_Click(object sender, RoutedEventArgs e)
@@ -1166,10 +1171,12 @@ namespace CanvasDiagram.WPF
 
             zoom = Math.Round(zoom, 1);
 
-            if (e.OldValue != e.NewValue && GuidesAdorner != null)
+            if (e.OldValue != e.NewValue)
             {
                 double zoom_fx = this.DiagramControl.Zoom(zoom);
-                GuidesAdorner.StrokeThickness = 1.0 / zoom_fx;
+
+                if (GuidesAdorner != null)
+                    GuidesAdorner.StrokeThickness = 1.0 / zoom_fx;
             }
         }
 
