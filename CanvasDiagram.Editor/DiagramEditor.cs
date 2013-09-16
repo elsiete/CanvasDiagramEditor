@@ -34,7 +34,7 @@ namespace CanvasDiagram.Editor
 
     #endregion
 
-    #region Connection
+    #region Wire
 
     public static class Wire
     {
@@ -125,7 +125,9 @@ namespace CanvasDiagram.Editor
 
         #endregion
 
-        public static void WireRecreateConnections(ICanvas canvas,
+        #region Reconnect
+
+        public static void Reconnect(ICanvas canvas,
             ILine line, IElement splitPin,
             double x, double y,
             Connections connections,
@@ -138,7 +140,7 @@ namespace CanvasDiagram.Editor
             var map2 = c2.Item2.FirstOrDefault();
             var startRoot = (map1.Item2 != null ? map1.Item2 : map2.Item2) as IElement;
             var endRoot = (map1.Item3 != null ? map1.Item3 : map2.Item3) as IElement;
-            var location = Wire.GetLineExStartAndEnd(map1, map2);
+            var location = GetLocation(map1, map2);
 
             if (location.Item1 != null && location.Item2 != null)
             {
@@ -171,7 +173,7 @@ namespace CanvasDiagram.Editor
             }
         }
 
-        public static Tuple<PointEx, PointEx> GetLineExStartAndEnd(MapWire map1, MapWire map2)
+        public static Tuple<PointEx, PointEx> GetLocation(MapWire map1, MapWire map2)
         {
             var line1 = map1.Item1 as ILine;
             var start1 = map1.Item2;
@@ -219,6 +221,7 @@ namespace CanvasDiagram.Editor
             return new Tuple<PointEx, PointEx>(startPoint, endPoint);
         }
 
+        #endregion
     }
 
     #endregion
@@ -427,13 +430,8 @@ namespace CanvasDiagram.Editor
 
         #region Wire Split
 
-
-
         private bool WireSplit(ICanvas canvas, ILine line, IPoint point)
         {
-            if (Context.CurrentLine == null)
-                HistoryAdd(canvas, true);
-
             // create split pin
             var splitPin = InsertPin(canvas, point);
             Context.CurrentRoot = splitPin;
@@ -454,7 +452,7 @@ namespace CanvasDiagram.Editor
 
             // connected original root element to split pin
             if (connections != null && connections.Count == 2)
-                Wire.WireRecreateConnections(canvas, line, splitPin, x, y, connections, Context.CurrentLine, Context.DiagramCreator);
+                Wire.Reconnect(canvas, line, splitPin, x, y, connections, Context.CurrentLine, Context.DiagramCreator);
             else
                 throw new InvalidOperationException("LineEx should have only two connections: Start and End.");
 
@@ -1237,7 +1235,12 @@ namespace CanvasDiagram.Editor
             {
                 var element = MouseGetElementAtPoint(canvas, point);
                 if (CanSplitWire(element))
+                {
+                    if (Context.CurrentLine == null)
+                        HistoryAdd(canvas, true);
+
                     return WireSplit(canvas, element as ILine, point);
+                }
             }
 
             if (CanToggleLine())
