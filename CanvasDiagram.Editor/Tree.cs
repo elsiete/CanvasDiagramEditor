@@ -57,7 +57,7 @@ namespace CanvasDiagram.Editor
             return TreeItemType.None;
         }
 
-        public static void TreeSelectPreviousItem(ITree tree, bool selectParent)
+        public static void SelectPreviousItem(ITree tree, bool selectParent)
         {
             // get current diagram
             var selected = tree.GetSelectedItem() as ITreeItem;
@@ -87,13 +87,13 @@ namespace CanvasDiagram.Editor
                     // use 'Ctrl + <' key combination for navigation in tree (solution scope)
                     else if (selectParent == true)
                     {
-                        TreeSelectPreviousParentItem(parent);
+                        SelectPreviousParentItem(parent);
                     }
                 }
             }
         }
 
-        public static void TreeSelectPreviousParentItem(ITreeItem parent)
+        public static void SelectPreviousParentItem(ITreeItem parent)
         {
             // get parent of current project
             var parentParent = parent.GetParent() as ITreeItem;
@@ -101,10 +101,10 @@ namespace CanvasDiagram.Editor
             int parentCount = parentParent.GetItemsCount();
 
             if (parentCount > 0 && parentIndex > 0)
-                TreeSelectLastItemInPreviousProject(parentParent, parentIndex);
+                SelectLastItemInPreviousProject(parentParent, parentIndex);
         }
 
-        public static void TreeSelectLastItemInPreviousProject(ITreeItem parentParent, int parentIndex)
+        public static void SelectLastItemInPreviousProject(ITreeItem parentParent, int parentIndex)
         {
             // get previous project
             int index = parentIndex - 1;
@@ -121,7 +121,7 @@ namespace CanvasDiagram.Editor
             }
         }
 
-        public static void TreeSelectNextItem(ITree tree, bool selectParent)
+        public static void SelectNextItem(ITree tree, bool selectParent)
         {
             // get current diagram
             var selected = tree.GetSelectedItem() as ITreeItem;
@@ -151,13 +151,13 @@ namespace CanvasDiagram.Editor
                     // use 'Ctrl + >' key combination for navigation in tree (solution scope)
                     else if (selectParent == true)
                     {
-                        TreeSelectNextParentItem(parent);
+                        SelectNextParentItem(parent);
                     }
                 }
             }
         }
 
-        public static void TreeSelectNextParentItem(ITreeItem parent)
+        public static void SelectNextParentItem(ITreeItem parent)
         {
             // get parent of current project
             var parentParent = parent.GetParent() as ITreeItem;
@@ -165,10 +165,10 @@ namespace CanvasDiagram.Editor
             int parentCount = parentParent.GetItemsCount();
 
             if (parentCount > 0 && parentIndex < parentCount - 1)
-                TreeSelectFirstItemInNextProject(parentParent, parentIndex);
+                SelectFirstItemInNextProject(parentParent, parentIndex);
         }
 
-        public static void TreeSelectFirstItemInNextProject(ITreeItem parentParent, int parentIndex)
+        public static void SelectFirstItemInNextProject(ITreeItem parentParent, int parentIndex)
         {
             // get next project
             int index = parentIndex + 1;
@@ -183,7 +183,7 @@ namespace CanvasDiagram.Editor
             }
         }
 
-        public static TreeItemType TreeSwitchItems(ICanvas canvas,
+        public static TreeItemType SwitchItems(ICanvas canvas,
             IDiagramCreator creator,
             ITreeItem oldItem, ITreeItem newItem,
             Action<DiagramProperties> SetProperties)
@@ -212,7 +212,7 @@ namespace CanvasDiagram.Editor
             return newItemType;
         }
 
-        public static ITreeItem TreeCreateSolutionItem(string uid, Func<ITreeItem> CreateTreeSolutionItem, IdCounter counter)
+        public static ITreeItem CreateSolutionItem(string uid, Func<ITreeItem> CreateTreeSolutionItem, IdCounter counter)
         {
             var solution = CreateTreeSolutionItem();
 
@@ -230,7 +230,7 @@ namespace CanvasDiagram.Editor
             return solution;
         }
 
-        public static ITreeItem TreeCreateProjectItem(string uid, Func<ITreeItem> CreateTreeProjectItem, IdCounter counter)
+        public static ITreeItem CreateProjectItem(string uid, Func<ITreeItem> CreateTreeProjectItem, IdCounter counter)
         {
             var project = CreateTreeProjectItem();
 
@@ -248,7 +248,7 @@ namespace CanvasDiagram.Editor
             return project;
         }
 
-        public static ITreeItem TreeCreateDiagramItem(string uid, Func<ITreeItem> CreateTreeDiagramItem, IdCounter counter)
+        public static ITreeItem CreateDiagramItem(string uid, Func<ITreeItem> CreateTreeDiagramItem, IdCounter counter)
         {
             var diagram = CreateTreeDiagramItem();
 
@@ -266,7 +266,7 @@ namespace CanvasDiagram.Editor
             return diagram;
         }
 
-        public static TreeItemType TreeAddNewItem(ITree tree,
+        public static TreeItemType AddNewItem(ITree tree,
             Func<ITreeItem> CreateTreeProjectItem,
             Func<ITreeItem> CreateTreeDiagramItem,
             IdCounter counter)
@@ -279,38 +279,38 @@ namespace CanvasDiagram.Editor
             if (type == TreeItemType.Diagram)
             {
                 var project = selected.GetParent() as ITreeItem;
-                TreeAddDiagram(project, true, CreateTreeDiagramItem, counter);
+                AddDiagram(project, true, CreateTreeDiagramItem, counter);
                 return TreeItemType.Diagram;
             }
             else if (type == TreeItemType.Project)
             {
-                TreeAddDiagram(selected, false, CreateTreeDiagramItem, counter);
+                AddDiagram(selected, false, CreateTreeDiagramItem, counter);
                 return TreeItemType.Diagram;
             }
             else if (type == TreeItemType.Solution)
             {
-                TreeAddProject(selected, CreateTreeProjectItem, counter);
+                AddProject(selected, CreateTreeProjectItem, counter);
                 return TreeItemType.Project;
             }
 
             return TreeItemType.None;
         }
 
-        public static void TreeAddProject(ITreeItem solution,
+        public static void AddProject(ITreeItem solution,
             Func<ITreeItem> CreateTreeProjectItem,
             IdCounter counter)
         {
-            var project = TreeCreateProjectItem(null, CreateTreeProjectItem, counter);
+            var project = CreateProjectItem(null, CreateTreeProjectItem, counter);
 
             solution.Add(project);
         }
 
-        public static void TreeAddDiagram(ITreeItem project,
+        public static void AddDiagram(ITreeItem project,
             bool select,
             Func<ITreeItem> CreateTreeDiagramItem,
             IdCounter counter)
         {
-            var diagram = TreeCreateDiagramItem(null, CreateTreeDiagramItem, counter);
+            var diagram = CreateDiagramItem(null, CreateTreeDiagramItem, counter);
 
             project.Add(diagram);
 
@@ -320,7 +320,7 @@ namespace CanvasDiagram.Editor
                 diagram.SetSelected(true);
         }
 
-        public static void TreeDeleteSolution(ITreeItem solution)
+        public static void DeleteSolution(ITreeItem solution)
         {
             var tree = solution.GetParent() as ITree;
             var projects = solution.GetItems().ToList();
@@ -338,7 +338,7 @@ namespace CanvasDiagram.Editor
             tree.Remove(solution as ITreeItem);
         }
 
-        public static void TreeDeleteProject(ITreeItem project)
+        public static void DeleteProject(ITreeItem project)
         {
             var solution = project.GetParent() as ITreeItem;
             var diagrams = project.GetItems().ToList();
@@ -349,48 +349,48 @@ namespace CanvasDiagram.Editor
             solution.Remove(project);
         }
 
-        public static void TreeDeleteDiagram(ITreeItem diagram)
+        public static void DeleteDiagram(ITreeItem diagram)
         {
             var project = diagram.GetParent() as ITreeItem;
 
             project.Remove(diagram);
         }
 
-        public static void TreeClear(ITree tree)
+        public static void Clear(ITree tree)
         {
             var items = tree.GetItems().ToList();
 
             foreach (var item in items)
-                TreeDeleteSolution(item);
+                DeleteSolution(item);
         }
 
-        public static void TreeCreateNewSolution(ITree tree,
+        public static void CreateNewSolution(ITree tree,
             ICanvas canvas,
             Func<ITreeItem> CreateTreeSolutionItem,
             Func<ITreeItem> CreateTreeProjectItem,
             Func<ITreeItem> CreateTreeDiagramItem,
             IdCounter counter)
         {
-            TreeCreateDefaultSolution(tree,
+            CreateDefaultSolution(tree,
                 CreateTreeSolutionItem,
                 CreateTreeProjectItem,
                 CreateTreeDiagramItem,
                 counter);
         }
 
-        public static void TreeCreateDefaultSolution(ITree tree,
+        public static void CreateDefaultSolution(ITree tree,
             Func<ITreeItem> CreateTreeSolutionItem,
             Func<ITreeItem> CreateTreeProjectItem,
             Func<ITreeItem> CreateTreeDiagramItem,
             IdCounter counter)
         {
-            var solutionItem = TreeCreateSolutionItem(null, CreateTreeSolutionItem, counter);
+            var solutionItem = CreateSolutionItem(null, CreateTreeSolutionItem, counter);
             tree.Add(solutionItem);
 
-            var projectItem = TreeCreateProjectItem(null, CreateTreeProjectItem, counter);
+            var projectItem = CreateProjectItem(null, CreateTreeProjectItem, counter);
             solutionItem.Add(projectItem);
 
-            var diagramItem = TreeCreateDiagramItem(null, CreateTreeDiagramItem, counter);
+            var diagramItem = CreateDiagramItem(null, CreateTreeDiagramItem, counter);
             projectItem.Add(diagramItem);
 
             diagramItem.SetSelected(true);

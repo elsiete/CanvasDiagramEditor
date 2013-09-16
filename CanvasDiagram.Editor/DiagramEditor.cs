@@ -155,7 +155,7 @@ namespace CanvasDiagram.Editor
                 var diagrams = project.Item2.Reverse();
 
                 // create project
-                var projectItem = Tree.TreeCreateProjectItem(projectName, Context.CreateProject, counter);
+                var projectItem = Tree.CreateProjectItem(projectName, Context.CreateProject, counter);
                 solutionItem.Add(projectItem);
 
                 // update project count
@@ -202,7 +202,7 @@ namespace CanvasDiagram.Editor
 
             string model = sb.ToString();
 
-            var diagramItem = Tree.TreeCreateDiagramItem(diagramName, Context.CreateDiagram, counter);
+            var diagramItem = Tree.CreateDiagramItem(diagramName, Context.CreateDiagram, counter);
             diagramItem.SetTag(new Diagram(model, null));
 
             projectItem.Add(diagramItem);
@@ -1298,7 +1298,7 @@ namespace CanvasDiagram.Editor
 
             TagsLoad(tagFileName);
 
-            var solutionItem = Tree.TreeCreateSolutionItem(solutionName, CreateTreeSolutionItem, counter);
+            var solutionItem = Tree.CreateSolutionItem(solutionName, CreateTreeSolutionItem, counter);
             tree.Add(solutionItem);
 
             ModelParseProjects(projects, counter, solutionItem);
@@ -1307,7 +1307,7 @@ namespace CanvasDiagram.Editor
         public void SolutionClear(ITree tree, ICanvas canvas, IdCounter counter)
         {
             // clear solution tree
-            Tree.TreeClear(tree);
+            Tree.Clear(tree);
 
             // reset counter
             counter.Reset();
