@@ -430,19 +430,16 @@ namespace CanvasDiagram.Editor
 
         #region Wire Split
 
-        private bool WireSplit(ICanvas canvas, ILine line, IPoint point)
+        public static bool WireSplit(ICanvas canvas, ILine line, ILine currentLine, IPoint point, IDiagramCreator creator, bool snap)
         {
             // create split pin
-            var splitPin = InsertPin(canvas, point);
-            Context.CurrentRoot = splitPin;
+            var splitPin = InsertPin(canvas, point, creator, snap);
 
             // connect current line to split pin
-            double x = Context.CurrentRoot.GetX();
-            double y = Context.CurrentRoot.GetY();
+            double x = splitPin.GetX();
+            double y = splitPin.GetY();
 
-            Context.CurrentLine = Wire.Connect(canvas, Context.CurrentRoot, Context.CurrentLine, x, y, Context.DiagramCreator);
-            if (Context.CurrentLine == null)
-                Context.CurrentRoot = null;
+            var _currentLine = Wire.Connect(canvas, splitPin, currentLine, x, y, creator);
 
             // remove original hit tested line
             canvas.Remove(line);
@@ -452,12 +449,9 @@ namespace CanvasDiagram.Editor
 
             // connected original root element to split pin
             if (connections != null && connections.Count == 2)
-                Wire.Reconnect(canvas, line, splitPin, x, y, connections, Context.CurrentLine, Context.DiagramCreator);
+                Wire.Reconnect(canvas, line, splitPin, x, y, connections, _currentLine, creator);
             else
                 throw new InvalidOperationException("LineEx should have only two connections: Start and End.");
-
-            Context.CurrentLine = null;
-            Context.CurrentRoot = null;
 
             return true;
         }
@@ -466,14 +460,13 @@ namespace CanvasDiagram.Editor
 
         #region Insert
 
-        public IElement InsertPin(ICanvas canvas, IPoint point)
+        public static IElement InsertPin(ICanvas canvas, IPoint point, IDiagramCreator creator, bool snap)
         {
-            var creator = Context.DiagramCreator;
             var counter = canvas.GetCounter();
 
             var thumb = creator.CreateElement(Constants.TagElementPin,
                 new object[] { counter.Next() },
-                point.X, point.Y, Context.EnableSnap) as IThumb;
+                point.X, point.Y, snap) as IThumb;
 
             canvas.Add(thumb);
 
@@ -549,7 +542,7 @@ namespace CanvasDiagram.Editor
                 case Constants.TagElementOrGate:
                     return InsertOrGate(canvas, point);
                 case Constants.TagElementPin:
-                    return InsertPin(canvas, point);
+                    return InsertPin(canvas, point, Context.DiagramCreator, Context.EnableSnap);
                 default:
                     return null;
             }
@@ -1157,7 +1150,7 @@ namespace CanvasDiagram.Editor
 
         private void MouseCreateCanvasConnection(ICanvas canvas, IPoint point)
         {
-            var root = InsertPin(canvas, point);
+            var root = InsertPin(canvas, point, Context.DiagramCreator, Context.EnableSnap);
 
             Context.CurrentRoot = root;
 
@@ -1239,7 +1232,7 @@ namespace CanvasDiagram.Editor
                     if (Context.CurrentLine == null)
                         HistoryAdd(canvas, true);
 
-                    return WireSplit(canvas, element as ILine, point);
+                    return WireSplit(canvas, element as ILine, Context.CurrentLine,point, Context.DiagramCreator, Context.EnableSnap);
                 }
             }
 
