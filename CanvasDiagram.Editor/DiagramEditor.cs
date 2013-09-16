@@ -228,7 +228,7 @@ namespace CanvasDiagram.Editor
         public static bool Split(ICanvas canvas, ILine line, ILine currentLine, IPoint point, IDiagramCreator creator, bool snap)
         {
             // create split pin
-            var splitPin = Insert.InsertPin(canvas, point, creator, snap);
+            var splitPin = Insert.Pin(canvas, point, creator, snap);
 
             // connect current line to split pin
             double x = splitPin.GetX();
@@ -262,7 +262,7 @@ namespace CanvasDiagram.Editor
     {
         #region Pin
 
-        public static IElement InsertPin(ICanvas canvas, IPoint point, IDiagramCreator creator, bool snap)
+        public static IElement Pin(ICanvas canvas, IPoint point, IDiagramCreator creator, bool snap)
         {
             var counter = canvas.GetCounter();
 
@@ -275,7 +275,11 @@ namespace CanvasDiagram.Editor
             return thumb;
         }
 
-        public static IElement InsertInput(ICanvas canvas, IPoint point, IDiagramCreator creator, bool snap)
+        #endregion
+
+        #region Input
+
+        public static IElement Input(ICanvas canvas, IPoint point, IDiagramCreator creator, bool snap)
         {
             var counter = canvas.GetCounter();
 
@@ -286,9 +290,13 @@ namespace CanvasDiagram.Editor
             canvas.Add(thumb);
 
             return thumb;
-        }
+        } 
 
-        public static IElement InsertOutput(ICanvas canvas, IPoint point, IDiagramCreator creator, bool snap)
+        #endregion
+
+        #region Output
+
+        public static IElement Output(ICanvas canvas, IPoint point, IDiagramCreator creator, bool snap)
         {
             var counter = canvas.GetCounter();
 
@@ -299,9 +307,13 @@ namespace CanvasDiagram.Editor
             canvas.Add(thumb);
 
             return thumb;
-        }
+        } 
 
-        public static IElement InsertAndGate(ICanvas canvas, IPoint point, IDiagramCreator creator, bool snap)
+        #endregion
+
+        #region AndGate
+
+        public static IElement AndGate(ICanvas canvas, IPoint point, IDiagramCreator creator, bool snap)
         {
             var counter = canvas.GetCounter();
 
@@ -312,9 +324,13 @@ namespace CanvasDiagram.Editor
             canvas.Add(thumb);
 
             return thumb;
-        }
+        } 
 
-        public static IElement InsertOrGate(ICanvas canvas, IPoint point, IDiagramCreator creator, bool snap)
+        #endregion
+
+        #region OrGate
+
+        public static IElement OrGate(ICanvas canvas, IPoint point, IDiagramCreator creator, bool snap)
         {
             var counter = canvas.GetCounter();
 
@@ -541,15 +557,15 @@ namespace CanvasDiagram.Editor
             switch (type)
             {
                 case Constants.TagElementInput:
-                    return Insert.InsertInput(canvas, point, Context.DiagramCreator, Context.EnableSnap);
+                    return Insert.Input(canvas, point, Context.DiagramCreator, Context.EnableSnap);
                 case Constants.TagElementOutput:
-                    return Insert.InsertOutput(canvas, point, Context.DiagramCreator, Context.EnableSnap);
+                    return Insert.Output(canvas, point, Context.DiagramCreator, Context.EnableSnap);
                 case Constants.TagElementAndGate:
-                    return Insert.InsertAndGate(canvas, point, Context.DiagramCreator, Context.EnableSnap);
+                    return Insert.AndGate(canvas, point, Context.DiagramCreator, Context.EnableSnap);
                 case Constants.TagElementOrGate:
-                    return Insert.InsertOrGate(canvas, point, Context.DiagramCreator, Context.EnableSnap);
+                    return Insert.OrGate(canvas, point, Context.DiagramCreator, Context.EnableSnap);
                 case Constants.TagElementPin:
-                    return Insert.InsertPin(canvas, point, Context.DiagramCreator, Context.EnableSnap);
+                    return Insert.Pin(canvas, point, Context.DiagramCreator, Context.EnableSnap);
                 default:
                     return null;
             }
@@ -1157,7 +1173,7 @@ namespace CanvasDiagram.Editor
 
         private void MouseCreateCanvasConnection(ICanvas canvas, IPoint point)
         {
-            var root = Insert.InsertPin(canvas, point, Context.DiagramCreator, Context.EnableSnap);
+            var root = Insert.Pin(canvas, point, Context.DiagramCreator, Context.EnableSnap);
 
             Context.CurrentRoot = root;
 

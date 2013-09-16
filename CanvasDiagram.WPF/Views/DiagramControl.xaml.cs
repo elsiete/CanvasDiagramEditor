@@ -483,7 +483,7 @@ namespace CanvasDiagram.WPF
             Editor.HistoryAdd(canvas, true);
 
             var point = new PointEx(Editor.Context.RightClick.X, Editor.Context.RightClick.Y);
-            Insert.InsertInput(canvas, point, Editor.Context.DiagramCreator, Editor.Context.EnableSnap);
+            Insert.Input(canvas, point, Editor.Context.DiagramCreator, Editor.Context.EnableSnap);
 
             Editor.Context.LastInsert = Constants.TagElementInput;
             Editor.Context.SkipLeftClick = false;
@@ -496,7 +496,7 @@ namespace CanvasDiagram.WPF
             Editor.HistoryAdd(canvas, true);
 
             var point = new PointEx(Editor.Context.RightClick.X, Editor.Context.RightClick.Y);
-            Insert.InsertOutput(canvas, point, Editor.Context.DiagramCreator, Editor.Context.EnableSnap);
+            Insert.Output(canvas, point, Editor.Context.DiagramCreator, Editor.Context.EnableSnap);
 
             Editor.Context.LastInsert = Constants.TagElementOutput;
             Editor.Context.SkipLeftClick = false;
@@ -509,7 +509,7 @@ namespace CanvasDiagram.WPF
             Editor.HistoryAdd(canvas, true);
 
             var point = new PointEx(Editor.Context.RightClick.X, Editor.Context.RightClick.Y);
-            Insert.InsertAndGate(canvas, point, Editor.Context.DiagramCreator, Editor.Context.EnableSnap);
+            Insert.AndGate(canvas, point, Editor.Context.DiagramCreator, Editor.Context.EnableSnap);
 
             Editor.Context.LastInsert = Constants.TagElementAndGate;
             Editor.Context.SkipLeftClick = false;
@@ -522,7 +522,7 @@ namespace CanvasDiagram.WPF
             Editor.HistoryAdd(canvas, true);
 
             var point = new PointEx(Editor.Context.RightClick.X, Editor.Context.RightClick.Y);
-            Insert.InsertOrGate(canvas, point, Editor.Context.DiagramCreator, Editor.Context.EnableSnap);
+            Insert.OrGate(canvas, point, Editor.Context.DiagramCreator, Editor.Context.EnableSnap);
 
             Editor.Context.LastInsert = Constants.TagElementOrGate;
             Editor.Context.SkipLeftClick = false;
@@ -621,7 +621,7 @@ namespace CanvasDiagram.WPF
                     {
                         Editor.HistoryAdd(canvas, true);
 
-                        var element = Insert.InsertInput(DiagramCanvas, insertPoint, Editor.Context.DiagramCreator, Editor.Context.EnableSnap);
+                        var element = Insert.Input(DiagramCanvas, insertPoint, Editor.Context.DiagramCreator, Editor.Context.EnableSnap);
                         element.SetData(tag);
 
                         e.Handled = true;
@@ -630,7 +630,7 @@ namespace CanvasDiagram.WPF
                     {
                         Editor.HistoryAdd(canvas, true);
 
-                        var element = Insert.InsertOutput(DiagramCanvas, insertPoint, Editor.Context.DiagramCreator, Editor.Context.EnableSnap);
+                        var element = Insert.Output(DiagramCanvas, insertPoint, Editor.Context.DiagramCreator, Editor.Context.EnableSnap);
                         element.SetData(tag);
 
                         e.Handled = true;
