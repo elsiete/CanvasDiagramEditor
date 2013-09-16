@@ -81,9 +81,9 @@ namespace CanvasDiagram.Editor
         public Action UpdateProperties { get; set; }
         public Action<DiagramProperties> SetProperties { get; set; }
 
-        public Func<ITreeItem> CreateTreeSolutionItem { get; set; }
-        public Func<ITreeItem> CreateTreeProjectItem { get; set; }
-        public Func<ITreeItem> CreateTreeDiagramItem { get; set; }
+        public Func<ITreeItem> CreateSolution { get; set; }
+        public Func<ITreeItem> CreateProject { get; set; }
+        public Func<ITreeItem> CreateDiagram { get; set; }
 
         public Func<bool> IsControlPressed { get; set; }
 

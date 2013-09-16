@@ -239,10 +239,10 @@ namespace CanvasDiagram.WPF
             ViewDiagram.Click += (sender, e) => ShowDiagram();
             ViewDiagramSelectedElements.Click += (sender, e) => ShowDiagramSelectedElements();
             ViewDiagramHistory.Click += (sender, e) => ShowDiagramHistory();
-            ViewPreviousDiagramProject.Click += (sender, e) => Editor.TreeSelectPreviousItem(false);
-            ViewNextDiagramProjcet.Click += (sender, e) => Editor.TreeSelectNextItem(false);
-            ViewPreviousDiagramSolution.Click += (sender, e) => Editor.TreeSelectPreviousItem(true);
-            ViewNextDiagramSolution.Click += (sender, e) => Editor.TreeSelectNextItem(true);
+            ViewPreviousDiagramProject.Click += (sender, e) => Tree.TreeSelectPreviousItem(Editor.Context.CurrentTree, false);
+            ViewNextDiagramProjcet.Click += (sender, e) => Tree.TreeSelectNextItem(Editor.Context.CurrentTree, false);
+            ViewPreviousDiagramSolution.Click += (sender, e) => Tree.TreeSelectPreviousItem(Editor.Context.CurrentTree, true);
+            ViewNextDiagramSolution.Click += (sender, e) => Tree.TreeSelectNextItem(Editor.Context.CurrentTree, true);
             ViewToggleGuides.Click += (sender, e) => ToggleGuides();
         }
 
@@ -338,9 +338,9 @@ namespace CanvasDiagram.WPF
             this.ExplorerControl.DiagramView = this.DiagramControl.PanScrollViewer;
 
             // tree actions
-            Editor.Context.CreateTreeSolutionItem = () => this.ExplorerControl.CreateTreeSolutionItem();
-            Editor.Context.CreateTreeProjectItem = () => this.ExplorerControl.CreateTreeProjectItem();
-            Editor.Context.CreateTreeDiagramItem = () => this.ExplorerControl.CreateTreeDiagramItem();
+            Editor.Context.CreateSolution = () => this.ExplorerControl.CreateTreeSolutionItem();
+            Editor.Context.CreateProject = () => this.ExplorerControl.CreateTreeProjectItem();
+            Editor.Context.CreateDiagram = () => this.ExplorerControl.CreateTreeDiagramItem();
 
             // update canvas grid
             UpdateDiagramGrid(false);
@@ -524,7 +524,20 @@ namespace CanvasDiagram.WPF
             SetProperties(DiagramProperties.Default);
             UpdateDiagramGrid(false);
 
-            Editor.TreeCreateNewSolution();
+
+            Model.Clear(Editor.Context.CurrentCanvas);
+
+            Editor.SolutionClear(Editor.Context.CurrentTree,
+                Editor.Context.CurrentCanvas, 
+                Editor.Context.CurrentCanvas.GetCounter());
+
+            Tree.TreeCreateNewSolution(Editor.Context.CurrentTree, 
+                Editor.Context.CurrentCanvas,
+                Editor.Context.CreateSolution,
+                Editor.Context.CreateProject,
+                Editor.Context.CreateDiagram, 
+                Editor.Context.CurrentCanvas.GetCounter());
+
             UpdateEditors();
         }
 
@@ -697,10 +710,20 @@ namespace CanvasDiagram.WPF
                     case Key.A: Editor.SelectAll(); break;
                     case Key.OemOpenBrackets: Editor.SelectPrevious(false); break;
                     case Key.OemCloseBrackets: Editor.SelectNext(false); break;
-                    case Key.J: Editor.TreeAddNewItemAndPaste(); break;
-                    case Key.M: Editor.TreeAddNewItem(); break;
-                    case Key.OemComma: Editor.TreeSelectPreviousItem(true); break;
-                    case Key.OemPeriod: Editor.TreeSelectNextItem(true); break;
+                    case Key.J:
+                        {
+                            var type = Tree.TreeAddNewItem(Editor.Context.CurrentTree,
+                                Editor.Context.CreateProject,
+                                Editor.Context.CreateDiagram,
+                                Editor.Context.CurrentCanvas.GetCounter());
+
+                            if (type == TreeItemType.Diagram)
+                                Editor.EditPaste(new PointEx(0.0, 0.0), true);
+                        }
+                        break;
+                    case Key.M: Tree.TreeAddNewItem(Editor.Context.CurrentTree, Editor.Context.CreateProject, Editor.Context.CreateDiagram, Editor.Context.CurrentCanvas.GetCounter()); break;
+                    case Key.OemComma: Tree.TreeSelectPreviousItem(Editor.Context.CurrentTree, true); break;
+                    case Key.OemPeriod: Tree.TreeSelectNextItem(Editor.Context.CurrentTree, true); break;
                     case Key.H: ShowDiagramHistory(); break;
                 }
             }
@@ -725,8 +748,8 @@ namespace CanvasDiagram.WPF
                     case Key.E: Editor.WireToggleEnd(); break;
                     case Key.C: Connect(); break;
                     case Key.G: ToggleGuides(); break;
-                    case Key.OemComma: Editor.TreeSelectPreviousItem(false); break;
-                    case Key.OemPeriod: Editor.TreeSelectNextItem(false); break;
+                    case Key.OemComma: Tree.TreeSelectPreviousItem(Editor.Context.CurrentTree, false); break;
+                    case Key.OemPeriod: Tree.TreeSelectNextItem(Editor.Context.CurrentTree, false); break;
                     case Key.F5: TabExplorer.IsSelected = true; break;
                     case Key.F6: TabTags.IsSelected = true; InitializeTagEditor(); break;
                     case Key.F7: TabTables.IsSelected = true; InitializeTableEditor(); break;
@@ -1356,8 +1379,8 @@ namespace CanvasDiagram.WPF
 
                     var tree = Editor.Context.CurrentTree;
 
-                    Editor.TreeClearSolution(tree);
-                    Editor.TreeParseSolution(tree, solution);
+                    Editor.SolutionClear(tree, canvas, canvas.GetCounter());
+                    Editor.SolutionParse(tree, solution, canvas.GetCounter(), Editor.Context.CreateSolution);
                 }
             }
         }
