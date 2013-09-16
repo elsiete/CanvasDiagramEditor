@@ -1683,19 +1683,17 @@ namespace CanvasDiagram.Editor
         {
             var thumbs = canvas.GetElements().OfType<IThumb>().Where(x => x.GetTag() != null);
             var selectedThumbs = thumbs.Where(x => x.GetSelected());
-
+ 
             if (selectedThumbs.Count() > 0)
-            {
-                // reset selected tags
-                foreach (var thumb in selectedThumbs)
-                    thumb.SetData(null);
-            }
+                ResetThumbs(selectedThumbs);
             else
-            {
-                // reset all tags
-                foreach (var thumb in thumbs)
-                    thumb.SetData(null);
-            }
+                ResetThumbs(thumbs);
+        }
+
+        private static void ResetThumbs(IEnumerable<IThumb> thumbs)
+        {
+            foreach (var thumb in thumbs)
+                thumb.SetData(null);
         }
 
         private void TagsLoad(string tagFileName)
