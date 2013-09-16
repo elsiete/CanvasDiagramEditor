@@ -34,6 +34,100 @@ namespace CanvasDiagram.Editor
 
     #endregion
 
+    #region Connection
+
+    public static class Wire
+    {
+        #region Connect
+
+        public static ILine ConnectionCreate(ICanvas canvas, IElement root, ILine line, double x, double y, IDiagramCreator creator)
+        {
+            var rootTag = root.GetTag();
+            if (rootTag == null)
+                root.SetTag(new Selection(false, new List<MapWire>()));
+
+            var selection = root.GetTag() as Selection;
+            var tuples = selection.Item2;
+
+            if (line == null)
+                return ConnectionCreateFirst(canvas, root, x, y, tuples, creator);
+            else
+                return ConnectionCreateSecond(root, line, x, y, tuples);
+        }
+
+        private static ILine ConnectionCreateFirst(ICanvas canvas, IElement root, double x, double y, List<MapWire> tuples, IDiagramCreator creator)
+        {
+            var counter = canvas.GetCounter();
+            string rootUid = root.GetUid();
+
+            bool startIsIO = StringUtil.StartsWith(rootUid, Constants.TagElementInput)
+                || StringUtil.StartsWith(rootUid, Constants.TagElementOutput);
+
+            var line = creator.CreateElement(Constants.TagElementWire,
+                new object[] 
+                {
+                    x, y,
+                    x, y,
+                    false, false,
+                    startIsIO, false,
+                    counter.Next()
+                },
+                0.0, 0.0, false) as ILine;
+
+            // update connections
+            var tuple = new MapWire(line, root, null);
+            tuples.Add(tuple);
+
+            canvas.Add(line);
+
+            // line Tag is start root element
+            if (line != null || !(line is ILine))
+                line.SetTag(root);
+
+            return line;
+        }
+
+        private static ILine ConnectionCreateSecond(IElement root, ILine line, double x, double y, List<MapWire> tuples)
+        {
+            var margin = line.GetMargin();
+
+            line.SetX2(x - margin.Left);
+            line.SetY2(y - margin.Top);
+
+            // update IsEndIO flag
+            string rootUid = root.GetUid();
+
+            bool endIsIO = StringUtil.StartsWith(rootUid, Constants.TagElementInput) ||
+                StringUtil.StartsWith(rootUid, Constants.TagElementOutput);
+
+            line.SetEndIO(endIsIO);
+
+            // update connections
+            var tuple = new MapWire(line, null, root);
+            tuples.Add(tuple);
+
+            // line Tag is start root element
+            var lineTag = line.GetTag();
+            if (lineTag != null)
+            {
+                // line Tag is start root element
+                var start = lineTag as IElement;
+                if (start != null)
+                {
+                    // line Tag is Tuple of start & end root element
+                    // this Tag is used to find all connected elements
+                    line.SetTag(new Tuple<object, object>(start, root));
+                }
+            }
+
+            return null;
+        }
+
+        #endregion
+    }
+
+    #endregion
+
     #region DiagramEditor
 
     public class DiagramEditor
@@ -229,92 +323,9 @@ namespace CanvasDiagram.Editor
             double x = position.Item1;
             double y = position.Item2;
 
-            Context.CurrentLine = ConnectionCreate(canvas, Context.CurrentRoot, Context.CurrentLine, x, y, creator);
+            Context.CurrentLine = Wire.ConnectionCreate(canvas, Context.CurrentRoot, Context.CurrentLine, x, y, creator);
             if (Context.CurrentLine == null)
                 Context.CurrentRoot = null;
-        }
-
-        private static ILine ConnectionCreate(ICanvas canvas, IElement root, ILine line, double x, double y, IDiagramCreator creator)
-        {
-            var rootTag = root.GetTag();
-            if (rootTag == null)
-                root.SetTag(new Selection(false, new List<MapWire>()));
-
-            var selection = root.GetTag() as Selection;
-            var tuples = selection.Item2;
-
-            if (line == null)
-                return ConnectionCreateFirst(canvas, root, x, y, tuples, creator);
-            else
-                return ConnectionCreateSecond(root, line, x, y, tuples);
-        }
-
-        private static ILine ConnectionCreateFirst(ICanvas canvas, IElement root, double x, double y, List<MapWire> tuples, IDiagramCreator creator)
-        {
-            var counter = canvas.GetCounter();
-            string rootUid = root.GetUid();
-
-            bool startIsIO = StringUtil.StartsWith(rootUid, Constants.TagElementInput) 
-                || StringUtil.StartsWith(rootUid, Constants.TagElementOutput);
-
-            var line = creator.CreateElement(Constants.TagElementWire,
-                new object[] 
-                {
-                    x, y,
-                    x, y,
-                    false, false,
-                    startIsIO, false,
-                    counter.Next()
-                },
-                0.0, 0.0, false) as ILine;
-
-            // update connections
-            var tuple = new MapWire(line, root, null);
-            tuples.Add(tuple);
-
-            canvas.Add(line);
-
-            // line Tag is start root element
-            if (line != null || !(line is ILine))
-                line.SetTag(root);
-
-            return line;
-        }
-
-        private static ILine ConnectionCreateSecond(IElement root, ILine line, double x, double y, List<MapWire> tuples)
-        {
-            var margin = line.GetMargin();
-
-            line.SetX2(x - margin.Left);
-            line.SetY2(y - margin.Top);
-
-            // update IsEndIO flag
-            string rootUid = root.GetUid();
-
-            bool endIsIO = StringUtil.StartsWith(rootUid, Constants.TagElementInput) ||
-                StringUtil.StartsWith(rootUid, Constants.TagElementOutput);
-
-            line.SetEndIO(endIsIO);
-
-            // update connections
-            var tuple = new MapWire(line, null, root);
-            tuples.Add(tuple);
-
-            // line Tag is start root element
-            var lineTag = line.GetTag();
-            if (lineTag != null)
-            {
-                // line Tag is start root element
-                var start = lineTag as IElement;
-                if (start != null)
-                {
-                    // line Tag is Tuple of start & end root element
-                    // this Tag is used to find all connected elements
-                    line.SetTag(new Tuple<object, object>(start, root));
-                }
-            }
-
-            return null;
         }
 
         #endregion
@@ -348,18 +359,18 @@ namespace CanvasDiagram.Editor
                 bool isEndIO = line.GetEndIO();
 
                 Context.CurrentRoot = startRoot;
-                var startLine = ConnectionCreate(canvas, Context.CurrentRoot, Context.CurrentLine, x1, y1, Context.DiagramCreator);
+                var startLine = Wire.ConnectionCreate(canvas, Context.CurrentRoot, Context.CurrentLine, x1, y1, Context.DiagramCreator);
 
                 Context.CurrentLine = startLine;
                 Context.CurrentRoot = splitPin;
-                Context.CurrentLine = ConnectionCreate(canvas, Context.CurrentRoot, Context.CurrentLine, x, y, Context.DiagramCreator);
+                Context.CurrentLine = Wire.ConnectionCreate(canvas, Context.CurrentRoot, Context.CurrentLine, x, y, Context.DiagramCreator);
 
                 Context.CurrentRoot = splitPin;
-                var endLine = ConnectionCreate(canvas, Context.CurrentRoot, Context.CurrentLine, x, y, Context.DiagramCreator);
+                var endLine = Wire.ConnectionCreate(canvas, Context.CurrentRoot, Context.CurrentLine, x, y, Context.DiagramCreator);
 
                 Context.CurrentLine = endLine;
                 Context.CurrentRoot = endRoot;
-                Context.CurrentLine = ConnectionCreate(canvas, Context.CurrentRoot, Context.CurrentLine, x2, y2, Context.DiagramCreator);
+                Context.CurrentLine = Wire.ConnectionCreate(canvas, Context.CurrentRoot, Context.CurrentLine, x2, y2, Context.DiagramCreator);
                 if (Context.CurrentLine == null)
                     Context.CurrentRoot = null;
 
@@ -388,7 +399,7 @@ namespace CanvasDiagram.Editor
             double x = Context.CurrentRoot.GetX();
             double y = Context.CurrentRoot.GetY();
 
-            Context.CurrentLine = ConnectionCreate(canvas, Context.CurrentRoot, Context.CurrentLine, x, y, Context.DiagramCreator);
+            Context.CurrentLine = Wire.ConnectionCreate(canvas, Context.CurrentRoot, Context.CurrentLine, x, y, Context.DiagramCreator);
             if (Context.CurrentLine == null)
                 Context.CurrentRoot = null;
 
@@ -1160,12 +1171,12 @@ namespace CanvasDiagram.Editor
             double x = Context.CurrentRoot.GetX();
             double y = Context.CurrentRoot.GetY();
 
-            Context.CurrentLine = ConnectionCreate(canvas, Context.CurrentRoot, Context.CurrentLine, x, y, Context.DiagramCreator);
+            Context.CurrentLine = Wire.ConnectionCreate(canvas, Context.CurrentRoot, Context.CurrentLine, x, y, Context.DiagramCreator);
             if (Context.CurrentLine == null)
                 Context.CurrentRoot = null;
 
             Context.CurrentRoot = root;
-            Context.CurrentLine = ConnectionCreate(canvas, Context.CurrentRoot, Context.CurrentLine, x, y, Context.DiagramCreator);
+            Context.CurrentLine = Wire.ConnectionCreate(canvas, Context.CurrentRoot, Context.CurrentLine, x, y, Context.DiagramCreator);
         }
 
         private IElement MouseGetElementAtPoint(ICanvas canvas, IPoint point)
