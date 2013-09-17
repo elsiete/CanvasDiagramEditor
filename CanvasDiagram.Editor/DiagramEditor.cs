@@ -95,9 +95,8 @@ namespace CanvasDiagram.Editor
             return Model.GenerateSolution(tree, fileName, tagFileName, tableFileName, includeHistory);
         }
 
-        public IEnumerable<string> ModelGetCurrentProjectDiagrams()
+        public static IEnumerable<string> ModelGetCurrentProjectDiagrams(ITree tree)
         {
-            var tree = Context.CurrentTree;
             var selected = tree.GetSelectedItem() as ITreeItem;
             if (selected == null)
                 return null;

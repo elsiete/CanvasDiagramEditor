@@ -1208,7 +1208,7 @@ namespace CanvasDiagram.WPF
         {
             Editor.ModelGetCurrent();
 
-            var diagrams = Editor.ModelGetCurrentProjectDiagrams();
+            var diagrams = DiagramEditor.ModelGetCurrentProjectDiagrams(Editor.Context.CurrentTree);
             if (diagrams != null)
                 ShowDiagramsWindow(diagrams, "Project Diagrams");
         }
