@@ -273,18 +273,12 @@ namespace CanvasDiagram.Editor
 
         public void HistoryUndo()
         {
-            var canvas = Context.CurrentCanvas;
-            var creator = Context.DiagramCreator;
-
-            History.Undo(canvas, creator, true);
+            History.Undo(Context.CurrentCanvas, Context.DiagramCreator, true);
         }
 
         public void HistoryRedo()
         {
-            var canvas = Context.CurrentCanvas;
-            var creator = Context.DiagramCreator;
-
-            History.Redo(canvas, creator, true);
+            History.Redo(Context.CurrentCanvas, Context.DiagramCreator, true);
         }
 
         #endregion
@@ -333,7 +327,6 @@ namespace CanvasDiagram.Editor
 
                 //line.X1 = SnapOffsetX(line.X1 + dX, snap);
                 //line.Y1 = SnapOffsetY(line.Y1 + dY, snap);
-
                 x = SnapOffsetX(left + dX, snap);
                 y = SnapOffsetY(top + dY, snap);
 
@@ -354,7 +347,6 @@ namespace CanvasDiagram.Editor
 
                 x = SnapX(left + dX, snap);
                 y = SnapY(top + dY, snap);
-
                 line.SetX2(x);
                 line.SetY2(y);
             }
@@ -445,7 +437,6 @@ namespace CanvasDiagram.Editor
                 else
                 {
                     element.SetSelected(false);
-
                     MoveRoot(element, 0.0, 0.0, Context.EnableSnap);
                 }
             }

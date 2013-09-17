@@ -22,9 +22,8 @@ namespace CanvasDiagram.Editor
 
         public static IElement Pin(ICanvas canvas, IPoint point, IDiagramCreator creator, bool snap)
         {
-            var counter = canvas.GetCounter();
             var thumb = creator.CreateElement(Constants.TagElementPin,
-                new object[] { counter.Next() },
+                new object[] { canvas.GetCounter().Next() },
                 point.X, point.Y, snap) as IThumb;
 
             canvas.Add(thumb);
@@ -38,9 +37,8 @@ namespace CanvasDiagram.Editor
 
         public static IElement Input(ICanvas canvas, IPoint point, IDiagramCreator creator, bool snap)
         {
-            var counter = canvas.GetCounter();
             var thumb = creator.CreateElement(Constants.TagElementInput,
-                new object[] { counter.Next(), -1 },
+                new object[] { canvas.GetCounter().Next(), -1 },
                 point.X, point.Y, snap) as IThumb;
 
             canvas.Add(thumb);
@@ -54,9 +52,8 @@ namespace CanvasDiagram.Editor
 
         public static IElement Output(ICanvas canvas, IPoint point, IDiagramCreator creator, bool snap)
         {
-            var counter = canvas.GetCounter();
             var thumb = creator.CreateElement(Constants.TagElementOutput,
-                new object[] { counter.Next(), -1 },
+                new object[] { canvas.GetCounter().Next(), -1 },
                 point.X, point.Y, snap) as IThumb;
 
             canvas.Add(thumb);
@@ -70,9 +67,8 @@ namespace CanvasDiagram.Editor
 
         public static IElement AndGate(ICanvas canvas, IPoint point, IDiagramCreator creator, bool snap)
         {
-            var counter = canvas.GetCounter();
             var thumb = creator.CreateElement(Constants.TagElementAndGate,
-                new object[] { counter.Next() },
+                new object[] { canvas.GetCounter().Next() },
                 point.X, point.Y, snap) as IThumb;
 
             canvas.Add(thumb);
