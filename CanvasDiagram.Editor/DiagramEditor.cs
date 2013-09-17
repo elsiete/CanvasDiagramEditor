@@ -631,30 +631,22 @@ namespace CanvasDiagram.Editor
 
         public IEnumerable<IElement> GetElementsSelected()
         {
-            var canvas = Context.CurrentCanvas;
-
-            return Model.GetSelected(canvas);
+            return Model.GetSelected(Context.CurrentCanvas);
         }
 
         public IEnumerable<IElement> GetElementsSelectedThumb()
         {
-            var canvas = Context.CurrentCanvas;
-
-            return Model.GetSelectedThumbs(canvas);
+            return Model.GetSelectedThumbs(Context.CurrentCanvas);
         }
 
         public IEnumerable<IElement> GetElementsThumb()
         {
-            var canvas = Context.CurrentCanvas;
-
-            return Model.GetThumbs(canvas);
+            return Model.GetThumbs(Context.CurrentCanvas);
         }
 
         public IEnumerable<IElement> GetElementsAll()
         {
-            var canvas = Context.CurrentCanvas;
-
-            return Model.GetAll(canvas);
+            return Model.GetAll(Context.CurrentCanvas);
         }
 
         public IEnumerable<IElement> GetAllInputOutputElements()
@@ -679,16 +671,12 @@ namespace CanvasDiagram.Editor
 
         public void SelectAll()
         {
-            var canvas = Context.CurrentCanvas;
-
-            Model.SelectAll(canvas);
+            Model.SelectAll(Context.CurrentCanvas);
         }
 
         public void SelectNone()
         {
-            var canvas = Context.CurrentCanvas;
-
-            Model.SelectNone(canvas);
+            Model.SelectNone(Context.CurrentCanvas);
         }
 
         public void SelectPrevious(bool deselect)
@@ -701,8 +689,7 @@ namespace CanvasDiagram.Editor
 
         private void SelectPreviousInitialize(bool deselect)
         {
-            var canvas = Context.CurrentCanvas;
-            var elements = Model.GetAll(canvas);
+            var elements = Model.GetAll(Context.CurrentCanvas);
 
             if (elements != null)
             {
@@ -736,8 +723,7 @@ namespace CanvasDiagram.Editor
 
         private void SelectNextInitialize(bool deselect)
         {
-            var canvas = Context.CurrentCanvas;
-            var elements = Model.GetAll(canvas);
+            var elements = Model.GetAll(Context.CurrentCanvas);
 
             if (elements != null)
             {
@@ -774,25 +760,21 @@ namespace CanvasDiagram.Editor
 
         public void SelectOneElement(IElement element, bool deselect)
         {
-            if (element != null)
+            if (element == null)
+                return;
+
+            if (deselect == true)
             {
-                if (deselect == true)
-                {
-                    SelectNone();
-                    element.SetSelected(true);
-                }
-                else
-                {
-                    element.SetSelected(!element.GetSelected());
-                }
+                SelectNone();
+                element.SetSelected(true);
             }
+            else
+                element.SetSelected(!element.GetSelected());
         }
 
         public void SelectConnected()
         {
-            var canvas = Context.CurrentCanvas;
-
-            Model.SelectConnected(canvas);
+            Model.SelectConnected(Context.CurrentCanvas);
         }
 
         #endregion
