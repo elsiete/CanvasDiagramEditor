@@ -897,7 +897,6 @@ namespace CanvasDiagram.Editor
             else if (Context.EnableInsertLast == true)
             {
                 HistoryAdd(canvas, true);
-
                 InsertLast(canvas, Context.LastInsert, point);
             }
         }
@@ -1107,7 +1106,6 @@ namespace CanvasDiagram.Editor
         public double SnapOffsetX(double original, bool snap)
         {
             var prop = Context.CurrentCanvas.GetProperties();
-
             return snap == true ?
                 SnapUtil.Snap(original,
                     prop.SnapX, prop.SnapOffsetX) : 
@@ -1117,7 +1115,6 @@ namespace CanvasDiagram.Editor
         public double SnapOffsetY(double original, bool snap)
         {
             var prop = Context.CurrentCanvas.GetProperties();
-
             return snap == true ?
                 SnapUtil.Snap(original,
                     prop.SnapY, prop.SnapOffsetY) : 
@@ -1127,7 +1124,6 @@ namespace CanvasDiagram.Editor
         public double SnapX(double original, bool snap)
         {
             var prop = Context.CurrentCanvas.GetProperties();
-
             return snap == true ?
                 SnapUtil.Snap(original, prop.SnapX) : original;
         }
@@ -1135,7 +1131,6 @@ namespace CanvasDiagram.Editor
         public double SnapY(double original, bool snap)
         {
             var prop = Context.CurrentCanvas.GetProperties();
-
             return snap == true ?
                 SnapUtil.Snap(original, prop.SnapY) : original;
         }
