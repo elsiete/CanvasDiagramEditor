@@ -800,9 +800,7 @@ namespace CanvasDiagram.Editor
         public bool CanSplitWire(IElement element)
         {
             if (element == null)
-            {
                 return false;
-            }
 
             var elementUid = element.GetUid();
             var lineUid = Context.CurrentLine.GetUid();
