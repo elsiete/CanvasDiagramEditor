@@ -82,7 +82,6 @@ namespace CanvasDiagram.Editor
             var tree = Context.CurrentTree;
             var canvas = Context.CurrentCanvas;
             var item = tree.GetSelectedItem() as ITreeItem;
-
             return Model.GenerateItemModel(canvas, item, true);
         }
 
@@ -91,7 +90,6 @@ namespace CanvasDiagram.Editor
             var tree = Context.CurrentTree;
             var tagFileName = Context.TagFileName;
             var tableFileName = Context.TableFileName;
-
             return Model.GenerateSolution(tree, fileName, tagFileName, tableFileName, includeHistory);
         }
 
@@ -102,28 +100,24 @@ namespace CanvasDiagram.Editor
                 return null;
 
             string uid = selected.GetUid();
-            bool isSelectedSolution = StringUtil.StartsWith(uid, Constants.TagHeaderSolution);
-            bool isSelectedProject = StringUtil.StartsWith(uid, Constants.TagHeaderProject);
-            bool isSelectedDiagram = StringUtil.StartsWith(uid, Constants.TagHeaderDiagram);
+            bool isSolution = StringUtil.StartsWith(uid, Constants.TagHeaderSolution);
+            bool isProject = StringUtil.StartsWith(uid, Constants.TagHeaderProject);
+            bool isDiagram = StringUtil.StartsWith(uid, Constants.TagHeaderDiagram);
 
-            if (isSelectedDiagram == true)
+            if (isDiagram == true)
             {
                 var project = selected.GetParent() as ITreeItem;
                 var models = new List<string>();
-
                 Model.GenerateProject(project, models, false);
-
                 return models;
             }
-            else if (isSelectedProject == true)
+            else if (isProject == true)
             {
                 var models = new List<string>();
-
                 Model.GenerateProject(selected, models, false);
-
                 return models;
             }
-            else if (isSelectedSolution == true)
+            else if (isSolution == true)
             {
                 var solution = tree.GetItems().FirstOrDefault();
                 if (solution != null)
@@ -143,74 +137,60 @@ namespace CanvasDiagram.Editor
 
         private IEnumerable<ITreeItem> ModelParseProjects(IEnumerable<TreeProject> projects,
             IdCounter counter,
-            ITreeItem solutionItem)
+            ITreeItem solution)
         {
-            var diagramList = new List<ITreeItem>();
+            var items = new List<ITreeItem>();
 
-            // create projects
             foreach (var project in projects)
             {
-                string projectName = project.Item1;
+                string name = project.Item1;
                 var diagrams = project.Item2.Reverse();
+                var item = Tree.CreateProjectItem(name, Context.CreateProject, counter);
+                solution.Add(item);
 
-                // create project
-                var projectItem = Tree.CreateProjectItem(projectName, Context.CreateProject, counter);
-                solutionItem.Add(projectItem);
+                int id = int.Parse(name.Split(Constants.TagNameSeparator)[1]);
+                counter.Set(Math.Max(counter.Count, id + 1));
 
-                // update project count
-                int projectId = int.Parse(projectName.Split(Constants.TagNameSeparator)[1]);
-                counter.Set(Math.Max(counter.Count, projectId + 1));
-
-                ModelParseDiagrams(counter, diagrams, projectItem, diagramList);
+                ModelParseDiagrams(counter, diagrams, item, items);
             }
 
-            var firstDiagram = diagramList.FirstOrDefault();
-            if (firstDiagram != null)
-                firstDiagram.SetSelected(true);
+            var first = items.FirstOrDefault();
+            if (first != null)
+                first.SetSelected(true);
 
-            return diagramList;
+            return items;
         }
 
         private void ModelParseDiagrams(IdCounter counter,
             IEnumerable<TreeDiagram> diagrams,
-            ITreeItem projectItem,
+            ITreeItem project,
             List<ITreeItem> diagramList)
         {
-            // create diagrams
             foreach (var diagram in diagrams)
-                ModelParseDiagram(counter, diagram, projectItem, diagramList);
+                ModelParseDiagram(counter, diagram, project, diagramList);
         }
 
         private void ModelParseDiagram(IdCounter counter,
             TreeDiagram diagram,
-            ITreeItem projectItem,
-            List<ITreeItem> diagramList)
+            ITreeItem project,
+            List<ITreeItem> diagrams)
         {
-            var sb = new StringBuilder();
-
-            // create diagram model
             var lines = diagram.Reverse();
-            var firstLine = lines.First()
-                .Split(new char[] { Constants.ArgumentSeparator, '\t', ' ' },
-                StringSplitOptions.RemoveEmptyEntries);
-
-            string diagramName = firstLine.Length >= 1 ? firstLine[1] : null;
-
+            var first = lines.First().Split(new char[] { Constants.ArgumentSeparator, '\t', ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            string name = first.Length >= 1 ? first[1] : null;
+            
+            var sb = new StringBuilder();
             foreach (var line in lines)
                 sb.AppendLine(line);
 
-            string model = sb.ToString();
+            var item = Tree.CreateDiagramItem(name, Context.CreateDiagram, counter);
+            item.SetTag(new Diagram(sb.ToString(), null));
 
-            var diagramItem = Tree.CreateDiagramItem(diagramName, Context.CreateDiagram, counter);
-            diagramItem.SetTag(new Diagram(model, null));
+            project.Add(item);
+            diagrams.Add(item);
 
-            projectItem.Add(diagramItem);
-
-            diagramList.Add(diagramItem);
-
-            // update diagram count
-            int diagramId = int.Parse(diagramName.Split(Constants.TagNameSeparator)[1]);
-            counter.Set(Math.Max(counter.Count, diagramId + 1));
+            int id = int.Parse(name.Split(Constants.TagNameSeparator)[1]);
+            counter.Set(Math.Max(counter.Count, id + 1));
         }
 
         #endregion
