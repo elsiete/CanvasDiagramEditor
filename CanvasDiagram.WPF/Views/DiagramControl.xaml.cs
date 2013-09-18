@@ -480,7 +480,7 @@ namespace CanvasDiagram.WPF
         {
             var canvas = Editor.Context.CurrentCanvas;
 
-            Editor.HistoryAdd(canvas, true);
+            Editor.Snapshot(canvas, true);
 
             var point = new PointEx(Editor.Context.RightClick.X, Editor.Context.RightClick.Y);
             Insert.Input(canvas, point, Editor.Context.DiagramCreator, Editor.Context.EnableSnap);
@@ -493,7 +493,7 @@ namespace CanvasDiagram.WPF
         {
             var canvas = Editor.Context.CurrentCanvas;
 
-            Editor.HistoryAdd(canvas, true);
+            Editor.Snapshot(canvas, true);
 
             var point = new PointEx(Editor.Context.RightClick.X, Editor.Context.RightClick.Y);
             Insert.Output(canvas, point, Editor.Context.DiagramCreator, Editor.Context.EnableSnap);
@@ -506,7 +506,7 @@ namespace CanvasDiagram.WPF
         {
             var canvas = Editor.Context.CurrentCanvas;
 
-            Editor.HistoryAdd(canvas, true);
+            Editor.Snapshot(canvas, true);
 
             var point = new PointEx(Editor.Context.RightClick.X, Editor.Context.RightClick.Y);
             Insert.AndGate(canvas, point, Editor.Context.DiagramCreator, Editor.Context.EnableSnap);
@@ -519,7 +519,7 @@ namespace CanvasDiagram.WPF
         {
             var canvas = Editor.Context.CurrentCanvas;
 
-            Editor.HistoryAdd(canvas, true);
+            Editor.Snapshot(canvas, true);
 
             var point = new PointEx(Editor.Context.RightClick.X, Editor.Context.RightClick.Y);
             Insert.OrGate(canvas, point, Editor.Context.DiagramCreator, Editor.Context.EnableSnap);
@@ -548,26 +548,26 @@ namespace CanvasDiagram.WPF
 
         private void EditCut_Click(object sender, RoutedEventArgs e)
         {
-            Editor.EditCut();
+            Editor.Cut();
             Editor.Context.SkipLeftClick = false;
         }
 
         private void EditCopy_Click(object sender, RoutedEventArgs e)
         {
-            Editor.EditCopy();
+            Editor.Copy();
             Editor.Context.SkipLeftClick = false;
         }
 
         private void EditPaste_Click(object sender, RoutedEventArgs e)
         {
             var point = new PointEx(Editor.Context.RightClick.X, Editor.Context.RightClick.Y);
-            Editor.EditPaste(point, true);
+            Editor.Paste(point, true);
             Editor.Context.SkipLeftClick = false;
         }
 
         private void EditDelete_Click(object sender, RoutedEventArgs e)
         {
-            Editor.EditDelete();
+            Editor.Delete();
             Editor.Context.SkipLeftClick = false;
         }
 
@@ -619,7 +619,7 @@ namespace CanvasDiagram.WPF
 
                     if (type == TagDragAndDropType.Input)
                     {
-                        Editor.HistoryAdd(canvas, true);
+                        Editor.Snapshot(canvas, true);
 
                         var element = Insert.Input(DiagramCanvas, insertPoint, Editor.Context.DiagramCreator, Editor.Context.EnableSnap);
                         element.SetData(tag);
@@ -628,7 +628,7 @@ namespace CanvasDiagram.WPF
                     }
                     else if (type == TagDragAndDropType.Output)
                     {
-                        Editor.HistoryAdd(canvas, true);
+                        Editor.Snapshot(canvas, true);
 
                         var element = Insert.Output(DiagramCanvas, insertPoint, Editor.Context.DiagramCreator, Editor.Context.EnableSnap);
                         element.SetData(tag);
@@ -646,7 +646,7 @@ namespace CanvasDiagram.WPF
                 {
                     var canvas = Editor.Context.CurrentCanvas;
 
-                    Editor.HistoryAdd(canvas, true);
+                    Editor.Snapshot(canvas, true);
 
                     canvas.SetData(table);
 

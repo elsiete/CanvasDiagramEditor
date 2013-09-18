@@ -50,7 +50,7 @@ namespace CanvasDiagram.Editor
         {
             var canvas = Context.CurrentCanvas;
 
-            HistoryAdd(canvas, true);
+            Snapshot(canvas, true);
 
             Model.Clear(canvas);
         }
@@ -59,7 +59,7 @@ namespace CanvasDiagram.Editor
         {
             var canvas = Context.CurrentCanvas;
 
-            HistoryAdd(canvas, true);
+            Snapshot(canvas, true);
 
             SelectNone();
             Model.Parse(diagram, 
@@ -72,7 +72,7 @@ namespace CanvasDiagram.Editor
         {
             var canvas = Context.CurrentCanvas;
 
-            HistoryAdd(canvas, true);
+            Snapshot(canvas, true);
 
             TagsResetThumbs(canvas);
         }
@@ -215,24 +215,20 @@ namespace CanvasDiagram.Editor
 
         #endregion
 
-        #region Insert
+        #region Add
 
-        public IElement InsertLast(ICanvas canvas, string type, IPoint point)
+        public IElement Add(ICanvas canvas, string type, IPoint point)
         {
+            var context = Context.DiagramCreator;
+            var snap = Context.EnableSnap;
             switch (type)
             {
-                case Constants.TagElementInput:
-                    return Insert.Input(canvas, point, Context.DiagramCreator, Context.EnableSnap);
-                case Constants.TagElementOutput:
-                    return Insert.Output(canvas, point, Context.DiagramCreator, Context.EnableSnap);
-                case Constants.TagElementAndGate:
-                    return Insert.AndGate(canvas, point, Context.DiagramCreator, Context.EnableSnap);
-                case Constants.TagElementOrGate:
-                    return Insert.OrGate(canvas, point, Context.DiagramCreator, Context.EnableSnap);
-                case Constants.TagElementPin:
-                    return Insert.Pin(canvas, point, Context.DiagramCreator, Context.EnableSnap);
-                default:
-                    return null;
+                case Constants.TagElementInput: return Insert.Input(canvas, point, context, snap);
+                case Constants.TagElementOutput: return Insert.Output(canvas, point, context, snap);
+                case Constants.TagElementAndGate: return Insert.AndGate(canvas, point, context, snap);
+                case Constants.TagElementOrGate: return Insert.OrGate(canvas, point, context, snap);
+                case Constants.TagElementPin: return Insert.Pin(canvas, point, context, snap);
+                default: return null;
             }
         }
 
@@ -240,22 +236,20 @@ namespace CanvasDiagram.Editor
 
         #region History
 
-        public string HistoryAdd(ICanvas canvas, bool resetSelectedList)
+        public string Snapshot(ICanvas canvas, bool reset)
         {
-            var model = History.Add(canvas);
-
-            if (resetSelectedList == true)
+            if (reset == true)
                 SelectedListReset();
 
-            return model;
+            return History.Add(canvas);
         }
 
-        public void HistoryUndo()
+        public void Undo()
         {
             History.Undo(Context.CurrentCanvas, Context.DiagramCreator, true);
         }
 
-        public void HistoryRedo()
+        public void Redo()
         {
             History.Redo(Context.CurrentCanvas, Context.DiagramCreator, true);
         }
@@ -340,7 +334,7 @@ namespace CanvasDiagram.Editor
 
         public void MoveLeft(ICanvas canvas)
         {
-            HistoryAdd(canvas, false);
+            Snapshot(canvas, false);
 
             double delta = Context.EnableSnap ? -canvas.GetProperties().GridSize : -1.0;
             MoveSelectedElements(canvas, delta, 0.0, false);
@@ -348,7 +342,7 @@ namespace CanvasDiagram.Editor
 
         public void MoveRight(ICanvas canvas)
         {
-            HistoryAdd(canvas, false);
+            Snapshot(canvas, false);
 
             double delta = Context.EnableSnap ? canvas.GetProperties().GridSize : 1.0;
             MoveSelectedElements(canvas, delta, 0.0, false);
@@ -356,7 +350,7 @@ namespace CanvasDiagram.Editor
 
         public void MoveUp(ICanvas canvas)
         {
-            HistoryAdd(canvas, false);
+            Snapshot(canvas, false);
 
             double delta = Context.EnableSnap ? -canvas.GetProperties().GridSize : -1.0;
             MoveSelectedElements(canvas, 0.0, delta, false);
@@ -364,7 +358,7 @@ namespace CanvasDiagram.Editor
 
         public void MoveDown(ICanvas canvas)
         {
-            HistoryAdd(canvas, false);
+            Snapshot(canvas, false);
 
             double delta = Context.EnableSnap ? canvas.GetProperties().GridSize : 1.0;
             MoveSelectedElements(canvas, 0.0, delta, false);
@@ -383,7 +377,6 @@ namespace CanvasDiagram.Editor
         public void Drag(ICanvas canvas, IThumb element, double dX, double dY)
         {
             bool snap = IsSnapOnDragEnabled();
-
             if (Context.MoveAllSelected == true)
                 MoveSelectedElements(canvas, dX, dY, snap);
             else
@@ -392,7 +385,7 @@ namespace CanvasDiagram.Editor
 
         public void DragStart(ICanvas canvas, IThumb element)
         {
-            HistoryAdd(canvas, false);
+            Snapshot(canvas, false);
 
             if (element.GetSelected() == true)
             {
@@ -430,19 +423,6 @@ namespace CanvasDiagram.Editor
 
         #endregion
 
-        #region Delete
-
-        public void Delete(ICanvas canvas, IPoint point)
-        {
-            HistoryAdd(canvas, true);
-
-            Model.DeleteElement(canvas, point);
-
-            Context.SkipLeftClick = false;
-        }
-
-        #endregion
-
         #region Wire
 
         public void WireToggleStart()
@@ -452,7 +432,7 @@ namespace CanvasDiagram.Editor
             if (wires.Count() <= 0)
                 return;
 
-            HistoryAdd(canvas, false);
+            Snapshot(canvas, false);
 
             foreach (var wire in wires.Cast<ILine>())
                 wire.SetStartVisible(wire.GetStartVisible() == true ? false : true);
@@ -465,7 +445,7 @@ namespace CanvasDiagram.Editor
             if (wires.Count() <= 0)
                 return;
 
-            HistoryAdd(canvas, false);
+            Snapshot(canvas, false);
 
             foreach (var wire in wires.Cast<ILine>())
                 wire.SetEndVisible(wire.GetEndVisible() == true ? false : true);
@@ -479,7 +459,7 @@ namespace CanvasDiagram.Editor
         {
             string diagram = Model.Open(fileName);
 
-            HistoryAdd(canvas, true);
+            Snapshot(canvas, true);
 
             Model.Clear(canvas);
             Model.Parse(diagram,
@@ -529,7 +509,7 @@ namespace CanvasDiagram.Editor
 
         #region Edit
 
-        public void EditCut()
+        public void Cut()
         {
             var canvas = Context.CurrentCanvas;
             string model = Model.Generate(Model.GetSelected(canvas));
@@ -540,17 +520,17 @@ namespace CanvasDiagram.Editor
 
                 var elements = Model.GetAll(canvas);
 
-                EditDelete(canvas, elements);
+                Delete(canvas, elements);
             }
             else
             {
-                EditDelete();
+                Delete();
             }
 
             ClipboardSetText(model);
         }
 
-        public void EditCopy()
+        public void Copy()
         {
             var canvas = Context.CurrentCanvas;
             string model = Model.Generate(Model.GetSelected(canvas));
@@ -561,7 +541,7 @@ namespace CanvasDiagram.Editor
             ClipboardSetText(model);
         }
 
-        public void EditPaste(IPoint point, bool select)
+        public void Paste(IPoint point, bool select)
         {
             var model = ClipboardGetText();
 
@@ -574,23 +554,27 @@ namespace CanvasDiagram.Editor
             }
         }
 
-        public void EditDelete()
+        public void Delete()
         {
             var canvas = Context.CurrentCanvas;
             var elements = Model.GetSelected(canvas);
 
-            EditDelete(canvas, elements);
+            Delete(canvas, elements);
         }
 
-        public void EditDelete(ICanvas canvas, IEnumerable<IElement> elements)
+        public void Delete(ICanvas canvas, IPoint point)
         {
-            HistoryAdd(canvas, true);
+            Snapshot(canvas, true);
 
-            EditDeleteThumbsAndLines(canvas, elements);
+            Model.DeleteElement(canvas, point);
+
+            Context.SkipLeftClick = false;
         }
 
-        private void EditDeleteThumbsAndLines(ICanvas canvas, IEnumerable<IElement> elements)
+        public void Delete(ICanvas canvas, IEnumerable<IElement> elements)
         {
+            Snapshot(canvas, true);
+
             foreach (var element in elements)
                 Model.DeleteElement(canvas, element);
         }
@@ -866,8 +850,8 @@ namespace CanvasDiagram.Editor
             }
             else if (Context.EnableInsertLast == true)
             {
-                HistoryAdd(canvas, true);
-                InsertLast(canvas, Context.LastInsert, point);
+                Snapshot(canvas, true);
+                Add(canvas, Context.LastInsert, point);
             }
         }
 
@@ -876,7 +860,7 @@ namespace CanvasDiagram.Editor
             if (CanConnectToPin(pin))
             {
                 if (Context.CurrentLine == null)
-                    HistoryAdd(canvas, true);
+                    Snapshot(canvas, true);
 
                 ConnectionCreate(canvas, pin, Context.DiagramCreator);
 
@@ -888,7 +872,7 @@ namespace CanvasDiagram.Editor
                 if (CanSplitWire(element))
                 {
                     if (Context.CurrentLine == null)
-                        HistoryAdd(canvas, true);
+                        Snapshot(canvas, true);
 
                     bool result = Wire.Split(canvas, element as ILine, Context.CurrentLine, point, Context.DiagramCreator, Context.EnableSnap);
 

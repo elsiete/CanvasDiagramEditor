@@ -182,7 +182,7 @@ namespace CanvasDiagram.WPF
                 Editor.Context.CurrentCanvas.GetCounter());
 
             if (type == TreeItemType.Diagram)
-                Editor.EditPaste(new PointEx(0.0, 0.0), true);
+                Editor.Paste(new PointEx(0.0, 0.0), true);
         }
 
         #endregion

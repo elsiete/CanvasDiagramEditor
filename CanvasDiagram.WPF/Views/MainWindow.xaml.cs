@@ -216,11 +216,11 @@ namespace CanvasDiagram.WPF
 
         private void InitializeEditMenuEvents()
         {
-            EditUndo.Click += (sender, e) => Editor.HistoryUndo();
-            EditRedo.Click += (sender, e) => Editor.HistoryRedo();
-            EditCut.Click += (sender, e) => Editor.EditCut();
-            EditCopy.Click += (sender, e) => Editor.EditCopy();
-            EditPaste.Click += (sender, e) => Editor.EditPaste(new PointEx(0.0, 0.0), true);
+            EditUndo.Click += (sender, e) => Editor.Undo();
+            EditRedo.Click += (sender, e) => Editor.Redo();
+            EditCut.Click += (sender, e) => Editor.Cut();
+            EditCopy.Click += (sender, e) => Editor.Copy();
+            EditPaste.Click += (sender, e) => Editor.Paste(new PointEx(0.0, 0.0), true);
             EditDelete.Click += (sender, e) => Delete();
             EditSelectAll.Click += (sender, e) => Editor.SelectAll();
             EditDeselectAll.Click += (sender, e) => DeselectAll();
@@ -662,7 +662,7 @@ namespace CanvasDiagram.WPF
         {
             if (GuidesAdorner == null)
             {
-                Editor.EditDelete();
+                Editor.Delete();
             }
             else
             {
@@ -670,7 +670,7 @@ namespace CanvasDiagram.WPF
                 var elements = Model.GetSelected(canvas);
 
                 if (elements.Count() > 0)
-                    Editor.EditDelete(canvas, elements);
+                    Editor.Delete(canvas, elements);
                 else
                     Editor.Delete(canvas, GetInsertionPoint());
             }
@@ -702,11 +702,11 @@ namespace CanvasDiagram.WPF
                     case Key.R: Editor.ModelResetThumbTags(); break;
                     case Key.E: ExportDxf(); break;
                     case Key.P: Print(); break;
-                    case Key.Z: Editor.HistoryUndo(); break;
-                    case Key.Y: Editor.HistoryRedo(); break;
-                    case Key.X: Editor.EditCut(); break;
-                    case Key.C: Editor.EditCopy(); break;
-                    case Key.V: Editor.EditPaste(new PointEx(0.0, 0.0), true); break;
+                    case Key.Z: Editor.Undo(); break;
+                    case Key.Y: Editor.Redo(); break;
+                    case Key.X: Editor.Cut(); break;
+                    case Key.C: Editor.Copy(); break;
+                    case Key.V: Editor.Paste(new PointEx(0.0, 0.0), true); break;
                     case Key.A: Editor.SelectAll(); break;
                     case Key.OemOpenBrackets: Editor.SelectPrevious(false); break;
                     case Key.OemCloseBrackets: Editor.SelectNext(false); break;
@@ -718,7 +718,7 @@ namespace CanvasDiagram.WPF
                                 Editor.Context.CurrentCanvas.GetCounter());
 
                             if (type == TreeItemType.Diagram)
-                                Editor.EditPaste(new PointEx(0.0, 0.0), true);
+                                Editor.Paste(new PointEx(0.0, 0.0), true);
                         }
                         break;
                     case Key.M: Tree.AddNewItem(Editor.Context.CurrentTree, Editor.Context.CreateProject, Editor.Context.CreateDiagram, Editor.Context.CurrentCanvas.GetCounter()); break;
@@ -986,7 +986,7 @@ namespace CanvasDiagram.WPF
 
         private void InsertInput(ICanvas canvas, PointEx point)
         {
-            Editor.HistoryAdd(canvas, true);
+            Editor.Snapshot(canvas, true);
             
             var element = Insert.Input(canvas,
                 point != null ? point : InsertPointInput, Editor.Context.DiagramCreator, Editor.Context.EnableSnap);
@@ -997,7 +997,7 @@ namespace CanvasDiagram.WPF
 
         private void InsertOutput(ICanvas canvas, PointEx point)
         {
-            Editor.HistoryAdd(canvas, true);
+            Editor.Snapshot(canvas, true);
 
             var element = Insert.Output(canvas,
                 point != null ? point : InsertPointOutput, Editor.Context.DiagramCreator, Editor.Context.EnableSnap);
@@ -1008,7 +1008,7 @@ namespace CanvasDiagram.WPF
 
         private void InsertOrGate(ICanvas canvas, PointEx point)
         {
-            Editor.HistoryAdd(canvas, true);
+            Editor.Snapshot(canvas, true);
 
             var element = Insert.OrGate(canvas,
                 point != null ? point : InsertPointGate, Editor.Context.DiagramCreator, Editor.Context.EnableSnap);
@@ -1019,7 +1019,7 @@ namespace CanvasDiagram.WPF
 
         private void InsertAndGate(ICanvas canvas, PointEx point)
         {
-            Editor.HistoryAdd(canvas, true);
+            Editor.Snapshot(canvas, true);
 
             var element = Insert.AndGate(canvas,
                 point != null ? point : InsertPointGate, Editor.Context.DiagramCreator, Editor.Context.EnableSnap);
