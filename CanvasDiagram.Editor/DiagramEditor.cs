@@ -197,7 +197,7 @@ namespace CanvasDiagram.Editor
 
         #region Wire Connection
 
-        private void ConnectionCreate(ICanvas canvas, IThumb pin, IDiagramCreator creator)
+        private void Connect(ICanvas canvas, IThumb pin, IDiagramCreator creator)
         {
             if (pin == null)
                 return;
@@ -862,7 +862,7 @@ namespace CanvasDiagram.Editor
                 if (Context.CurrentLine == null)
                     Snapshot(canvas, true);
 
-                ConnectionCreate(canvas, pin, Context.DiagramCreator);
+                Connect(canvas, pin, Context.DiagramCreator);
 
                 return true;
             }
