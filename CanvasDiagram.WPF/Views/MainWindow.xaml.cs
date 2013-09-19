@@ -744,8 +744,8 @@ namespace CanvasDiagram.WPF
                     case Key.O: InsertOutput(canvas, GetInsertionPoint()); break;
                     case Key.R: InsertOrGate(canvas, GetInsertionPoint()); break;
                     case Key.A: InsertAndGate(canvas, GetInsertionPoint()); break;
-                    case Key.S: Editor.WireToggleStart(); break;
-                    case Key.E: Editor.WireToggleEnd(); break;
+                    case Key.S: Editor.ToggleWireStart(); break;
+                    case Key.E: Editor.ToggleWireEnd(); break;
                     case Key.C: Connect(); break;
                     case Key.G: ToggleGuides(); break;
                     case Key.OemComma: Tree.SelectPreviousItem(Editor.Context.CurrentTree, false); break;

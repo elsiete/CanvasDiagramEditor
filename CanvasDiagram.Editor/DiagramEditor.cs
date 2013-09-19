@@ -425,7 +425,7 @@ namespace CanvasDiagram.Editor
 
         #region Wire
 
-        public void WireToggleStart()
+        public void ToggleWireStart()
         {
             var canvas = Context.CurrentCanvas;
             var wires = Model.GetSelectedWires(canvas);
@@ -438,7 +438,7 @@ namespace CanvasDiagram.Editor
                 wire.SetStartVisible(wire.GetStartVisible() == true ? false : true);
         }
 
-        public void WireToggleEnd()
+        public void ToggleWireEnd()
         {
             var canvas = Context.CurrentCanvas;
             var wires = Model.GetSelectedWires(canvas);

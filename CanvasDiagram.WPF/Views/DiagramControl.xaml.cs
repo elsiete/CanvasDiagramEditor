@@ -533,7 +533,7 @@ namespace CanvasDiagram.WPF
             //var canvas = Editor.Context.CurrentCanvas;
             //var point = new PointEx(Editor.Context.RightClick.X, Editor.Context.RightClick.Y);
             //Editor.WireToggleStart(canvas, point);
-            Editor.WireToggleStart();
+            Editor.ToggleWireStart();
             Editor.Context.SkipLeftClick = false;
         }
 
@@ -542,7 +542,7 @@ namespace CanvasDiagram.WPF
             //var canvas = Editor.Context.CurrentCanvas;
             //var point = new PointEx(Editor.Context.RightClick.X, Editor.Context.RightClick.Y);
             //Editor.WireToggleEnd(canvas, point);
-            Editor.WireToggleEnd();
+            Editor.ToggleWireEnd();
             Editor.Context.SkipLeftClick = false;
         }
 
