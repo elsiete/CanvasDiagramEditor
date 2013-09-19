@@ -46,7 +46,7 @@ namespace CanvasDiagram.Editor
 
         #region Model
 
-        public void ModelClear()
+        public void ClearCanvas()
         {
             var canvas = Context.CurrentCanvas;
 
@@ -55,7 +55,7 @@ namespace CanvasDiagram.Editor
             Model.Clear(canvas);
         }
 
-        public void ModelInsert(string diagram, double offsetX, double offsetY, bool select)
+        public void InsertModel(string diagram, double offsetX, double offsetY, bool select)
         {
             var canvas = Context.CurrentCanvas;
 
@@ -68,7 +68,7 @@ namespace CanvasDiagram.Editor
                 true, true, select, true);
         }
 
-        public void ModelResetThumbTags()
+        public void ResetThumbTags()
         {
             var canvas = Context.CurrentCanvas;
 
@@ -77,7 +77,7 @@ namespace CanvasDiagram.Editor
             TagsResetThumbs(canvas);
         }
 
-        public string ModelGetCurrent()
+        public string GetCurrentModel()
         {
             var tree = Context.CurrentTree;
             var canvas = Context.CurrentCanvas;
@@ -85,7 +85,7 @@ namespace CanvasDiagram.Editor
             return Model.GenerateItemModel(canvas, item, true);
         }
 
-        public Solution ModelGenerateSolution(string fileName, bool includeHistory)
+        public Solution GenerateSolution(string fileName, bool includeHistory)
         {
             var tree = Context.CurrentTree;
             var tagFileName = Context.TagFileName;
@@ -93,7 +93,7 @@ namespace CanvasDiagram.Editor
             return Model.GenerateSolution(tree, fileName, tagFileName, tableFileName, includeHistory);
         }
 
-        public static IEnumerable<string> ModelGetCurrentProjectDiagrams(ITree tree)
+        public static IEnumerable<string> GetCurrentProjectDiagrams(ITree tree)
         {
             var selected = tree.GetSelectedItem() as ITreeItem;
             if (selected == null)
@@ -135,7 +135,7 @@ namespace CanvasDiagram.Editor
             return null;
         }
 
-        private IEnumerable<ITreeItem> ModelParseProjects(IEnumerable<TreeProject> projects,
+        private IEnumerable<ITreeItem> ParseProjects(IEnumerable<TreeProject> projects,
             IdCounter counter,
             ITreeItem solution)
         {
@@ -151,7 +151,7 @@ namespace CanvasDiagram.Editor
                 int id = int.Parse(name.Split(Constants.TagNameSeparator)[1]);
                 counter.Set(Math.Max(counter.Count, id + 1));
 
-                ModelParseDiagrams(counter, diagrams, item, items);
+                ParseDiagrams(counter, diagrams, item, items);
             }
 
             var first = items.FirstOrDefault();
@@ -161,16 +161,16 @@ namespace CanvasDiagram.Editor
             return items;
         }
 
-        private void ModelParseDiagrams(IdCounter counter,
+        private void ParseDiagrams(IdCounter counter,
             IEnumerable<TreeDiagram> diagrams,
             ITreeItem project,
             List<ITreeItem> diagramList)
         {
             foreach (var diagram in diagrams)
-                ModelParseDiagram(counter, diagram, project, diagramList);
+                ParseDiagram(counter, diagram, project, diagramList);
         }
 
-        private void ModelParseDiagram(IdCounter counter,
+        private void ParseDiagram(IdCounter counter,
             TreeDiagram diagram,
             ITreeItem project,
             List<ITreeItem> diagrams)
@@ -498,9 +498,9 @@ namespace CanvasDiagram.Editor
 
         public void SaveSolution(string fileName)
         {
-            ModelGetCurrent();
+            GetCurrentModel();
 
-            var model = ModelGenerateSolution(fileName, false).Item1;
+            var model = GenerateSolution(fileName, false).Item1;
 
             Model.Save(fileName, model);
         }
@@ -550,7 +550,7 @@ namespace CanvasDiagram.Editor
                 double offsetX = point.X != 0.0 ? SnapOffsetX(point.X, Context.EnableSnap) : 0.0;
                 double offsetY = point.Y != 0.0 ? SnapOffsetY(point.Y, Context.EnableSnap) : 0.0;
 
-                ModelInsert(model, offsetX, offsetY, select);
+                InsertModel(model, offsetX, offsetY, select);
             }
         }
 
@@ -949,7 +949,7 @@ namespace CanvasDiagram.Editor
             var solutionItem = Tree.CreateSolutionItem(solutionName, CreateTreeSolutionItem, counter);
             tree.Add(solutionItem);
 
-            ModelParseProjects(projects, counter, solutionItem);
+            ParseProjects(projects, counter, solutionItem);
         }
 
         public void SolutionClear(ITree tree, ICanvas canvas, IdCounter counter)
