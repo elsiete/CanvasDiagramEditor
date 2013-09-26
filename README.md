@@ -4,7 +4,7 @@
 
 ## About
 
-  CanvasDiagramEditor is a small program for making logic diagrams
+  CanvasDiagramEditor is a small program for making simple logic diagrams
   that are extremely simple and elegant. Be sure to view the `./Examples`.
 
 ## Example
