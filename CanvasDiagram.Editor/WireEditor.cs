@@ -35,7 +35,7 @@ namespace CanvasDiagram.Editor
                 return SecondConnection(root, line, x, y, tuples);
         }
 
-        private static ILine FirstConnection(ICanvas canvas, IElement root, double x, double y, List<Wire> tuples, IDiagramCreator creator)
+        private static ILine FirstConnection(ICanvas canvas, IElement root, double x, double y, List<Wire> wires, IDiagramCreator creator)
         {
             var counter = canvas.GetCounter();
             string rootUid = root.GetUid();
@@ -55,8 +55,8 @@ namespace CanvasDiagram.Editor
                 0.0, 0.0, false) as ILine;
 
             // update connections
-            var tuple = new Wire(line, root, null);
-            tuples.Add(tuple);
+            var wire = new Wire(line, root, null);
+            wires.Add(wire);
 
             canvas.Add(line);
 
@@ -67,7 +67,7 @@ namespace CanvasDiagram.Editor
             return line;
         }
 
-        private static ILine SecondConnection(IElement root, ILine line, double x, double y, List<Wire> tuples)
+        private static ILine SecondConnection(IElement root, ILine line, double x, double y, List<Wire> wires)
         {
             var margin = line.GetMargin();
 
@@ -83,8 +83,8 @@ namespace CanvasDiagram.Editor
             line.SetEndIO(endIsIO);
 
             // update connections
-            var tuple = new Wire(line, null, root);
-            tuples.Add(tuple);
+            var wire = new Wire(line, null, root);
+            wires.Add(wire);
 
             // line Tag is start root element
             var lineTag = line.GetTag();
@@ -153,14 +153,14 @@ namespace CanvasDiagram.Editor
             }
         }
 
-        public static Tuple<PointEx, PointEx> GetLocation(Wire map1, Wire map2)
+        public static Tuple<PointEx, PointEx> GetLocation(Wire wire1, Wire wire2)
         {
-            var line1 = map1.Line as ILine;
-            var start1 = map1.Start;
-            var end1 = map1.End;
-            var line2 = map2.Line as ILine;
-            var start2 = map2.Start;
-            var end2 = map2.End;
+            var line1 = wire1.Line as ILine;
+            var start1 = wire1.Start;
+            var end1 = wire1.End;
+            var line2 = wire2.Line as ILine;
+            var start2 = wire2.Start;
+            var end2 = wire2.End;
             PointEx startPoint = null;
             PointEx endPoint = null;
 
