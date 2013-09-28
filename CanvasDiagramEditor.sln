@@ -19,6 +19,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CanvasDiagram.WPF.Controls", "CanvasDiagram.WPF.Controls\CanvasDiagram.WPF.Controls.csproj", "{D8E53B21-939D-4BF6-95E0-98410CFA0396}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CanvasDiagram.WPF", "CanvasDiagram.WPF\CanvasDiagram.WPF.csproj", "{EF836EFF-B45E-410F-8754-EF8770A45D69}"
+	ProjectSection(ProjectDependencies) = postProject
+		{EBC08054-F094-4EC9-813D-1D1447A3D6A9} = {EBC08054-F094-4EC9-813D-1D1447A3D6A9}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CanvasDiagram.WPF.Resources", "CanvasDiagram.WPF.Resources\CanvasDiagram.WPF.Resources.csproj", "{EBC08054-F094-4EC9-813D-1D1447A3D6A9}"
 EndProject
