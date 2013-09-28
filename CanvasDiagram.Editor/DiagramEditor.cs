@@ -920,9 +920,9 @@ namespace CanvasDiagram.Editor
             // create solution
             string tagFileName = null;
 
-            string solutionName = solution.Item1;
-            tagFileName = solution.Item2;
-            var projects = solution.Item4.Reverse();
+            string solutionName = solution.Name;
+            tagFileName = solution.TagFileName;
+            var projects = solution.Projects.Reverse();
 
             TagsLoad(tagFileName);
 

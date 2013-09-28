@@ -41,7 +41,7 @@
   <ItemGroup>
     <Compile Include="Context.cs" />
     <Compile Include="DiagramEditor.cs" />
-    <Compile Include="History.cs" />
+    <Compile Include="HistoryEditor.cs" />
     <Compile Include="Insert.cs" />
     <Compile Include="LineUtil.cs" />
     <Compile Include="ModelEditor.cs" />

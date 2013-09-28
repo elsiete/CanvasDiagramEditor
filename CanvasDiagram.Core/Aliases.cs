@@ -112,17 +112,17 @@ namespace CanvasDiagram.Core
 
     public class TreeSolution
     {
-        public string Item1 { get; set; }
-        public string Item2 { get; set; }
-        public string Item3 { get; set; }
-        public TreeProjects Item4 { get; set; }
+        public string Name { get; set; }
+        public string TagFileName { get; set; }
+        public string TableFileName { get; set; }
+        public TreeProjects Projects { get; set; }
 
         public TreeSolution(string name, string tagFileName, string tableFileName, TreeProjects projects)
         {
-            Item1 = name;
-            Item2 = tagFileName;
-            Item3 = tableFileName;
-            Item4 = projects;
+            Name = name;
+            TagFileName = tagFileName;
+            TableFileName = tableFileName;
+            Projects = projects;
         }
     }
 
