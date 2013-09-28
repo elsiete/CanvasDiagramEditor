@@ -807,7 +807,7 @@ namespace CanvasDiagram.WPF
 
             var solution = Editor.GenerateSolution(System.IO.Directory.GetCurrentDirectory(), false);
 
-            this.TextModel.Text = solution.Item1;
+            this.TextModel.Text = solution.Model;
         }
 
         private void GenerateModelFromSelected_Click(object sender, RoutedEventArgs e)
@@ -1197,7 +1197,7 @@ namespace CanvasDiagram.WPF
         {
             Editor.GetCurrentModel();
 
-            var diagrams = Editor.GenerateSolution(null, false).Item2;
+            var diagrams = Editor.GenerateSolution(null, false).Models;
 
             ShowDiagramsWindow(diagrams, "Solution Diagrams");
         }
@@ -1206,7 +1206,7 @@ namespace CanvasDiagram.WPF
         {
             Editor.GetCurrentModel();
 
-            var diagrams = Editor.GenerateSolution(null, true).Item2;
+            var diagrams = Editor.GenerateSolution(null, true).Models;
 
             ShowDiagramsWindow(diagrams, "Diagram History");
         }
@@ -1260,7 +1260,7 @@ namespace CanvasDiagram.WPF
 
             Editor.GetCurrentModel();
 
-            var diagrams = Editor.GenerateSolution(null, false).Item2;
+            var diagrams = Editor.GenerateSolution(null, false).Models;
 
             printer.Print(diagrams, "solution", table);
         }
@@ -1272,7 +1272,7 @@ namespace CanvasDiagram.WPF
 
             Editor.GetCurrentModel();
 
-            var diagrams = Editor.GenerateSolution(null, true).Item2;
+            var diagrams = Editor.GenerateSolution(null, true).Models;
 
             printer.Print(diagrams, "history", table);
         }

@@ -152,13 +152,13 @@ namespace CanvasDiagram.Core
 
     public class Solution
     {
-        public string Item1 { get; set; }
-        public List<string> Item2 { get; set; }
+        public string Model { get; set; }
+        public List<string> Models { get; set; }
 
         public Solution(string model, List<string> models)
         {
-            Item1 = model;
-            Item2 = models;
+            Model = model;
+            Models = models;
         }
     }
 }

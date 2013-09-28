@@ -480,7 +480,7 @@ namespace CanvasDiagram.Editor
         {
             GetCurrentModel();
 
-            var model = GenerateSolution(fileName, false).Item1;
+            var model = GenerateSolution(fileName, false).Model;
 
             ModelEditor.Save(fileName, model);
         }
