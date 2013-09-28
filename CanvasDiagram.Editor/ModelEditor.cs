@@ -14,7 +14,7 @@ using System.Text;
 
 namespace CanvasDiagram.Editor
 {
-    #region Model
+    #region ModelEditor
 
     public static class ModelEditor
     {
