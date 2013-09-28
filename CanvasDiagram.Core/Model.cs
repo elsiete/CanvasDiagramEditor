@@ -12,6 +12,8 @@ using System.Text;
 
 namespace CanvasDiagram.Core
 {
+    #region Model
+
     public class Position
     {
         public double X { get; set; }
@@ -49,7 +51,7 @@ namespace CanvasDiagram.Core
             End = end;
         }
     }
-    
+
     public class Child
     {
         public object Element { get; set; }
@@ -160,5 +162,7 @@ namespace CanvasDiagram.Core
             TableFileName = tableFileName;
             Projects = projects;
         }
-    }
+    } 
+
+    #endregion
 }
