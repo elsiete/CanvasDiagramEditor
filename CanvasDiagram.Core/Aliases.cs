@@ -12,6 +12,18 @@ using System.Text;
 
 namespace CanvasDiagram.Core
 {
+    public class Position
+    {
+        public double X { get; set; }
+        public double Y { get; set; }
+
+        public Position(double x, double y)
+        {
+            X = x;
+            Y = y;
+        }
+    }
+
     public class Pin
     {
         public string Name { get; set; }
@@ -50,6 +62,18 @@ namespace CanvasDiagram.Core
         }
     }
 
+    public class Connection
+    {
+        public IElement Element { get; set; }
+        public List<Wire> Wires { get; set; }
+
+        public Connection(IElement element, List<Wire> wires)
+        {
+            Element = element;
+            Wires = wires;
+        }
+    }
+
     public class Selection
     {
         public bool IsSelected { get; set; }
@@ -83,6 +107,18 @@ namespace CanvasDiagram.Core
         {
             Model = model;
             History = history;
+        }
+    }
+
+    public class Solution
+    {
+        public string Model { get; set; }
+        public List<string> Models { get; set; }
+
+        public Solution(string model, List<string> models)
+        {
+            Model = model;
+            Models = models;
         }
     }
 
@@ -123,42 +159,6 @@ namespace CanvasDiagram.Core
             TagFileName = tagFileName;
             TableFileName = tableFileName;
             Projects = projects;
-        }
-    }
-
-    public class Position
-    {
-        public double X { get; set; }
-        public double Y { get; set; }
-
-        public Position(double x, double y)
-        {
-            X = x;
-            Y = y;
-        }
-    }
-
-    public class Connection
-    {
-        public IElement Element { get; set; }
-        public List<Wire> Wires { get; set; }
-
-        public Connection(IElement element, List<Wire> wires)
-        {
-            Element = element;
-            Wires = wires;
-        }
-    }
-
-    public class Solution
-    {
-        public string Model { get; set; }
-        public List<string> Models { get; set; }
-
-        public Solution(string model, List<string> models)
-        {
-            Model = model;
-            Models = models;
         }
     }
 }
