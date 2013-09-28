@@ -188,7 +188,7 @@ namespace CanvasDiagram.Editor
             double x = position.Item1;
             double y = position.Item2;
 
-            Context.CurrentLine = Wire.Connect(canvas, Context.CurrentRoot, Context.CurrentLine, x, y, creator);
+            Context.CurrentLine = WireEditor.Connect(canvas, Context.CurrentRoot, Context.CurrentLine, x, y, creator);
             if (Context.CurrentLine == null)
                 Context.CurrentRoot = null;
         }
@@ -780,12 +780,12 @@ namespace CanvasDiagram.Editor
             double x = Context.CurrentRoot.GetX();
             double y = Context.CurrentRoot.GetY();
 
-            Context.CurrentLine = Wire.Connect(canvas, Context.CurrentRoot, Context.CurrentLine, x, y, Context.DiagramCreator);
+            Context.CurrentLine = WireEditor.Connect(canvas, Context.CurrentRoot, Context.CurrentLine, x, y, Context.DiagramCreator);
             if (Context.CurrentLine == null)
                 Context.CurrentRoot = null;
 
             Context.CurrentRoot = root;
-            Context.CurrentLine = Wire.Connect(canvas, Context.CurrentRoot, Context.CurrentLine, x, y, Context.DiagramCreator);
+            Context.CurrentLine = WireEditor.Connect(canvas, Context.CurrentRoot, Context.CurrentLine, x, y, Context.DiagramCreator);
         }
 
         private IElement MouseGetElementAtPoint(ICanvas canvas, IPoint point)
@@ -854,7 +854,7 @@ namespace CanvasDiagram.Editor
                     if (Context.CurrentLine == null)
                         Snapshot(canvas, true);
 
-                    bool result = Wire.Split(canvas, element as ILine, Context.CurrentLine, point, Context.DiagramCreator, Context.EnableSnap);
+                    bool result = WireEditor.Split(canvas, element as ILine, Context.CurrentLine, point, Context.DiagramCreator, Context.EnableSnap);
 
                     Context.CurrentRoot = null;
                     Context.CurrentLine = null;

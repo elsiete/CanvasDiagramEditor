@@ -16,7 +16,7 @@ namespace CanvasDiagram.Editor
 {
     #region Wire
 
-    public static class Wire
+    public static class WireEditor
     {
         #region Connect
 

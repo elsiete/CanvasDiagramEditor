@@ -51,7 +51,7 @@
     <Compile Include="Table.cs" />
     <Compile Include="Tags.cs" />
     <Compile Include="TreeEditor.cs" />
-    <Compile Include="Wire.cs" />
+    <Compile Include="WireEditor.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CanvasDiagram.Core\CanvasDiagram.Core.csproj">
