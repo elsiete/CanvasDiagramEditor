@@ -140,13 +140,13 @@ namespace CanvasDiagram.Core
 
     public class Connection
     {
-        public IElement Item1 { get; set; }
-        public List<Wire> Item2 { get; set; }
+        public IElement Element { get; set; }
+        public List<Wire> Wires { get; set; }
 
         public Connection(IElement element, List<Wire> map)
         {
-            Item1 = element;
-            Item2 = map;
+            Element = element;
+            Wires = map;
         }
     }
 

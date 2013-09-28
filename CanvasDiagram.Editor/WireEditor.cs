@@ -116,8 +116,8 @@ namespace CanvasDiagram.Editor
         {
             var c1 = connections[0];
             var c2 = connections[1];
-            var map1 = c1.Item2.FirstOrDefault();
-            var map2 = c2.Item2.FirstOrDefault();
+            var map1 = c1.Wires.FirstOrDefault();
+            var map2 = c2.Wires.FirstOrDefault();
             var startRoot = (map1.Start != null ? map1.Start : map2.Start) as IElement;
             var endRoot = (map1.End != null ? map1.End : map2.End) as IElement;
             var location = GetLocation(map1, map2);
