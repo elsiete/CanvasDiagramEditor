@@ -48,34 +48,32 @@ namespace CanvasDiagram.Editor
 
         public static UndoRedo Get(ICanvas canvas)
         {
-            var canvasTag = canvas.GetTag();
-            if (canvasTag == null)
+            var history = canvas.GetTag();
+            if (history == null)
             {
-                canvasTag = new UndoRedo(new Stack<string>(), new Stack<string>());
-                canvas.SetTag(canvasTag);
+                history = new UndoRedo(new Stack<string>(), new Stack<string>());
+                canvas.SetTag(history);
             }
 
-            var tuple = canvasTag as UndoRedo;
-
-            return tuple;
+            return history as UndoRedo;
         }
 
         public static string Add(ICanvas canvas)
         {
-            var tuple = Get(canvas);
-            var undoHistory = tuple.Undo;
-            var redoHistory = tuple.Redo;
+            var history = Get(canvas);
+            var undo = history.Undo;
+            var redo = history.Redo;
 
             var model = ModelEditor.GenerateDiagram(canvas, null, canvas.GetProperties());
 
-            undoHistory.Push(model);
-            redoHistory.Clear();
+            undo.Push(model);
+            redo.Clear();
 
             NotifyCanvasHistoryChanged(new CanvasHistoryChangedEventArgs() 
             {
                 Canvas = canvas, 
-                Undo = undoHistory, 
-                Redo = redoHistory 
+                Undo = undo, 
+                Redo = redo 
             });
 
             return model;
@@ -83,18 +81,18 @@ namespace CanvasDiagram.Editor
 
         public static void Clear(ICanvas canvas)
         {
-            var tuple = Get(canvas);
-            var undoHistory = tuple.Undo;
-            var redoHistory = tuple.Redo;
+            var history = Get(canvas);
+            var undo = history.Undo;
+            var redo = history.Redo;
 
-            undoHistory.Clear();
-            redoHistory.Clear();
+            undo.Clear();
+            redo.Clear();
 
             NotifyCanvasHistoryChanged(new CanvasHistoryChangedEventArgs()
             {
                 Canvas = canvas,
-                Undo = undoHistory,
-                Redo = redoHistory
+                Undo = undo,
+                Redo = redo
             });
         }
 
@@ -133,22 +131,22 @@ namespace CanvasDiagram.Editor
 
         public static void Redo(ICanvas canvas, IDiagramCreator creator, bool pushUndo)
         {
-            var tuple = Get(canvas);
-            var undoHistory = tuple.Undo;
-            var redoHistory = tuple.Redo;
+            var history = Get(canvas);
+            var undo = history.Undo;
+            var redo = history.Redo;
 
-            if (redoHistory.Count <= 0)
+            if (redo.Count <= 0)
                 return;
 
             // save current model
             if (pushUndo == true)
             {
                 var current = ModelEditor.GenerateDiagram(canvas, null, canvas.GetProperties());
-                undoHistory.Push(current);
+                undo.Push(current);
             }
 
             // resotore previous model
-            var model = redoHistory.Pop();
+            var model = redo.Pop();
 
             ModelEditor.Clear(canvas);
             ModelEditor.Parse(model,
@@ -159,8 +157,8 @@ namespace CanvasDiagram.Editor
             NotifyCanvasHistoryChanged(new CanvasHistoryChangedEventArgs()
             {
                 Canvas = canvas,
-                Undo = undoHistory,
-                Redo = redoHistory
+                Undo = undo,
+                Redo = redo
             });
         } 
         
