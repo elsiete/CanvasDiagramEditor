@@ -13,6 +13,7 @@ using CanvasDiagram.Dxf.Enums;
 using CanvasDiagram.Dxf.Tables;
 using CanvasDiagram.Util;
 using CanvasDiagram.Core;
+using CanvasDiagram.Core.Model;
 using CanvasDiagram.Editor;
 using System;
 using System.Collections.Generic;

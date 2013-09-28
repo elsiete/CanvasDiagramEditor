@@ -23,6 +23,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using CanvasDiagram.Dxf.Enums;
+using CanvasDiagram.Core.Model;
 
 #endregion
 

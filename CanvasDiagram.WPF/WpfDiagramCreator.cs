@@ -4,6 +4,7 @@
 #region References
 
 using CanvasDiagram.Core;
+using CanvasDiagram.Core.Model;
 using CanvasDiagram.Editor;
 using CanvasDiagram.WPF.Controls;
 using CanvasDiagram.Util;
