@@ -14,13 +14,13 @@ namespace CanvasDiagram.Core
 {
     public class Pin
     {
-        public string Item1 { get; set; }
-        public string Item2 { get; set; }
+        public string Name { get; set; }
+        public string Type { get; set; }
 
         public Pin(string name, string type)
         {
-            Item1 = name;
-            Item2 = type;
+            Name = name;
+            Type = type;
         }
     }
 

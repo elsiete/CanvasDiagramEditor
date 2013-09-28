@@ -768,8 +768,8 @@ namespace CanvasDiagram.Editor
 
             foreach (var wire in wires)
             {
-                string _name = wire.Item1;
-                string _type = wire.Item2;
+                string _name = wire.Name;
+                string _type = wire.Type;
 
                 if (StringUtil.Compare(_type, Constants.WireStartType))
                 {
