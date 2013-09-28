@@ -742,7 +742,7 @@ namespace CanvasDiagram.Editor
 
         #region Connections
 
-        public static void ConnectionsUpdate(IDictionary<string, MapWires> dict)
+        public static void ConnectionsUpdate(IDictionary<string, Child> dict)
         {
             // update wire to element connections
             foreach (var item in dict)
@@ -761,7 +761,7 @@ namespace CanvasDiagram.Editor
             }
         }
 
-        private static void UpdateWires(IDictionary<string, MapWires> dict, IElement element, List<Pin> wires)
+        private static void UpdateWires(IDictionary<string, Child> dict, IElement element, List<Pin> wires)
         {
             var selection = element.GetTag() as Selection;
             var tuples = selection.Item2;
@@ -773,7 +773,7 @@ namespace CanvasDiagram.Editor
 
                 if (StringUtil.Compare(_type, Constants.WireStartType))
                 {
-                    MapWires mapWires = null;
+                    Child mapWires = null;
                     if (dict.TryGetValue(_name, out mapWires) == true)
                     {
                         var line = mapWires.Item1;
@@ -787,7 +787,7 @@ namespace CanvasDiagram.Editor
                 }
                 else if (StringUtil.Compare(_type, Constants.WireEndType))
                 {
-                    MapWires mapWires = null;
+                    Child mapWires = null;
                     if (dict.TryGetValue(_name, out mapWires) == true)
                     {
                         var line = mapWires.Item1;

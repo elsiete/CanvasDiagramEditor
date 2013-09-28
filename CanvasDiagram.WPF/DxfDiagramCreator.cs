@@ -1619,7 +1619,7 @@ namespace CanvasDiagram.WPF
             return null;
         }
 
-        public void UpdateConnections(IDictionary<string, MapWires> dict)
+        public void UpdateConnections(IDictionary<string, Child> dict)
         {
         }
 

@@ -340,7 +340,7 @@ namespace CanvasDiagram.WPF
             ModelEditor.IdsUpdateCounter(original, counter);
         }
 
-        public void UpdateConnections(IDictionary<string, MapWires> dict)
+        public void UpdateConnections(IDictionary<string, Child> dict)
         {
             ModelEditor.ConnectionsUpdate(dict);
         }

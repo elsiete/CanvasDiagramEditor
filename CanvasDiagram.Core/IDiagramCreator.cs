@@ -24,7 +24,7 @@ namespace CanvasDiagram.Core
         object CreateDiagram(DiagramProperties properties);
         object CreateGrid(double originX, double originY, double width, double height, double size);
 
-        void UpdateConnections(IDictionary<string, MapWires> dict);
+        void UpdateConnections(IDictionary<string, Child> dict);
         void UpdateCounter(IdCounter original, IdCounter counter);
         void AppendIds(IEnumerable<object> elements);
         void InsertElements(IEnumerable<object> elements, bool select, double offsetX, double offsetY);

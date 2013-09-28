@@ -38,12 +38,12 @@ namespace CanvasDiagram.Core
         }
     }
     
-    public class MapWires
+    public class Child
     {
         public object Item1 { get; set; }
         public List<Pin> Item2 { get; set; }
 
-        public MapWires(object element, List<Pin> map)
+        public Child(object element, List<Pin> map)
         {
             Item1 = element;
             Item2 = map;

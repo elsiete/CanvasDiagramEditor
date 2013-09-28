@@ -36,8 +36,8 @@ namespace CanvasDiagram.Editor
             var counter = new IdCounter();
             var total = new IdCounter();
             var elements = new List<object>();
-            MapWires tuple = null;
-            var dict = new Dictionary<string, MapWires>();
+            Child tuple = null;
+            var dict = new Dictionary<string, Child>();
             TreeSolution solution = null;
             TreeProjects projects = null;
             TreeProject project = null;
@@ -154,7 +154,7 @@ namespace CanvasDiagram.Editor
                                 x + offsetX, y + offsetY, false);
                             elements.Add(element);
 
-                            tuple = new MapWires(element, new List<Pin>());
+                            tuple = new Child(element, new List<Pin>());
 
                             if (dict.ContainsKey(name) == false)
                                 dict.Add(name, tuple);
@@ -186,7 +186,7 @@ namespace CanvasDiagram.Editor
                                 x + offsetX, y + offsetY, false);
                             elements.Add(element);
 
-                            tuple = new MapWires(element, new List<Pin>());
+                            tuple = new Child(element, new List<Pin>());
 
                             if (dict.ContainsKey(name) == false)
                                 dict.Add(name, tuple);
@@ -218,7 +218,7 @@ namespace CanvasDiagram.Editor
                                 x + offsetX, y + offsetY, false);
                             elements.Add(element);
 
-                            tuple = new MapWires(element, new List<Pin>());
+                            tuple = new Child(element, new List<Pin>());
 
                             if (dict.ContainsKey(name) == false)
                                 dict.Add(name, tuple);
@@ -249,7 +249,7 @@ namespace CanvasDiagram.Editor
                                 x + offsetX, y + offsetY, false);
                             elements.Add(element);
 
-                            tuple = new MapWires(element, new List<Pin>());
+                            tuple = new Child(element, new List<Pin>());
 
                             if (dict.ContainsKey(name) == false)
                                 dict.Add(name, tuple);
@@ -280,7 +280,7 @@ namespace CanvasDiagram.Editor
                                 x + offsetX, y + offsetY, false);
                             elements.Add(element);
 
-                            tuple = new MapWires(element, new List<Pin>());
+                            tuple = new Child(element, new List<Pin>());
 
                             if (dict.ContainsKey(name) == false)
                                 dict.Add(name, tuple);
@@ -324,7 +324,7 @@ namespace CanvasDiagram.Editor
                                 0.0, 0.0, false);
                             elements.Add(element);
 
-                            tuple = new MapWires(element, new List<Pin>());
+                            tuple = new Child(element, new List<Pin>());
 
                             if (dict.ContainsKey(name) == false)
                                 dict.Add(name, tuple);
