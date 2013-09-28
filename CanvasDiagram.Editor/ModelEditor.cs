@@ -761,7 +761,7 @@ namespace CanvasDiagram.Editor
             }
         }
 
-        private static void UpdateWires(IDictionary<string, MapWires> dict, IElement element, List<MapPin> wires)
+        private static void UpdateWires(IDictionary<string, MapWires> dict, IElement element, List<Pin> wires)
         {
             var selection = element.GetTag() as Selection;
             var tuples = selection.Item2;

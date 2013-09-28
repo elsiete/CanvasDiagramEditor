@@ -12,12 +12,12 @@ using System.Text;
 
 namespace CanvasDiagram.Core
 {
-    public class MapPin
+    public class Pin
     {
         public string Item1 { get; set; }
         public string Item2 { get; set; }
 
-        public MapPin(string name, string type)
+        public Pin(string name, string type)
         {
             Item1 = name;
             Item2 = type;
@@ -41,9 +41,9 @@ namespace CanvasDiagram.Core
     public class MapWires
     {
         public object Item1 { get; set; }
-        public List<MapPin> Item2 { get; set; }
+        public List<Pin> Item2 { get; set; }
 
-        public MapWires(object element, List<MapPin> map)
+        public MapWires(object element, List<Pin> map)
         {
             Item1 = element;
             Item2 = map;
