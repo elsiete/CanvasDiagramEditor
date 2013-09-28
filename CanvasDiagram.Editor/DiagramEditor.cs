@@ -123,8 +123,8 @@ namespace CanvasDiagram.Editor
 
             foreach (var project in projects)
             {
-                string name = project.Item1;
-                var diagrams = project.Item2.Reverse();
+                string name = project.Name;
+                var diagrams = project.Diagrams.Reverse();
                 var item = TreeEditor.CreateProjectItem(name, Context.CreateProject, counter);
                 solution.Add(item);
 

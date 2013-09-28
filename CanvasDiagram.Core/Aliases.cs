@@ -96,13 +96,13 @@ namespace CanvasDiagram.Core
 
     public class TreeProject
     {
-        public string Item1 { get; set; }
-        public TreeDiagrams Item2 { get; set; }
+        public string Name { get; set; }
+        public TreeDiagrams Diagrams { get; set; }
 
         public TreeProject(string name, TreeDiagrams diagrams)
         {
-            Item1 = name;
-            Item2 = diagrams;
+            Name = name;
+            Diagrams = diagrams;
         }
     }
 
