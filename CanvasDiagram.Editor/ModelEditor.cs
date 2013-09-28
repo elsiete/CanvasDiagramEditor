@@ -773,10 +773,10 @@ namespace CanvasDiagram.Editor
 
                 if (StringUtil.Compare(_type, Constants.WireStartType))
                 {
-                    Child mapWires = null;
-                    if (dict.TryGetValue(_name, out mapWires) == true)
+                    Child child = null;
+                    if (dict.TryGetValue(_name, out child) == true)
                     {
-                        var line = mapWires.Element;
+                        var line = child.Element;
                         if (line == null)
                             continue;
 
@@ -787,10 +787,10 @@ namespace CanvasDiagram.Editor
                 }
                 else if (StringUtil.Compare(_type, Constants.WireEndType))
                 {
-                    Child mapWires = null;
-                    if (dict.TryGetValue(_name, out mapWires) == true)
+                    Child child = null;
+                    if (dict.TryGetValue(_name, out child) == true)
                     {
-                        var line = mapWires.Element;
+                        var line = child.Element;
                         if (line == null)
                             continue;
 
