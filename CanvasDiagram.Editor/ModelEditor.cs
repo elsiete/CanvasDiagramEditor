@@ -940,9 +940,9 @@ namespace CanvasDiagram.Editor
                    StringUtil.StartsWith(uid, Constants.TagElementPin);
         }
 
-        public static Connections RemoveWireConnections(ICanvas canvas, ILine line)
+        public static List<Connection> RemoveWireConnections(ICanvas canvas, ILine line)
         {
-            var connections = new Connections();
+            var connections = new List<Connection>();
 
             foreach (var element in canvas.GetElements())
             {
@@ -954,7 +954,7 @@ namespace CanvasDiagram.Editor
             return connections;
         }
 
-        public static void RemoveWireConnections(ILine line, Connections connections, IElement element)
+        public static void RemoveWireConnections(ILine line, List<Connection> connections, IElement element)
         {
             var selection = element.GetTag() as Selection;
             var tuples = selection.Item2;

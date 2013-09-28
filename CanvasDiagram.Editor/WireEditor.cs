@@ -110,7 +110,7 @@ namespace CanvasDiagram.Editor
         public static void Reconnect(ICanvas canvas,
             ILine line, IElement splitPin,
             double x, double y,
-            Connections connections,
+            List<Connection> connections,
             ILine currentLine,
             IDiagramCreator creator)
         {

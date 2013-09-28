@@ -150,10 +150,6 @@ namespace CanvasDiagram.Core
         }
     }
 
-    public class Connections : List<Connection>
-    {
-    }
-
     public class Solution
     {
         public string Item1 { get; set; }
