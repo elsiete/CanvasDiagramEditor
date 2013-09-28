@@ -274,8 +274,8 @@ namespace CanvasDiagram.Editor
 
                     if (includeHistory == true && history != null)
                     {
-                        var undoHistory = history.Item1;
-                        var redoHistory = history.Item2;
+                        var undoHistory = history.Undo;
+                        var redoHistory = history.Redo;
 
                         foreach (var m in undoHistory)
                         {

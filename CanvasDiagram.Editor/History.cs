@@ -63,8 +63,8 @@ namespace CanvasDiagram.Editor
         public static string Add(ICanvas canvas)
         {
             var tuple = Get(canvas);
-            var undoHistory = tuple.Item1;
-            var redoHistory = tuple.Item2;
+            var undoHistory = tuple.Undo;
+            var redoHistory = tuple.Redo;
 
             var model = ModelEditor.GenerateDiagram(canvas, null, canvas.GetProperties());
 
@@ -84,8 +84,8 @@ namespace CanvasDiagram.Editor
         public static void Clear(ICanvas canvas)
         {
             var tuple = Get(canvas);
-            var undoHistory = tuple.Item1;
-            var redoHistory = tuple.Item2;
+            var undoHistory = tuple.Undo;
+            var redoHistory = tuple.Redo;
 
             undoHistory.Clear();
             redoHistory.Clear();
@@ -101,8 +101,8 @@ namespace CanvasDiagram.Editor
         public static void Undo(ICanvas canvas, IDiagramCreator creator, bool pushRedo)
         {
             var tuple = Get(canvas);
-            var undoHistory = tuple.Item1;
-            var redoHistory = tuple.Item2;
+            var undoHistory = tuple.Undo;
+            var redoHistory = tuple.Redo;
 
             if (undoHistory.Count <= 0)
                 return;
@@ -134,8 +134,8 @@ namespace CanvasDiagram.Editor
         public static void Redo(ICanvas canvas, IDiagramCreator creator, bool pushUndo)
         {
             var tuple = Get(canvas);
-            var undoHistory = tuple.Item1;
-            var redoHistory = tuple.Item2;
+            var undoHistory = tuple.Undo;
+            var redoHistory = tuple.Redo;
 
             if (redoHistory.Count <= 0)
                 return;
