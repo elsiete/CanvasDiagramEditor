@@ -973,8 +973,7 @@ namespace CanvasDiagram.Editor
 
             foreach (var wire in wires)
             {
-                var _line = wire.Line as ILine;
-                if (StringUtil.Compare(_line.GetUid(), line.GetUid()))
+                if (StringUtil.Compare((wire.Line as ILine).GetUid(), line.GetUid()))
                     map.Add(wire);
             }
 
