@@ -26,15 +26,15 @@ namespace CanvasDiagram.Core
 
     public class Wire
     {
-        public object Item1 { get; set; }
-        public IElement Item2 { get; set; }
-        public IElement Item3 { get; set; }
+        public object Line { get; set; }
+        public IElement Start { get; set; }
+        public IElement End { get; set; }
 
         public Wire(object line, IElement start, IElement end)
         {
-            Item1 = line;
-            Item2 = start;
-            Item3 = end;
+            Line = line;
+            Start = start;
+            End = end;
         }
     }
     

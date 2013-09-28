@@ -118,8 +118,8 @@ namespace CanvasDiagram.Editor
             var c2 = connections[1];
             var map1 = c1.Item2.FirstOrDefault();
             var map2 = c2.Item2.FirstOrDefault();
-            var startRoot = (map1.Item2 != null ? map1.Item2 : map2.Item2) as IElement;
-            var endRoot = (map1.Item3 != null ? map1.Item3 : map2.Item3) as IElement;
+            var startRoot = (map1.Start != null ? map1.Start : map2.Start) as IElement;
+            var endRoot = (map1.End != null ? map1.End : map2.End) as IElement;
             var location = GetLocation(map1, map2);
 
             if (location.Item1 != null && location.Item2 != null)
@@ -155,12 +155,12 @@ namespace CanvasDiagram.Editor
 
         public static Tuple<PointEx, PointEx> GetLocation(Wire map1, Wire map2)
         {
-            var line1 = map1.Item1 as ILine;
-            var start1 = map1.Item2;
-            var end1 = map1.Item3;
-            var line2 = map2.Item1 as ILine;
-            var start2 = map2.Item2;
-            var end2 = map2.Item3;
+            var line1 = map1.Line as ILine;
+            var start1 = map1.Start;
+            var end1 = map1.End;
+            var line2 = map2.Line as ILine;
+            var start2 = map2.Start;
+            var end2 = map2.End;
             PointEx startPoint = null;
             PointEx endPoint = null;
 

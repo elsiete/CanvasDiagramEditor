@@ -266,9 +266,9 @@ namespace CanvasDiagram.Editor
 
         private void MoveLine(double dX, double dY, bool snap, Wire tuple)
         {
-            var line = tuple.Item1 as ILine;
-            var start = tuple.Item2;
-            var end = tuple.Item3;
+            var line = tuple.Line as ILine;
+            var start = tuple.Start;
+            var end = tuple.End;
 
             if (start != null)
             {

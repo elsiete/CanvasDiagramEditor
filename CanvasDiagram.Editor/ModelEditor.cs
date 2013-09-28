@@ -126,9 +126,9 @@ namespace CanvasDiagram.Editor
 
                 foreach (var tuple in tuples)
                 {
-                    var line = tuple.Item1 as ILine;
-                    var start = tuple.Item2;
-                    var end = tuple.Item3;
+                    var line = tuple.Line as ILine;
+                    var start = tuple.Start;
+                    var end = tuple.End;
 
                     if (start != null)
                         GenerateWireStart(sb, line);
@@ -689,7 +689,7 @@ namespace CanvasDiagram.Editor
 
         public static void SelectConnected(Wire tuple, IElement root, HashSet<string> visited)
         {
-            var line = tuple.Item1 as ILine;
+            var line = tuple.Line as ILine;
             var tag = line.GetTag() as Tuple<object, object>;
 
             line.SetSelected(true);
@@ -973,7 +973,7 @@ namespace CanvasDiagram.Editor
 
             foreach (var tuple in tuples)
             {
-                var _line = tuple.Item1 as ILine;
+                var _line = tuple.Line as ILine;
                 if (StringUtil.Compare(_line.GetUid(), line.GetUid()))
                     map.Add(tuple);
             }
