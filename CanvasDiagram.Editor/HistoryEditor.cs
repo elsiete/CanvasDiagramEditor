@@ -27,7 +27,7 @@ namespace CanvasDiagram.Editor
 
     #endregion
 
-    #region History
+    #region HistoryEditor
 
     public static class HistoryEditor
     {
