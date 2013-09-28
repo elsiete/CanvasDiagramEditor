@@ -9,7 +9,7 @@
 
 ## Example
 
-  For example below you can find sample solution model `solution0.txt` created in editor:
+  Below you can find sample solution model `solution0.txt` created by editor:
 
     +;Solution|0;tags0.txt
     +;Project|0
