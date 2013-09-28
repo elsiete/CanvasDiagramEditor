@@ -39,7 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Aliases.cs" />
+    <Compile Include="Model.cs" />
     <Compile Include="DiagramProperties.cs" />
     <Compile Include="ICanvas.cs" />
     <Compile Include="IClipboard.cs" />
