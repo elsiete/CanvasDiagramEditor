@@ -261,9 +261,9 @@ namespace CanvasDiagram.Editor
                 // Diagram Elements
                 if (diagram.GetTag() != null)
                 {
-                    var _diagram = diagram.GetTag() as Diagram;
-                    var model = _diagram.Model;
-                    var history = _diagram.History;
+                    var tag = diagram.GetTag() as Diagram;
+                    var model = tag.Model;
+                    var history = tag.History;
 
                     if (model == null)
                         model = GenerateItemModel(null, diagram, true);
