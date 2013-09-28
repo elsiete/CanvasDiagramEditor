@@ -272,7 +272,7 @@ namespace CanvasDiagram.WPF
             var canvas = thumb.GetParent() as ICanvas;
 
             if (canvas != null)
-                History.Add(canvas);
+                HistoryEditor.Add(canvas);
 
             TagList.SelectedItem = tag;
             TagList.ScrollIntoView(TagList.SelectedItem);

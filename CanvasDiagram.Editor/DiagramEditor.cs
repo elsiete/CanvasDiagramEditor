@@ -221,17 +221,17 @@ namespace CanvasDiagram.Editor
             if (reset == true)
                 SelectedListReset();
 
-            return History.Add(canvas);
+            return HistoryEditor.Add(canvas);
         }
 
         public void Undo()
         {
-            History.Undo(Context.CurrentCanvas, Context.DiagramCreator, true);
+            HistoryEditor.Undo(Context.CurrentCanvas, Context.DiagramCreator, true);
         }
 
         public void Redo()
         {
-            History.Redo(Context.CurrentCanvas, Context.DiagramCreator, true);
+            HistoryEditor.Redo(Context.CurrentCanvas, Context.DiagramCreator, true);
         }
 
         #endregion
@@ -897,7 +897,7 @@ namespace CanvasDiagram.Editor
                 Context.CurrentLine != null)
             {
                 var creator = Context.DiagramCreator;
-                History.Undo(canvas, creator, false);
+                HistoryEditor.Undo(canvas, creator, false);
 
                 Context.CurrentLine = null;
                 Context.CurrentRoot = null;

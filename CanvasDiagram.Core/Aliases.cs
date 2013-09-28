@@ -79,10 +79,10 @@ namespace CanvasDiagram.Core
         public string Item1 { get; set; }
         public UndoRedo Item2 { get; set; }
 
-        public Diagram(string model, UndoRedo ur)
+        public Diagram(string model, UndoRedo history)
         {
             Item1 = model;
-            Item2 = ur;
+            Item2 = history;
         }
     }
 

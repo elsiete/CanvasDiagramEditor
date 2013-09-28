@@ -328,7 +328,7 @@ namespace CanvasDiagram.WPF
 
         private void InitializeHistory()
         {
-            History.CanvasHistoryChanged += (sender, e) =>
+            HistoryEditor.CanvasHistoryChanged += (sender, e) =>
             {
                 var canvas = e.Canvas;
                 var undo = e.Undo;
@@ -485,7 +485,7 @@ namespace CanvasDiagram.WPF
             var creator = Editor.Context.DiagramCreator;
 
             if (undo == true)
-                History.Add(canvas);
+                HistoryEditor.Add(canvas);
 
             Editor.Context.UpdateProperties();
             ModelEditor.SetGrid(canvas, creator);

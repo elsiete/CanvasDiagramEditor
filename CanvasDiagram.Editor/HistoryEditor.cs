@@ -29,7 +29,7 @@ namespace CanvasDiagram.Editor
 
     #region History
 
-    public static class History
+    public static class HistoryEditor
     {
         #region CanvasHistoryChanged
 
