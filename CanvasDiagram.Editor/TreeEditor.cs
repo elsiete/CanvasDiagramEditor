@@ -16,7 +16,7 @@ namespace CanvasDiagram.Editor
 {
     #region Tree
 
-    public static class Tree
+    public static class TreeEditor
     {
         #region Tree
 

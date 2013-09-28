@@ -219,10 +219,10 @@ namespace CanvasDiagram.WPF
             ViewDiagram.Click += (sender, e) => ShowDiagram();
             ViewDiagramSelectedElements.Click += (sender, e) => ShowDiagramSelectedElements();
             ViewDiagramHistory.Click += (sender, e) => ShowDiagramHistory();
-            ViewPreviousDiagramProject.Click += (sender, e) => Tree.SelectPreviousItem(Editor.Context.CurrentTree, false);
-            ViewNextDiagramProjcet.Click += (sender, e) => Tree.SelectNextItem(Editor.Context.CurrentTree, false);
-            ViewPreviousDiagramSolution.Click += (sender, e) => Tree.SelectPreviousItem(Editor.Context.CurrentTree, true);
-            ViewNextDiagramSolution.Click += (sender, e) => Tree.SelectNextItem(Editor.Context.CurrentTree, true);
+            ViewPreviousDiagramProject.Click += (sender, e) => TreeEditor.SelectPreviousItem(Editor.Context.CurrentTree, false);
+            ViewNextDiagramProjcet.Click += (sender, e) => TreeEditor.SelectNextItem(Editor.Context.CurrentTree, false);
+            ViewPreviousDiagramSolution.Click += (sender, e) => TreeEditor.SelectPreviousItem(Editor.Context.CurrentTree, true);
+            ViewNextDiagramSolution.Click += (sender, e) => TreeEditor.SelectNextItem(Editor.Context.CurrentTree, true);
             ViewToggleGuides.Click += (sender, e) => ToggleGuides();
         }
 
@@ -511,7 +511,7 @@ namespace CanvasDiagram.WPF
                 Editor.Context.CurrentCanvas, 
                 Editor.Context.CurrentCanvas.GetCounter());
 
-            Tree.CreateNewSolution(Editor.Context.CurrentTree, 
+            TreeEditor.CreateNewSolution(Editor.Context.CurrentTree, 
                 Editor.Context.CurrentCanvas,
                 Editor.Context.CreateSolution,
                 Editor.Context.CreateProject,
@@ -692,7 +692,7 @@ namespace CanvasDiagram.WPF
                     case Key.OemCloseBrackets: Editor.SelectNext(false); break;
                     case Key.J:
                         {
-                            var type = Tree.AddNewItem(Editor.Context.CurrentTree,
+                            var type = TreeEditor.AddNewItem(Editor.Context.CurrentTree,
                                 Editor.Context.CreateProject,
                                 Editor.Context.CreateDiagram,
                                 Editor.Context.CurrentCanvas.GetCounter());
@@ -701,9 +701,9 @@ namespace CanvasDiagram.WPF
                                 Editor.Paste(new PointEx(0.0, 0.0), true);
                         }
                         break;
-                    case Key.M: Tree.AddNewItem(Editor.Context.CurrentTree, Editor.Context.CreateProject, Editor.Context.CreateDiagram, Editor.Context.CurrentCanvas.GetCounter()); break;
-                    case Key.OemComma: Tree.SelectPreviousItem(Editor.Context.CurrentTree, true); break;
-                    case Key.OemPeriod: Tree.SelectNextItem(Editor.Context.CurrentTree, true); break;
+                    case Key.M: TreeEditor.AddNewItem(Editor.Context.CurrentTree, Editor.Context.CreateProject, Editor.Context.CreateDiagram, Editor.Context.CurrentCanvas.GetCounter()); break;
+                    case Key.OemComma: TreeEditor.SelectPreviousItem(Editor.Context.CurrentTree, true); break;
+                    case Key.OemPeriod: TreeEditor.SelectNextItem(Editor.Context.CurrentTree, true); break;
                     case Key.H: ShowDiagramHistory(); break;
                 }
             }
@@ -728,8 +728,8 @@ namespace CanvasDiagram.WPF
                     case Key.E: Editor.ToggleWireEnd(); break;
                     case Key.C: Connect(); break;
                     case Key.G: ToggleGuides(); break;
-                    case Key.OemComma: Tree.SelectPreviousItem(Editor.Context.CurrentTree, false); break;
-                    case Key.OemPeriod: Tree.SelectNextItem(Editor.Context.CurrentTree, false); break;
+                    case Key.OemComma: TreeEditor.SelectPreviousItem(Editor.Context.CurrentTree, false); break;
+                    case Key.OemPeriod: TreeEditor.SelectNextItem(Editor.Context.CurrentTree, false); break;
                     case Key.F5: TabExplorer.IsSelected = true; break;
                     case Key.F6: TabTags.IsSelected = true; InitializeTagEditor(); break;
                     case Key.F7: TabTables.IsSelected = true; InitializeTableEditor(); break;
