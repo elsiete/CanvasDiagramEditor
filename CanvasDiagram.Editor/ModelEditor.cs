@@ -687,7 +687,7 @@ namespace CanvasDiagram.Editor
             }
         }
 
-        public static void SelectConnected(MapWire tuple, IElement root, HashSet<string> visited)
+        public static void SelectConnected(Wire tuple, IElement root, HashSet<string> visited)
         {
             var line = tuple.Item1 as ILine;
             var tag = line.GetTag() as Tuple<object, object>;
@@ -754,7 +754,7 @@ namespace CanvasDiagram.Editor
                 var wires = item.Value.Item2;
 
                 if (element.GetTag() == null)
-                    element.SetTag(new Selection(false, new List<MapWire>()));
+                    element.SetTag(new Selection(false, new List<Wire>()));
 
                 if (wires.Count > 0)
                     UpdateWires(dict, element, wires);
@@ -802,9 +802,9 @@ namespace CanvasDiagram.Editor
             }
         }
 
-        private static void UpdateStartTag(IElement element, List<MapWire> tuples, object line)
+        private static void UpdateStartTag(IElement element, List<Wire> tuples, object line)
         {
-            var mapWire = new MapWire(line, element, null);
+            var mapWire = new Wire(line, element, null);
 
             tuples.Add(mapWire);
 
@@ -825,9 +825,9 @@ namespace CanvasDiagram.Editor
             }
         }
 
-        private static void UpdateEndTag(IElement element, List<MapWire> tuples, object line)
+        private static void UpdateEndTag(IElement element, List<Wire> tuples, object line)
         {
-            var mapWire = new MapWire(line, null, element);
+            var mapWire = new Wire(line, null, element);
 
             tuples.Add(mapWire);
 
@@ -967,9 +967,9 @@ namespace CanvasDiagram.Editor
                 tuples.Remove(tuple);
         }
 
-        private static List<MapWire> CreateMapWire(ILine line, List<MapWire> tuples)
+        private static List<Wire> CreateMapWire(ILine line, List<Wire> tuples)
         {
-            var map = new List<MapWire>();
+            var map = new List<Wire>();
 
             foreach (var tuple in tuples)
             {

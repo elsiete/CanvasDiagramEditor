@@ -24,13 +24,13 @@ namespace CanvasDiagram.Core
         }
     }
 
-    public class MapWire
+    public class Wire
     {
         public object Item1 { get; set; }
         public IElement Item2 { get; set; }
         public IElement Item3 { get; set; }
 
-        public MapWire(object line, IElement start, IElement end)
+        public Wire(object line, IElement start, IElement end)
         {
             Item1 = line;
             Item2 = start;
@@ -53,9 +53,9 @@ namespace CanvasDiagram.Core
     public class Selection
     {
         public bool Item1 { get; set; }
-        public List<MapWire> Item2 { get; set; }
+        public List<Wire> Item2 { get; set; }
 
-        public Selection(bool selected, List<MapWire> map)
+        public Selection(bool selected, List<Wire> map)
         {
             Item1 = selected;
             Item2 = map;
@@ -141,9 +141,9 @@ namespace CanvasDiagram.Core
     public class Connection
     {
         public IElement Item1 { get; set; }
-        public List<MapWire> Item2 { get; set; }
+        public List<Wire> Item2 { get; set; }
 
-        public Connection(IElement element, List<MapWire> map)
+        public Connection(IElement element, List<Wire> map)
         {
             Item1 = element;
             Item2 = map;

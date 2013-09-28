@@ -24,7 +24,7 @@ namespace CanvasDiagram.Editor
         {
             var rootTag = root.GetTag();
             if (rootTag == null)
-                root.SetTag(new Selection(false, new List<MapWire>()));
+                root.SetTag(new Selection(false, new List<Wire>()));
 
             var selection = root.GetTag() as Selection;
             var tuples = selection.Item2;
@@ -35,7 +35,7 @@ namespace CanvasDiagram.Editor
                 return SecondConnection(root, line, x, y, tuples);
         }
 
-        private static ILine FirstConnection(ICanvas canvas, IElement root, double x, double y, List<MapWire> tuples, IDiagramCreator creator)
+        private static ILine FirstConnection(ICanvas canvas, IElement root, double x, double y, List<Wire> tuples, IDiagramCreator creator)
         {
             var counter = canvas.GetCounter();
             string rootUid = root.GetUid();
@@ -55,7 +55,7 @@ namespace CanvasDiagram.Editor
                 0.0, 0.0, false) as ILine;
 
             // update connections
-            var tuple = new MapWire(line, root, null);
+            var tuple = new Wire(line, root, null);
             tuples.Add(tuple);
 
             canvas.Add(line);
@@ -67,7 +67,7 @@ namespace CanvasDiagram.Editor
             return line;
         }
 
-        private static ILine SecondConnection(IElement root, ILine line, double x, double y, List<MapWire> tuples)
+        private static ILine SecondConnection(IElement root, ILine line, double x, double y, List<Wire> tuples)
         {
             var margin = line.GetMargin();
 
@@ -83,7 +83,7 @@ namespace CanvasDiagram.Editor
             line.SetEndIO(endIsIO);
 
             // update connections
-            var tuple = new MapWire(line, null, root);
+            var tuple = new Wire(line, null, root);
             tuples.Add(tuple);
 
             // line Tag is start root element
@@ -153,7 +153,7 @@ namespace CanvasDiagram.Editor
             }
         }
 
-        public static Tuple<PointEx, PointEx> GetLocation(MapWire map1, MapWire map2)
+        public static Tuple<PointEx, PointEx> GetLocation(Wire map1, Wire map2)
         {
             var line1 = map1.Item1 as ILine;
             var start1 = map1.Item2;

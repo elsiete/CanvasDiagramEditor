@@ -264,7 +264,7 @@ namespace CanvasDiagram.Editor
             }
         }
 
-        private void MoveLine(double dX, double dY, bool snap, MapWire tuple)
+        private void MoveLine(double dX, double dY, bool snap, Wire tuple)
         {
             var line = tuple.Item1 as ILine;
             var start = tuple.Item2;
