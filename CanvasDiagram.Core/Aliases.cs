@@ -76,13 +76,13 @@ namespace CanvasDiagram.Core
 
     public class Diagram
     {
-        public string Item1 { get; set; }
-        public UndoRedo Item2 { get; set; }
+        public string Model { get; set; }
+        public UndoRedo History { get; set; }
 
         public Diagram(string model, UndoRedo history)
         {
-            Item1 = model;
-            Item2 = history;
+            Model = model;
+            History = history;
         }
     }
 

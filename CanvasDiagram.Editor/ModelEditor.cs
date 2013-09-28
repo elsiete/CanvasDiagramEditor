@@ -262,8 +262,8 @@ namespace CanvasDiagram.Editor
                 if (diagram.GetTag() != null)
                 {
                     var _diagram = diagram.GetTag() as Diagram;
-                    var model = _diagram.Item1;
-                    var history = _diagram.Item2;
+                    var model = _diagram.Model;
+                    var history = _diagram.History;
 
                     if (model == null)
                         model = GenerateItemModel(null, diagram, true);
@@ -430,8 +430,8 @@ namespace CanvasDiagram.Editor
         public static void LoadFromTag(ICanvas canvas, IDiagramCreator creator, object tag)
         {
             var diagram = tag as Diagram;
-            var model = diagram.Item1;
-            var history = diagram.Item2;
+            var model = diagram.Model;
+            var history = diagram.History;
 
             canvas.SetTag(history);
 
