@@ -64,10 +64,10 @@ namespace CanvasDiagram.Core
 
     public class UndoRedo
     {
-        public Stack<String> Item1 { get; set; }
-        public Stack<String> Item2 { get; set; }
+        public Stack<string> Item1 { get; set; }
+        public Stack<string> Item2 { get; set; }
 
-        public UndoRedo(Stack<String> undo, Stack<String> redo)
+        public UndoRedo(Stack<string> undo, Stack<string> redo)
         {
             Item1 = undo;
             Item2 = redo;
