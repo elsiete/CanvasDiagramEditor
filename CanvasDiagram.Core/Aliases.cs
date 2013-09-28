@@ -52,13 +52,13 @@ namespace CanvasDiagram.Core
 
     public class Selection
     {
-        public bool Item1 { get; set; }
-        public List<Wire> Item2 { get; set; }
+        public bool IsSelected { get; set; }
+        public List<Wire> Wires { get; set; }
 
         public Selection(bool selected, List<Wire> map)
         {
-            Item1 = selected;
-            Item2 = map;
+            IsSelected = selected;
+            Wires = map;
         }
     }
 

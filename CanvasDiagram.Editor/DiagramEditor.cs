@@ -258,7 +258,7 @@ namespace CanvasDiagram.Editor
             if (element != null && element.GetTag() != null)
             {
                 var selection = element.GetTag() as Selection;
-                var tuples = selection.Item2;
+                var tuples = selection.Wires;
                 foreach (var tuple in tuples)
                     MoveLine(dX, dY, snap, tuple);
             }
@@ -800,7 +800,7 @@ namespace CanvasDiagram.Editor
         private void MouseRemoveCurrentLine(ICanvas canvas)
         {
             var selection = Context.CurrentRoot.GetTag() as Selection;
-            var tuples = selection.Item2;
+            var tuples = selection.Wires;
 
             var last = tuples.LastOrDefault();
             tuples.Remove(last);

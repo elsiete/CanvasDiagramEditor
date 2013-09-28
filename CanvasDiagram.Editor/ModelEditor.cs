@@ -122,7 +122,7 @@ namespace CanvasDiagram.Editor
             if (elementTag != null && !(element is ILine))
             {
                 var selection = elementTag as Selection;
-                var tuples = selection.Item2;
+                var tuples = selection.Wires;
 
                 foreach (var tuple in tuples)
                 {
@@ -680,7 +680,7 @@ namespace CanvasDiagram.Editor
                 element.SetSelected(true);
 
                 var selection = elmentTag as Selection;
-                var tuples = selection.Item2;
+                var tuples = selection.Wires;
 
                 foreach (var tuple in tuples)
                     SelectConnected(tuple, element, visited);
@@ -764,7 +764,7 @@ namespace CanvasDiagram.Editor
         private static void UpdateWires(IDictionary<string, Child> dict, IElement element, List<Pin> wires)
         {
             var selection = element.GetTag() as Selection;
-            var tuples = selection.Item2;
+            var tuples = selection.Wires;
 
             foreach (var wire in wires)
             {
@@ -917,7 +917,7 @@ namespace CanvasDiagram.Editor
                     if (elementTag != null)
                     {
                         var selection = elementTag as Selection;
-                        var tuples = selection.Item2;
+                        var tuples = selection.Wires;
 
                         // empty pin
                         if (tuples.Count <= 0)
@@ -957,7 +957,7 @@ namespace CanvasDiagram.Editor
         public static void RemoveWireConnections(ILine line, List<Connection> connections, IElement element)
         {
             var selection = element.GetTag() as Selection;
-            var tuples = selection.Item2;
+            var tuples = selection.Wires;
             var map = CreateMapWire(line, tuples);
 
             if (map.Count > 0)

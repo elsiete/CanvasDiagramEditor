@@ -27,7 +27,7 @@ namespace CanvasDiagram.Editor
                 root.SetTag(new Selection(false, new List<Wire>()));
 
             var selection = root.GetTag() as Selection;
-            var tuples = selection.Item2;
+            var tuples = selection.Wires;
 
             if (line == null)
                 return FirstConnection(canvas, root, x, y, tuples, creator);
