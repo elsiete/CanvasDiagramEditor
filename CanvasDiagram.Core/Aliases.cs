@@ -128,13 +128,13 @@ namespace CanvasDiagram.Core
 
     public class Position
     {
-        public double Item1 { get; set; }
-        public double Item2 { get; set; }
+        public double X { get; set; }
+        public double Y { get; set; }
 
         public Position(double x, double y)
         {
-            Item1 = x;
-            Item2 = y;
+            X = x;
+            Y = y;
         }
     }
 

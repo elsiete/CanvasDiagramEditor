@@ -185,8 +185,8 @@ namespace CanvasDiagram.Editor
             Context.CurrentRoot = pin.GetParent() as IThumb;
 
             var position = ModelEditor.GetPinPosition(Context.CurrentRoot, pin);
-            double x = position.Item1;
-            double y = position.Item2;
+            double x = position.X;
+            double y = position.Y;
 
             Context.CurrentLine = WireEditor.Connect(canvas, Context.CurrentRoot, Context.CurrentLine, x, y, creator);
             if (Context.CurrentLine == null)
