@@ -761,15 +761,15 @@ namespace CanvasDiagram.Editor
             }
         }
 
-        private static void UpdateWires(IDictionary<string, Child> dict, IElement element, List<Pin> wires)
+        private static void UpdateWires(IDictionary<string, Child> dict, IElement element, List<Pin> pins)
         {
             var selection = element.GetTag() as Selection;
             var tuples = selection.Wires;
 
-            foreach (var wire in wires)
+            foreach (var pin in pins)
             {
-                string _name = wire.Name;
-                string _type = wire.Type;
+                string _name = pin.Name;
+                string _type = pin.Type;
 
                 if (StringUtil.Compare(_type, Constants.WireStartType))
                 {

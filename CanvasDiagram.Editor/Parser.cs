@@ -36,7 +36,7 @@ namespace CanvasDiagram.Editor
             var counter = new IdCounter();
             var total = new IdCounter();
             var elements = new List<object>();
-            Child tuple = null;
+            Child child = null;
             var dict = new Dictionary<string, Child>();
             TreeSolution solution = null;
             TreeProjects projects = null;
@@ -154,10 +154,10 @@ namespace CanvasDiagram.Editor
                                 x + offsetX, y + offsetY, false);
                             elements.Add(element);
 
-                            tuple = new Child(element, new List<Pin>());
+                            child = new Child(element, new List<Pin>());
 
                             if (dict.ContainsKey(name) == false)
-                                dict.Add(name, tuple);
+                                dict.Add(name, child);
                             else
                                 System.Diagnostics.Debug.Print("Dictionary already contains name key: {0}", name);
                         }
@@ -186,10 +186,10 @@ namespace CanvasDiagram.Editor
                                 x + offsetX, y + offsetY, false);
                             elements.Add(element);
 
-                            tuple = new Child(element, new List<Pin>());
+                            child = new Child(element, new List<Pin>());
 
                             if (dict.ContainsKey(name) == false)
-                                dict.Add(name, tuple);
+                                dict.Add(name, child);
                             else
                                 System.Diagnostics.Debug.Print("Dictionary already contains name key: {0}", name);
                         }
@@ -218,10 +218,10 @@ namespace CanvasDiagram.Editor
                                 x + offsetX, y + offsetY, false);
                             elements.Add(element);
 
-                            tuple = new Child(element, new List<Pin>());
+                            child = new Child(element, new List<Pin>());
 
                             if (dict.ContainsKey(name) == false)
-                                dict.Add(name, tuple);
+                                dict.Add(name, child);
                             else
                                 System.Diagnostics.Debug.Print("Dictionary already contains name key: {0}", name);
                         }
@@ -249,10 +249,10 @@ namespace CanvasDiagram.Editor
                                 x + offsetX, y + offsetY, false);
                             elements.Add(element);
 
-                            tuple = new Child(element, new List<Pin>());
+                            child = new Child(element, new List<Pin>());
 
                             if (dict.ContainsKey(name) == false)
-                                dict.Add(name, tuple);
+                                dict.Add(name, child);
                             else
                                 System.Diagnostics.Debug.Print("Dictionary already contains name key: {0}", name);
                         }
@@ -280,10 +280,10 @@ namespace CanvasDiagram.Editor
                                 x + offsetX, y + offsetY, false);
                             elements.Add(element);
 
-                            tuple = new Child(element, new List<Pin>());
+                            child = new Child(element, new List<Pin>());
 
                             if (dict.ContainsKey(name) == false)
-                                dict.Add(name, tuple);
+                                dict.Add(name, child);
                             else
                                 System.Diagnostics.Debug.Print("Dictionary already contains name key: {0}", name);
                         }
@@ -324,10 +324,10 @@ namespace CanvasDiagram.Editor
                                 0.0, 0.0, false);
                             elements.Add(element);
 
-                            tuple = new Child(element, new List<Pin>());
+                            child = new Child(element, new List<Pin>());
 
                             if (dict.ContainsKey(name) == false)
-                                dict.Add(name, tuple);
+                                dict.Add(name, child);
                             else
                                 System.Diagnostics.Debug.Print("Dictionary already contains name key: {0}", name);
                         }
@@ -343,11 +343,11 @@ namespace CanvasDiagram.Editor
                         if (diagram != null)
                             diagram.Push(line);
 
-                        if (createElements == true && tuple != null)
+                        if (createElements == true && child != null)
                         {
-                            var wires = tuple.Pins;
+                            var pins = child.Pins;
 
-                            wires.Add(new Pin(name, args[2]));
+                            pins.Add(new Pin(name, args[2]));
                         }
                     }
                 }
