@@ -345,7 +345,7 @@ namespace CanvasDiagram.Editor
 
                         if (createElements == true && tuple != null)
                         {
-                            var wires = tuple.Item2;
+                            var wires = tuple.Pins;
 
                             wires.Add(new Pin(name, args[2]));
                         }

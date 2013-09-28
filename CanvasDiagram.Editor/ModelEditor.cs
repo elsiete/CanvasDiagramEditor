@@ -747,11 +747,11 @@ namespace CanvasDiagram.Editor
             // update wire to element connections
             foreach (var item in dict)
             {
-                var element = item.Value.Item1 as IElement;
+                var element = item.Value.Element as IElement;
                 if (element == null)
                     continue;
 
-                var wires = item.Value.Item2;
+                var wires = item.Value.Pins;
 
                 if (element.GetTag() == null)
                     element.SetTag(new Selection(false, new List<Wire>()));
@@ -776,7 +776,7 @@ namespace CanvasDiagram.Editor
                     Child mapWires = null;
                     if (dict.TryGetValue(_name, out mapWires) == true)
                     {
-                        var line = mapWires.Item1;
+                        var line = mapWires.Element;
                         if (line == null)
                             continue;
 
@@ -790,7 +790,7 @@ namespace CanvasDiagram.Editor
                     Child mapWires = null;
                     if (dict.TryGetValue(_name, out mapWires) == true)
                     {
-                        var line = mapWires.Item1;
+                        var line = mapWires.Element;
                         if (line == null)
                             continue;
 

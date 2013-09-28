@@ -40,13 +40,13 @@ namespace CanvasDiagram.Core
     
     public class Child
     {
-        public object Item1 { get; set; }
-        public List<Pin> Item2 { get; set; }
+        public object Element { get; set; }
+        public List<Pin> Pins { get; set; }
 
         public Child(object element, List<Pin> map)
         {
-            Item1 = element;
-            Item2 = map;
+            Element = element;
+            Pins = map;
         }
     }
 
