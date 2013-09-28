@@ -43,10 +43,10 @@ namespace CanvasDiagram.Core
         public object Element { get; set; }
         public List<Pin> Pins { get; set; }
 
-        public Child(object element, List<Pin> map)
+        public Child(object element, List<Pin> pins)
         {
             Element = element;
-            Pins = map;
+            Pins = pins;
         }
     }
 
@@ -55,10 +55,10 @@ namespace CanvasDiagram.Core
         public bool IsSelected { get; set; }
         public List<Wire> Wires { get; set; }
 
-        public Selection(bool selected, List<Wire> map)
+        public Selection(bool selected, List<Wire> wires)
         {
             IsSelected = selected;
-            Wires = map;
+            Wires = wires;
         }
     }
 
