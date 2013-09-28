@@ -16,7 +16,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Markup;
-using System.Windows.Media; 
+using System.Windows.Media;
+using CanvasDiagram.Core.Model; 
 
 #endregion
 
@@ -127,7 +128,7 @@ namespace CanvasDiagram.WPF
                 Height = PageHeight
             };
 
-            Model.Parse(diagram,
+            ModelEditor.Parse(diagram,
                 canvas, this.DiagramCreator,
                 0, 0,
                 false, false, false, true);

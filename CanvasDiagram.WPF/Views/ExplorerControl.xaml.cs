@@ -98,7 +98,7 @@ namespace CanvasDiagram.WPF
             var canvas = Editor.Context.CurrentCanvas;
             var creator = Editor.Context.DiagramCreator;
 
-            var type = Tree.SwitchItems(canvas, creator, oldItem, newItem, Editor.Context.SetProperties);
+            var type = TreeEditor.SwitchItems(canvas, creator, oldItem, newItem, Editor.Context.SetProperties);
             if (type == TreeItemType.Diagram)
             {
                 if (DiagramView != null)
@@ -137,7 +137,7 @@ namespace CanvasDiagram.WPF
             var solution = SolutionTree.SelectedItem as SolutionTreeViewItem;
             var context = Editor.Context;
 
-            Tree.AddProject(solution, 
+            TreeEditor.AddProject(solution, 
                 context.CreateProject, 
                 context.CurrentCanvas.GetCounter());
         }
@@ -145,7 +145,7 @@ namespace CanvasDiagram.WPF
         private void ProjectAddDiagram_Click(object sender, RoutedEventArgs e)
         {
             var context = Editor.Context;
-            Tree.AddNewItem(context.CurrentTree, 
+            TreeEditor.AddNewItem(context.CurrentTree, 
                 context.CreateProject, 
                 context.CreateDiagram, 
                 context.CurrentCanvas.GetCounter());
@@ -154,7 +154,7 @@ namespace CanvasDiagram.WPF
         private void DiagramAddDiagram_Click(object sender, RoutedEventArgs e)
         {
             var context = Editor.Context;
-            Tree.AddNewItem(context.CurrentTree,
+            TreeEditor.AddNewItem(context.CurrentTree,
                 context.CreateProject,
                 context.CreateDiagram,
                 context.CurrentCanvas.GetCounter());
@@ -164,19 +164,19 @@ namespace CanvasDiagram.WPF
         {
             var project = SolutionTree.SelectedItem as SolutionTreeViewItem;
 
-            Tree.DeleteProject(project);
+            TreeEditor.DeleteProject(project);
         }
 
         private void DiagramDeleteDiagram_Click(object sender, RoutedEventArgs e)
         {
             var diagram = SolutionTree.SelectedItem as SolutionTreeViewItem;
 
-            Tree.DeleteDiagram(diagram);
+            TreeEditor.DeleteDiagram(diagram);
         }
 
         private void DiagramAddDiagramAndPaste_Click(object sender, RoutedEventArgs e)
         {
-            var type = Tree.AddNewItem(Editor.Context.CurrentTree,
+            var type = TreeEditor.AddNewItem(Editor.Context.CurrentTree,
                 Editor.Context.CreateProject,
                 Editor.Context.CreateDiagram,
                 Editor.Context.CurrentCanvas.GetCounter());

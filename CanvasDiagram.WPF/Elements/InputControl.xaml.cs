@@ -49,7 +49,7 @@ namespace CanvasDiagram.WPF.Elements
                     var thumb = this.TemplatedParent as ElementThumb;
                     var canvas = thumb.GetParent() as ICanvas;
 
-                    History.Add(canvas);
+                    HistoryEditor.Add(canvas);
 
                     thumb.SetData(tag);
                     e.Handled = true;

@@ -182,6 +182,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\CanvasDiagram.Core.Model\CanvasDiagram.Core.Model.csproj">
+      <Project>{4002f0b8-d9c8-4aac-8257-8f3f29137cbc}</Project>
+      <Name>CanvasDiagram.Core.Model</Name>
+    </ProjectReference>
     <ProjectReference Include="..\CanvasDiagram.Core\CanvasDiagram.Core.csproj">
       <Project>{a6b6e7ba-9d5c-44f2-9d41-8451a95b7bde}</Project>
       <Name>CanvasDiagram.Core</Name>

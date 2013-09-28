@@ -4,6 +4,7 @@
 #region References
 
 using CanvasDiagram.Core;
+using CanvasDiagram.Core.Model;
 using CanvasDiagram.Util;
 using System;
 using System.Collections.Generic;
@@ -14,29 +15,9 @@ using System.Text;
 
 namespace CanvasDiagram.Editor
 {
-    #region Aliases
+    #region ModelEditor
 
-    using MapPin = Tuple<string, string>;
-    using MapWire = Tuple<object, object, object>;
-    using MapWires = Tuple<object, List<Tuple<string, string>>>;
-    using Selection = Tuple<bool, List<Tuple<object, object, object>>>;
-    using UndoRedo = Tuple<Stack<string>, Stack<string>>;
-    using Diagram = Tuple<string, Tuple<Stack<string>, Stack<string>>>;
-    using TreeDiagram = Stack<string>;
-    using TreeDiagrams = Stack<Stack<string>>;
-    using TreeProject = Tuple<string, Stack<Stack<string>>>;
-    using TreeProjects = Stack<Tuple<string, Stack<Stack<string>>>>;
-    using TreeSolution = Tuple<string, string, string, Stack<Tuple<string, Stack<Stack<string>>>>>;
-    using Position = Tuple<double, double>;
-    using Connection = Tuple<IElement, List<Tuple<object, object, object>>>;
-    using Connections = List<Tuple<IElement, List<Tuple<object, object, object>>>>;
-    using Solution = Tuple<string, IEnumerable<string>>;
-
-    #endregion
-
-    #region Model
-
-    public static class Model
+    public static class ModelEditor
     {
         #region Generate
 
@@ -142,13 +123,13 @@ namespace CanvasDiagram.Editor
             if (elementTag != null && !(element is ILine))
             {
                 var selection = elementTag as Selection;
-                var tuples = selection.Item2;
+                var tuples = selection.Wires;
 
                 foreach (var tuple in tuples)
                 {
-                    var line = tuple.Item1 as ILine;
-                    var start = tuple.Item2;
-                    var end = tuple.Item3;
+                    var line = tuple.Line as ILine;
+                    var start = tuple.Start;
+                    var end = tuple.End;
 
                     if (start != null)
                         GenerateWireStart(sb, line);
@@ -281,9 +262,9 @@ namespace CanvasDiagram.Editor
                 // Diagram Elements
                 if (diagram.GetTag() != null)
                 {
-                    var _diagram = diagram.GetTag() as Diagram;
-                    var model = _diagram.Item1;
-                    var history = _diagram.Item2;
+                    var tag = diagram.GetTag() as Diagram;
+                    var model = tag.Model;
+                    var history = tag.History;
 
                     if (model == null)
                         model = GenerateItemModel(null, diagram, true);
@@ -294,8 +275,8 @@ namespace CanvasDiagram.Editor
 
                     if (includeHistory == true && history != null)
                     {
-                        var undoHistory = history.Item1;
-                        var redoHistory = history.Item2;
+                        var undoHistory = history.Undo;
+                        var redoHistory = history.Redo;
 
                         foreach (var m in undoHistory)
                         {
@@ -450,8 +431,8 @@ namespace CanvasDiagram.Editor
         public static void LoadFromTag(ICanvas canvas, IDiagramCreator creator, object tag)
         {
             var diagram = tag as Diagram;
-            var model = diagram.Item1;
-            var history = diagram.Item2;
+            var model = diagram.Model;
+            var history = diagram.History;
 
             canvas.SetTag(history);
 
@@ -700,16 +681,16 @@ namespace CanvasDiagram.Editor
                 element.SetSelected(true);
 
                 var selection = elmentTag as Selection;
-                var tuples = selection.Item2;
+                var tuples = selection.Wires;
 
                 foreach (var tuple in tuples)
                     SelectConnected(tuple, element, visited);
             }
         }
 
-        public static void SelectConnected(MapWire tuple, IElement root, HashSet<string> visited)
+        public static void SelectConnected(Wire wire, IElement root, HashSet<string> visited)
         {
-            var line = tuple.Item1 as ILine;
+            var line = wire.Line as ILine;
             var tag = line.GetTag() as Tuple<object, object>;
 
             line.SetSelected(true);
@@ -762,41 +743,41 @@ namespace CanvasDiagram.Editor
 
         #region Connections
 
-        public static void ConnectionsUpdate(IDictionary<string, MapWires> dict)
+        public static void ConnectionsUpdate(IDictionary<string, Child> dict)
         {
             // update wire to element connections
             foreach (var item in dict)
             {
-                var element = item.Value.Item1 as IElement;
+                var element = item.Value.Element as IElement;
                 if (element == null)
                     continue;
 
-                var wires = item.Value.Item2;
+                var pins = item.Value.Pins;
 
                 if (element.GetTag() == null)
-                    element.SetTag(new Selection(false, new List<MapWire>()));
+                    element.SetTag(new Selection(false, new List<Wire>()));
 
-                if (wires.Count > 0)
-                    UpdateWires(dict, element, wires);
+                if (pins.Count > 0)
+                    UpdateWires(dict, element, pins);
             }
         }
 
-        private static void UpdateWires(IDictionary<string, MapWires> dict, IElement element, List<MapPin> wires)
+        private static void UpdateWires(IDictionary<string, Child> dict, IElement element, List<Pin> pins)
         {
             var selection = element.GetTag() as Selection;
-            var tuples = selection.Item2;
+            var tuples = selection.Wires;
 
-            foreach (var wire in wires)
+            foreach (var pin in pins)
             {
-                string _name = wire.Item1;
-                string _type = wire.Item2;
+                string _name = pin.Name;
+                string _type = pin.Type;
 
                 if (StringUtil.Compare(_type, Constants.WireStartType))
                 {
-                    MapWires mapWires = null;
-                    if (dict.TryGetValue(_name, out mapWires) == true)
+                    Child child = null;
+                    if (dict.TryGetValue(_name, out child) == true)
                     {
-                        var line = mapWires.Item1;
+                        var line = child.Element;
                         if (line == null)
                             continue;
 
@@ -807,10 +788,10 @@ namespace CanvasDiagram.Editor
                 }
                 else if (StringUtil.Compare(_type, Constants.WireEndType))
                 {
-                    MapWires mapWires = null;
-                    if (dict.TryGetValue(_name, out mapWires) == true)
+                    Child child = null;
+                    if (dict.TryGetValue(_name, out child) == true)
                     {
-                        var line = mapWires.Item1;
+                        var line = child.Element;
                         if (line == null)
                             continue;
 
@@ -822,11 +803,11 @@ namespace CanvasDiagram.Editor
             }
         }
 
-        private static void UpdateStartTag(IElement element, List<MapWire> tuples, object line)
+        private static void UpdateStartTag(IElement element, List<Wire> wires, object line)
         {
-            var mapWire = new MapWire(line, element, null);
+            var wire = new Wire(line, element, null);
 
-            tuples.Add(mapWire);
+            wires.Add(wire);
 
             var lineEx = line as ILine;
             if (lineEx.GetTag() != null)
@@ -845,11 +826,11 @@ namespace CanvasDiagram.Editor
             }
         }
 
-        private static void UpdateEndTag(IElement element, List<MapWire> tuples, object line)
+        private static void UpdateEndTag(IElement element, List<Wire> wires, object line)
         {
-            var mapWire = new MapWire(line, null, element);
+            var wire = new Wire(line, null, element);
 
-            tuples.Add(mapWire);
+            wires.Add(wire);
 
             var lineEx = line as ILine;
             if (lineEx.GetTag() != null)
@@ -937,7 +918,7 @@ namespace CanvasDiagram.Editor
                     if (elementTag != null)
                     {
                         var selection = elementTag as Selection;
-                        var tuples = selection.Item2;
+                        var tuples = selection.Wires;
 
                         // empty pin
                         if (tuples.Count <= 0)
@@ -960,9 +941,9 @@ namespace CanvasDiagram.Editor
                    StringUtil.StartsWith(uid, Constants.TagElementPin);
         }
 
-        public static Connections RemoveWireConnections(ICanvas canvas, ILine line)
+        public static List<Connection> RemoveWireConnections(ICanvas canvas, ILine line)
         {
-            var connections = new Connections();
+            var connections = new List<Connection>();
 
             foreach (var element in canvas.GetElements())
             {
@@ -974,10 +955,10 @@ namespace CanvasDiagram.Editor
             return connections;
         }
 
-        public static void RemoveWireConnections(ILine line, Connections connections, IElement element)
+        public static void RemoveWireConnections(ILine line, List<Connection> connections, IElement element)
         {
             var selection = element.GetTag() as Selection;
-            var tuples = selection.Item2;
+            var tuples = selection.Wires;
             var map = CreateMapWire(line, tuples);
 
             if (map.Count > 0)
@@ -987,15 +968,14 @@ namespace CanvasDiagram.Editor
                 tuples.Remove(tuple);
         }
 
-        private static List<MapWire> CreateMapWire(ILine line, List<MapWire> tuples)
+        private static List<Wire> CreateMapWire(ILine line, List<Wire> wires)
         {
-            var map = new List<MapWire>();
+            var map = new List<Wire>();
 
-            foreach (var tuple in tuples)
+            foreach (var wire in wires)
             {
-                var _line = tuple.Item1 as ILine;
-                if (StringUtil.Compare(_line.GetUid(), line.GetUid()))
-                    map.Add(tuple);
+                if (StringUtil.Compare((wire.Line as ILine).GetUid(), line.GetUid()))
+                    map.Add(wire);
             }
 
             return map;

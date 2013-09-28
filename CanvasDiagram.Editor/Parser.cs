@@ -8,32 +8,13 @@ using CanvasDiagram.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text; 
+using System.Text;
+using CanvasDiagram.Core.Model; 
 
 #endregion
 
 namespace CanvasDiagram.Editor
 {
-    #region Aliases
-
-    using MapPin = Tuple<string, string>;
-    using MapWire = Tuple<object, object, object>;
-    using MapWires = Tuple<object, List<Tuple<string, string>>>;
-    using Selection = Tuple<bool, List<Tuple<object, object, object>>>;
-    using UndoRedo = Tuple<Stack<string>, Stack<string>>;
-    using Diagram = Tuple<string, Tuple<Stack<string>, Stack<string>>>;
-    using TreeDiagram = Stack<string>;
-    using TreeDiagrams = Stack<Stack<string>>;
-    using TreeProject = Tuple<string, Stack<Stack<string>>>;
-    using TreeProjects = Stack<Tuple<string, Stack<Stack<string>>>>;
-    using TreeSolution = Tuple<string, string, string, Stack<Tuple<string, Stack<Stack<string>>>>>;
-    using Position = Tuple<double, double>;
-    using Connection = Tuple<IElement, List<Tuple<object, object, object>>>;
-    using Connections = List<Tuple<IElement, List<Tuple<object, object, object>>>>;
-    using Solution = Tuple<string, IEnumerable<string>>; 
-
-    #endregion
-
     #region Parser
 
     public class Parser : IDiagramParser
@@ -56,8 +37,8 @@ namespace CanvasDiagram.Editor
             var counter = new IdCounter();
             var total = new IdCounter();
             var elements = new List<object>();
-            MapWires tuple = null;
-            var dict = new Dictionary<string, MapWires>();
+            Child child = null;
+            var dict = new Dictionary<string, Child>();
             TreeSolution solution = null;
             TreeProjects projects = null;
             TreeProject project = null;
@@ -174,10 +155,10 @@ namespace CanvasDiagram.Editor
                                 x + offsetX, y + offsetY, false);
                             elements.Add(element);
 
-                            tuple = new MapWires(element, new List<MapPin>());
+                            child = new Child(element, new List<Pin>());
 
                             if (dict.ContainsKey(name) == false)
-                                dict.Add(name, tuple);
+                                dict.Add(name, child);
                             else
                                 System.Diagnostics.Debug.Print("Dictionary already contains name key: {0}", name);
                         }
@@ -206,10 +187,10 @@ namespace CanvasDiagram.Editor
                                 x + offsetX, y + offsetY, false);
                             elements.Add(element);
 
-                            tuple = new MapWires(element, new List<MapPin>());
+                            child = new Child(element, new List<Pin>());
 
                             if (dict.ContainsKey(name) == false)
-                                dict.Add(name, tuple);
+                                dict.Add(name, child);
                             else
                                 System.Diagnostics.Debug.Print("Dictionary already contains name key: {0}", name);
                         }
@@ -238,10 +219,10 @@ namespace CanvasDiagram.Editor
                                 x + offsetX, y + offsetY, false);
                             elements.Add(element);
 
-                            tuple = new MapWires(element, new List<MapPin>());
+                            child = new Child(element, new List<Pin>());
 
                             if (dict.ContainsKey(name) == false)
-                                dict.Add(name, tuple);
+                                dict.Add(name, child);
                             else
                                 System.Diagnostics.Debug.Print("Dictionary already contains name key: {0}", name);
                         }
@@ -269,10 +250,10 @@ namespace CanvasDiagram.Editor
                                 x + offsetX, y + offsetY, false);
                             elements.Add(element);
 
-                            tuple = new MapWires(element, new List<MapPin>());
+                            child = new Child(element, new List<Pin>());
 
                             if (dict.ContainsKey(name) == false)
-                                dict.Add(name, tuple);
+                                dict.Add(name, child);
                             else
                                 System.Diagnostics.Debug.Print("Dictionary already contains name key: {0}", name);
                         }
@@ -300,10 +281,10 @@ namespace CanvasDiagram.Editor
                                 x + offsetX, y + offsetY, false);
                             elements.Add(element);
 
-                            tuple = new MapWires(element, new List<MapPin>());
+                            child = new Child(element, new List<Pin>());
 
                             if (dict.ContainsKey(name) == false)
-                                dict.Add(name, tuple);
+                                dict.Add(name, child);
                             else
                                 System.Diagnostics.Debug.Print("Dictionary already contains name key: {0}", name);
                         }
@@ -344,10 +325,10 @@ namespace CanvasDiagram.Editor
                                 0.0, 0.0, false);
                             elements.Add(element);
 
-                            tuple = new MapWires(element, new List<MapPin>());
+                            child = new Child(element, new List<Pin>());
 
                             if (dict.ContainsKey(name) == false)
-                                dict.Add(name, tuple);
+                                dict.Add(name, child);
                             else
                                 System.Diagnostics.Debug.Print("Dictionary already contains name key: {0}", name);
                         }
@@ -363,11 +344,11 @@ namespace CanvasDiagram.Editor
                         if (diagram != null)
                             diagram.Push(line);
 
-                        if (createElements == true && tuple != null)
+                        if (createElements == true && child != null)
                         {
-                            var wires = tuple.Item2;
+                            var pins = child.Pins;
 
-                            wires.Add(new MapPin(name, args[2]));
+                            pins.Add(new Pin(name, args[2]));
                         }
                     }
                 }

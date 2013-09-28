@@ -4,6 +4,7 @@
 #region References
 
 using CanvasDiagram.Core;
+using CanvasDiagram.Core.Model;
 using CanvasDiagram.Editor;
 using CanvasDiagram.WPF.Controls;
 using CanvasDiagram.Util;
@@ -22,27 +23,7 @@ using System.Windows.Input;
 
 namespace CanvasDiagram.WPF
 {
-    #region Aliases
-
-    using MapPin = Tuple<string, string>;
-    using MapWire = Tuple<object, object, object>;
-    using MapWires = Tuple<object, List<Tuple<string, string>>>;
-    using Selection = Tuple<bool, List<Tuple<object, object, object>>>;
-    using UndoRedo = Tuple<Stack<string>, Stack<string>>;
-    using Diagram = Tuple<string, Tuple<Stack<string>, Stack<string>>>;
-    using TreeDiagram = Stack<string>;
-    using TreeDiagrams = Stack<Stack<string>>;
-    using TreeProject = Tuple<string, Stack<Stack<string>>>;
-    using TreeProjects = Stack<Tuple<string, Stack<Stack<string>>>>;
-    using TreeSolution = Tuple<string, string, string, Stack<Tuple<string, Stack<Stack<string>>>>>;
-    using Position = Tuple<double, double>;
-    using Connection = Tuple<IElement, List<Tuple<object, object, object>>>;
-    using Connections = List<Tuple<IElement, List<Tuple<object, object, object>>>>;
-    using Solution = Tuple<string, IEnumerable<string>>;
-
     using FactoryFunc = Func<object[], double, double, bool, object>;
-
-    #endregion
 
     #region WpfDiagramCreator
 
@@ -348,7 +329,7 @@ namespace CanvasDiagram.WPF
         {
             var canvas = ParserCanvas;
 
-            Model.Insert(canvas, 
+            ModelEditor.Insert(canvas, 
                 elements.Cast<IElement>(), 
                 select,
                 offsetX,
@@ -357,17 +338,17 @@ namespace CanvasDiagram.WPF
 
         public void UpdateCounter(IdCounter original, IdCounter counter)
         {
-            Model.IdsUpdateCounter(original, counter);
+            ModelEditor.IdsUpdateCounter(original, counter);
         }
 
-        public void UpdateConnections(IDictionary<string, MapWires> dict)
+        public void UpdateConnections(IDictionary<string, Child> dict)
         {
-            Model.ConnectionsUpdate(dict);
+            ModelEditor.ConnectionsUpdate(dict);
         }
 
         public void AppendIds(IEnumerable<object> elements)
         {
-            Model.IdsAppend(elements, this.GetCounter());
+            ModelEditor.IdsAppend(elements, this.GetCounter());
         }
 
         #endregion

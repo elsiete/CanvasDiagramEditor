@@ -4,6 +4,7 @@
 #region References
 
 using CanvasDiagram.Core;
+using CanvasDiagram.Core.Model;
 using CanvasDiagram.Util;
 using System;
 using System.Collections.Generic;
@@ -14,29 +15,9 @@ using System.Text;
 
 namespace CanvasDiagram.Editor
 {
-    #region Aliases
+    #region WireEditor
 
-    using MapPin = Tuple<string, string>;
-    using MapWire = Tuple<object, object, object>;
-    using MapWires = Tuple<object, List<Tuple<string, string>>>;
-    using Selection = Tuple<bool, List<Tuple<object, object, object>>>;
-    using UndoRedo = Tuple<Stack<string>, Stack<string>>;
-    using Diagram = Tuple<string, Tuple<Stack<string>, Stack<string>>>;
-    using TreeDiagram = Stack<string>;
-    using TreeDiagrams = Stack<Stack<string>>;
-    using TreeProject = Tuple<string, Stack<Stack<string>>>;
-    using TreeProjects = Stack<Tuple<string, Stack<Stack<string>>>>;
-    using TreeSolution = Tuple<string, string, string, Stack<Tuple<string, Stack<Stack<string>>>>>;
-    using Position = Tuple<double, double>;
-    using Connection = Tuple<IElement, List<Tuple<object, object, object>>>;
-    using Connections = List<Tuple<IElement, List<Tuple<object, object, object>>>>;
-    using Solution = Tuple<string, IEnumerable<string>>;
-
-    #endregion
-
-    #region Wire
-
-    public static class Wire
+    public static class WireEditor
     {
         #region Connect
 
@@ -44,10 +25,10 @@ namespace CanvasDiagram.Editor
         {
             var rootTag = root.GetTag();
             if (rootTag == null)
-                root.SetTag(new Selection(false, new List<MapWire>()));
+                root.SetTag(new Selection(false, new List<Wire>()));
 
             var selection = root.GetTag() as Selection;
-            var tuples = selection.Item2;
+            var tuples = selection.Wires;
 
             if (line == null)
                 return FirstConnection(canvas, root, x, y, tuples, creator);
@@ -55,7 +36,7 @@ namespace CanvasDiagram.Editor
                 return SecondConnection(root, line, x, y, tuples);
         }
 
-        private static ILine FirstConnection(ICanvas canvas, IElement root, double x, double y, List<MapWire> tuples, IDiagramCreator creator)
+        private static ILine FirstConnection(ICanvas canvas, IElement root, double x, double y, List<Wire> wires, IDiagramCreator creator)
         {
             var counter = canvas.GetCounter();
             string rootUid = root.GetUid();
@@ -75,8 +56,8 @@ namespace CanvasDiagram.Editor
                 0.0, 0.0, false) as ILine;
 
             // update connections
-            var tuple = new MapWire(line, root, null);
-            tuples.Add(tuple);
+            var wire = new Wire(line, root, null);
+            wires.Add(wire);
 
             canvas.Add(line);
 
@@ -87,7 +68,7 @@ namespace CanvasDiagram.Editor
             return line;
         }
 
-        private static ILine SecondConnection(IElement root, ILine line, double x, double y, List<MapWire> tuples)
+        private static ILine SecondConnection(IElement root, ILine line, double x, double y, List<Wire> wires)
         {
             var margin = line.GetMargin();
 
@@ -103,8 +84,8 @@ namespace CanvasDiagram.Editor
             line.SetEndIO(endIsIO);
 
             // update connections
-            var tuple = new MapWire(line, null, root);
-            tuples.Add(tuple);
+            var wire = new Wire(line, null, root);
+            wires.Add(wire);
 
             // line Tag is start root element
             var lineTag = line.GetTag();
@@ -130,16 +111,16 @@ namespace CanvasDiagram.Editor
         public static void Reconnect(ICanvas canvas,
             ILine line, IElement splitPin,
             double x, double y,
-            Connections connections,
+            List<Connection> connections,
             ILine currentLine,
             IDiagramCreator creator)
         {
             var c1 = connections[0];
             var c2 = connections[1];
-            var map1 = c1.Item2.FirstOrDefault();
-            var map2 = c2.Item2.FirstOrDefault();
-            var startRoot = (map1.Item2 != null ? map1.Item2 : map2.Item2) as IElement;
-            var endRoot = (map1.Item3 != null ? map1.Item3 : map2.Item3) as IElement;
+            var map1 = c1.Wires.FirstOrDefault();
+            var map2 = c2.Wires.FirstOrDefault();
+            var startRoot = (map1.Start != null ? map1.Start : map2.Start) as IElement;
+            var endRoot = (map1.End != null ? map1.End : map2.End) as IElement;
             var location = GetLocation(map1, map2);
 
             if (location.Item1 != null && location.Item2 != null)
@@ -173,14 +154,14 @@ namespace CanvasDiagram.Editor
             }
         }
 
-        public static Tuple<PointEx, PointEx> GetLocation(MapWire map1, MapWire map2)
+        public static Tuple<PointEx, PointEx> GetLocation(Wire wire1, Wire wire2)
         {
-            var line1 = map1.Item1 as ILine;
-            var start1 = map1.Item2;
-            var end1 = map1.Item3;
-            var line2 = map2.Item1 as ILine;
-            var start2 = map2.Item2;
-            var end2 = map2.Item3;
+            var line1 = wire1.Line as ILine;
+            var start1 = wire1.Start;
+            var end1 = wire1.End;
+            var line2 = wire2.Line as ILine;
+            var start2 = wire2.Start;
+            var end2 = wire2.End;
             PointEx startPoint = null;
             PointEx endPoint = null;
 
@@ -240,7 +221,7 @@ namespace CanvasDiagram.Editor
             canvas.Remove(line);
 
             // remove wire connections
-            var connections = Model.RemoveWireConnections(canvas, line);
+            var connections = ModelEditor.RemoveWireConnections(canvas, line);
 
             // connected original root element to split pin
             if (connections != null && connections.Count == 2)

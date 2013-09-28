@@ -13,6 +13,7 @@ using CanvasDiagram.Dxf.Enums;
 using CanvasDiagram.Dxf.Tables;
 using CanvasDiagram.Util;
 using CanvasDiagram.Core;
+using CanvasDiagram.Core.Model;
 using CanvasDiagram.Editor;
 using System;
 using System.Collections.Generic;
@@ -24,27 +25,7 @@ using System.Windows;
 
 namespace CanvasDiagram.WPF
 {
-    #region Aliases
-
-    using MapPin = Tuple<string, string>;
-    using MapWire = Tuple<object, object, object>;
-    using MapWires = Tuple<object, List<Tuple<string, string>>>;
-    using Selection = Tuple<bool, List<Tuple<object, object, object>>>;
-    using UndoRedo = Tuple<Stack<string>, Stack<string>>;
-    using Diagram = Tuple<string, Tuple<Stack<string>, Stack<string>>>;
-    using TreeDiagram = Stack<string>;
-    using TreeDiagrams = Stack<Stack<string>>;
-    using TreeProject = Tuple<string, Stack<Stack<string>>>;
-    using TreeProjects = Stack<Tuple<string, Stack<Stack<string>>>>;
-    using TreeSolution = Tuple<string, string, string, Stack<Tuple<string, Stack<Stack<string>>>>>;
-    using Position = Tuple<double, double>;
-    using Connection = Tuple<IElement, List<Tuple<object, object, object>>>;
-    using Connections = List<Tuple<IElement, List<Tuple<object, object, object>>>>;
-    using Solution = Tuple<string, IEnumerable<string>>;
-
     using FactoryFunc = Func<object[], double, double, bool, object>;
-
-    #endregion
 
     #region DxfDiagramCreator
 
@@ -1639,7 +1620,7 @@ namespace CanvasDiagram.WPF
             return null;
         }
 
-        public void UpdateConnections(IDictionary<string, MapWires> dict)
+        public void UpdateConnections(IDictionary<string, Child> dict)
         {
         }
 

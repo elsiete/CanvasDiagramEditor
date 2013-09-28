@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{A6B6E7BA-9D5C-44F2-9D41-8451A95B7BDE}</ProjectGuid>
+    <ProjectGuid>{4002F0B8-D9C8-4AAC-8257-8F3F29137CBC}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CanvasDiagram.Core</RootNamespace>
-    <AssemblyName>CanvasDiagram.Core</AssemblyName>
+    <RootNamespace>CanvasDiagram.Core.Model</RootNamespace>
+    <AssemblyName>CanvasDiagram.Core.Model</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -39,37 +39,30 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DiagramProperties.cs" />
-    <Compile Include="ICanvas.cs" />
-    <Compile Include="IClipboard.cs" />
-    <Compile Include="IData.cs" />
-    <Compile Include="IdCounter.cs" />
-    <Compile Include="IElement.cs" />
-    <Compile Include="ILine.cs" />
-    <Compile Include="IMargin.cs" />
-    <Compile Include="IPoint.cs" />
-    <Compile Include="IRect.cs" />
-    <Compile Include="ISelected.cs" />
-    <Compile Include="ITag.cs" />
-    <Compile Include="IThumb.cs" />
-    <Compile Include="ITree.cs" />
-    <Compile Include="ITreeItem.cs" />
-    <Compile Include="IUid.cs" />
-    <Compile Include="MarginEx.cs" />
-    <Compile Include="ParseOptions.cs" />
-    <Compile Include="PointEx.cs" />
+    <Compile Include="Child.cs" />
+    <Compile Include="Connection.cs" />
+    <Compile Include="Diagram.cs" />
+    <Compile Include="IDiagramCreator.cs" />
+    <Compile Include="IDiagramParser.cs" />
+    <Compile Include="Pin.cs" />
+    <Compile Include="Position.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RectEx.cs" />
-    <Compile Include="Tag.cs" />
-    <Compile Include="TreeItemType.cs" />
+    <Compile Include="Selection.cs" />
+    <Compile Include="Solution.cs" />
+    <Compile Include="TreeDiagram.cs" />
+    <Compile Include="TreeDiagrams.cs" />
+    <Compile Include="TreeProject.cs" />
+    <Compile Include="TreeProjects.cs" />
+    <Compile Include="TreeSolution.cs" />
+    <Compile Include="UndoRedo.cs" />
+    <Compile Include="Wire.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CanvasDiagram.Util\CanvasDiagram.Util.csproj">
-      <Project>{2bfd4e03-45e2-4546-a343-b94b6640b912}</Project>
-      <Name>CanvasDiagram.Util</Name>
+    <ProjectReference Include="..\CanvasDiagram.Core\CanvasDiagram.Core.csproj">
+      <Project>{a6b6e7ba-9d5c-44f2-9d41-8451a95b7bde}</Project>
+      <Name>CanvasDiagram.Core</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
