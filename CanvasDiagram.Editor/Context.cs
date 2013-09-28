@@ -4,6 +4,7 @@
 #region References
 
 using CanvasDiagram.Core;
+using CanvasDiagram.Core.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;

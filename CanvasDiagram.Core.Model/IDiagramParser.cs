@@ -3,8 +3,6 @@
 
 #region References
 
-using CanvasDiagram.Core.Model;
-using CanvasDiagram.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +10,7 @@ using System.Text;
 
 #endregion
 
-namespace CanvasDiagram.Core
+namespace CanvasDiagram.Core.Model
 {
     #region IDiagramParser
 

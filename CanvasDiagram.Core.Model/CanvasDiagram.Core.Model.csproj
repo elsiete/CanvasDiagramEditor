@@ -39,7 +39,29 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Child.cs" />
+    <Compile Include="Connection.cs" />
+    <Compile Include="Diagram.cs" />
+    <Compile Include="IDiagramCreator.cs" />
+    <Compile Include="IDiagramParser.cs" />
+    <Compile Include="Pin.cs" />
+    <Compile Include="Position.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Selection.cs" />
+    <Compile Include="Solution.cs" />
+    <Compile Include="TreeDiagram.cs" />
+    <Compile Include="TreeDiagrams.cs" />
+    <Compile Include="TreeProject.cs" />
+    <Compile Include="TreeProjects.cs" />
+    <Compile Include="TreeSolution.cs" />
+    <Compile Include="UndoRedo.cs" />
+    <Compile Include="Wire.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CanvasDiagram.Core\CanvasDiagram.Core.csproj">
+      <Project>{a6b6e7ba-9d5c-44f2-9d41-8451a95b7bde}</Project>
+      <Name>CanvasDiagram.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
