@@ -14,7 +14,7 @@ using System.Text;
 
 namespace CanvasDiagram.Editor
 {
-    #region Tree
+    #region TreeEditor
 
     public static class TreeEditor
     {

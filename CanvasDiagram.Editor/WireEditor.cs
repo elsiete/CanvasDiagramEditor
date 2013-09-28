@@ -14,7 +14,7 @@ using System.Text;
 
 namespace CanvasDiagram.Editor
 {
-    #region Wire
+    #region WireEditor
 
     public static class WireEditor
     {
