@@ -328,7 +328,7 @@ namespace CanvasDiagram.WPF
         {
             var canvas = ParserCanvas;
 
-            Model.Insert(canvas, 
+            ModelEditor.Insert(canvas, 
                 elements.Cast<IElement>(), 
                 select,
                 offsetX,
@@ -337,17 +337,17 @@ namespace CanvasDiagram.WPF
 
         public void UpdateCounter(IdCounter original, IdCounter counter)
         {
-            Model.IdsUpdateCounter(original, counter);
+            ModelEditor.IdsUpdateCounter(original, counter);
         }
 
         public void UpdateConnections(IDictionary<string, MapWires> dict)
         {
-            Model.ConnectionsUpdate(dict);
+            ModelEditor.ConnectionsUpdate(dict);
         }
 
         public void AppendIds(IEnumerable<object> elements)
         {
-            Model.IdsAppend(elements, this.GetCounter());
+            ModelEditor.IdsAppend(elements, this.GetCounter());
         }
 
         #endregion

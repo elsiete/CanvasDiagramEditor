@@ -44,7 +44,7 @@
     <Compile Include="History.cs" />
     <Compile Include="Insert.cs" />
     <Compile Include="LineUtil.cs" />
-    <Compile Include="Model.cs" />
+    <Compile Include="ModelEditor.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Parser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

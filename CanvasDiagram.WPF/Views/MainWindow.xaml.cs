@@ -488,7 +488,7 @@ namespace CanvasDiagram.WPF
                 History.Add(canvas);
 
             Editor.Context.UpdateProperties();
-            Model.SetGrid(canvas, creator);
+            ModelEditor.SetGrid(canvas, creator);
         }
 
         private void OpenSolution()
@@ -505,7 +505,7 @@ namespace CanvasDiagram.WPF
             UpdateDiagramGrid(false);
 
 
-            Model.Clear(Editor.Context.CurrentCanvas);
+            ModelEditor.Clear(Editor.Context.CurrentCanvas);
 
             Editor.SolutionClear(Editor.Context.CurrentTree,
                 Editor.Context.CurrentCanvas, 
@@ -647,7 +647,7 @@ namespace CanvasDiagram.WPF
             else
             {
                 var canvas = Editor.Context.CurrentCanvas;
-                var elements = Model.GetSelected(canvas);
+                var elements = ModelEditor.GetSelected(canvas);
 
                 if (elements.Count() > 0)
                     Editor.Delete(canvas, elements);
@@ -812,7 +812,7 @@ namespace CanvasDiagram.WPF
 
         private void GenerateModelFromSelected_Click(object sender, RoutedEventArgs e)
         {
-            this.TextModel.Text = Model.Generate(Model.GetSelected(Editor.Context.CurrentCanvas));
+            this.TextModel.Text = ModelEditor.Generate(ModelEditor.GetSelected(Editor.Context.CurrentCanvas));
         }
 
         private void InsertModel_Click(object sender, RoutedEventArgs e)
@@ -1176,7 +1176,7 @@ namespace CanvasDiagram.WPF
 
         public void ShowDiagramSelectedElements()
         {
-            var model = Model.Generate(Model.GetSelected(Editor.Context.CurrentCanvas));
+            var model = ModelEditor.Generate(ModelEditor.GetSelected(Editor.Context.CurrentCanvas));
             var diagrams = new List<string>();
 
             diagrams.Add(model);
@@ -1313,7 +1313,7 @@ namespace CanvasDiagram.WPF
             DxfAcadVer version,
             DiagramTable table)
         {
-            string model = Model.GenerateDiagram(canvas, null, canvas.GetProperties());
+            string model = ModelEditor.GenerateDiagram(canvas, null, canvas.GetProperties());
 
             string dxf = DxfGenerate(model, shortenStart, shortenEnd, version, table);
 
@@ -1356,7 +1356,7 @@ namespace CanvasDiagram.WPF
                 var fileName = dlg.FileName;
                 var canvas = Editor.Context.CurrentCanvas;
 
-                Model.Clear(canvas);
+                ModelEditor.Clear(canvas);
 
                 TreeSolution solution = Editor.OpenSolution(fileName);
 

@@ -180,11 +180,11 @@ namespace CanvasDiagram.Editor
             var newItemType = GetTreeItemType(newUid);
 
             if (oldItemType == TreeItemType.Diagram)
-                Model.Store(canvas, oldItem);
+                ModelEditor.Store(canvas, oldItem);
 
             if (newItemType == TreeItemType.Diagram)
             {
-                Model.Load(canvas, creator, newItem);
+                ModelEditor.Load(canvas, creator, newItem);
 
                 if (setProperties != null)
                     setProperties(canvas.GetProperties());
@@ -301,7 +301,7 @@ namespace CanvasDiagram.Editor
 
             project.Add(diagram);
 
-            Model.Store(null, diagram);
+            ModelEditor.Store(null, diagram);
 
             if (select == true)
                 diagram.SetSelected(true);

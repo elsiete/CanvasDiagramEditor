@@ -66,7 +66,7 @@ namespace CanvasDiagram.Editor
             var undoHistory = tuple.Item1;
             var redoHistory = tuple.Item2;
 
-            var model = Model.GenerateDiagram(canvas, null, canvas.GetProperties());
+            var model = ModelEditor.GenerateDiagram(canvas, null, canvas.GetProperties());
 
             undoHistory.Push(model);
             redoHistory.Clear();
@@ -110,15 +110,15 @@ namespace CanvasDiagram.Editor
             // save current model
             if (pushRedo == true)
             {
-                var current = Model.GenerateDiagram(canvas, null, canvas.GetProperties());
+                var current = ModelEditor.GenerateDiagram(canvas, null, canvas.GetProperties());
                 redoHistory.Push(current);
             }
 
             // resotore previous model
             var model = undoHistory.Pop();
 
-            Model.Clear(canvas);
-            Model.Parse(model,
+            ModelEditor.Clear(canvas);
+            ModelEditor.Parse(model,
                 canvas, creator,
                 0, 0,
                 false, true, false, true);
@@ -143,15 +143,15 @@ namespace CanvasDiagram.Editor
             // save current model
             if (pushUndo == true)
             {
-                var current = Model.GenerateDiagram(canvas, null, canvas.GetProperties());
+                var current = ModelEditor.GenerateDiagram(canvas, null, canvas.GetProperties());
                 undoHistory.Push(current);
             }
 
             // resotore previous model
             var model = redoHistory.Pop();
 
-            Model.Clear(canvas);
-            Model.Parse(model,
+            ModelEditor.Clear(canvas);
+            ModelEditor.Parse(model,
                 canvas, creator,
                 0, 0,
                 false, true, false, true);

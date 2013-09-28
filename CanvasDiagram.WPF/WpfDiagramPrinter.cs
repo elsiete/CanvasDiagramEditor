@@ -127,7 +127,7 @@ namespace CanvasDiagram.WPF
                 Height = PageHeight
             };
 
-            Model.Parse(diagram,
+            ModelEditor.Parse(diagram,
                 canvas, this.DiagramCreator,
                 0, 0,
                 false, false, false, true);

@@ -220,7 +220,7 @@ namespace CanvasDiagram.Editor
             canvas.Remove(line);
 
             // remove wire connections
-            var connections = Model.RemoveWireConnections(canvas, line);
+            var connections = ModelEditor.RemoveWireConnections(canvas, line);
 
             // connected original root element to split pin
             if (connections != null && connections.Count == 2)

@@ -16,7 +16,7 @@ namespace CanvasDiagram.Editor
 {
     #region Model
 
-    public static class Model
+    public static class ModelEditor
     {
         #region Generate
 
