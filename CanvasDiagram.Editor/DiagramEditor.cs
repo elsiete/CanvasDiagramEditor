@@ -236,8 +236,8 @@ namespace CanvasDiagram.Editor
             if (element == null || element.GetTag() == null)
                 return;
 
-            var selection = element.GetTag() as Selection;
-            foreach (var wire in selection.Wires)
+            var connection = element.GetTag() as Connection;
+            foreach (var wire in connection.Wires)
                 MoveLine(dX, dY, snap, wire);
         }
 
@@ -743,8 +743,8 @@ namespace CanvasDiagram.Editor
 
         private void MouseRemoveCurrentLine(ICanvas canvas)
         {
-            var selection = Context.CurrentRoot.GetTag() as Selection;
-            var wires = selection.Wires;
+            var connection = Context.CurrentRoot.GetTag() as Connection;
+            var wires = connection.Wires;
 
             var last = wires.LastOrDefault();
             wires.Remove(last);

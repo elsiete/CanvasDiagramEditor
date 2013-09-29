@@ -25,10 +25,10 @@ namespace CanvasDiagram.Editor
         {
             var rootTag = root.GetTag();
             if (rootTag == null)
-                root.SetTag(new Selection(false, new List<Wire>()));
+                root.SetTag(new Connection(root, new List<Wire>()));
 
-            var selection = root.GetTag() as Selection;
-            var wires = selection.Wires;
+            var connection = root.GetTag() as Connection;
+            var wires = connection.Wires;
 
             if (line == null)
                 return FirstConnection(canvas, root, x, y, wires, creator);

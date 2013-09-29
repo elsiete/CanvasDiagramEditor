@@ -119,8 +119,8 @@ namespace CanvasDiagram.Editor
             var tag = element.GetTag();
             if (tag != null && !(element is ILine))
             {
-                var selection = tag as Selection;
-                var wires = selection.Wires;
+                var connection = tag as Connection;
+                var wires = connection.Wires;
 
                 foreach (var wire in wires)
                 {
@@ -662,7 +662,7 @@ namespace CanvasDiagram.Editor
                 visited.Add(element.GetUid());
                 element.SetSelected(true);
 
-                var wires = (tag as Selection).Wires;
+                var wires = (tag as Connection).Wires;
 
                 foreach (var wire in wires)
                     SelectConnected(wire, element, visited);
@@ -737,7 +737,7 @@ namespace CanvasDiagram.Editor
                 var pins = item.Value.Pins;
 
                 if (element.GetTag() == null)
-                    element.SetTag(new Selection(false, new List<Wire>()));
+                    element.SetTag(new Connection(element, new List<Wire>()));
 
                 if (pins.Count > 0)
                     UpdateWires(dict, element, pins);
@@ -746,8 +746,8 @@ namespace CanvasDiagram.Editor
 
         private static void UpdateWires(IDictionary<string, Child> dict, IElement element, List<Pin> pins)
         {
-            var selection = element.GetTag() as Selection;
-            var wires = selection.Wires;
+            var connection = element.GetTag() as Connection;
+            var wires = connection.Wires;
 
             foreach (var pin in pins)
             {
@@ -899,8 +899,8 @@ namespace CanvasDiagram.Editor
                     var tag = element.GetTag();
                     if (tag != null)
                     {
-                        var selection = tag as Selection;
-                        var wires = selection.Wires;
+                        var connection = tag as Connection;
+                        var wires = connection.Wires;
 
                         // empty pin
                         if (wires.Count <= 0)
@@ -939,8 +939,8 @@ namespace CanvasDiagram.Editor
 
         public static void RemoveWireConnections(ILine line, List<Connection> connections, IElement element)
         {
-            var selection = element.GetTag() as Selection;
-            var wires = selection.Wires;
+            var connection = element.GetTag() as Connection;
+            var wires = connection.Wires;
             var maps = CreateMapWire(line, wires);
 
             if (maps.Count > 0)
