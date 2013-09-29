@@ -28,12 +28,12 @@ namespace CanvasDiagram.Editor
                 root.SetTag(new Selection(false, new List<Wire>()));
 
             var selection = root.GetTag() as Selection;
-            var tuples = selection.Wires;
+            var wires = selection.Wires;
 
             if (line == null)
-                return FirstConnection(canvas, root, x, y, tuples, creator);
+                return FirstConnection(canvas, root, x, y, wires, creator);
             else
-                return SecondConnection(root, line, x, y, tuples);
+                return SecondConnection(root, line, x, y, wires);
         }
 
         private static ILine FirstConnection(ICanvas canvas, IElement root, double x, double y, List<Wire> wires, IDiagramCreator creator)
@@ -95,7 +95,7 @@ namespace CanvasDiagram.Editor
                 var start = lineTag as IElement;
                 if (start != null)
                 {
-                    // line Tag is Tuple of start & end root element
+                    // line Tag is start & end of root element
                     // this Tag is used to find all connected elements
                     line.SetTag(new Wire(line, start, root));
                 }

@@ -237,8 +237,8 @@ namespace CanvasDiagram.Editor
                 return;
 
             var selection = element.GetTag() as Selection;
-            foreach (var tuple in selection.Wires)
-                MoveLine(dX, dY, snap, tuple);
+            foreach (var wire in selection.Wires)
+                MoveLine(dX, dY, snap, wire);
         }
 
         private void MoveLine(double dX, double dY, bool snap, Wire wire)
@@ -744,10 +744,10 @@ namespace CanvasDiagram.Editor
         private void MouseRemoveCurrentLine(ICanvas canvas)
         {
             var selection = Context.CurrentRoot.GetTag() as Selection;
-            var tuples = selection.Wires;
+            var wires = selection.Wires;
 
-            var last = tuples.LastOrDefault();
-            tuples.Remove(last);
+            var last = wires.LastOrDefault();
+            wires.Remove(last);
 
             canvas.Remove(Context.CurrentLine);
         }

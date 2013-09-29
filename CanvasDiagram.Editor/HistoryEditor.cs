@@ -99,22 +99,22 @@ namespace CanvasDiagram.Editor
 
         public static void Undo(ICanvas canvas, IDiagramCreator creator, bool pushRedo)
         {
-            var tuple = Get(canvas);
-            var undoHistory = tuple.Undo;
-            var redoHistory = tuple.Redo;
+            var history = Get(canvas);
+            var undo = history.Undo;
+            var redo = history.Redo;
 
-            if (undoHistory.Count <= 0)
+            if (undo.Count <= 0)
                 return;
 
             // save current model
             if (pushRedo == true)
             {
                 var current = ModelEditor.GenerateDiagram(canvas, null, canvas.GetProperties());
-                redoHistory.Push(current);
+                redo.Push(current);
             }
 
             // restore previous model
-            var model = undoHistory.Pop();
+            var model = undo.Pop();
 
             ModelEditor.Clear(canvas);
             ModelEditor.Parse(model,
@@ -125,8 +125,8 @@ namespace CanvasDiagram.Editor
             NotifyCanvasHistoryChanged(new CanvasHistoryChangedEventArgs()
             {
                 Canvas = canvas,
-                Undo = undoHistory,
-                Redo = redoHistory
+                Undo = undo,
+                Redo = redo
             });
         }
 

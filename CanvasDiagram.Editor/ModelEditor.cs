@@ -123,13 +123,13 @@ namespace CanvasDiagram.Editor
             if (elementTag != null && !(element is ILine))
             {
                 var selection = elementTag as Selection;
-                var tuples = selection.Wires;
+                var wires = selection.Wires;
 
-                foreach (var tuple in tuples)
+                foreach (var wire in wires)
                 {
-                    var line = tuple.Line as ILine;
-                    var start = tuple.Start;
-                    var end = tuple.End;
+                    var line = wire.Line as ILine;
+                    var start = wire.Start;
+                    var end = wire.End;
 
                     if (start != null)
                         GenerateWireStart(sb, line);
@@ -668,11 +668,10 @@ namespace CanvasDiagram.Editor
                 visited.Add(element.GetUid());
                 element.SetSelected(true);
 
-                var selection = elmentTag as Selection;
-                var tuples = selection.Wires;
+                var wires = (elmentTag as Selection).Wires;
 
-                foreach (var tuple in tuples)
-                    SelectConnected(tuple, element, visited);
+                foreach (var wire in wires)
+                    SelectConnected(wire, element, visited);
             }
         }
 
@@ -754,7 +753,7 @@ namespace CanvasDiagram.Editor
         private static void UpdateWires(IDictionary<string, Child> dict, IElement element, List<Pin> pins)
         {
             var selection = element.GetTag() as Selection;
-            var tuples = selection.Wires;
+            var wires = selection.Wires;
 
             foreach (var pin in pins)
             {
@@ -770,7 +769,7 @@ namespace CanvasDiagram.Editor
                         if (line == null)
                             continue;
 
-                        UpdateStartTag(element, tuples, line);
+                        UpdateStartTag(element, wires, line);
                     }
                     else
                         System.Diagnostics.Debug.Print("Failed to map wire Start: {0}", name);
@@ -784,7 +783,7 @@ namespace CanvasDiagram.Editor
                         if (line == null)
                             continue;
 
-                        UpdateEndTag(element, tuples, line);
+                        UpdateEndTag(element, wires, line);
                     }
                     else
                         System.Diagnostics.Debug.Print("Failed to map wire End: {0}", name);
@@ -804,7 +803,7 @@ namespace CanvasDiagram.Editor
                 var endRoot = lineEx.GetTag() as IElement;
                 if (endRoot != null)
                 {
-                    // set line Tag as Tuple of start & end root element
+                    // set line Tag as start & end of root element
                     lineEx.SetTag(new Wire(lineEx, element, endRoot));
                 }
             }
@@ -827,7 +826,7 @@ namespace CanvasDiagram.Editor
                 var startRoot = lineEx.GetTag() as IElement;
                 if (startRoot != null)
                 {
-                    // set line Tag as Tuple of start & end root element
+                    // set line Tag as start & end of root element
                     lineEx.SetTag(new Wire(lineEx, startRoot, element));
                 }
             }
@@ -907,10 +906,10 @@ namespace CanvasDiagram.Editor
                     if (elementTag != null)
                     {
                         var selection = elementTag as Selection;
-                        var tuples = selection.Wires;
+                        var wires = selection.Wires;
 
                         // empty pin
-                        if (tuples.Count <= 0)
+                        if (wires.Count <= 0)
                             pins.Add(element);
                     }
                     else
@@ -947,14 +946,14 @@ namespace CanvasDiagram.Editor
         public static void RemoveWireConnections(ILine line, List<Connection> connections, IElement element)
         {
             var selection = element.GetTag() as Selection;
-            var tuples = selection.Wires;
-            var map = CreateMapWire(line, tuples);
+            var wires = selection.Wires;
+            var maps = CreateMapWire(line, wires);
 
-            if (map.Count > 0)
-                connections.Add(new Connection(element, map));
+            if (maps.Count > 0)
+                connections.Add(new Connection(element, maps));
 
-            foreach (var tuple in map)
-                tuples.Remove(tuple);
+            foreach (var map in maps)
+                wires.Remove(map);
         }
 
         private static List<Wire> CreateMapWire(ILine line, List<Wire> wires)
