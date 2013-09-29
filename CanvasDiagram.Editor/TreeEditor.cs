@@ -221,15 +221,9 @@ namespace CanvasDiagram.Editor
             var project = createProject();
 
             if (uid == null)
-            {
-                int id = counter.Next();
-
-                project.SetUid(Constants.TagHeaderProject + Constants.TagNameSeparator + id.ToString());
-            }
+                project.SetUid(Constants.TagHeaderProject + Constants.TagNameSeparator + counter.Next().ToString());
             else
-            {
                 project.SetUid(uid);
-            }
 
             return project;
         }
@@ -241,15 +235,9 @@ namespace CanvasDiagram.Editor
             var diagram = createDiagram();
 
             if (uid == null)
-            {
-                int id = counter.Next();
-
-                diagram.SetUid(Constants.TagHeaderDiagram + Constants.TagNameSeparator + id.ToString());
-            }
+                diagram.SetUid(Constants.TagHeaderDiagram + Constants.TagNameSeparator + counter.Next().ToString());
             else
-            {
                 diagram.SetUid(uid);
-            }
 
             return diagram;
         }
@@ -288,9 +276,7 @@ namespace CanvasDiagram.Editor
             Func<ITreeItem> createProject,
             IdCounter counter)
         {
-            var project = CreateProjectItem(null, createProject, counter);
-
-            solution.Add(project);
+            solution.Add(CreateProjectItem(null, createProject, counter));
         }
 
         public static void AddDiagram(ITreeItem project,
@@ -350,20 +336,6 @@ namespace CanvasDiagram.Editor
 
             foreach (var item in items)
                 DeleteSolution(item);
-        }
-
-        public static void CreateNewSolution(ITree tree,
-            ICanvas canvas,
-            Func<ITreeItem> createSolution,
-            Func<ITreeItem> createProject,
-            Func<ITreeItem> createDiagram,
-            IdCounter counter)
-        {
-            CreateDefaultSolution(tree,
-                createSolution,
-                createProject,
-                createDiagram,
-                counter);
         }
 
         public static void CreateDefaultSolution(ITree tree,

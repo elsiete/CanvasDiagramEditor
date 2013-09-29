@@ -512,8 +512,7 @@ namespace CanvasDiagram.WPF
                 Editor.Context.CurrentCanvas, 
                 Editor.Context.CurrentCanvas.GetCounter());
 
-            TreeEditor.CreateNewSolution(Editor.Context.CurrentTree, 
-                Editor.Context.CurrentCanvas,
+            TreeEditor.CreateDefaultSolution(Editor.Context.CurrentTree, 
                 Editor.Context.CreateSolution,
                 Editor.Context.CreateProject,
                 Editor.Context.CreateDiagram, 
