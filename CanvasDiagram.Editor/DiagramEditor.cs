@@ -33,16 +33,6 @@ namespace CanvasDiagram.Editor
             ModelEditor.Clear(Context.CurrentCanvas);
         }
 
-        public void InsertModel(string diagram, double offsetX, double offsetY, bool select)
-        {
-            Snapshot(Context.CurrentCanvas, true);
-            SelectNone();
-            ModelEditor.Parse(diagram, 
-                Context.CurrentCanvas, Context.DiagramCreator, 
-                offsetX, offsetY,
-                true, true, select, true);
-        }
-
         public void ResetThumbTags()
         {
             Snapshot(Context.CurrentCanvas, true);
@@ -519,8 +509,18 @@ namespace CanvasDiagram.Editor
                 double offsetX = point.X != 0.0 ? SnapOffsetX(point.X, Context.EnableSnap) : 0.0;
                 double offsetY = point.Y != 0.0 ? SnapOffsetY(point.Y, Context.EnableSnap) : 0.0;
 
-                InsertModel(model, offsetX, offsetY, select);
+                Paste(model, offsetX, offsetY, select);
             }
+        }
+
+        public void Paste(string model, double offsetX, double offsetY, bool select)
+        {
+            Snapshot(Context.CurrentCanvas, true);
+            SelectNone();
+            ModelEditor.Parse(model,
+                Context.CurrentCanvas, Context.DiagramCreator,
+                offsetX, offsetY,
+                true, true, select, true);
         }
 
         public void Delete()

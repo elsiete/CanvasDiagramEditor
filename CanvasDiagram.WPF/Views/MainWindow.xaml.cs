@@ -822,7 +822,7 @@ namespace CanvasDiagram.WPF
             double offsetX = double.Parse(TextOffsetX.Text);
             double offsetY = double.Parse(TextOffsetY.Text);
 
-            Editor.InsertModel(diagram, offsetX, offsetY, true);
+            Editor.Paste(diagram, offsetX, offsetY, true);
         }
 
         private void UpdateGrid_Click(object sender, RoutedEventArgs e)
