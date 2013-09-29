@@ -251,7 +251,6 @@ namespace CanvasDiagram.Editor
             var diagrams = project.GetItems();
             var sb = new StringBuilder();
 
-            // Project
             sb.Append(Constants.PrefixRoot);
             sb.Append(Constants.ArgumentSeparator);
             sb.Append(project.GetUid());
@@ -259,7 +258,6 @@ namespace CanvasDiagram.Editor
 
             foreach (var diagram in diagrams)
             {
-                // Diagram Elements
                 if (diagram.GetTag() != null)
                 {
                     var tag = diagram.GetTag() as Diagram;
@@ -342,13 +340,13 @@ namespace CanvasDiagram.Editor
                 Properties = canvas != null ? canvas.GetProperties() : null
             };
 
-            var oldCanvas = creator.GetCanvas();
+            var temp = creator.GetCanvas();
 
             creator.SetCanvas(canvas);
 
             var result = parser.Parse(model, creator, options);
 
-            creator.SetCanvas(oldCanvas);
+            creator.SetCanvas(temp);
 
             if (updateIds == true)
                 canvas.SetCounter(options.Counter);
@@ -374,14 +372,10 @@ namespace CanvasDiagram.Editor
 
         public static string Open(string fileName)
         {
-            string model = null;
-
             using (var reader = new System.IO.StreamReader(fileName))
             {
-                model = reader.ReadToEnd();
+                return reader.ReadToEnd();
             }
-
-            return model;
         }
 
         #endregion
@@ -533,7 +527,7 @@ namespace CanvasDiagram.Editor
 
         public static void MoveLine(ILine line, double dX, double dY)
         {
-            ModeLineStart(line, dX, dY);
+            MoveLineStart(line, dX, dY);
             MoveLineEnd(line, dX, dY);
         }
 
@@ -551,7 +545,7 @@ namespace CanvasDiagram.Editor
             line.SetY2(y);
         }
 
-        public static void ModeLineStart(ILine line, double dX, double dY)
+        public static void MoveLineStart(ILine line, double dX, double dY)
         {
             var margin = line.GetMargin();
             double left = margin.Left;
@@ -745,7 +739,6 @@ namespace CanvasDiagram.Editor
 
         public static void ConnectionsUpdate(IDictionary<string, Child> dict)
         {
-            // update wire to element connections
             foreach (var item in dict)
             {
                 var element = item.Value.Element as IElement;
@@ -769,13 +762,13 @@ namespace CanvasDiagram.Editor
 
             foreach (var pin in pins)
             {
-                string _name = pin.Name;
-                string _type = pin.Type;
+                string name = pin.Name;
+                string type = pin.Type;
 
-                if (StringUtil.Compare(_type, Constants.WireStartType))
+                if (StringUtil.Compare(type, Constants.WireStartType))
                 {
                     Child child = null;
-                    if (dict.TryGetValue(_name, out child) == true)
+                    if (dict.TryGetValue(name, out child) == true)
                     {
                         var line = child.Element;
                         if (line == null)
@@ -784,12 +777,12 @@ namespace CanvasDiagram.Editor
                         UpdateStartTag(element, tuples, line);
                     }
                     else
-                        System.Diagnostics.Debug.Print("Failed to map wire Start: {0}", _name);
+                        System.Diagnostics.Debug.Print("Failed to map wire Start: {0}", name);
                 }
-                else if (StringUtil.Compare(_type, Constants.WireEndType))
+                else if (StringUtil.Compare(type, Constants.WireEndType))
                 {
                     Child child = null;
-                    if (dict.TryGetValue(_name, out child) == true)
+                    if (dict.TryGetValue(name, out child) == true)
                     {
                         var line = child.Element;
                         if (line == null)
@@ -798,7 +791,7 @@ namespace CanvasDiagram.Editor
                         UpdateEndTag(element, tuples, line);
                     }
                     else
-                        System.Diagnostics.Debug.Print("Failed to map wire End: {0}", _name);
+                        System.Diagnostics.Debug.Print("Failed to map wire End: {0}", name);
                 }
             }
         }
