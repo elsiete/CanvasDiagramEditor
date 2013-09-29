@@ -233,13 +233,12 @@ namespace CanvasDiagram.Editor
 
         private void MoveLines(IElement element, double dX, double dY, bool snap)
         {
-            if (element != null && element.GetTag() != null)
-            {
-                var selection = element.GetTag() as Selection;
-                var tuples = selection.Wires;
-                foreach (var tuple in tuples)
-                    MoveLine(dX, dY, snap, tuple);
-            }
+            if (element == null || element.GetTag() == null)
+                return;
+
+            var selection = element.GetTag() as Selection;
+            foreach (var tuple in selection.Wires)
+                MoveLine(dX, dY, snap, tuple);
         }
 
         private void MoveLine(double dX, double dY, bool snap, Wire wire)
@@ -253,13 +252,10 @@ namespace CanvasDiagram.Editor
                 var margin = line.GetMargin();
                 double left = margin.Left;
                 double top = margin.Top;
-                double x = 0.0;
-                double y = 0.0;
-
                 //line.X1 = SnapOffsetX(line.X1 + dX, snap);
                 //line.Y1 = SnapOffsetY(line.Y1 + dY, snap);
-                x = SnapOffsetX(left + dX, snap);
-                y = SnapOffsetY(top + dY, snap);
+                double x = SnapOffsetX(left + dX, snap);
+                double y = SnapOffsetY(top + dY, snap);
 
                 if (left != x || top != y)
                 {
@@ -273,11 +269,8 @@ namespace CanvasDiagram.Editor
             {
                 double left = line.GetX2();
                 double top = line.GetY2();
-                double x = 0.0;
-                double y = 0.0;
-
-                x = SnapX(left + dX, snap);
-                y = SnapY(top + dY, snap);
+                double x = SnapX(left + dX, snap);
+                double y = SnapY(top + dY, snap);
                 line.SetX2(x);
                 line.SetY2(y);
             }
