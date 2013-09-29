@@ -535,11 +535,8 @@ namespace CanvasDiagram.Editor
         {
             double left = line.GetX2();
             double top = line.GetY2();
-            double x = 0.0;
-            double y = 0.0;
-
-            x = dX != 0.0 ? left - dX : left;
-            y = dY != 0.0 ? top - dY : top;
+            double x = dX != 0.0 ? left - dX : left;
+            double y = dY != 0.0 ? top - dY : top;
 
             line.SetX2(x);
             line.SetY2(y);
@@ -550,11 +547,8 @@ namespace CanvasDiagram.Editor
             var margin = line.GetMargin();
             double left = margin.Left;
             double top = margin.Top;
-            double x = 0.0;
-            double y = 0.0;
-
-            x = dX != 0.0 ? left - dX : left;
-            y = dY != 0.0 ? top - dY : top;
+            double x = dX != 0.0 ? left - dX : left;
+            double y = dY != 0.0 ? top - dY : top;
 
             line.SetX2(line.GetX2() + (left - x));
             line.SetY2(line.GetY2() + (top - y));
@@ -685,29 +679,31 @@ namespace CanvasDiagram.Editor
         public static void SelectConnected(Wire wire, IElement root, HashSet<string> visited)
         {
             var line = wire.Line as ILine;
-            var tag = line.GetTag() as Tuple<object, object>;
+            var tag = line.GetTag() as Wire;
 
             line.SetSelected(true);
-
             if (tag == null)
                 return;
 
-            var startRoot = tag.Item1 as IElement;
-            var endRoot = tag.Item2 as IElement;
+            if (CanSelectStart(root, visited, tag.Start))
+                SelectConnected(tag.Start, visited);
 
-            if (startRoot != null &&
+            if (CanSelectEnd(root, visited, tag.End))
+                SelectConnected(tag.End, visited);
+        }
+
+        private static bool CanSelectStart(IElement root, HashSet<string> visited, IElement startRoot)
+        {
+            return startRoot != null &&
                 StringUtil.Compare(startRoot.GetUid(), root.GetUid()) == false &&
-                visited.Contains(startRoot.GetUid()) == false)
-            {
-                SelectConnected(startRoot, visited);
-            }
+                visited.Contains(startRoot.GetUid()) == false;
+        }
 
-            if (endRoot != null &&
+        private static bool CanSelectEnd(IElement root, HashSet<string> visited, IElement endRoot)
+        {
+            return endRoot != null &&
                 StringUtil.Compare(endRoot.GetUid(), root.GetUid()) == false &&
-                visited.Contains(endRoot.GetUid()) == false)
-            {
-                SelectConnected(endRoot, visited);
-            }
+                visited.Contains(endRoot.GetUid()) == false;
         }
 
         #endregion
@@ -809,7 +805,7 @@ namespace CanvasDiagram.Editor
                 if (endRoot != null)
                 {
                     // set line Tag as Tuple of start & end root element
-                    lineEx.SetTag(new Tuple<object, object>(element, endRoot));
+                    lineEx.SetTag(new Wire(lineEx, element, endRoot));
                 }
             }
             else
@@ -832,7 +828,7 @@ namespace CanvasDiagram.Editor
                 if (startRoot != null)
                 {
                     // set line Tag as Tuple of start & end root element
-                    lineEx.SetTag(new Tuple<object, object>(startRoot, element));
+                    lineEx.SetTag(new Wire(lineEx, startRoot, element));
                 }
             }
             else

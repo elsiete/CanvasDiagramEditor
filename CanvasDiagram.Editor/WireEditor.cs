@@ -97,7 +97,7 @@ namespace CanvasDiagram.Editor
                 {
                     // line Tag is Tuple of start & end root element
                     // this Tag is used to find all connected elements
-                    line.SetTag(new Tuple<object, object>(start, root));
+                    line.SetTag(new Wire(line, start, root));
                 }
             }
 
