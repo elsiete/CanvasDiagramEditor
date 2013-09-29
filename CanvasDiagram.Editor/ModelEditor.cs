@@ -831,7 +831,7 @@ namespace CanvasDiagram.Editor
             }
         }
 
-        public static Position GetPinPosition(IElement root, IThumb pin)
+        public static void GetPinPosition(IElement root, IThumb pin, out double x, out double y)
         {
             // get root position in canvas
             double rx = root.GetX();
@@ -842,10 +842,8 @@ namespace CanvasDiagram.Editor
             double py = pin.GetY();
 
             // calculate real pin position
-            double x = rx + px;
-            double y = ry + py;
-
-            return new Position(x, y);
+            x = rx + px;
+            y = ry + py;
         }
 
         #endregion

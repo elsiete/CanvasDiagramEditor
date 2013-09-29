@@ -45,7 +45,6 @@
     <Compile Include="IDiagramCreator.cs" />
     <Compile Include="IDiagramParser.cs" />
     <Compile Include="Pin.cs" />
-    <Compile Include="Position.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Solution.cs" />
     <Compile Include="TreeDiagram.cs" />

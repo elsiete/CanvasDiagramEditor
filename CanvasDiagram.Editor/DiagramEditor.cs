@@ -163,11 +163,13 @@ namespace CanvasDiagram.Editor
 
             Context.CurrentRoot = pin.GetParent() as IThumb;
 
-            var position = ModelEditor.GetPinPosition(Context.CurrentRoot, pin);
+            double x;
+            double y;
+            ModelEditor.GetPinPosition(Context.CurrentRoot, pin, out x, out y);
 
             Context.CurrentLine = WireEditor.Connect(canvas, 
                 Context.CurrentRoot, Context.CurrentLine, 
-                position.X, position.Y,
+                x, y,
                 creator);
 
             if (Context.CurrentLine == null)
