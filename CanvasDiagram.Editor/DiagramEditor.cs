@@ -94,7 +94,7 @@ namespace CanvasDiagram.Editor
             }
         }
 
-        private IEnumerable<ITreeItem> ParseProjects(IEnumerable<TreeProject> projects,
+        private IEnumerable<ITreeItem> Parse(IEnumerable<TreeProject> projects,
             IdCounter counter,
             ITreeItem solution)
         {
@@ -110,7 +110,7 @@ namespace CanvasDiagram.Editor
                 int id = int.Parse(name.Split(Constants.TagNameSeparator)[1]);
                 counter.Set(Math.Max(counter.Count, id + 1));
 
-                ParseDiagrams(counter, diagrams, item, items);
+                Parse(counter, diagrams, item, items);
             }
 
             var first = items.FirstOrDefault();
@@ -120,16 +120,16 @@ namespace CanvasDiagram.Editor
             return items;
         }
 
-        private void ParseDiagrams(IdCounter counter,
+        private void Parse(IdCounter counter,
             IEnumerable<TreeDiagram> diagrams,
             ITreeItem project,
             List<ITreeItem> diagramList)
         {
             foreach (var diagram in diagrams)
-                ParseDiagram(counter, diagram, project, diagramList);
+                Parse(counter, diagram, project, diagramList);
         }
 
-        private void ParseDiagram(IdCounter counter,
+        private void Parse(IdCounter counter,
             TreeDiagram diagram,
             ITreeItem project,
             List<ITreeItem> diagrams)
@@ -918,7 +918,7 @@ namespace CanvasDiagram.Editor
             var solutionItem = TreeEditor.CreateSolutionItem(solutionName, CreateTreeSolutionItem, counter);
             tree.Add(solutionItem);
 
-            ParseProjects(projects, counter, solutionItem);
+            Parse(projects, counter, solutionItem);
         }
 
         public void SolutionClear(ITree tree, ICanvas canvas, IdCounter counter)
