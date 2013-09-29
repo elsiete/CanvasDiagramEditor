@@ -174,6 +174,30 @@
                     </Grid>
                 </TabItem>
 
+                <TabItem x:Name="TabHistory" FocusVisualStyle="{x:Null}">
+                    <TabItem.Header>
+                        <TextBlock Text="History" ToolTip="History"/>
+                    </TabItem.Header>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Grid.Column="0" Grid.Row="0">
+
+                            <Button x:Name="GetHistory" Content="_Get History" Margin="2" Click="GetHistory_Click"/>
+                            <Button x:Name="ClearHistory" Content="_Clear List" Margin="2" Click="ClearHistory_Click"/>
+
+                        </StackPanel>
+
+                        <ListBox x:Name="ListHistory"
+                                 Grid.Column="0" Grid.Row="1"
+                                 Margin="2" Padding="2">
+                        </ListBox>
+                    </Grid>
+                </TabItem>
+
                 <TabItem x:Name="TabOptions" FocusVisualStyle="{x:Null}">
                     <TabItem.Header>
                         <TextBlock Text="Options" ToolTip="Options (F9)"/>

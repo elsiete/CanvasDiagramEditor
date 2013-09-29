@@ -1552,6 +1552,56 @@ namespace CanvasDiagram.WPF
         }
 
         #endregion
+
+        #region History
+
+        private void GetHistory_Click(object sender, RoutedEventArgs e)
+        {
+            var history = Editor.Context.CurrentCanvas.GetTag() as UndoRedo;
+            if (history == null)
+                return;
+
+            ListHistory.Items.Clear();
+            int index = 0;
+
+            foreach (var model in history.Undo.Reverse())
+            {
+                AddHistoryItem(index, model);
+                index++;
+            }
+
+            var current = ModelEditor.GenerateDiagram(Editor.Context.CurrentCanvas, null, Editor.Context.CurrentCanvas.GetProperties());
+            AddHistoryItem(index, current);
+        }
+
+        private void AddHistoryItem(int index, string model)
+        {
+            var item = new ListBoxItem();
+            item.Content = index;
+            item.Tag = model;
+            item.Selected += Item_Selected;
+            ListHistory.Items.Add(item);
+        }
+
+        void Item_Selected(object sender, RoutedEventArgs e)
+        {
+            var item = sender as ListBoxItem;
+            var model = item.Tag as string;
+
+            ModelEditor.Clear(Editor.Context.CurrentCanvas);
+            ModelEditor.Parse(model,
+                Editor.Context.CurrentCanvas,
+                Editor.Context.DiagramCreator,
+                0, 0,
+                false, true, false, true);
+        }
+
+        private void ClearHistory_Click(object sender, RoutedEventArgs e)
+        {
+            ListHistory.Items.Clear();
+        } 
+
+        #endregion
     }
 
     #endregion
