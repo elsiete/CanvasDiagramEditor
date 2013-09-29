@@ -1,7 +1,7 @@
 ﻿// Copyright (C) Wiesław Šoltés 2013. 
 // All Rights Reserved
 
-#region Region
+#region References
 
 using CanvasDiagram.Core;
 using System;
