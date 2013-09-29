@@ -80,25 +80,22 @@ namespace CanvasDiagram.Editor
             if (selected == null)
                 return null;
 
-            string uid = selected.GetUid();
-            bool isSolution = StringUtil.StartsWith(uid, Constants.TagHeaderSolution);
-            bool isProject = StringUtil.StartsWith(uid, Constants.TagHeaderProject);
-            bool isDiagram = StringUtil.StartsWith(uid, Constants.TagHeaderDiagram);
+            var type = TreeEditor.GetTreeItemType(selected.GetUid());
 
-            if (isDiagram == true)
+            if (type == TreeItemType.Diagram)
             {
                 var project = selected.GetParent() as ITreeItem;
                 var models = new List<string>();
                 ModelEditor.GenerateProject(project, models, false);
                 return models;
             }
-            else if (isProject == true)
+            else if (type == TreeItemType.Project)
             {
                 var models = new List<string>();
                 ModelEditor.GenerateProject(selected, models, false);
                 return models;
             }
-            else if (isSolution == true)
+            else if (type == TreeItemType.Solution)
             {
                 var solution = tree.GetItems().FirstOrDefault();
                 if (solution != null)
