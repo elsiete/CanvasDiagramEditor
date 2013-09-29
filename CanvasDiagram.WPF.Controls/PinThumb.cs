@@ -44,9 +44,7 @@ namespace CanvasDiagram.WPF.Controls
 
         public object GetParent()
         {
-            var parent = (this.Parent as FrameworkElement).Parent as FrameworkElement;
-
-            return parent.TemplatedParent;
+            return ((this.Parent as FrameworkElement).Parent as FrameworkElement).TemplatedParent;
         }
 
         #endregion
