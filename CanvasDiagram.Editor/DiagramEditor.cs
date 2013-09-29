@@ -68,10 +68,11 @@ namespace CanvasDiagram.Editor
 
         public Solution GenerateSolution(string fileName, bool includeHistory)
         {
-            var tree = Context.CurrentTree;
-            var tagFileName = Context.TagFileName;
-            var tableFileName = Context.TableFileName;
-            return ModelEditor.GenerateSolution(tree, fileName, tagFileName, tableFileName, includeHistory);
+            return ModelEditor.GenerateSolution(Context.CurrentTree,
+                fileName,
+                Context.TagFileName,
+                Context.TableFileName,
+                includeHistory);
         }
 
         public static IEnumerable<string> GetCurrentProjectDiagrams(ITree tree)
