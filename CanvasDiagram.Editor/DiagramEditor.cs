@@ -29,33 +29,24 @@ namespace CanvasDiagram.Editor
 
         public void ClearCanvas()
         {
-            var canvas = Context.CurrentCanvas;
-
-            Snapshot(canvas, true);
-
-            ModelEditor.Clear(canvas);
+            Snapshot(Context.CurrentCanvas, true);
+            ModelEditor.Clear(Context.CurrentCanvas);
         }
 
         public void InsertModel(string diagram, double offsetX, double offsetY, bool select)
         {
-            var canvas = Context.CurrentCanvas;
-
-            Snapshot(canvas, true);
-
+            Snapshot(Context.CurrentCanvas, true);
             SelectNone();
             ModelEditor.Parse(diagram, 
-                canvas, Context.DiagramCreator, 
+                Context.CurrentCanvas, Context.DiagramCreator, 
                 offsetX, offsetY,
                 true, true, select, true);
         }
 
         public void ResetThumbTags()
         {
-            var canvas = Context.CurrentCanvas;
-
-            Snapshot(canvas, true);
-
-            TagsResetThumbs(canvas);
+            Snapshot(Context.CurrentCanvas, true);
+            TagsResetThumbs(Context.CurrentCanvas);
         }
 
         public string GetCurrentModel()
@@ -82,35 +73,37 @@ namespace CanvasDiagram.Editor
 
             var type = TreeEditor.GetTreeItemType(selected.GetUid());
 
-            if (type == TreeItemType.Diagram)
+            switch (type)
             {
-                var project = selected.GetParent() as ITreeItem;
-                var models = new List<string>();
-                ModelEditor.GenerateProject(project, models, false);
-                return models;
-            }
-            else if (type == TreeItemType.Project)
-            {
-                var models = new List<string>();
-                ModelEditor.GenerateProject(selected, models, false);
-                return models;
-            }
-            else if (type == TreeItemType.Solution)
-            {
-                var solution = tree.GetItems().FirstOrDefault();
-                if (solution != null)
-                {
-                    var models = new List<string>();
-                    var project = solution.GetItems().FirstOrDefault();
-                    if (project != null)
+                case TreeItemType.Diagram:
                     {
+                        var models = new List<string>();
+                        ModelEditor.GenerateProject(selected.GetParent() as ITreeItem, models, false);
+                        return models;
+                    }
+                case TreeItemType.Project:
+                    {
+                        var models = new List<string>();
+                        ModelEditor.GenerateProject(selected, models, false);
+                        return models;
+                    }
+                case TreeItemType.Solution:
+                    {
+                        var solution = tree.GetItems().FirstOrDefault();
+                        if (solution == null)
+                            return null;
+
+                        var project = solution.GetItems().FirstOrDefault();
+                        if (project != null)
+                            return null;
+
+                        var models = new List<string>();
                         ModelEditor.GenerateProject(project, models, false);
                         return models;
                     }
-                }
+                default:
+                    return null;
             }
-
-            return null;
         }
 
         private IEnumerable<ITreeItem> ParseProjects(IEnumerable<TreeProject> projects,
