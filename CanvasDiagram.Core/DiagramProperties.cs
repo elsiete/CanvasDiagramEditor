@@ -16,14 +16,6 @@ namespace CanvasDiagram.Core
 
     public class DiagramProperties
     {
-        #region Constructor
-
-        public DiagramProperties()
-        {
-        }
-
-        #endregion
-
         #region Properties
 
         public int PageWidth { get; set; }
