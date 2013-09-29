@@ -24,9 +24,7 @@ namespace CanvasDiagram.WPF.Controls
 
         public IEnumerable<ITreeItem> GetItems()
         {
-            var elements = this.Items.Cast<FrameworkElement>();
-
-            return elements.Cast<ITreeItem>();
+            return this.Items.Cast<FrameworkElement>().Cast<ITreeItem>();
         }
 
         public void Add(ITreeItem item)
