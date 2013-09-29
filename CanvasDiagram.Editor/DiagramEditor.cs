@@ -822,26 +822,18 @@ namespace CanvasDiagram.Editor
                 double y = point.Y - margin.Top;
 
                 if (Context.CurrentLine.GetX2() != x)
-                {
-                    //CurrentOptions.CurrentLine.X2 = SnapX(x);
                     Context.CurrentLine.SetX2(x);
-                }
 
                 if (Context.CurrentLine.GetY2() != y)
-                {
-                    //CurrentOptions.CurrentLine.Y2 = SnapY(y);
                     Context.CurrentLine.SetY2(y);
-                }
             }
         }
 
         public bool MouseEventRightDown(ICanvas canvas)
         {
-            if (Context.CurrentRoot != null && 
-                Context.CurrentLine != null)
+            if (Context.CurrentRoot != null && Context.CurrentLine != null)
             {
-                var creator = Context.DiagramCreator;
-                HistoryEditor.Undo(canvas, creator, false);
+                HistoryEditor.Undo(canvas, Context.DiagramCreator, false);
 
                 Context.CurrentLine = null;
                 Context.CurrentRoot = null;
@@ -856,37 +848,29 @@ namespace CanvasDiagram.Editor
 
         #region Solution
 
-        public void SolutionParse(ITree tree,
+        public void Parse(ITree tree,
             TreeSolution solution,
             IdCounter counter,
             Func<ITreeItem> CreateTreeSolutionItem)
         {
-            // create solution
-            string tagFileName = null;
-
+            string tagFileName = solution.TagFileName;
             string solutionName = solution.Name;
-            tagFileName = solution.TagFileName;
             var projects = solution.Projects.Reverse();
 
             TagsLoad(tagFileName);
 
-            var solutionItem = TreeEditor.CreateSolutionItem(solutionName, CreateTreeSolutionItem, counter);
-            tree.Add(solutionItem);
+            var item = TreeEditor.CreateSolutionItem(solutionName, CreateTreeSolutionItem, counter);
+            tree.Add(item);
 
-            Parse(projects, counter, solutionItem);
+            Parse(projects, counter, item);
         }
 
-        public void SolutionClear(ITree tree, ICanvas canvas, IdCounter counter)
+        public void Clear(ITree tree, ICanvas canvas, IdCounter counter)
         {
-            // clear solution tree
             TreeEditor.Clear(tree);
-
-            // reset counter
             counter.Reset();
-
             TagsReset();
             SelectedListReset();
-
             canvas.SetTags(null);
         }
 
@@ -913,7 +897,6 @@ namespace CanvasDiagram.Editor
 
         private void TagsLoad(string tagFileName)
         {
-            // load tags
             if (tagFileName != null)
             {
                 Context.TagFileName = tagFileName;
@@ -985,18 +968,14 @@ namespace CanvasDiagram.Editor
         {
             var prop = Context.CurrentCanvas.GetProperties();
             return snap == true ?
-                SnapUtil.Snap(original,
-                    prop.SnapX, prop.SnapOffsetX) : 
-                    original;
+                SnapUtil.Snap(original, prop.SnapX, prop.SnapOffsetX) : original;
         }
 
         public double SnapOffsetY(double original, bool snap)
         {
             var prop = Context.CurrentCanvas.GetProperties();
             return snap == true ?
-                SnapUtil.Snap(original,
-                    prop.SnapY, prop.SnapOffsetY) : 
-                    original;
+                SnapUtil.Snap(original, prop.SnapY, prop.SnapOffsetY) : original;
         }
 
         public double SnapX(double original, bool snap)

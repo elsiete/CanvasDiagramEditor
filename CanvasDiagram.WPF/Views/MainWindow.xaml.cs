@@ -508,7 +508,7 @@ namespace CanvasDiagram.WPF
 
             ModelEditor.Clear(Editor.Context.CurrentCanvas);
 
-            Editor.SolutionClear(Editor.Context.CurrentTree,
+            Editor.Clear(Editor.Context.CurrentTree,
                 Editor.Context.CurrentCanvas, 
                 Editor.Context.CurrentCanvas.GetCounter());
 
@@ -1367,8 +1367,8 @@ namespace CanvasDiagram.WPF
 
                     var tree = Editor.Context.CurrentTree;
 
-                    Editor.SolutionClear(tree, canvas, canvas.GetCounter());
-                    Editor.SolutionParse(tree, solution, canvas.GetCounter(), Editor.Context.CreateSolution);
+                    Editor.Clear(tree, canvas, canvas.GetCounter());
+                    Editor.Parse(tree, solution, canvas.GetCounter(), Editor.Context.CreateSolution);
                 }
             }
         }
