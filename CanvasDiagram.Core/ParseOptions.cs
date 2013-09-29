@@ -16,14 +16,6 @@ namespace CanvasDiagram.Core
 
     public class ParseOptions
     {
-        #region Constructor
-
-        public ParseOptions()
-        {
-        }
-
-        #endregion
-
         #region Properties
 
         public double OffsetX { get; set; }
