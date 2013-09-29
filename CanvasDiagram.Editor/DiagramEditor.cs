@@ -71,9 +71,7 @@ namespace CanvasDiagram.Editor
             if (selected == null)
                 return null;
 
-            var type = TreeEditor.GetTreeItemType(selected.GetUid());
-
-            switch (type)
+            switch (TreeEditor.GetTreeItemType(selected.GetUid()))
             {
                 case TreeItemType.Diagram:
                     {
