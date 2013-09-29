@@ -24,9 +24,7 @@ namespace CanvasDiagram.WPF.Controls
 
         public IEnumerable<ITreeItem> GetItems()
         {
-            var elements = this.Items.Cast<FrameworkElement>();
-
-            return elements.Cast<ITreeItem>();
+            return this.Items.Cast<FrameworkElement>().Cast<ITreeItem>();
         }
 
         public int GetItemsCount()
@@ -36,16 +34,12 @@ namespace CanvasDiagram.WPF.Controls
 
         public ITreeItem GetItem(int index)
         {
-            var item = this.Items[index];
-
-            return item as ITreeItem;
+            return this.Items[index] as ITreeItem;
         }
 
         public int GetItemIndex(ITreeItem item)
         {
-            int index = Items.IndexOf(item as FrameworkElement);
-
-            return index;
+            return Items.IndexOf(item as FrameworkElement);
         }
 
         public void Add(ITreeItem item)
