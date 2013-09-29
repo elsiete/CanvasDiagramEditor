@@ -423,14 +423,7 @@ namespace CanvasDiagram.WPF.Controls
         public IMargin GetMargin()
         {
             var margin = this.Margin;
-
-            return new MarginEx()
-            {
-                Bottom = margin.Bottom,
-                Left = margin.Left,
-                Right = margin.Right,
-                Top = margin.Top
-            };
+            return new MarginEx(margin.Bottom, margin.Left, margin.Right, margin.Top);
         }
 
         public void SetMargin(IMargin margin)

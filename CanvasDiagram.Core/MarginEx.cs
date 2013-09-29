@@ -21,10 +21,6 @@ namespace CanvasDiagram.Core
         public double Right { get; set; }
         public double Top { get; set; }
 
-        public MarginEx()
-        {
-        }
-
         public MarginEx(double bottom, double left, double right, double top)
         {
             Bottom = bottom;
