@@ -286,33 +286,25 @@ namespace CanvasDiagram.Editor
         public void MoveLeft(ICanvas canvas)
         {
             Snapshot(canvas, false);
-
-            double delta = Context.EnableSnap ? -canvas.GetProperties().GridSize : -1.0;
-            MoveSelectedElements(canvas, delta, 0.0, false);
+            MoveSelectedElements(canvas, Context.EnableSnap ? -canvas.GetProperties().GridSize : -1.0, 0.0, false);
         }
 
         public void MoveRight(ICanvas canvas)
         {
             Snapshot(canvas, false);
-
-            double delta = Context.EnableSnap ? canvas.GetProperties().GridSize : 1.0;
-            MoveSelectedElements(canvas, delta, 0.0, false);
+            MoveSelectedElements(canvas, Context.EnableSnap ? canvas.GetProperties().GridSize : 1.0, 0.0, false);
         }
 
         public void MoveUp(ICanvas canvas)
         {
             Snapshot(canvas, false);
-
-            double delta = Context.EnableSnap ? -canvas.GetProperties().GridSize : -1.0;
-            MoveSelectedElements(canvas, 0.0, delta, false);
+            MoveSelectedElements(canvas, 0.0, Context.EnableSnap ? -canvas.GetProperties().GridSize : -1.0, false);
         }
 
         public void MoveDown(ICanvas canvas)
         {
             Snapshot(canvas, false);
-
-            double delta = Context.EnableSnap ? canvas.GetProperties().GridSize : 1.0;
-            MoveSelectedElements(canvas, 0.0, delta, false);
+            MoveSelectedElements(canvas, 0.0, Context.EnableSnap ? canvas.GetProperties().GridSize : 1.0, false);
         }
 
         #endregion
