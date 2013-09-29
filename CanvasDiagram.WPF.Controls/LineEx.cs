@@ -248,11 +248,7 @@ namespace CanvasDiagram.WPF.Controls
 
         protected override Geometry DefiningGeometry
         {
-            get
-            {
-                var g = GetDefiningGeometry();
-                return g;
-            }
+            get { return GetDefiningGeometry(); }
         }
 
         #endregion
