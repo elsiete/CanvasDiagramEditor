@@ -57,7 +57,6 @@ namespace CanvasDiagram.Editor
 
         private static void GenerateElement(StringBuilder sb, double x, double y, string uid)
         {
-            sb.Append("    ");
             sb.Append(Constants.PrefixRoot);
             sb.Append(Constants.ArgumentSeparator);
             sb.Append(uid);
@@ -76,7 +75,6 @@ namespace CanvasDiagram.Editor
             if (data != null && data is Tag)
                 tag = data as Tag;
 
-            sb.Append("    ");
             sb.Append(Constants.PrefixRoot);
             sb.Append(Constants.ArgumentSeparator);
             sb.Append(uid);
@@ -94,7 +92,6 @@ namespace CanvasDiagram.Editor
             var line = element as ILine;
             var margin = line.GetMargin();
 
-            sb.Append("    ");
             sb.Append(Constants.PrefixRoot);
             sb.Append(Constants.ArgumentSeparator);
             sb.Append(uid);
@@ -142,7 +139,6 @@ namespace CanvasDiagram.Editor
     
         private static void GenerateWireStart(StringBuilder sb, ILine line)
         {
-            sb.Append("        ");
             sb.Append(Constants.PrefixChild);
             sb.Append(Constants.ArgumentSeparator);
             sb.Append(line.GetUid());
@@ -153,7 +149,6 @@ namespace CanvasDiagram.Editor
 
         private static void GenerateWireEnd(StringBuilder sb, ILine line)
         {
-            sb.Append("        ");
             sb.Append(Constants.PrefixChild);
             sb.Append(Constants.ArgumentSeparator);
             sb.Append(line.GetUid());
