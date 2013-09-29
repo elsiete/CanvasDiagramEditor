@@ -656,13 +656,13 @@ namespace CanvasDiagram.Editor
             if (element == null)
                 return;
 
-            var elmentTag = element.GetTag();
-            if (elmentTag != null)
+            var tag = element.GetTag();
+            if (tag != null)
             {
                 visited.Add(element.GetUid());
                 element.SetSelected(true);
 
-                var wires = (elmentTag as Selection).Wires;
+                var wires = (tag as Selection).Wires;
 
                 foreach (var wire in wires)
                     SelectConnected(wire, element, visited);
