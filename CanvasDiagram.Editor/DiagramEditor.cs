@@ -60,10 +60,9 @@ namespace CanvasDiagram.Editor
 
         public string GetCurrentModel()
         {
-            var tree = Context.CurrentTree;
-            var canvas = Context.CurrentCanvas;
-            var item = tree.GetSelectedItem() as ITreeItem;
-            return ModelEditor.GenerateItemModel(canvas, item, true);
+            return ModelEditor.GenerateItemModel(Context.CurrentCanvas, 
+                Context.CurrentTree.GetSelectedItem() as ITreeItem, 
+                true);
         }
 
         public Solution GenerateSolution(string fileName, bool includeHistory)
