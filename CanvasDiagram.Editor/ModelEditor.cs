@@ -116,10 +116,10 @@ namespace CanvasDiagram.Editor
 
         private static void GenerateChildren(StringBuilder sb, IElement element)
         {
-            var elementTag = element.GetTag();
-            if (elementTag != null && !(element is ILine))
+            var tag = element.GetTag();
+            if (tag != null && !(element is ILine))
             {
-                var selection = elementTag as Selection;
+                var selection = tag as Selection;
                 var wires = selection.Wires;
 
                 foreach (var wire in wires)
@@ -896,10 +896,10 @@ namespace CanvasDiagram.Editor
 
                 if (IsElementPin(uid))
                 {
-                    var elementTag = element.GetTag();
-                    if (elementTag != null)
+                    var tag = element.GetTag();
+                    if (tag != null)
                     {
-                        var selection = elementTag as Selection;
+                        var selection = tag as Selection;
                         var wires = selection.Wires;
 
                         // empty pin
@@ -929,8 +929,8 @@ namespace CanvasDiagram.Editor
 
             foreach (var element in canvas.GetElements())
             {
-                var elementTag = element.GetTag();
-                if (elementTag != null && !(element is ILine))
+                var tag = element.GetTag();
+                if (tag != null && !(element is ILine))
                     RemoveWireConnections(line, connections, element);
             }
 
