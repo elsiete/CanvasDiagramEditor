@@ -330,15 +330,9 @@ namespace CanvasDiagram.Editor
         {
             Snapshot(canvas, false);
 
-            if (element.GetSelected() == true)
-            {
-                Context.MoveAllSelected = true;
-            }
-            else
-            {
-                Context.MoveAllSelected = false;
+            Context.MoveAllSelected = element.GetSelected();
+            if (Context.MoveAllSelected == false)
                 element.SetSelected(true);
-            }
         }
 
         public void DragEnd(ICanvas canvas, IThumb element)
@@ -370,12 +364,11 @@ namespace CanvasDiagram.Editor
 
         public void ToggleWireStart()
         {
-            var canvas = Context.CurrentCanvas;
-            var wires = ModelEditor.GetSelectedWires(canvas);
+            var wires = ModelEditor.GetSelectedWires(Context.CurrentCanvas);
             if (wires.Count() <= 0)
                 return;
 
-            Snapshot(canvas, false);
+            Snapshot(Context.CurrentCanvas, false);
 
             foreach (var wire in wires.Cast<ILine>())
                 wire.SetStartVisible(wire.GetStartVisible() == true ? false : true);
@@ -383,12 +376,11 @@ namespace CanvasDiagram.Editor
 
         public void ToggleWireEnd()
         {
-            var canvas = Context.CurrentCanvas;
-            var wires = ModelEditor.GetSelectedWires(canvas);
+            var wires = ModelEditor.GetSelectedWires(Context.CurrentCanvas);
             if (wires.Count() <= 0)
                 return;
 
-            Snapshot(canvas, false);
+            Snapshot(Context.CurrentCanvas, false);
 
             foreach (var wire in wires.Cast<ILine>())
                 wire.SetEndVisible(wire.GetEndVisible() == true ? false : true);
@@ -413,9 +405,7 @@ namespace CanvasDiagram.Editor
 
         public void SaveDiagram(string fileName, ICanvas canvas)
         {
-            string model = ModelEditor.GenerateDiagram(canvas, null, canvas.GetProperties());
-
-            ModelEditor.Save(fileName, model);
+            ModelEditor.Save(fileName, ModelEditor.GenerateDiagram(canvas, null, canvas.GetProperties()));
         }
 
         #endregion
@@ -424,28 +414,19 @@ namespace CanvasDiagram.Editor
 
         public TreeSolution OpenSolution(string fileName)
         {
-            TreeSolution solution = null;
-
             using (var reader = new System.IO.StreamReader(fileName))
             {
-                string diagram = reader.ReadToEnd();
-
-                solution = ModelEditor.Parse(diagram,
+                return ModelEditor.Parse(reader.ReadToEnd(),
                     null, Context.DiagramCreator, 
                     0, 0, 
                     false, false, false, false);
             }
-
-            return solution;
         }
 
         public void SaveSolution(string fileName)
         {
             GetCurrentModel();
-
-            var model = GenerateSolution(fileName, false).Model;
-
-            ModelEditor.Save(fileName, model);
+            ModelEditor.Save(fileName, GenerateSolution(fileName, false).Model);
         }
 
         #endregion
@@ -460,10 +441,7 @@ namespace CanvasDiagram.Editor
             if (model.Length == 0)
             {
                 model = ModelEditor.GenerateDiagram(canvas, null, canvas.GetProperties());
-
-                var elements = ModelEditor.GetAll(canvas);
-
-                Delete(canvas, elements);
+                Delete(canvas, ModelEditor.GetAll(canvas));
             }
             else
             {
@@ -509,16 +487,12 @@ namespace CanvasDiagram.Editor
 
         public void Delete()
         {
-            var canvas = Context.CurrentCanvas;
-            var elements = ModelEditor.GetSelected(canvas);
-
-            Delete(canvas, elements);
+            Delete(Context.CurrentCanvas, ModelEditor.GetSelected(Context.CurrentCanvas));
         }
 
         public void Delete(ICanvas canvas, IPoint point)
         {
             Snapshot(canvas, true);
-
             ModelEditor.DeleteElement(canvas, point);
 
             Context.SkipLeftClick = false;
@@ -597,27 +571,26 @@ namespace CanvasDiagram.Editor
         private void SelectPreviousInitialize(bool deselect)
         {
             var elements = ModelEditor.GetAll(Context.CurrentCanvas);
+            if (elements == null)
+                return;
 
-            if (elements != null)
-            {
-                Context.SelectedThumbList = new LinkedList<IElement>(elements);
-                Context.CurrentThumbNode = Context.SelectedThumbList.Last;
+            Context.SelectedThumbList = new LinkedList<IElement>(elements);
+            Context.CurrentThumbNode = Context.SelectedThumbList.Last;
 
-                if (Context.CurrentThumbNode != null)
-                    SelectOneElement(Context.CurrentThumbNode.Value, deselect);
-            }
+            if (Context.CurrentThumbNode != null)
+                SelectOneElement(Context.CurrentThumbNode.Value, deselect);
         }
 
         private void SelectPreviousElement(bool deselect)
         {
-            if (Context.CurrentThumbNode != null)
-            {
-                Context.CurrentThumbNode = Context.CurrentThumbNode.Previous;
-                if (Context.CurrentThumbNode == null)
-                    Context.CurrentThumbNode = Context.SelectedThumbList.Last;
+            if (Context.CurrentThumbNode == null)
+                return;
 
-                SelectOneElement(Context.CurrentThumbNode.Value, deselect);
-            }
+            Context.CurrentThumbNode = Context.CurrentThumbNode.Previous;
+            if (Context.CurrentThumbNode == null)
+                Context.CurrentThumbNode = Context.SelectedThumbList.Last;
+
+            SelectOneElement(Context.CurrentThumbNode.Value, deselect);
         }
 
         public void SelectNext(bool deselect)
@@ -631,28 +604,27 @@ namespace CanvasDiagram.Editor
         private void SelectNextInitialize(bool deselect)
         {
             var elements = ModelEditor.GetAll(Context.CurrentCanvas);
+            if (elements == null)
+                return;
 
-            if (elements != null)
-            {
-                Context.SelectedThumbList = new LinkedList<IElement>(elements);
-                Context.CurrentThumbNode = Context.SelectedThumbList.First;
+            Context.SelectedThumbList = new LinkedList<IElement>(elements);
+            Context.CurrentThumbNode = Context.SelectedThumbList.First;
 
-                if (Context.CurrentThumbNode != null)
-                    SelectOneElement(Context.CurrentThumbNode.Value, deselect);
-            }
+            if (Context.CurrentThumbNode != null)
+                SelectOneElement(Context.CurrentThumbNode.Value, deselect);
         }
 
         private void SelectNextElement(bool deselect)
         {
-            if (Context.CurrentThumbNode != null)
-            {
-                Context.CurrentThumbNode = Context.CurrentThumbNode.Next;
+            if (Context.CurrentThumbNode == null)
+                return;
 
-                if (Context.CurrentThumbNode == null)
-                    Context.CurrentThumbNode = Context.SelectedThumbList.First;
+            Context.CurrentThumbNode = Context.CurrentThumbNode.Next;
 
-                SelectOneElement(Context.CurrentThumbNode.Value, deselect);
-            }
+            if (Context.CurrentThumbNode == null)
+                Context.CurrentThumbNode = Context.SelectedThumbList.First;
+
+            SelectOneElement(Context.CurrentThumbNode.Value, deselect);
         }
 
         public void SelectedListReset()
@@ -700,8 +672,7 @@ namespace CanvasDiagram.Editor
 
         public bool CanConnect()
         {
-            return Context.CurrentRoot != null &&
-                   Context.CurrentLine != null;
+            return Context.CurrentRoot != null && Context.CurrentLine != null;
         }
 
         public bool CanSplitWire(IElement element)
@@ -729,8 +700,8 @@ namespace CanvasDiagram.Editor
         {
             return pin != null &&
             (
-                !StringUtil.Compare(pin.GetUid(), Constants.PinStandalone)
-                || (Context.IsControlPressed != null && Context.IsControlPressed())
+                !StringUtil.Compare(pin.GetUid(), Constants.PinStandalone) ||
+                (Context.IsControlPressed != null && Context.IsControlPressed())
             );
         }
 
