@@ -149,8 +149,7 @@ namespace CanvasDiagram.Editor
             }
             else
             {
-                throw new InvalidOperationException(
-                    "LineEx should have corrent location info for Start and End.");
+                throw new InvalidOperationException("LineEx should have corrent location info for Start and End.");
             }
         }
 
@@ -168,36 +167,20 @@ namespace CanvasDiagram.Editor
             if (start1 != null)
             {
                 var margin = line1.GetMargin();
-                double left = margin.Left;
-                double top = margin.Top;
-
-                startPoint = new PointEx(left, top);
+                startPoint = new PointEx(margin.Left, margin.Top);
             }
 
             if (end1 != null)
-            {
-                double left = line1.GetX2();
-                double top = line1.GetY2();
-
-                endPoint = new PointEx(left, top);
-            }
+                endPoint = new PointEx(line1.GetX2(), line1.GetY2());
 
             if (start2 != null)
             {
                 var margin = line2.GetMargin();
-                double left = margin.Left;
-                double top = margin.Top;
-
-                startPoint = new PointEx(left, top);
+                startPoint = new PointEx(margin.Left,  margin.Top);
             }
 
             if (end2 != null)
-            {
-                double left = line2.GetX2();
-                double top = line2.GetY2();
-
-                endPoint = new PointEx(left, top);
-            }
+                endPoint = new PointEx(line2.GetX2(), line2.GetY2());
 
             return new Tuple<PointEx, PointEx>(startPoint, endPoint);
         }
@@ -215,7 +198,7 @@ namespace CanvasDiagram.Editor
             double x = splitPin.GetX();
             double y = splitPin.GetY();
 
-            var _currentLine = Connect(canvas, splitPin, currentLine, x, y, creator);
+            var temp = Connect(canvas, splitPin, currentLine, x, y, creator);
 
             // remove original hit tested line
             canvas.Remove(line);
@@ -225,7 +208,7 @@ namespace CanvasDiagram.Editor
 
             // connected original root element to split pin
             if (connections != null && connections.Count == 2)
-                Reconnect(canvas, line, splitPin, x, y, connections, _currentLine, creator);
+                Reconnect(canvas, line, splitPin, x, y, connections, temp, creator);
             else
                 throw new InvalidOperationException("LineEx should have only two connections: Start and End.");
 
