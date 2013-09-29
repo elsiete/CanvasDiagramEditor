@@ -164,10 +164,12 @@ namespace CanvasDiagram.Editor
             Context.CurrentRoot = pin.GetParent() as IThumb;
 
             var position = ModelEditor.GetPinPosition(Context.CurrentRoot, pin);
-            double x = position.X;
-            double y = position.Y;
 
-            Context.CurrentLine = WireEditor.Connect(canvas, Context.CurrentRoot, Context.CurrentLine, x, y, creator);
+            Context.CurrentLine = WireEditor.Connect(canvas, 
+                Context.CurrentRoot, Context.CurrentLine, 
+                position.X, position.Y,
+                creator);
+
             if (Context.CurrentLine == null)
                 Context.CurrentRoot = null;
         }
@@ -225,10 +227,7 @@ namespace CanvasDiagram.Editor
 
         private void MoveRoot(IElement element, double dX, double dY, bool snap)
         {
-            double left = element.GetX() + dX;
-            double top = element.GetY() + dY;
-
-            SetPosition(element, left, top, snap);
+            SetPosition(element, element.GetX() + dX, element.GetY() + dY, snap);
             MoveLines(element, dX, dY, snap);
         }
 
