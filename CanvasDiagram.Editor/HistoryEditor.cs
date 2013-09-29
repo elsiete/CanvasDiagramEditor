@@ -113,7 +113,7 @@ namespace CanvasDiagram.Editor
                 redoHistory.Push(current);
             }
 
-            // resotore previous model
+            // restore previous model
             var model = undoHistory.Pop();
 
             ModelEditor.Clear(canvas);
@@ -146,7 +146,7 @@ namespace CanvasDiagram.Editor
                 undo.Push(current);
             }
 
-            // resotore previous model
+            // restore previous model
             var model = redo.Pop();
 
             ModelEditor.Clear(canvas);
