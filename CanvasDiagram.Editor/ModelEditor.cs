@@ -834,33 +834,21 @@ namespace CanvasDiagram.Editor
 
         public static List<IElement> FindEmptyPins(ICanvas canvas)
         {
-            var pins = new List<IElement>();
+            var empty = new List<IElement>();
 
             foreach (var element in canvas.GetElements())
             {
-                string uid = element.GetUid();
-
-                if (IsElementPin(uid))
+                if (IsElementPin(element.GetUid()))
                 {
                     var tag = element.GetTag();
-                    if (tag != null)
-                    {
-                        var connection = tag as Connection;
-                        var wires = connection.Wires;
-
-                        // empty pin
-                        if (wires.Count <= 0)
-                            pins.Add(element);
-                    }
-                    else
-                    {
-                        // empty pin
-                        pins.Add(element);
-                    }
+                    if (tag == null)
+                        empty.Add(element);
+                    else if ((tag as Connection).Wires.Count <= 0)
+                        empty.Add(element);
                 }
             }
 
-            return pins;
+            return empty;
         }
 
         public static bool IsElementPin(string uid)
@@ -884,8 +872,7 @@ namespace CanvasDiagram.Editor
 
         public static void RemoveWireConnections(ILine line, List<Connection> connections, IElement element)
         {
-            var connection = element.GetTag() as Connection;
-            var wires = connection.Wires;
+            var wires = (element.GetTag() as Connection).Wires;
             var maps = CreateMapWire(line, wires);
 
             if (maps.Count > 0)
