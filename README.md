@@ -9,49 +9,49 @@
 
 ## Example
 
-  Below you can find sample solution model `solution0.txt` created by editor:
+  Below you can find sample solution model `solution0.txt` created in editor:
 
-    +;Solution|0;tags0.txt
-    +;Project|0
-    +;Diagram|0;1260;891;330;31;600;750;30;15;15;0;1
-        +;Input|0;30;181;0
-            -;Wire|0;Start
-        +;Input|1;30;241;1
-            -;Wire|2;Start
-        +;AndGate|0;420;391
-            -;Wire|4;End
-            -;Wire|5;Start
-        +;Wire|0;315;196;435;196;False;True;True;False
-        +;Pin|0;435;196
-            -;Wire|0;End
-            -;Wire|3;Start
-        +;Wire|2;315;256;435;256;False;False;True;False
-        +;Pin|1;435;256
-            -;Wire|2;End
-            -;Wire|3;End
-            -;Wire|4;Start
-        +;Wire|3;435;196;435;256;False;False;False;False
-        +;Wire|4;435;256;435;391;False;False;False;False
-        +;Output|0;930;391;3
-            -;Wire|5;End
-        +;Wire|5;450;406;930;406;False;False;False;True
-        +;Input|2;30;481;5
-            -;Wire|7;Start
-        +;Input|3;30;571;6
-            -;Wire|6;Start
-        +;OrGate|0;420;571
-            -;Wire|6;End
-            -;Wire|8;End
-            -;Wire|9;Start
-        +;Output|1;930;571;8
-            -;Wire|9;End
-        +;Wire|6;315;586;420;586;False;False;True;False
-        +;Wire|7;315;496;435;496;False;False;True;False
-        +;Pin|2;435;496
-            -;Wire|7;End
-            -;Wire|8;Start
-        +;Wire|8;435;496;435;571;False;False;False;False
-        +;Wire|9;450;586;930;586;True;False;False;True
+    +;Solution|0;Tags0.txt;
+    +;Project|1
+    +;Diagram|2;1260;891;330;31;600;750;30;15;15;0;1
+    +;Input|23;30;181;0
+    -;Wire|26;Start
+    +;Input|24;30;241;1
+    -;Wire|28;Start
+    +;AndGate|25;420;391
+    -;Wire|31;End
+    -;Wire|33;Start
+    +;Wire|26;315;196;435;196;False;True;True;False
+    +;Pin|27;435;196
+    -;Wire|26;End
+    -;Wire|30;Start
+    +;Wire|28;315;256;435;256;False;False;True;False
+    +;Pin|29;435;256
+    -;Wire|28;End
+    -;Wire|30;End
+    -;Wire|31;Start
+    +;Wire|30;435;196;435;256;False;False;False;False
+    +;Wire|31;435;256;435;391;False;False;False;False
+    +;Output|32;930;391;3
+    -;Wire|33;End
+    +;Wire|33;450;406;930;406;False;False;False;True
+    +;Input|34;30;481;5
+    -;Wire|39;Start
+    +;Input|35;30;571;6
+    -;Wire|38;Start
+    +;OrGate|36;420;571
+    -;Wire|38;End
+    -;Wire|41;End
+    -;Wire|42;Start
+    +;Output|37;930;571;8
+    -;Wire|42;End
+    +;Wire|38;315;586;420;586;False;False;True;False
+    +;Wire|39;315;496;435;496;False;False;True;False
+    +;Pin|40;435;496
+    -;Wire|39;End
+    -;Wire|41;Start
+    +;Wire|41;435;496;435;571;False;False;False;False
+    +;Wire|42;450;586;930;586;True;False;False;True
 
   in result program produces the following diagram: <img src="http://i43.tinypic.com/nbzsp5.png" border="0">
 
