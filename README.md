@@ -9,7 +9,7 @@
 
 ## Example
 
-  Below you can find sample solution model `solution0.txt` created in editor:
+  Below you can find sample solution model `Solution0.txt` created in editor:
 
     +;Solution|0;Tags0.txt;
     +;Project|1
@@ -55,7 +55,7 @@
 
   in result program produces the following diagram: <img src="http://i43.tinypic.com/nbzsp5.png" border="0">
 
-  Tags are stored in external `tags0.txt` file:
+  Tags are stored in external `Tags0.txt` file:
 
     0;Designation0;Signal0;Condition0;Description0
     1;Designation1;Signal1;Condition1;Description1
