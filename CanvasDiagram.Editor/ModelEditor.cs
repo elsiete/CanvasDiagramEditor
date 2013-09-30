@@ -27,16 +27,14 @@ namespace CanvasDiagram.Editor
 
             foreach (var element in elements)
             {
-                double x = element.GetX();
-                double y = element.GetY();
                 string uid = element.GetUid();
 
                 if (IsWire(uid))
                     GenerateWire(sb, element, uid);
                 else if (IsInputOutput(uid))
-                    GenerateInputOutput(sb, element, x, y, uid);
+                    GenerateInputOutput(sb, element, element.GetX(), element.GetY(), uid);
                 else
-                    GenerateElement(sb, x, y, uid);
+                    GenerateElement(sb, element.GetX(), element.GetY(), uid);
 
                 GenerateChildren(sb, element);
             }
@@ -70,10 +68,7 @@ namespace CanvasDiagram.Editor
         private static void GenerateInputOutput(StringBuilder sb, IElement element, double x, double y, string uid)
         {
             var data = element.GetData();
-            Tag tag = null;
-
-            if (data != null && data is Tag)
-                tag = data as Tag;
+            Tag tag = (data != null && data is Tag) ? data as Tag : null;
 
             sb.Append(Constants.PrefixRoot);
             sb.Append(Constants.ArgumentSeparator);
@@ -119,8 +114,7 @@ namespace CanvasDiagram.Editor
             var tag = element.GetTag();
             if (tag != null && !(element is ILine))
             {
-                var connection = tag as Connection;
-                var wires = connection.Wires;
+                var wires = (tag as Connection).Wires;
 
                 foreach (var wire in wires)
                 {
@@ -210,7 +204,6 @@ namespace CanvasDiagram.Editor
         {
             var models = new List<string>();
             var solution = tree.GetItems().First();
-            var projects = solution.GetItems();
             string relativeTagFileName = tagFileName;
             string relativeTableFileName = tableFileName;
             var sb = new StringBuilder();
@@ -233,7 +226,7 @@ namespace CanvasDiagram.Editor
             sb.Append(relativeTableFileName);
             sb.Append(Environment.NewLine);
 
-            foreach (var project in projects)
+            foreach (var project in solution.GetItems())
                 sb.Append(GenerateProject(project, models, includeHistory));
 
             return new Solution(sb.ToString(), models);
@@ -243,7 +236,6 @@ namespace CanvasDiagram.Editor
             List<string> models,
             bool includeHistory)
         {
-            var diagrams = project.GetItems();
             var sb = new StringBuilder();
 
             sb.Append(Constants.PrefixRoot);
@@ -251,7 +243,7 @@ namespace CanvasDiagram.Editor
             sb.Append(project.GetUid());
             sb.Append(Environment.NewLine);
 
-            foreach (var diagram in diagrams)
+            foreach (var diagram in project.GetItems())
             {
                 if (diagram.GetTag() != null)
                 {
@@ -263,14 +255,11 @@ namespace CanvasDiagram.Editor
                         model = GenerateItemModel(null, diagram, true);
 
                     models.Add(model);
-
                     sb.Append(model);
 
                     if (includeHistory == true && history != null)
                     {
-                        var undo = history.Undo;
-
-                        foreach (var m in undo)
+                        foreach (var m in history.Undo)
                         {
                             models.Add(m);
                             sb.Append(m);
@@ -419,12 +408,10 @@ namespace CanvasDiagram.Editor
         public static void LoadFromTag(ICanvas canvas, IDiagramCreator creator, object tag)
         {
             var diagram = tag as Diagram;
-            var model = diagram.Model;
-            var history = diagram.History;
 
-            canvas.SetTag(history);
+            canvas.SetTag(diagram.History);
 
-            Parse(model,
+            Parse(diagram.Model,
                 canvas, creator,
                 0, 0,
                 false, true, false, true);
@@ -436,13 +423,9 @@ namespace CanvasDiagram.Editor
 
         public static void Store(ICanvas canvas, ITreeItem item)
         {
-            var uid = item.GetUid();
-            string model = null;
-
-            if (canvas == null)
-                model = GenerateItemModel(null, item, true);
-            else
-                model = GenerateDiagram(canvas, uid, canvas == null ? null : canvas.GetProperties());
+            string model = (canvas == null) ? 
+                GenerateItemModel(null, item, true) :
+                GenerateDiagram(canvas, item.GetUid(), canvas == null ? null : canvas.GetProperties());
   
             item.SetTag(new Diagram(model, canvas != null ? canvas.GetTag() as UndoRedo : null));
         } 
@@ -571,14 +554,9 @@ namespace CanvasDiagram.Editor
                 canvas.Add(element);
 
                 if (element is IThumb)
-                {
                     MoveElement(element, dX, dY);
-                }
-                else if (element is ILine)
-                {
-                    if (dX != 0.0 || dY != 0.0)
-                        MoveLine(element as ILine, dX, dY);
-                }
+                else if (element is ILine && (dX != 0.0 || dY != 0.0))
+                    MoveLine(element as ILine, dX, dY);
 
                 if (select == true)
                     element.SetSelected(true);
@@ -603,15 +581,13 @@ namespace CanvasDiagram.Editor
 
         public static void SetThumbsSelection(ICanvas canvas, bool isSelected)
         {
-            var thumbs = canvas.GetElements().OfType<IThumb>();
-            foreach (var thumb in thumbs)
+            foreach (var thumb in canvas.GetElements().OfType<IThumb>())
                 thumb.SetSelected(isSelected);
         }
 
         public static void SetLinesSelection(ICanvas canvas, bool isSelected)
         {
-            var lines = canvas.GetElements().OfType<ILine>();
-            foreach (var line in lines)
+            foreach (var line in canvas.GetElements().OfType<ILine>())
                 line.SetSelected(isSelected);
         }
 
@@ -643,9 +619,7 @@ namespace CanvasDiagram.Editor
                     SelectNone(canvas);
 
                     var visited = new HashSet<string>();
-
                     SelectConnected(element, visited);
-
                     visited = null;
                 }
             }
@@ -657,16 +631,14 @@ namespace CanvasDiagram.Editor
                 return;
 
             var tag = element.GetTag();
-            if (tag != null)
-            {
-                visited.Add(element.GetUid());
-                element.SetSelected(true);
+            if (tag == null)
+                return;
 
-                var wires = (tag as Connection).Wires;
+            visited.Add(element.GetUid());
+            element.SetSelected(true);
 
-                foreach (var wire in wires)
-                    SelectConnected(wire, element, visited);
-            }
+            foreach (var wire in (tag as Connection).Wires)
+                SelectConnected(wire, element, visited);
         }
 
         public static void SelectConnected(Wire wire, IElement root, HashSet<string> visited)
@@ -706,15 +678,14 @@ namespace CanvasDiagram.Editor
         public static void IdsAppend(IEnumerable<object> elements, IdCounter counter)
         {
             foreach (var element in elements.Cast<IElement>())
-            {
-                string[] uid = element.GetUid().Split(Constants.TagNameSeparator);
-                string type = uid[0];
-                int id = int.Parse(uid[1]);
-                int appendedId = counter.Next();
-                string appendedUid = string.Concat(type, Constants.TagNameSeparator, appendedId.ToString());
+                element.SetUid(GetUid(counter, element));
+        }
 
-                element.SetUid(appendedUid);
-            }
+        private static string GetUid(IdCounter counter, IElement element)
+        {
+            return string.Concat(element.GetUid().Split(Constants.TagNameSeparator)[0], 
+                Constants.TagNameSeparator, 
+                counter.Next().ToString());
         }
 
         public static void IdsUpdateCounter(IdCounter original, IdCounter counter)
@@ -734,11 +705,10 @@ namespace CanvasDiagram.Editor
                 if (element == null)
                     continue;
 
-                var pins = item.Value.Pins;
-
                 if (element.GetTag() == null)
                     element.SetTag(new Connection(element, new List<Wire>()));
 
+                var pins = item.Value.Pins;
                 if (pins.Count > 0)
                     UpdateWires(dict, element, pins);
             }
@@ -787,63 +757,42 @@ namespace CanvasDiagram.Editor
 
         private static void UpdateStartTag(IElement element, List<Wire> wires, object line)
         {
-            var wire = new Wire(line, element, null);
-
-            wires.Add(wire);
+            wires.Add(new Wire(line, element, null));
 
             var lineEx = line as ILine;
             if (lineEx.GetTag() != null)
             {
-                var endRoot = lineEx.GetTag() as IElement;
-                if (endRoot != null)
-                {
-                    // set line Tag as start & end of root element
-                    lineEx.SetTag(new Wire(lineEx, element, endRoot));
-                }
+                var root = lineEx.GetTag() as IElement;
+                if (root != null)
+                    lineEx.SetTag(new Wire(lineEx, element, root));
             }
             else
             {
-                // set line Tag as start root element
                 lineEx.SetTag(element);
             }
         }
 
         private static void UpdateEndTag(IElement element, List<Wire> wires, object line)
         {
-            var wire = new Wire(line, null, element);
-
-            wires.Add(wire);
+            wires.Add(new Wire(line, null, element));
 
             var lineEx = line as ILine;
             if (lineEx.GetTag() != null)
             {
-                var startRoot = lineEx.GetTag() as IElement;
-                if (startRoot != null)
-                {
-                    // set line Tag as start & end of root element
-                    lineEx.SetTag(new Wire(lineEx, startRoot, element));
-                }
+                var root = lineEx.GetTag() as IElement;
+                if (root != null)
+                    lineEx.SetTag(new Wire(lineEx, root, element));
             }
             else
             {
-                // set line Tag as end root element
                 lineEx.SetTag(element);
             }
         }
 
         public static void GetPinPosition(IElement root, IThumb pin, out double x, out double y)
         {
-            // get root position in canvas
-            double rx = root.GetX();
-            double ry = root.GetY();
-
-            // get pin position in canvas (relative to root)
-            double px = pin.GetX();
-            double py = pin.GetY();
-
-            // calculate real pin position
-            x = rx + px;
-            y = ry + py;
+            x = root.GetX() + pin.GetX();
+            y = root.GetY() + pin.GetY();
         }
 
         #endregion
@@ -879,8 +828,7 @@ namespace CanvasDiagram.Editor
 
         public static void DeleteEmptyPins(ICanvas canvas)
         {
-            var pins = FindEmptyPins(canvas);
-            foreach (var pin in pins)
+            foreach (var pin in FindEmptyPins(canvas))
                 canvas.Remove(pin);
         }
 
@@ -927,8 +875,7 @@ namespace CanvasDiagram.Editor
 
             foreach (var element in canvas.GetElements())
             {
-                var tag = element.GetTag();
-                if (tag != null && !(element is ILine))
+                if (element.GetTag() != null && !(element is ILine))
                     RemoveWireConnections(line, connections, element);
             }
 
@@ -973,11 +920,8 @@ namespace CanvasDiagram.Editor
 
             string uid = element.GetUid();
 
-            if (element is T && uid != null &&
-                StringUtil.StartsWith(uid, Constants.TagElementWire))
-            {
+            if (element is T && uid != null && StringUtil.StartsWith(uid, Constants.TagElementWire))
                 return element as T;
-            }
 
             return null;
         }
