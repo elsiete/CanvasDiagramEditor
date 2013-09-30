@@ -47,21 +47,17 @@ namespace CanvasDiagram.Editor
             var line = creator.CreateElement(Constants.TagElementWire,
                 new object[] 
                 {
-                    x, y,
-                    x, y,
+                    x, y, x, y,
                     false, false,
                     startIsIO, false,
                     counter.Next()
                 },
                 0.0, 0.0, false) as ILine;
 
-            // update connections
-            var wire = new Wire(line, root, null);
-            wires.Add(wire);
+            wires.Add(new Wire(line, root, null));
 
             canvas.Add(line);
 
-            // line Tag is start root element
             if (line != null || !(line is ILine))
                 line.SetTag(root);
 
@@ -75,7 +71,6 @@ namespace CanvasDiagram.Editor
             line.SetX2(x - margin.Left);
             line.SetY2(y - margin.Top);
 
-            // update IsEndIO flag
             string rootUid = root.GetUid();
 
             bool endIsIO = StringUtil.StartsWith(rootUid, Constants.TagElementInput) ||
@@ -83,22 +78,15 @@ namespace CanvasDiagram.Editor
 
             line.SetEndIO(endIsIO);
 
-            // update connections
             var wire = new Wire(line, null, root);
             wires.Add(wire);
 
-            // line Tag is start root element
             var lineTag = line.GetTag();
             if (lineTag != null)
             {
-                // line Tag is start root element
                 var start = lineTag as IElement;
                 if (start != null)
-                {
-                    // line Tag is start & end of root element
-                    // this Tag is used to find all connected elements
                     line.SetTag(new Wire(line, start, root));
-                }
             }
 
             return null;
@@ -115,45 +103,35 @@ namespace CanvasDiagram.Editor
             ILine currentLine,
             IDiagramCreator creator)
         {
-            var c1 = connections[0];
-            var c2 = connections[1];
-            var map1 = c1.Wires.FirstOrDefault();
-            var map2 = c2.Wires.FirstOrDefault();
-            var startRoot = (map1.Start != null ? map1.Start : map2.Start) as IElement;
-            var endRoot = (map1.End != null ? map1.End : map2.End) as IElement;
-            var location = GetLocation(map1, map2);
+            var wire1 = connections[0].Wires.FirstOrDefault();
+            var wire2 = connections[1].Wires.FirstOrDefault();
+            var startRoot = (wire1.Start != null ? wire1.Start : wire2.Start) as IElement;
+            var endRoot = (wire1.End != null ? wire1.End : wire2.End) as IElement;
 
-            if (location.Item1 != null && location.Item2 != null)
+            PointEx start;
+            PointEx end;
+            GetLocation(wire1, wire2, out start, out end);
+
+            if (start != null && end != null)
             {
-                PointEx start = location.Item1;
-                PointEx end = location.Item2;
-                double x1 = start.X;
-                double y1 = start.Y;
-                double x2 = x1 + end.X;
-                double y2 = y1 + end.Y;
-                bool isStartVisible = line.GetStartVisible();
-                bool isEndVisible = line.GetEndVisible();
-                bool isStartIO = line.GetStartIO();
-                bool isEndIO = line.GetEndIO();
-
-                var startLine = Connect(canvas, startRoot, currentLine, x1, y1, creator);
+                var startLine = Connect(canvas, startRoot, currentLine, start.X, start.Y, creator);
                 var splitLine = Connect(canvas, splitPin, startLine, x, y, creator);
                 var endLine = Connect(canvas, splitPin, splitLine, x, y, creator);
 
-                Connect(canvas, endRoot, endLine, x2, y2, creator);
+                Connect(canvas, endRoot, endLine, start.X + end.X, start.Y + end.Y, creator);
 
-                startLine.SetStartVisible(isStartVisible);
-                startLine.SetStartIO(isStartIO);
-                endLine.SetEndVisible(isEndVisible);
-                endLine.SetEndIO(isEndIO);
+                startLine.SetStartVisible(line.GetStartVisible());
+                startLine.SetStartIO(line.GetStartIO());
+                endLine.SetEndVisible(line.GetEndVisible());
+                endLine.SetEndIO(line.GetEndIO());
             }
             else
             {
-                throw new InvalidOperationException("LineEx should have corrent location info for Start and End.");
+                throw new InvalidOperationException("LineEx must have Start and End points.");
             }
         }
 
-        public static Tuple<PointEx, PointEx> GetLocation(Wire wire1, Wire wire2)
+        public static void GetLocation(Wire wire1, Wire wire2, out PointEx start, out PointEx end)
         {
             var line1 = wire1.Line as ILine;
             var start1 = wire1.Start;
@@ -161,28 +139,27 @@ namespace CanvasDiagram.Editor
             var line2 = wire2.Line as ILine;
             var start2 = wire2.Start;
             var end2 = wire2.End;
-            PointEx startPoint = null;
-            PointEx endPoint = null;
+
+            start = null;
+            end = null;
 
             if (start1 != null)
             {
                 var margin = line1.GetMargin();
-                startPoint = new PointEx(margin.Left, margin.Top);
+                start = new PointEx(margin.Left, margin.Top);
             }
 
             if (end1 != null)
-                endPoint = new PointEx(line1.GetX2(), line1.GetY2());
+                end = new PointEx(line1.GetX2(), line1.GetY2());
 
             if (start2 != null)
             {
                 var margin = line2.GetMargin();
-                startPoint = new PointEx(margin.Left,  margin.Top);
+                start = new PointEx(margin.Left,  margin.Top);
             }
 
             if (end2 != null)
-                endPoint = new PointEx(line2.GetX2(), line2.GetY2());
-
-            return new Tuple<PointEx, PointEx>(startPoint, endPoint);
+                end = new PointEx(line2.GetX2(), line2.GetY2());
         }
 
         #endregion
@@ -191,24 +168,17 @@ namespace CanvasDiagram.Editor
 
         public static bool Split(ICanvas canvas, ILine line, ILine currentLine, IPoint point, IDiagramCreator creator, bool snap)
         {
-            // create split pin
-            var splitPin = Insert.Pin(canvas, point, creator, snap);
+            var pin = Insert.Pin(canvas, point, creator, snap);
+            double x = pin.GetX();
+            double y = pin.GetY();
+            var temp = Connect(canvas, pin, currentLine, x, y, creator);
 
-            // connect current line to split pin
-            double x = splitPin.GetX();
-            double y = splitPin.GetY();
-
-            var temp = Connect(canvas, splitPin, currentLine, x, y, creator);
-
-            // remove original hit tested line
             canvas.Remove(line);
 
-            // remove wire connections
             var connections = ModelEditor.RemoveWireConnections(canvas, line);
 
-            // connected original root element to split pin
             if (connections != null && connections.Count == 2)
-                Reconnect(canvas, line, splitPin, x, y, connections, temp, creator);
+                Reconnect(canvas, line, pin, x, y, connections, temp, creator);
             else
                 throw new InvalidOperationException("LineEx should have only two connections: Start and End.");
 
