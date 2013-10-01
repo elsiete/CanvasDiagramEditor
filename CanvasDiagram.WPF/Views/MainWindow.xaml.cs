@@ -46,8 +46,6 @@ namespace CanvasDiagram.WPF
         private double PageWidth = 1260;
         private double PageHeight = 891;
 
-        private LineGuidesAdorner GuidesAdorner = null;
-
         private double GuideSpeedUpLevel1 = 1.0;
         private double GuideSpeedUpLevel2 = 2.0;
 
@@ -224,7 +222,6 @@ namespace CanvasDiagram.WPF
             ViewNextDiagramProjcet.Click += (sender, e) => TreeEditor.SelectNextItem(Editor.Context.CurrentTree, false);
             ViewPreviousDiagramSolution.Click += (sender, e) => TreeEditor.SelectPreviousItem(Editor.Context.CurrentTree, true);
             ViewNextDiagramSolution.Click += (sender, e) => TreeEditor.SelectNextItem(Editor.Context.CurrentTree, true);
-            ViewToggleGuides.Click += (sender, e) => ToggleGuides();
         }
 
         private void InitializeHelpMenuEvents()
@@ -243,33 +240,18 @@ namespace CanvasDiagram.WPF
         private void InitializeDiagramControl()
         {
             this.DiagramControl.Editor = this.Editor;
-            this.DiagramControl.ZoomSlider = this.ZoomSlider;
         }
 
         private void InitializeWindowEvents()
         {
             this.Loaded += (sender, e) =>
             {
-                this.DiagramControl.PanScrollViewer.Focus();
+                this.DiagramControl.Focus();
 
                 SetCurrentTable();
 
                 InitializeTagEditor();
                 InitializeTableEditor();
-            };
-
-            this.MouseMove += (sender, e) =>
-            {
-                if (GuidesAdorner != null)
-                {
-                    var canvas = this.DiagramControl.DiagramCanvas;
-                    var point = e.GetPosition(canvas);
-                    double x = Editor.SnapOffsetX(point.X, true);
-                    double y = Editor.SnapOffsetY(point.Y, true);
-
-                    GuidesAdorner.X = x;
-                    GuidesAdorner.Y = y;
-                }
             };
 
             this.PreviewKeyDown += (sender, e) =>
@@ -316,7 +298,7 @@ namespace CanvasDiagram.WPF
 
             // explorer control
             this.ExplorerControl.Editor = Editor;
-            this.ExplorerControl.DiagramView = this.DiagramControl.PanScrollViewer;
+            this.ExplorerControl.DiagramView = this.DiagramControl.RootBorder;
 
             // tree actions
             Editor.Context.CreateSolution = () => this.ExplorerControl.CreateTreeSolutionItem();
@@ -546,9 +528,6 @@ namespace CanvasDiagram.WPF
 
             Editor.SelectNone();
             Editor.MouseEventRightDown(canvas);
-
-            if (GuidesAdorner != null)
-                HideGuides();
         }
 
         private double CalculateMoveSpeedUp(int delta)
@@ -558,103 +537,29 @@ namespace CanvasDiagram.WPF
                 GuideSpeedUpLevel2 : 1.0;
         }
 
-        private void MoveUp(int timeStamp)
+        private void MoveUp()
         {
-            var canvas = Editor.Context.CurrentCanvas;
-
-            if (GuidesAdorner == null)
-            {
-                Editor.MoveUp(canvas);
-            }
-            else
-            {
-                double speedUp = CalculateMoveSpeedUp(timeStamp - Environment.TickCount);
-                var prop = Editor.Context.CurrentCanvas.GetProperties();
-                double y = GuidesAdorner.Y;
-
-                y -= prop.SnapY * speedUp;
-                if (y >= (prop.SnapOffsetY + prop.SnapY))
-                    GuidesAdorner.Y = y;
-            }
+            Editor.MoveUp(Editor.Context.CurrentCanvas);
         }
 
-        private void MoveDown(int timeStamp)
+        private void MoveDown()
         {
-            var canvas = Editor.Context.CurrentCanvas;
-
-            if (GuidesAdorner == null)
-            {
-                Editor.MoveDown(canvas);
-            }
-            else
-            {
-                double speedUp = CalculateMoveSpeedUp(timeStamp - Environment.TickCount);
-                var prop = Editor.Context.CurrentCanvas.GetProperties();
-                double y = GuidesAdorner.Y;
-
-                y += prop.SnapY * speedUp;
-                if (y <= canvas.GetHeight() - prop.SnapY - prop.SnapOffsetY)
-                    GuidesAdorner.Y = y;
-            }
+            Editor.MoveDown(Editor.Context.CurrentCanvas);
         }
 
-        private void MoveLeft(int timeStamp)
+        private void MoveLeft()
         {
-            var canvas = Editor.Context.CurrentCanvas;
-
-            if (GuidesAdorner == null)
-            {
-                Editor.MoveLeft(canvas);
-            }
-            else
-            {
-                double speedUp = CalculateMoveSpeedUp(timeStamp - Environment.TickCount);
-                var prop = Editor.Context.CurrentCanvas.GetProperties();
-                double x = GuidesAdorner.X;
-
-                x -= prop.SnapX * speedUp;
-                if (x >= (prop.SnapOffsetX + prop.SnapX))
-                    GuidesAdorner.X = x;
-            }
+            Editor.MoveLeft(Editor.Context.CurrentCanvas);
         }
 
-        private void MoveRight(int timeStamp)
+        private void MoveRight()
         {
-            var canvas = Editor.Context.CurrentCanvas;
-
-            if (GuidesAdorner == null)
-            {
-                Editor.MoveRight(canvas);
-            }
-            else
-            {
-                double speedUp = CalculateMoveSpeedUp(timeStamp - Environment.TickCount);
-                var prop = Editor.Context.CurrentCanvas.GetProperties();
-                double x = GuidesAdorner.X;
-
-                x += prop.SnapX * speedUp;
-                if (x <= canvas.GetWidth() - prop.SnapX - prop.SnapOffsetX)
-                    GuidesAdorner.X = x;
-            }
+            Editor.MoveRight(Editor.Context.CurrentCanvas);
         }
 
         private void Delete()
         {
-            if (GuidesAdorner == null)
-            {
-                Editor.Delete();
-            }
-            else
-            {
-                var canvas = Editor.Context.CurrentCanvas;
-                var elements = ModelEditor.GetSelected(canvas);
-
-                if (elements.Count() > 0)
-                    Editor.Delete(canvas, elements);
-                else
-                    Editor.Delete(canvas, GetInsertionPoint());
-            }
-
+            Editor.Delete();
             InitializeTagEditor();
         }
 
@@ -666,8 +571,7 @@ namespace CanvasDiagram.WPF
         {
             var canvas = Editor.Context.CurrentCanvas;
             bool isControl = Keyboard.Modifiers == ModifierKeys.Control;
-            bool canMove = e.OriginalSource is ScrollViewer;
-            int timeStamp = e.Timestamp;
+            bool canMove = e.OriginalSource is DiagramControl;
             var key = e.Key;
 
             if (isControl == true)
@@ -716,10 +620,10 @@ namespace CanvasDiagram.WPF
                     case Key.OemPipe: Editor.SelectConnected(); break;
                     case Key.Escape: DeselectAll(); break;
                     case Key.Delete: Delete(); break;
-                    case Key.Up: if (canMove == true) MoveUp(timeStamp); break;
-                    case Key.Down: if (canMove == true) MoveDown(timeStamp); break;
-                    case Key.Left: if (canMove == true) MoveLeft(timeStamp); break;
-                    case Key.Right: if (canMove == true) MoveRight(timeStamp); break;
+                    case Key.Up: if (canMove == true) { MoveUp(); e.Handled = true; } break;
+                    case Key.Down: if (canMove == true) { MoveDown(); e.Handled = true; } break;
+                    case Key.Left: if (canMove == true) { MoveLeft(); e.Handled = true; } break;
+                    case Key.Right: if (canMove == true) { MoveRight(); e.Handled = true; } break;
                     case Key.I: InsertInput(canvas, GetInsertionPoint()); break;
                     case Key.O: InsertOutput(canvas, GetInsertionPoint()); break;
                     case Key.R: InsertOrGate(canvas, GetInsertionPoint()); break;
@@ -727,7 +631,6 @@ namespace CanvasDiagram.WPF
                     case Key.S: Editor.ToggleWireStart(); break;
                     case Key.E: Editor.ToggleWireEnd(); break;
                     case Key.C: Connect(); break;
-                    case Key.G: ToggleGuides(); break;
                     case Key.OemComma: TreeEditor.SelectPreviousItem(Editor.Context.CurrentTree, false); break;
                     case Key.OemPeriod: TreeEditor.SelectNextItem(Editor.Context.CurrentTree, false); break;
                     case Key.F5: TabExplorer.IsSelected = true; break;
@@ -791,9 +694,8 @@ namespace CanvasDiagram.WPF
 
         private void DefaultZoom()
         {
-            LogBaseSlider.Value = 1.9;
-            ExpFactorSlider.Value = 1.3;
-            ZoomSlider.Value = 1.0;
+            DiagramControl.ResetZoom();
+            DiagramControl.ResetPan();
         }
 
         private void ResetZoom_Click(object sender, RoutedEventArgs e)
@@ -827,63 +729,6 @@ namespace CanvasDiagram.WPF
         private void UpdateGrid_Click(object sender, RoutedEventArgs e)
         {
             UpdateDiagramGrid(true);
-        }
-
-        #endregion
-
-        #region Guides
-
-        private void ToggleGuides()
-        {
-            if (GuidesAdorner == null)
-                ShowGuides();
-            else
-                HideGuides();
-        }
-
-        private void ShowGuides(double x, double y)
-        {
-            var canvas = DiagramControl.DiagramCanvas;
-            var adornerLayer = AdornerLayer.GetAdornerLayer(canvas);
-            GuidesAdorner = new LineGuidesAdorner(canvas);
-
-            RenderOptions.SetEdgeMode(GuidesAdorner, EdgeMode.Aliased);
-            GuidesAdorner.SnapsToDevicePixels = false;
-            GuidesAdorner.IsHitTestVisible = false;
-
-            double zoom = ZoomSlider.Value;
-            double zoom_fx = DiagramControl.CalculateZoom(zoom);
-
-            GuidesAdorner.StrokeThickness = 1.0 / zoom_fx;
-            GuidesAdorner.CanvasWidth = canvas.Width;
-            GuidesAdorner.CanvasHeight = canvas.Height;
-            GuidesAdorner.X = x;
-            GuidesAdorner.Y = y;
-
-            adornerLayer.Add(GuidesAdorner);
-
-            GuidesAdorner.Cursor = Cursors.None;
-            canvas.Cursor = Cursors.None;
-        }
-
-        private void ShowGuides()
-        {
-            var prop = Editor.Context.CurrentCanvas.GetProperties();
-            var point = GetInsertionPoint();
-            if (point == null)
-                ShowGuides(prop.SnapX + prop.SnapOffsetX, prop.SnapY + prop.SnapOffsetY);
-            else
-                ShowGuides(Editor.SnapOffsetX(point.X, true), Editor.SnapOffsetY(point.Y, true));
-        }
-
-        private void HideGuides()
-        {
-            var canvas = DiagramControl.DiagramCanvas;
-            var adornerLayer = AdornerLayer.GetAdornerLayer(canvas);
-            adornerLayer.Remove(GuidesAdorner);
-            GuidesAdorner = null;
-
-            canvas.Cursor = Cursors.Arrow;
         }
 
         #endregion
@@ -934,27 +779,17 @@ namespace CanvasDiagram.WPF
         {
             PointEx insertionPoint = null;
 
-            if (GuidesAdorner != null)
-            {
-                double x = GuidesAdorner.X;
-                double y = GuidesAdorner.Y;
+            var relativeTo = DiagramControl.DiagramCanvas;
+            var point = Mouse.GetPosition(relativeTo);
+            double x = point.X;
+            double y = point.Y;
+            double width = relativeTo.Width;
+            double height = relativeTo.Height;
 
+            if (x >= 0.0 && x <= width &&
+                y >= 0.0 && y <= height)
+            {
                 insertionPoint = new PointEx(x, y);
-            }
-            else
-            {
-                var relativeTo = DiagramControl.DiagramCanvas;
-                var point = Mouse.GetPosition(relativeTo);
-                double x = point.X;
-                double y = point.Y;
-                double width = relativeTo.Width;
-                double height = relativeTo.Height;
-
-                if (x >= 0.0 && x <= width &&
-                    y >= 0.0 && y <= height)
-                {
-                    insertionPoint = new PointEx(x, y);
-                }
             }
 
             return insertionPoint;
@@ -971,8 +806,7 @@ namespace CanvasDiagram.WPF
             var element = Insert.Input(canvas,
                 point != null ? point : InsertPointInput, Editor.Context.DiagramCreator, Editor.Context.EnableSnap);
 
-            if (GuidesAdorner == null)
-                Editor.SelectOneElement(element, true);
+            Editor.SelectOneElement(element, true);
         }
 
         private void InsertOutput(ICanvas canvas, PointEx point)
@@ -982,8 +816,7 @@ namespace CanvasDiagram.WPF
             var element = Insert.Output(canvas,
                 point != null ? point : InsertPointOutput, Editor.Context.DiagramCreator, Editor.Context.EnableSnap);
 
-            if (GuidesAdorner == null)
-                Editor.SelectOneElement(element, true);
+            Editor.SelectOneElement(element, true);
         }
 
         private void InsertOrGate(ICanvas canvas, PointEx point)
@@ -993,8 +826,7 @@ namespace CanvasDiagram.WPF
             var element = Insert.OrGate(canvas,
                 point != null ? point : InsertPointGate, Editor.Context.DiagramCreator, Editor.Context.EnableSnap);
 
-            if (GuidesAdorner == null)
-                Editor.SelectOneElement(element, true);
+            Editor.SelectOneElement(element, true);
         }
 
         private void InsertAndGate(ICanvas canvas, PointEx point)
@@ -1004,8 +836,7 @@ namespace CanvasDiagram.WPF
             var element = Insert.AndGate(canvas,
                 point != null ? point : InsertPointGate, Editor.Context.DiagramCreator, Editor.Context.EnableSnap);
 
-            if (GuidesAdorner == null)
-                Editor.SelectOneElement(element, true);
+            Editor.SelectOneElement(element, true);
         }
 
         #endregion
@@ -1133,31 +964,6 @@ namespace CanvasDiagram.WPF
             src.EndInit();
 
             return src;
-        }
-
-        #endregion
-
-        #region Slider Events
-
-        private void ZoomSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            if (this.IsLoaded == false)
-                return;
-
-            Editor.Context.ZoomLogBase = LogBaseSlider.Value;
-            Editor.Context.ZoomExpFactor = ExpFactorSlider.Value;
-
-            double zoom = ZoomSlider.Value;
-
-            zoom = Math.Round(zoom, 1);
-
-            if (e.OldValue != e.NewValue)
-            {
-                double zoom_fx = this.DiagramControl.Zoom(zoom);
-
-                if (GuidesAdorner != null)
-                    GuidesAdorner.StrokeThickness = 1.0 / zoom_fx;
-            }
         }
 
         #endregion

@@ -8,7 +8,11 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:controls="clr-namespace:CanvasDiagram.WPF.Controls;assembly=CanvasDiagram.WPF.Controls"
              mc:Ignorable="d" 
-             d:DesignHeight="891" d:DesignWidth="1260">
+             d:DesignHeight="891" d:DesignWidth="1260"
+             MouseMove="UserControl_MouseMove" 
+             MouseDown="UserControl_MouseDown" 
+             MouseUp="UserControl_MouseUp"
+             Focusable="True" FocusVisualStyle="{x:Null}">
 
     <UserControl.Resources>
 
@@ -30,75 +34,57 @@
 
     </UserControl.Resources>
 
-    <ScrollViewer x:Name="PanScrollViewer" 
-                  MouseMove="PanScrollViewer_MouseMove" 
-                  MouseDown="PanScrollViewer_MouseDown" 
-                  MouseUp="PanScrollViewer_MouseUp"
-                  FocusVisualStyle="{x:Null}"
-                  VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Hidden">
+    <Border x:Name="RootBorder" Background="Transparent" BorderThickness="0" BorderBrush="Transparent" ClipToBounds="True" PreviewMouseWheel="Border_PreviewMouseWheel">
 
-        <Border Background="Transparent" BorderThickness="0" BorderBrush="Transparent" ClipToBounds="True" PreviewMouseWheel="Border_PreviewMouseWheel">
+        <Grid x:Name="RootGrid" RenderTransformOrigin="0.0,0.0" Background="{DynamicResource LogicBackgroundColorKey}" ClipToBounds="False">
 
-            <Grid x:Name="RootGrid" RenderTransformOrigin="0.5,0.5" Background="{DynamicResource LogicBackgroundColorKey}" ClipToBounds="True">
+            <Grid.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform ScaleX="1" ScaleY="1"/>
+                    <SkewTransform/>
+                    <RotateTransform/>
+                    <TranslateTransform X="0" Y="0"/>
+                </TransformGroup>
+            </Grid.RenderTransform>
 
-                <Grid.LayoutTransform>
-                    <TransformGroup>
-                        <ScaleTransform ScaleX="1" ScaleY="1"/>
-                        <SkewTransform/>
-                        <RotateTransform/>
-                        <TranslateTransform X="0" Y="0"/>
-                    </TransformGroup>
-                </Grid.LayoutTransform>
+            <Canvas x:Name="DiagramBackgroud"
+                    Width="{Binding ElementName=DiagramCanvas, Path=Width}"
+                    Height="{Binding ElementName=DiagramCanvas, Path=Height}" 
+                    Grid.Column="0" Grid.Row="0"
+                    ClipToBounds="False"
+                    Background="{DynamicResource LogicBackgroundColorKey}"
+                    Visibility="Visible">
+            </Canvas>
 
-                <Grid.RenderTransform>
-                    <TransformGroup>
-                        <ScaleTransform ScaleX="1" ScaleY="1"/>
-                        <SkewTransform/>
-                        <RotateTransform/>
-                        <TranslateTransform X="0" Y="0"/>
-                    </TransformGroup>
-                </Grid.RenderTransform>
+            <Canvas x:Name="DiagramGrid"
+                    Width="{Binding ElementName=DiagramCanvas, Path=Width}"
+                    Height="{Binding ElementName=DiagramCanvas, Path=Height}" 
+                    Grid.Column="0" Grid.Row="0"
+                    ClipToBounds="False"
+                    Background="{DynamicResource LogicTransparentColorKey}">
+                <Path x:Name="PathGrid" Style="{StaticResource GridPathStyleKey}"/>
+            </Canvas>
 
-                <Canvas x:Name="DiagramBackgroud"
-                        Width="{Binding ElementName=DiagramCanvas, Path=Width}"
-                        Height="{Binding ElementName=DiagramCanvas, Path=Height}" 
-                        Grid.Column="0" Grid.Row="0"
-                        ClipToBounds="False"
-                        Background="{DynamicResource LogicBackgroundColorKey}"
-                        Visibility="Visible">
-                </Canvas>
+            <Control x:Name="DiagramTemplate" Template="{StaticResource LandscapePageTemplateKey}"/>
 
-                <Canvas x:Name="DiagramGrid"
-                        Width="{Binding ElementName=DiagramCanvas, Path=Width}"
-                        Height="{Binding ElementName=DiagramCanvas, Path=Height}" 
-                        Grid.Column="0" Grid.Row="0"
-                        ClipToBounds="False"
-                        Background="{DynamicResource LogicTransparentColorKey}">
-                    <Path x:Name="PathGrid" Style="{StaticResource GridPathStyleKey}"/>
-                </Canvas>
+            <controls:DiagramCanvas x:Name="DiagramCanvas"
+                                    Width="1260" Height="891" 
+                                    Grid.Column="0" Grid.Row="0"
+                                    Background="{DynamicResource LogicTransparentColorKey}" 
+                                    ContextMenu="{StaticResource DiagramCanvasContextMenuKey}"
+                                    AllowDrop="True"
+                                    MouseLeftButtonDown="Canvas_MouseLeftButtonDown"
+                                    MouseLeftButtonUp="Canvas_MouseLeftButtonUp"
+                                    PreviewMouseLeftButtonDown="Canvas_PreviewMouseLeftButtonDown"
+                                    MouseMove="Canvas_MouseMove"
+                                    PreviewMouseRightButtonDown="Canvas_PreviewMouseRightButtonDown"
+                                    ContextMenuOpening="Canvas_ContextMenuOpening"
+                                    Drop="DiagramCanvas_Drop"
+                                    DragEnter="DiagramCanvas_DragEnter">
+            </controls:DiagramCanvas>
 
-                <Control x:Name="DiagramTemplate" Template="{StaticResource LandscapePageTemplateKey}"/>
+        </Grid>
 
-                <controls:DiagramCanvas x:Name="DiagramCanvas"
-                                        Width="1260" Height="891" 
-                                        Grid.Column="0" Grid.Row="0"
-                                        Background="{DynamicResource LogicTransparentColorKey}" 
-                                        ContextMenu="{StaticResource DiagramCanvasContextMenuKey}"
-                                        AllowDrop="True"
-                                        MouseLeftButtonDown="Canvas_MouseLeftButtonDown"
-                                        MouseLeftButtonUp="Canvas_MouseLeftButtonUp"
-                                        PreviewMouseLeftButtonDown="Canvas_PreviewMouseLeftButtonDown"
-                                        MouseMove="Canvas_MouseMove"
-                                        PreviewMouseRightButtonDown="Canvas_PreviewMouseRightButtonDown"
-                                        ContextMenuOpening="Canvas_ContextMenuOpening"
-                                        Drop="DiagramCanvas_Drop"
-                                        DragEnter="DiagramCanvas_DragEnter">
-                </controls:DiagramCanvas>
-
-            </Grid>
-
-        </Border>
-
-    </ScrollViewer>
+    </Border>
 
 </UserControl>

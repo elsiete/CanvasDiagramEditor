@@ -31,10 +31,20 @@ namespace CanvasDiagram.WPF
         #region Properties
 
         public Action SelectionChanged { get; set; }
-
-        public Slider ZoomSlider { get; set; }
         public DiagramEditor Editor { get; set; }
         private SelectionAdorner Adorner { get; set; }
+
+        #endregion
+
+        #region Fields
+
+        public double DefaultLogicStrokeThickness = 1.0;
+        public double DefaultWireStrokeThickness = 2.0;
+        public double DefaultElementStrokeThickness = 2.0;
+        public double DefaultIOStrokeThickness = 2.0;
+        public double DefaultPageStrokeThickness = 1.0;
+
+        private double CurrentZoom = 1.0;
 
         #endregion
 
@@ -94,6 +104,13 @@ namespace CanvasDiagram.WPF
 
         #region Pan
 
+        public void ResetPan()
+        {
+            var st = GetZoomTranslateTransform();
+            st.X = 0.0;
+            st.Y = 0.0;
+        }
+
         private void BeginPan(Point point)
         {
             Editor.Context.PanStart = new PointEx(point.X, point.Y);
@@ -101,86 +118,38 @@ namespace CanvasDiagram.WPF
             Editor.Context.PreviousScrollOffsetY = -1.0;
 
             this.Cursor = Cursors.ScrollAll;
-            this.PanScrollViewer.CaptureMouse();
+            this.CaptureMouse();
         }
 
         private void EndPan()
         {
-            if (PanScrollViewer.IsMouseCaptured == true)
+            if (this.IsMouseCaptured == true)
             {
                 this.Cursor = Cursors.Arrow;
-                this.PanScrollViewer.ReleaseMouseCapture();
+                this.ReleaseMouseCapture();
             }
         }
 
         private void PanToPoint(Point point)
         {
-            /*
-            double dX = point.X - Editor.CurrentOptions.PanStart.X;
-            double dY = point.Y - Editor.CurrentOptions.PanStart.Y;
+            double dX = point.X - Editor.Context.PanStart.X;
+            double dY = point.Y - Editor.Context.PanStart.Y;
             var st = GetZoomTranslateTransform();
             st.X += dX;
             st.Y += dY;
-            Editor.CurrentOptions.PanStart = point;
-            */
-
-            double scrollOffsetX = point.X - Editor.Context.PanStart.X;
-            double scrollOffsetY = point.Y - Editor.Context.PanStart.Y;
-            double horizontalOffset = this.PanScrollViewer.HorizontalOffset;
-            double verticalOffset = this.PanScrollViewer.VerticalOffset;
-            double scrollableWidth = this.PanScrollViewer.ScrollableWidth;
-            double scrollableHeight = this.PanScrollViewer.ScrollableHeight;
-            double zoom = ZoomSlider.Value;
-
-            scrollOffsetX = Math.Round(horizontalOffset + (scrollOffsetX * 1.0) * Editor.Context.ReversePanDirection, 0);
-            scrollOffsetY = Math.Round(verticalOffset + (scrollOffsetY * 1.0) * Editor.Context.ReversePanDirection, 0);
-            scrollOffsetX = scrollOffsetX > scrollableWidth ? scrollableWidth : scrollOffsetX;
-            scrollOffsetY = scrollOffsetY > scrollableHeight ? scrollableHeight : scrollOffsetY;
-            scrollOffsetX = scrollOffsetX < 0 ? 0.0 : scrollOffsetX;
-            scrollOffsetY = scrollOffsetY < 0 ? 0.0 : scrollOffsetY;
-
-            if (scrollOffsetX != Editor.Context.PreviousScrollOffsetX)
-            {
-                this.PanScrollViewer.ScrollToHorizontalOffset(scrollOffsetX);
-                Editor.Context.PreviousScrollOffsetX = scrollOffsetX;
-            }
-
-            if (scrollOffsetY != Editor.Context.PreviousScrollOffsetY)
-            {
-                this.PanScrollViewer.ScrollToVerticalOffset(scrollOffsetY);
-                Editor.Context.PreviousScrollOffsetY = scrollOffsetY;
-            }
-
             Editor.Context.PanStart = new PointEx(point.X, point.Y);
-        }
-
-        private void PanToOffset(double offsetX, double offsetY)
-        {
-            double horizontalOffset = this.PanScrollViewer.HorizontalOffset;
-            double verticalOffset = this.PanScrollViewer.VerticalOffset;
-            double scrollableWidth = this.PanScrollViewer.ScrollableWidth;
-            double scrollableHeight = this.PanScrollViewer.ScrollableHeight;
-            double scrollOffsetX = Math.Round(horizontalOffset + offsetX, 0);
-            double scrollOffsetY = Math.Round(verticalOffset + offsetY, 0);
-
-            scrollOffsetX = scrollOffsetX > scrollableWidth ? scrollableWidth : scrollOffsetX;
-            scrollOffsetY = scrollOffsetY > scrollableHeight ? scrollableHeight : scrollOffsetY;
-            scrollOffsetX = scrollOffsetX < 0 ? 0.0 : scrollOffsetX;
-            scrollOffsetY = scrollOffsetY < 0 ? 0.0 : scrollOffsetY;
-
-            this.PanScrollViewer.ScrollToHorizontalOffset(scrollOffsetX);
-            this.PanScrollViewer.ScrollToVerticalOffset(scrollOffsetY);
         }
 
         #endregion
 
         #region Zoom
 
-        public double DefaultLogicStrokeThickness = 1.0;
-        public double DefaultWireStrokeThickness = 2.0;
-        public double DefaultElementStrokeThickness = 2.0;
-        public double DefaultIOStrokeThickness = 2.0;
-        public double DefaultPageStrokeThickness = 1.0;
+        public void ResetZoom()
+        {
+            var st = GetZoomScaleTransform();
+            st.ScaleX = 1.0;
+            st.ScaleY = 1.0;
+        }
 
         private void UpdateStrokeThickness(double zoom)
         {
@@ -193,8 +162,8 @@ namespace CanvasDiagram.WPF
 
         public double CalculateZoom(double x)
         {
-            double lb = Editor.Context.ZoomLogBase;
-            double ef = Editor.Context.ZoomExpFactor;
+            double lb = 1.9;
+            double ef = 1.3;
             double l = (lb == 1.0 || lb == 0.0) ? 1.0 : Math.Log(x, lb);
             double e = (ef == 0.0) ? 1.0 : Math.Exp(l / ef);
             double y = x + x * l * e;
@@ -206,102 +175,123 @@ namespace CanvasDiagram.WPF
             if (Editor == null || Editor.Context == null)
                 return 1.0;
 
-            double zoom_fx = CalculateZoom(zoom);
-
+            double czoom = CalculateZoom(zoom);
             var st = GetZoomScaleTransform();
+            double old = st.ScaleX;
 
-            double oldZoom = st.ScaleX; // ScaleX == ScaleY
+            st.ScaleX = czoom;
+            st.ScaleY = czoom;
 
-            st.ScaleX = zoom_fx;
-            st.ScaleY = zoom_fx;
+            UpdateStrokeThickness(czoom);
 
-            UpdateStrokeThickness(zoom_fx);
+            ZoomToPoint(czoom, old);
 
-            // zoom to point
-            ZoomToPoint(zoom_fx, oldZoom);
-
-            return zoom_fx;
+            return czoom;
         }
 
         private ScaleTransform GetZoomScaleTransform()
         {
-            //var tg = RootGrid.RenderTransform as TransformGroup;
-            var tg = RootGrid.LayoutTransform as TransformGroup;
+            var tg = RootGrid.RenderTransform as TransformGroup;
             var st = tg.Children.First(t => t is ScaleTransform) as ScaleTransform;
-
             return st;
         }
 
         private TranslateTransform GetZoomTranslateTransform()
         {
             var tg = RootGrid.RenderTransform as TransformGroup;
-            //var tg = RootGrid.LayoutTransform as TransformGroup;
-            var st = tg.Children.First(t => t is TranslateTransform) as TranslateTransform;
-
-            return st;
+            var tt = tg.Children.First(t => t is TranslateTransform) as TranslateTransform;
+            return tt;
         }
 
         private void ZoomToPoint(double zoom, double oldZoom)
         {
-            double offsetX = 0;
-            double offsetY = 0;
-            double scrollableWidth = this.PanScrollViewer.ScrollableWidth;
-            double scrollableHeight = this.PanScrollViewer.ScrollableHeight;
-            double scrollOffsetX = this.PanScrollViewer.HorizontalOffset;
-            double scrollOffsetY = this.PanScrollViewer.VerticalOffset;
-            double oldX = Editor.Context.ZoomPoint.X * oldZoom;
-            double oldY = Editor.Context.ZoomPoint.Y * oldZoom;
-            double newX = Editor.Context.ZoomPoint.X * zoom;
-            double newY = Editor.Context.ZoomPoint.Y * zoom;
+            var relative = Editor.Context.ZoomPoint;
+            var tt = GetZoomTranslateTransform();
 
-            offsetX = newX - oldX;
-            offsetY = newY - oldY;
+            double absoluteX = relative.X * oldZoom + tt.X;
+            double absoluteY = relative.Y * oldZoom + tt.Y;
 
-            if (scrollableWidth <= 0)
-                offsetX = 0.0;
-
-            if (scrollableHeight <= 0)
-                offsetY = 0.0;
-
-            PanToOffset(offsetX, offsetY);
+            tt.X = absoluteX - relative.X * zoom;
+            tt.Y = absoluteY - relative.Y * zoom;
 
             if (Adorner != null)
                 Adorner.Zoom = zoom;
         }
 
+        private void ZoomToFit(Size viewport, Size source)
+        {
+            var st = GetZoomScaleTransform();
+            var tt = GetZoomTranslateTransform();
+            double sX = viewport.Width / source.Width;
+            double sY = viewport.Height / source.Height;
+            double zoom = Math.Min(sX, sY);
+            double dXZoomed = viewport.Width - (source.Width * zoom);
+            double dYZoomed = viewport.Height - (source.Height * zoom);
+            double dX = viewport.Width - source.Width;
+            double dY = viewport.Height - source.Height;
+            double x = 0.0;
+            double y = 0.0;
+
+            if (source.Width >= viewport.Width && source.Height >= viewport.Height)
+            {
+                x = sX > sY ? dXZoomed / 2.0 : 0.0;
+                y = sX > sY ? 0.0 : dYZoomed / 2.0;
+            }
+            else
+            {
+                x = source.Width >= viewport.Width ? 0.0 : (dXZoomed - dX) / 2.0;
+                y = source.Height >= viewport.Height ? 0.0 : (dYZoomed - dY) / 2.0;
+            }
+
+            st.ScaleX = zoom;
+            st.ScaleY = zoom;
+            tt.X = x;
+            tt.Y = y;
+
+            UpdateStrokeThickness(zoom);
+
+            if (Adorner != null)
+                Adorner.Zoom = zoom;
+
+            CurrentZoom = 1.0;
+        }
+
+        public void ZoomToFit()
+        {
+            var viewport = new Size(this.ActualWidth + 0.0, this.ActualHeight + 0.0);
+            var source = new Size(this.DiagramCanvas.Width + 6.0, this.DiagramCanvas.Height + 6.0);
+            ZoomToFit(viewport, source);
+        }
+
         private void ZoomIn()
         {
-            double zoom = ZoomSlider.Value;
+            double zoom = CurrentZoom;
 
             zoom += Editor.Context.ZoomInFactor;
 
-            if (zoom >= ZoomSlider.Minimum && zoom <= ZoomSlider.Maximum)
-                ZoomSlider.Value = zoom;
+            if (zoom >= 0.1 && zoom <= 5.0)
+            {
+                CurrentZoom = zoom;
+                Zoom(zoom);
+            }
         }
 
         private void ZoomOut()
         {
-            double zoom = ZoomSlider.Value;
+            double zoom = CurrentZoom;
 
             zoom -= Editor.Context.ZoomOutFactor;
 
-            if (zoom >= ZoomSlider.Minimum && zoom <= ZoomSlider.Maximum)
-                ZoomSlider.Value = zoom;
+            if (zoom >= 0.1 && zoom <= 5.0)
+            {
+                CurrentZoom = zoom;
+                Zoom(zoom);
+            }
         }
 
         #endregion
 
-        #region Zoom Events
-
-        private void ZoomSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            double zoom = ZoomSlider.Value;
-
-            zoom = Math.Round(zoom, 1);
-
-            if (e.OldValue != e.NewValue)
-                Zoom(zoom);
-        }
+        #region Border Events
 
         private void Border_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
         {
@@ -326,23 +316,27 @@ namespace CanvasDiagram.WPF
 
         #endregion
 
-        #region PanScrollViewer Events
+        #region UserControl Events
 
-        private void PanScrollViewer_MouseDown(object sender, MouseButtonEventArgs e)
+        private void UserControl_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.ChangedButton == MouseButton.Middle)
+            if (e.ChangedButton == MouseButton.Middle && e.ClickCount == 1)
                 BeginPan(e.GetPosition(this));
+            else if (e.ChangedButton == MouseButton.Middle && e.ClickCount == 2)
+                ZoomToFit();
+
+            this.Focus();
         }
 
-        private void PanScrollViewer_MouseUp(object sender, MouseButtonEventArgs e)
+        private void UserControl_MouseUp(object sender, MouseButtonEventArgs e)
         {
             if (e.ChangedButton == MouseButton.Middle)
                 EndPan();
         }
 
-        private void PanScrollViewer_MouseMove(object sender, MouseEventArgs e)
+        private void UserControl_MouseMove(object sender, MouseEventArgs e)
         {
-            if (this.PanScrollViewer.IsMouseCaptured == true)
+            if (this.IsMouseCaptured == true)
                 PanToPoint(e.GetPosition(this));
         }
 
