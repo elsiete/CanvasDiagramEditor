@@ -133,12 +133,12 @@
     ']'         -> select next element
                    - use control Key to select many element
     '|'         -> select connected elements
-    Esc         -> deselect all/cancel connection/hide guides
+    Esc         -> deselect all and/or cancel connection
     Del         -> delete selected elements
-    Up Arrow    -> move selected elements/line guides up
-    Down Arrow  -> move selected elements/line guides down
-    Left Arrow  -> move selected elements/line guides left
-    Right Arrow -> move selected elements/line guides right
+    Up Arrow    -> move selected elements up
+    Down Arrow  -> move selected elements down
+    Left Arrow  -> move selected elements left
+    Right Arrow -> move selected elements right
     I           -> insert Input
     O           -> insert Output
     R           -> insert OrGate
@@ -146,7 +146,6 @@
     S           -> invert wire start
     E           -> invert wire end
     C           -> connect pins
-    G           -> toggle guides
     Ctrl+J      -> insert new solution tree item and paste from clipboard
                    - add new project to selected solution
                    - add new diagram to selected project
