@@ -45,7 +45,6 @@
     <Compile Include="DiagramCanvas.cs" />
     <Compile Include="ElementThumb.cs" />
     <Compile Include="LineEx.cs" />
-    <Compile Include="LineGuidesAdorner.cs" />
     <Compile Include="PinThumb.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SelectionAdorner.cs" />
