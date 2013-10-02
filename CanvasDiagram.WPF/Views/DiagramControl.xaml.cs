@@ -402,8 +402,8 @@ namespace CanvasDiagram.WPF
             var canvas = sender as DiagramCanvas;
             var point = e.GetPosition(canvas);
             var pin = (e.OriginalSource as FrameworkElement).TemplatedParent as IThumb;
-
             var result = Editor.MouseEventPreviewLeftDown(canvas, new PointEx(point.X, point.Y), pin);
+
             if (result == true)
                 e.Handled = true;
         }
@@ -516,18 +516,12 @@ namespace CanvasDiagram.WPF
 
         private void InvertStart_Click(object sender, RoutedEventArgs e)
         {
-            //var canvas = Editor.Context.CurrentCanvas;
-            //var point = new PointEx(Editor.Context.RightClick.X, Editor.Context.RightClick.Y);
-            //Editor.WireToggleStart(canvas, point);
             Editor.ToggleWireStart();
             Editor.Context.SkipLeftClick = false;
         }
 
         private void InvertEnd_Click(object sender, RoutedEventArgs e)
         {
-            //var canvas = Editor.Context.CurrentCanvas;
-            //var point = new PointEx(Editor.Context.RightClick.X, Editor.Context.RightClick.Y);
-            //Editor.WireToggleEnd(canvas, point);
             Editor.ToggleWireEnd();
             Editor.Context.SkipLeftClick = false;
         }
