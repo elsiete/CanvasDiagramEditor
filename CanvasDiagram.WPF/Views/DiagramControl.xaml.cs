@@ -570,11 +570,7 @@ namespace CanvasDiagram.WPF
 
         private TagDragAndDropType IsTagInputOrOutput(ICanvas canvas, IPoint point)
         {
-            double x = point.X;
-            var prop = canvas.GetProperties();
-            double half = (double)prop.PageWidth / 2.0;
-
-            if (x < half)
+            if (point.X < (double)canvas.GetProperties().PageWidth / 2.0)
                 return TagDragAndDropType.Input;
             else
                 return TagDragAndDropType.Output;  
