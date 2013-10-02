@@ -588,8 +588,8 @@ namespace CanvasDiagram.WPF
                     case Key.A: Editor.SelectAll(); break;
                     case Key.OemOpenBrackets: Editor.SelectPrevious(false); break;
                     case Key.OemCloseBrackets: Editor.SelectNext(false); break;
-                    case Key.J: CreateAndPaste(); break;
-                    case Key.M: Create(); break;
+                    case Key.J: Editor.CreateAndPaste(); break;
+                    case Key.M: Editor.Create(); break;
                     case Key.OemComma: TreeEditor.SelectPreviousItem(Editor.Context.CurrentTree, true); break;
                     case Key.OemPeriod: TreeEditor.SelectNextItem(Editor.Context.CurrentTree, true); break;
                     case Key.H: ShowDiagramHistory(); break;
@@ -626,24 +626,6 @@ namespace CanvasDiagram.WPF
             }
         }
 
-
-        #endregion
-
-        #region Create Tree Items
-
-        private TreeItemType Create()
-        {
-            return TreeEditor.AddNewItem(Editor.Context.CurrentTree,
-                Editor.Context.CreateProject,
-                Editor.Context.CreateDiagram,
-                Editor.Context.CurrentCanvas.GetCounter());
-        }
-
-        private void CreateAndPaste()
-        {
-            if (Create() == TreeItemType.Diagram)
-                Editor.Paste(new PointEx(0.0, 0.0), true);
-        }
 
         #endregion
 

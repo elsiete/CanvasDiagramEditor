@@ -510,6 +510,24 @@ namespace CanvasDiagram.Editor
 
         #endregion
 
+        #region Create
+
+        public TreeItemType Create()
+        {
+            return TreeEditor.AddNewItem(Context.CurrentTree,
+                Context.CreateProject,
+                Context.CreateDiagram,
+                Context.CurrentCanvas.GetCounter());
+        }
+
+        public void CreateAndPaste()
+        {
+            if (Create() == TreeItemType.Diagram)
+                Paste(new PointEx(0.0, 0.0), true);
+        }
+
+        #endregion
+
         #region Selection
 
         public IEnumerable<IElement> GetElementsSelected()
