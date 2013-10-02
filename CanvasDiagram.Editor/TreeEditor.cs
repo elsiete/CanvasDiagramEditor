@@ -260,7 +260,7 @@ namespace CanvasDiagram.Editor
             }
             else if (type == TreeItemType.Project)
             {
-                AddDiagram(selected, false, createDiagram, counter);
+                AddDiagram(selected, true, createDiagram, counter);
                 return TreeItemType.Diagram;
             }
             else if (type == TreeItemType.Solution)
