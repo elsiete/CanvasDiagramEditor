@@ -166,14 +166,13 @@ namespace CanvasDiagram.WPF
             double ef = 1.3;
             double l = (lb == 1.0 || lb == 0.0) ? 1.0 : Math.Log(x, lb);
             double e = (ef == 0.0) ? 1.0 : Math.Exp(l / ef);
-            double y = x + x * l * e;
-            return y;
+            return x + x * l * e;
         }
 
-        public double Zoom(double zoom)
+        public void Zoom(double zoom)
         {
             if (Editor == null || Editor.Context == null)
-                return 1.0;
+                return;
 
             double czoom = CalculateZoom(zoom);
             var st = GetZoomScaleTransform();
@@ -183,10 +182,7 @@ namespace CanvasDiagram.WPF
             st.ScaleY = czoom;
 
             UpdateStrokeThickness(czoom);
-
             ZoomToPoint(czoom, old);
-
-            return czoom;
         }
 
         private ScaleTransform GetZoomScaleTransform()
