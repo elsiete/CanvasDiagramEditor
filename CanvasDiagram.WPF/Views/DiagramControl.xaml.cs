@@ -261,9 +261,7 @@ namespace CanvasDiagram.WPF
 
         private void ZoomIn()
         {
-            double zoom = CurrentZoom;
-
-            zoom += Editor.Context.ZoomInFactor;
+            double zoom = CurrentZoom + Editor.Context.ZoomInFactor;
 
             if (zoom >= 0.1 && zoom <= 5.0)
             {
@@ -274,9 +272,7 @@ namespace CanvasDiagram.WPF
 
         private void ZoomOut()
         {
-            double zoom = CurrentZoom;
-
-            zoom -= Editor.Context.ZoomOutFactor;
+            double zoom = CurrentZoom - Editor.Context.ZoomOutFactor;
 
             if (zoom >= 0.1 && zoom <= 5.0)
             {
