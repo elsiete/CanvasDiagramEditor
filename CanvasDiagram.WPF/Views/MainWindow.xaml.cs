@@ -43,8 +43,8 @@ namespace CanvasDiagram.WPF
         private PointEx InsertPointOutput = new PointEx(930.0, 30.0);
         private PointEx InsertPointGate = new PointEx(325.0, 30.0);
 
-        private double PageWidth = 1260;
-        private double PageHeight = 891;
+        private double PageWidth = 1260.0;
+        private double PageHeight = 891.0;
 
         private double GuideSpeedUpLevel1 = 1.0;
         private double GuideSpeedUpLevel2 = 2.0;
@@ -249,7 +249,6 @@ namespace CanvasDiagram.WPF
                 this.DiagramControl.Focus();
 
                 SetCurrentTable();
-
                 InitializeTagEditor();
                 InitializeTableEditor();
             };
@@ -268,7 +267,6 @@ namespace CanvasDiagram.WPF
         {
             Editor = new DiagramEditor();
             Editor.Context = new Context();
-
             Editor.Context.CurrentTree = this.ExplorerControl.SolutionTree;
             Editor.Context.CurrentCanvas = this.DiagramControl.DiagramCanvas;
 
@@ -287,9 +285,7 @@ namespace CanvasDiagram.WPF
             Editor.Context.Clipboard = new WindowsClipboard();
 
             // diagram creator
-            var creator = GetDiagramCreator();
-
-            Editor.Context.DiagramCreator = creator;
+            Editor.Context.DiagramCreator = GetDiagramCreator();
 
             // set checkbox states
             EnableInsertLast.IsChecked = Editor.Context.EnableInsertLast;
@@ -483,10 +479,8 @@ namespace CanvasDiagram.WPF
         private void NewSolution()
         {
             UpdateSolutionState(false, null);
-
             SetProperties(DiagramProperties.Default);
             UpdateDiagramGrid(false);
-
 
             ModelEditor.Clear(Editor.Context.CurrentCanvas);
 
@@ -594,18 +588,8 @@ namespace CanvasDiagram.WPF
                     case Key.A: Editor.SelectAll(); break;
                     case Key.OemOpenBrackets: Editor.SelectPrevious(false); break;
                     case Key.OemCloseBrackets: Editor.SelectNext(false); break;
-                    case Key.J:
-                        {
-                            var type = TreeEditor.AddNewItem(Editor.Context.CurrentTree,
-                                Editor.Context.CreateProject,
-                                Editor.Context.CreateDiagram,
-                                Editor.Context.CurrentCanvas.GetCounter());
-
-                            if (type == TreeItemType.Diagram)
-                                Editor.Paste(new PointEx(0.0, 0.0), true);
-                        }
-                        break;
-                    case Key.M: TreeEditor.AddNewItem(Editor.Context.CurrentTree, Editor.Context.CreateProject, Editor.Context.CreateDiagram, Editor.Context.CurrentCanvas.GetCounter()); break;
+                    case Key.J: CreateAndPaste(); break;
+                    case Key.M: Create(); break;
                     case Key.OemComma: TreeEditor.SelectPreviousItem(Editor.Context.CurrentTree, true); break;
                     case Key.OemPeriod: TreeEditor.SelectNextItem(Editor.Context.CurrentTree, true); break;
                     case Key.H: ShowDiagramHistory(); break;
@@ -640,6 +624,25 @@ namespace CanvasDiagram.WPF
                     case Key.F9: TabOptions.IsSelected = true; break;
                 }
             }
+        }
+
+
+        #endregion
+
+        #region Create Tree Items
+
+        private TreeItemType Create()
+        {
+            return TreeEditor.AddNewItem(Editor.Context.CurrentTree,
+                Editor.Context.CreateProject,
+                Editor.Context.CreateDiagram,
+                Editor.Context.CurrentCanvas.GetCounter());
+        }
+
+        private void CreateAndPaste()
+        {
+            if (Create() == TreeItemType.Diagram)
+                Editor.Paste(new PointEx(0.0, 0.0), true);
         }
 
         #endregion
