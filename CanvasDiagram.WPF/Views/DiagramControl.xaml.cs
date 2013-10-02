@@ -43,7 +43,6 @@ namespace CanvasDiagram.WPF
         public double DefaultElementStrokeThickness = 2.0;
         public double DefaultIOStrokeThickness = 2.0;
         public double DefaultPageStrokeThickness = 1.0;
-
         private double CurrentZoom = 1.0;
 
         #endregion
@@ -61,8 +60,6 @@ namespace CanvasDiagram.WPF
 
         private void CreateAdorner(Canvas canvas, PointEx origin, PointEx point)
         {
-            var layer = AdornerLayer.GetAdornerLayer(canvas);
-
             Adorner = new SelectionAdorner(canvas);
             Adorner.Zoom = GetZoomScaleTransform().ScaleX;
             Adorner.SelectionOrigin = new Point(origin.X, origin.Y);
@@ -70,17 +67,13 @@ namespace CanvasDiagram.WPF
             Adorner.SnapsToDevicePixels = false;
 
             RenderOptions.SetEdgeMode(Adorner, EdgeMode.Aliased);
-
-            layer.Add(Adorner);
+            AdornerLayer.GetAdornerLayer(canvas).Add(Adorner);
             Adorner.InvalidateVisual();
         }
 
         private void RemoveAdorner(Canvas canvas)
         {
-            var layer = AdornerLayer.GetAdornerLayer(canvas);
-
-            layer.Remove(Adorner);
-
+            AdornerLayer.GetAdornerLayer(canvas).Remove(Adorner);
             Adorner = null;
         }
 
@@ -188,15 +181,13 @@ namespace CanvasDiagram.WPF
         private ScaleTransform GetZoomScaleTransform()
         {
             var tg = RootGrid.RenderTransform as TransformGroup;
-            var st = tg.Children.First(t => t is ScaleTransform) as ScaleTransform;
-            return st;
+            return tg.Children.First(t => t is ScaleTransform) as ScaleTransform;
         }
 
         private TranslateTransform GetZoomTranslateTransform()
         {
             var tg = RootGrid.RenderTransform as TransformGroup;
-            var tt = tg.Children.First(t => t is TranslateTransform) as TranslateTransform;
-            return tt;
+            return tg.Children.First(t => t is TranslateTransform) as TranslateTransform;
         }
 
         private void ZoomToPoint(double zoom, double oldZoom)
