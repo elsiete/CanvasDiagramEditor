@@ -19,6 +19,7 @@
 
         <ContextMenu x:Key="ProjectContextMenuKey">
             <MenuItem x:Name="ProjectAddDiagram" Header="Add _Diagram" InputGestureText="Ctrl+M" Click="ProjectAddDiagram_Click"/>
+            <MenuItem x:Name="ProjectAddDiagramAndPaste" Header="Add Diagram&amp;_Paste" InputGestureText="Ctrl+J" Click="ProjectAddDiagramAndPaste_Click"/>
             <Separator/>
             <MenuItem x:Name="SolutionDeleteProject" Header="De_lete" Click="SolutionDeleteProject_Click"/>
         </ContextMenu>

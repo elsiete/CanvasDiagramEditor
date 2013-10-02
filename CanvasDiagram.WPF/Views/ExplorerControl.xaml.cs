@@ -92,21 +92,17 @@ namespace CanvasDiagram.WPF
             if (Editor == null)
                 return;
 
-            var oldItem = e.OldValue as ITreeItem;
-            var newItem = e.NewValue as ITreeItem;
+            var type = TreeEditor.SwitchItems(Editor.Context.CurrentCanvas, 
+                Editor.Context.DiagramCreator, 
+                e.OldValue as ITreeItem, 
+                e.NewValue as ITreeItem, 
+                Editor.Context.SetProperties);
 
-            var canvas = Editor.Context.CurrentCanvas;
-            var creator = Editor.Context.DiagramCreator;
-
-            var type = TreeEditor.SwitchItems(canvas, creator, oldItem, newItem, Editor.Context.SetProperties);
-            if (type == TreeItemType.Diagram)
+            if (DiagramView != null)
             {
-                if (DiagramView != null)
+                if (type == TreeItemType.Diagram)
                     DiagramView.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                if (DiagramView != null)
+                else
                     DiagramView.Visibility = Visibility.Collapsed;
             }
         }
@@ -123,7 +119,6 @@ namespace CanvasDiagram.WPF
                 item.IsSelected = true;
                 item.Focus();
                 item.BringIntoView();
-
                 e.Handled = true;
             }
         }
@@ -134,55 +129,39 @@ namespace CanvasDiagram.WPF
 
         private void SolutionAddProject_Click(object sender, RoutedEventArgs e)
         {
-            var solution = SolutionTree.SelectedItem as SolutionTreeViewItem;
-            var context = Editor.Context;
-
-            TreeEditor.AddProject(solution, 
-                context.CreateProject, 
-                context.CurrentCanvas.GetCounter());
+            TreeEditor.AddProject(SolutionTree.SelectedItem as SolutionTreeViewItem, 
+                Editor.Context.CreateProject, 
+                Editor.Context.CurrentCanvas.GetCounter());
         }
 
         private void ProjectAddDiagram_Click(object sender, RoutedEventArgs e)
         {
-            var context = Editor.Context;
-            TreeEditor.AddNewItem(context.CurrentTree, 
-                context.CreateProject, 
-                context.CreateDiagram, 
-                context.CurrentCanvas.GetCounter());
+            Editor.Create();
+        }
+
+        private void ProjectAddDiagramAndPaste_Click(object sender, RoutedEventArgs e)
+        {
+            Editor.CreateAndPaste();
         }
 
         private void DiagramAddDiagram_Click(object sender, RoutedEventArgs e)
         {
-            var context = Editor.Context;
-            TreeEditor.AddNewItem(context.CurrentTree,
-                context.CreateProject,
-                context.CreateDiagram,
-                context.CurrentCanvas.GetCounter());
+            Editor.Create();
         }
 
         private void SolutionDeleteProject_Click(object sender, RoutedEventArgs e)
         {
-            var project = SolutionTree.SelectedItem as SolutionTreeViewItem;
-
-            TreeEditor.DeleteProject(project);
+            TreeEditor.DeleteProject(SolutionTree.SelectedItem as SolutionTreeViewItem);
         }
 
         private void DiagramDeleteDiagram_Click(object sender, RoutedEventArgs e)
         {
-            var diagram = SolutionTree.SelectedItem as SolutionTreeViewItem;
-
-            TreeEditor.DeleteDiagram(diagram);
+            TreeEditor.DeleteDiagram(SolutionTree.SelectedItem as SolutionTreeViewItem);
         }
 
         private void DiagramAddDiagramAndPaste_Click(object sender, RoutedEventArgs e)
         {
-            var type = TreeEditor.AddNewItem(Editor.Context.CurrentTree,
-                Editor.Context.CreateProject,
-                Editor.Context.CreateDiagram,
-                Editor.Context.CurrentCanvas.GetCounter());
-
-            if (type == TreeItemType.Diagram)
-                Editor.Paste(new PointEx(0.0, 0.0), true);
+            Editor.CreateAndPaste();
         }
 
         #endregion
