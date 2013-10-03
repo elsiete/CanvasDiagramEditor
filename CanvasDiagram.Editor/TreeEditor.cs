@@ -212,8 +212,7 @@ namespace CanvasDiagram.Editor
             IdCounter counter)
         {
             var selected = tree.GetSelectedItem() as ITreeItem;
-            string uid = selected.GetUid();
-            var type = GetTreeItemType(uid);
+            var type = GetTreeItemType(selected.GetUid());
 
             if (type == TreeItemType.Diagram)
             {
@@ -307,16 +306,16 @@ namespace CanvasDiagram.Editor
             Func<ITreeItem> createDiagram,
             IdCounter counter)
         {
-            var solutionItem = CreateSolutionItem(null, createSolution, counter);
-            tree.Add(solutionItem);
+            var solution = CreateSolutionItem(null, createSolution, counter);
+            tree.Add(solution);
 
-            var projectItem = CreateProjectItem(null, createProject, counter);
-            solutionItem.Add(projectItem);
+            var project = CreateProjectItem(null, createProject, counter);
+            solution.Add(project);
 
-            var diagramItem = CreateDiagramItem(null, createDiagram, counter);
-            projectItem.Add(diagramItem);
+            var diagram = CreateDiagramItem(null, createDiagram, counter);
+            project.Add(diagram);
 
-            diagramItem.SetSelected(true);
+            diagram.SetSelected(true);
         }
 
         #endregion
