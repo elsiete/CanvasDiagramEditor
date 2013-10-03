@@ -23,19 +23,11 @@ namespace CanvasDiagram.Editor
 
         public static TreeItemType GetTreeItemType(string uid)
         {
-            if (string.IsNullOrEmpty(uid))
-                return TreeItemType.None;
-
-            if (StringUtil.StartsWith(uid, Constants.TagHeaderSolution))
-                return TreeItemType.Solution;
-
-            if (StringUtil.StartsWith(uid, Constants.TagHeaderProject))
-                return TreeItemType.Project;
-
-            if (StringUtil.StartsWith(uid, Constants.TagHeaderDiagram))
-                return TreeItemType.Diagram;
-
-            return TreeItemType.None;
+            return string.IsNullOrEmpty(uid) ? TreeItemType.None :
+                StringUtil.StartsWith(uid, Constants.TagHeaderSolution) ? TreeItemType.Solution :
+                StringUtil.StartsWith(uid, Constants.TagHeaderProject) ? TreeItemType.Project :
+                StringUtil.StartsWith(uid, Constants.TagHeaderDiagram) ? TreeItemType.Diagram :
+                TreeItemType.None;
         }
 
         public static void SelectPreviousItem(ITree tree, bool selectParent)
