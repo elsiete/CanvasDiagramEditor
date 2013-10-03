@@ -258,45 +258,36 @@ namespace CanvasDiagram.Editor
 
         public static void DeleteSolution(ITreeItem solution)
         {
-            var tree = solution.GetParent() as ITree;
-            var projects = solution.GetItems().ToList();
+            foreach (var project in solution.GetItems().ToList())
+                DeleteProject(solution, project);
 
-            foreach (var project in projects)
-            {
-                var diagrams = project.GetItems().ToList();
-
-                foreach (var diagram in diagrams)
-                    project.Remove(diagram);
-
-                solution.Remove(project);
-            }
-
-            tree.Remove(solution as ITreeItem);
+            (solution.GetParent() as ITree).Remove(solution as ITreeItem);
         }
 
-        public static void DeleteProject(ITreeItem project)
+        public static void DeleteProject(ITreeItem solution, ITreeItem project)
         {
-            var solution = project.GetParent() as ITreeItem;
-            var diagrams = project.GetItems().ToList();
-
-            foreach (var diagram in diagrams)
+            foreach (var diagram in project.GetItems().ToList())
                 project.Remove(diagram);
 
             solution.Remove(project);
         }
 
+        public static void DeleteProject(ITreeItem project)
+        {
+            foreach (var diagram in project.GetItems().ToList())
+                project.Remove(diagram);
+
+            (project.GetParent() as ITreeItem).Remove(project);
+        }
+
         public static void DeleteDiagram(ITreeItem diagram)
         {
-            var project = diagram.GetParent() as ITreeItem;
-
-            project.Remove(diagram);
+            (diagram.GetParent() as ITreeItem).Remove(diagram);
         }
 
         public static void Clear(ITree tree)
         {
-            var items = tree.GetItems().ToList();
-
-            foreach (var item in items)
+            foreach (var item in tree.GetItems().ToList())
                 DeleteSolution(item);
         }
 
