@@ -179,10 +179,7 @@ namespace CanvasDiagram.Editor
         {
             var solution = createSolution();
 
-            if (uid == null)
-                solution.SetUid(Constants.TagHeaderSolution + Constants.TagNameSeparator + counter.Next().ToString());
-            else
-                solution.SetUid(uid);
+            solution.SetUid(uid == null ? Constants.TagHeaderSolution + Constants.TagNameSeparator + counter.Next().ToString() : uid);
 
             return solution;
         }
@@ -193,10 +190,7 @@ namespace CanvasDiagram.Editor
         {
             var project = createProject();
 
-            if (uid == null)
-                project.SetUid(Constants.TagHeaderProject + Constants.TagNameSeparator + counter.Next().ToString());
-            else
-                project.SetUid(uid);
+            project.SetUid(uid == null ? Constants.TagHeaderProject + Constants.TagNameSeparator + counter.Next().ToString() : uid);
 
             return project;
         }
@@ -207,10 +201,7 @@ namespace CanvasDiagram.Editor
         {
             var diagram = createDiagram();
 
-            if (uid == null)
-                diagram.SetUid(Constants.TagHeaderDiagram + Constants.TagNameSeparator + counter.Next().ToString());
-            else
-                diagram.SetUid(uid);
+            diagram.SetUid(uid == null ? Constants.TagHeaderDiagram + Constants.TagNameSeparator + counter.Next().ToString() : uid);
 
             return diagram;
         }
