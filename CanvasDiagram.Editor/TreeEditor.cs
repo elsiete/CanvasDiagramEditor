@@ -76,7 +76,6 @@ namespace CanvasDiagram.Editor
 
         public static void SelectPreviousParentItem(ITreeItem parent)
         {
-            // get parent of current project
             var parentParent = parent.GetParent() as ITreeItem;
             int parentIndex = parentParent.GetItemIndex(parent);
             int parentCount = parentParent.GetItemsCount();
@@ -87,12 +86,9 @@ namespace CanvasDiagram.Editor
 
         public static void SelectLastItemInPreviousProject(ITreeItem parentParent, int parentIndex)
         {
-            // get previous project
-            int index = parentIndex - 1;
-            var parentProject = parentParent.GetItem(index);
+            var parentProject = parentParent.GetItem(parentIndex - 1);
             int count = parentProject.GetItemsCount();
 
-            // select last item in previous project
             if (count > 0)
             {
                 var item = parentProject.GetItem(count - 1);
@@ -107,8 +103,7 @@ namespace CanvasDiagram.Editor
             // get current diagram
             var selected = tree.GetSelectedItem() as ITreeItem;
 
-            if (selected != null &&
-                StringUtil.StartsWith(selected.GetUid(), Constants.TagHeaderDiagram))
+            if (selected != null && StringUtil.StartsWith(selected.GetUid(), Constants.TagHeaderDiagram))
             {
                 // get current project
                 var parent = selected.GetParent() as ITreeItem;
@@ -140,7 +135,6 @@ namespace CanvasDiagram.Editor
 
         public static void SelectNextParentItem(ITreeItem parent)
         {
-            // get parent of current project
             var parentParent = parent.GetParent() as ITreeItem;
             int parentIndex = parentParent.GetItemIndex(parent);
             int parentCount = parentParent.GetItemsCount();
@@ -151,11 +145,8 @@ namespace CanvasDiagram.Editor
 
         public static void SelectFirstItemInNextProject(ITreeItem parentParent, int parentIndex)
         {
-            // get next project
-            int index = parentIndex + 1;
-            var parentProject = parentParent.GetItem(index);
+            var parentProject = parentParent.GetItem(parentIndex + 1);
 
-            // select first item in next project
             if (parentProject.GetItemsCount() > 0)
             {
                 var item = parentProject.GetItem(0);
@@ -173,12 +164,8 @@ namespace CanvasDiagram.Editor
             if (newItem == null)
                 return TreeItemType.None;
 
-            string oldUid = oldItem == null ? null : oldItem.GetUid();
-            string newUid = newItem == null ? null : newItem.GetUid();
-            bool isOldItemDiagram = oldUid == null ? false : StringUtil.StartsWith(oldUid, Constants.TagHeaderDiagram);
-            bool isNewItemDiagram = newUid == null ? false : StringUtil.StartsWith(newUid, Constants.TagHeaderDiagram);
-            var oldItemType = GetTreeItemType(oldUid);
-            var newItemType = GetTreeItemType(newUid);
+            var oldItemType = GetTreeItemType(oldItem == null ? null : oldItem.GetUid());
+            var newItemType = GetTreeItemType(newItem == null ? null : newItem.GetUid());
 
             if (oldItemType == TreeItemType.Diagram)
                 ModelEditor.Store(canvas, oldItem);
@@ -201,15 +188,9 @@ namespace CanvasDiagram.Editor
             var solution = createSolution();
 
             if (uid == null)
-            {
-                int id = counter.Next();
-
-                solution.SetUid(Constants.TagHeaderSolution + Constants.TagNameSeparator + id.ToString());
-            }
+                solution.SetUid(Constants.TagHeaderSolution + Constants.TagNameSeparator + counter.Next().ToString());
             else
-            {
                 solution.SetUid(uid);
-            }
 
             return solution;
         }
@@ -248,7 +229,6 @@ namespace CanvasDiagram.Editor
             IdCounter counter)
         {
             var selected = tree.GetSelectedItem() as ITreeItem;
-
             string uid = selected.GetUid();
             var type = GetTreeItemType(uid);
 
