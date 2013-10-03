@@ -99,12 +99,7 @@ namespace CanvasDiagram.WPF
                 Editor.Context.SetProperties);
 
             if (DiagramView != null)
-            {
-                if (type == TreeItemType.Diagram)
-                    DiagramView.Visibility = Visibility.Visible;
-                else
-                    DiagramView.Visibility = Visibility.Collapsed;
-            }
+                DiagramView.Visibility = (type == TreeItemType.Diagram) ? Visibility.Visible : Visibility.Collapsed;
         }
 
         #endregion
