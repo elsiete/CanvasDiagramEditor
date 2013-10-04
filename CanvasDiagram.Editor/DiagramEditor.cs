@@ -987,29 +987,25 @@ namespace CanvasDiagram.Editor
         public double SnapOffsetX(double original, bool snap)
         {
             var prop = Context.CurrentCanvas.GetProperties();
-            return snap == true ?
-                SnapUtil.Snap(original, prop.SnapX, prop.SnapOffsetX) : original;
+            return snap == true ? SnapUtil.Snap(original, prop.SnapX, prop.SnapOffsetX) : original;
         }
 
         public double SnapOffsetY(double original, bool snap)
         {
             var prop = Context.CurrentCanvas.GetProperties();
-            return snap == true ?
-                SnapUtil.Snap(original, prop.SnapY, prop.SnapOffsetY) : original;
+            return snap == true ? SnapUtil.Snap(original, prop.SnapY, prop.SnapOffsetY) : original;
         }
 
         public double SnapX(double original, bool snap)
         {
             var prop = Context.CurrentCanvas.GetProperties();
-            return snap == true ?
-                SnapUtil.Snap(original, prop.SnapX) : original;
+            return snap == true ? SnapUtil.Snap(original, prop.SnapX) : original;
         }
 
         public double SnapY(double original, bool snap)
         {
             var prop = Context.CurrentCanvas.GetProperties();
-            return snap == true ?
-                SnapUtil.Snap(original, prop.SnapY) : original;
+            return snap == true ? SnapUtil.Snap(original, prop.SnapY) : original;
         }
 
         #endregion
