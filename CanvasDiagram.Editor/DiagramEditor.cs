@@ -765,10 +765,9 @@ namespace CanvasDiagram.Editor
         {
             var connection = Context.CurrentRoot.GetTag() as Connection;
             var wires = connection.Wires;
-
             var last = wires.LastOrDefault();
-            wires.Remove(last);
 
+            wires.Remove(last);
             canvas.Remove(Context.CurrentLine);
         }
 
