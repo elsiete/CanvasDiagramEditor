@@ -168,5 +168,4 @@
 
 ## License 
 
-    Copyright (C) Wiesław Šoltés 2013. 
-    All Rights Reserved
+    Logic.WPF is licensed under the [MIT license](LICENSE.TXT).
