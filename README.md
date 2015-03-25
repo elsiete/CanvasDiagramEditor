@@ -168,4 +168,4 @@
 
 ## License 
 
-    Logic.WPF is licensed under the [MIT license](LICENSE.TXT).
+    CanvasDiagramEditor is licensed under the [MIT license](LICENSE.TXT).
