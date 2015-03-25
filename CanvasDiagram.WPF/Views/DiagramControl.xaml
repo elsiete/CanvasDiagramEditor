@@ -1,6 +1,5 @@
-﻿<!-- Copyright (C) Wiesław Šoltés 2013. -->
-<!-- All Rights Reserved -->
-    
+﻿<!-- Copyright (c) Wiesław Šoltés. All rights reserved. -->
+<!-- Licensed under the MIT license. See LICENSE file in the project root for full license information. -->
 <UserControl x:Class="CanvasDiagram.WPF.DiagramControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
