@@ -1,11 +1,11 @@
 ﻿<!-- Copyright (c) Wiesław Šoltés. All rights reserved. -->
 <!-- Licensed under the MIT license. See LICENSE file in the project root for full license information. -->
-<UserControl x:Class="CanvasDiagram.WPF.Elements.OrGateControl"
+<UserControl x:Class="CanvasDiagram.WPF.Elements.AndGateControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:controls="clr-namespace:CanvasDiagram.WPF.Controls;assembly=CanvasDiagram.WPF.Controls"
+             xmlns:controls="clr-namespace:CanvasDiagram.WPF.Controls"
              mc:Ignorable="d" 
              d:DesignHeight="30" d:DesignWidth="30">
 
@@ -14,11 +14,11 @@
         <Canvas x:Name="RootElement" Width="30" Height="30" Style="{StaticResource RootCanvasStyleKey}">
             <Path Data="M 0,0 L 30,0 M 0,30 L 30,30 M 0,0 L 0,30 M 30,0 L 30,30" Style="{StaticResource ElementPathStyleKey}"/>
             <Grid Width="30" Height="30">
-                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Text="≥1" Style="{StaticResource LogicTextStyleKey}"/>
+                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Text="&amp;" Style="{StaticResource LogicTextStyleKey}"/>
             </Grid>
         </Canvas>
 
-        <controls:PinThumb x:Name="LeftPin" Uid="LeftPin" Canvas.Left="0" Canvas.Top="15"
+        <controls:PinThumb x:Name="LeftPin"  Uid="LeftPin" Canvas.Left="0" Canvas.Top="15"
                            Template="{StaticResource PinThumbControlTemplateKey}"
                            Style="{StaticResource PinThumbStyleKey}"/>
 

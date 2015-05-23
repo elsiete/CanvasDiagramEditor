@@ -57,27 +57,152 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="DipUtil.cs" />
-    <Compile Include="DxfDiagramCreator.cs" />
-    <Compile Include="Elements\AndGateControl.xaml.cs">
+    <Compile Include="Controls\DiagramCanvas.cs" />
+    <Compile Include="Controls\ElementThumb.cs" />
+    <Compile Include="Controls\LineEx.cs" />
+    <Compile Include="Controls\PinThumb.cs" />
+    <Compile Include="Controls\SelectionAdorner.cs" />
+    <Compile Include="Controls\SolutionTreeView.cs" />
+    <Compile Include="Controls\SolutionTreeViewItem.cs" />
+    <Compile Include="Controls\TableGrid.cs" />
+    <Compile Include="Core\DiagramProperties.cs" />
+    <Compile Include="Core\ICanvas.cs" />
+    <Compile Include="Core\IClipboard.cs" />
+    <Compile Include="Core\IData.cs" />
+    <Compile Include="Core\IdCounter.cs" />
+    <Compile Include="Core\IElement.cs" />
+    <Compile Include="Core\ILine.cs" />
+    <Compile Include="Core\IMargin.cs" />
+    <Compile Include="Core\IPoint.cs" />
+    <Compile Include="Core\IRect.cs" />
+    <Compile Include="Core\ISelected.cs" />
+    <Compile Include="Core\ITag.cs" />
+    <Compile Include="Core\IThumb.cs" />
+    <Compile Include="Core\ITree.cs" />
+    <Compile Include="Core\ITreeItem.cs" />
+    <Compile Include="Core\IUid.cs" />
+    <Compile Include="Core\MarginEx.cs" />
+    <Compile Include="Core\ParseOptions.cs" />
+    <Compile Include="Core\PointEx.cs" />
+    <Compile Include="Core\RectEx.cs" />
+    <Compile Include="Core\Tag.cs" />
+    <Compile Include="Core\TreeItemType.cs" />
+    <Compile Include="Dxf\Blocks\DxfBlock.cs" />
+    <Compile Include="Dxf\Blocks\DxfBlocks.cs" />
+    <Compile Include="Dxf\Classes\DxfClass.cs" />
+    <Compile Include="Dxf\Classes\DxfClasses.cs" />
+    <Compile Include="Dxf\Core\CodeName.cs" />
+    <Compile Include="Dxf\Core\DxfObject.cs" />
+    <Compile Include="Dxf\Core\DxfRawTag.cs" />
+    <Compile Include="Dxf\Core\DxfUtil.cs" />
+    <Compile Include="Dxf\Core\SubclassMarker.cs" />
+    <Compile Include="Dxf\Core\Vector2.cs" />
+    <Compile Include="Dxf\Core\Vector3.cs" />
+    <Compile Include="Dxf\DxfFile.cs" />
+    <Compile Include="Dxf\DxfHeader.cs" />
+    <Compile Include="Dxf\DxfInspect.cs" />
+    <Compile Include="Dxf\Entities\Dxf3Dface.cs" />
+    <Compile Include="Dxf\Entities\DxfArc.cs" />
+    <Compile Include="Dxf\Entities\DxfAttdef.cs" />
+    <Compile Include="Dxf\Entities\DxfAttrib.cs" />
+    <Compile Include="Dxf\Entities\DxfCircle.cs" />
+    <Compile Include="Dxf\Entities\DxfDimension.cs" />
+    <Compile Include="Dxf\Entities\DxfEllipse.cs" />
+    <Compile Include="Dxf\Entities\DxfEntities.cs" />
+    <Compile Include="Dxf\Entities\DxfInsert.cs" />
+    <Compile Include="Dxf\Entities\DxfLine.cs" />
+    <Compile Include="Dxf\Entities\DxfLwpolyline.cs" />
+    <Compile Include="Dxf\Entities\DxfPoint.cs" />
+    <Compile Include="Dxf\Entities\DxfPolyline.cs" />
+    <Compile Include="Dxf\Entities\DxfShape.cs" />
+    <Compile Include="Dxf\Entities\DxfSolid.cs" />
+    <Compile Include="Dxf\Entities\DxfText.cs" />
+    <Compile Include="Dxf\Entities\DxfTrace.cs" />
+    <Compile Include="Dxf\Entities\DxfVertex.cs" />
+    <Compile Include="Dxf\Entities\DxfViewport.cs" />
+    <Compile Include="Dxf\Enums\DxfAcadVer.cs" />
+    <Compile Include="Dxf\Enums\DxfAppidStandardFlags.cs" />
+    <Compile Include="Dxf\Enums\DxfAttributeFlags.cs" />
+    <Compile Include="Dxf\Enums\DxfBlockTypeFlags.cs" />
+    <Compile Include="Dxf\Enums\DxfDefaultColors.cs" />
+    <Compile Include="Dxf\Enums\DxfDimstyleStandardFlags.cs" />
+    <Compile Include="Dxf\Enums\DxfDuplicateRecordCloningFlags.cs" />
+    <Compile Include="Dxf\Enums\DxfHorizontalTextJustification.cs" />
+    <Compile Include="Dxf\Enums\DxfLayerStandardFlags.cs" />
+    <Compile Include="Dxf\Enums\DxfLineWeight.cs" />
+    <Compile Include="Dxf\Enums\DxfLtypeStandardFlags.cs" />
+    <Compile Include="Dxf\Enums\DxfLwpolylineFlags.cs" />
+    <Compile Include="Dxf\Enums\DxfOrthographicType.cs" />
+    <Compile Include="Dxf\Enums\DxfOrthographicViewType.cs" />
+    <Compile Include="Dxf\Enums\DxfProxyCapabilitiesFlags.cs" />
+    <Compile Include="Dxf\Enums\DxfStyleFlags.cs" />
+    <Compile Include="Dxf\Enums\DxfTableStandardFlags.cs" />
+    <Compile Include="Dxf\Enums\DxfTextGenerationFlags.cs" />
+    <Compile Include="Dxf\Enums\DxfVerticalTextJustification.cs" />
+    <Compile Include="Dxf\Enums\DxfViewStandardFlags.cs" />
+    <Compile Include="Dxf\Enums\DxfVportStandardFlags.cs" />
+    <Compile Include="Dxf\Objects\DxfDictionary.cs" />
+    <Compile Include="Dxf\Objects\DxfObjects.cs" />
+    <Compile Include="Dxf\Tables\DxfAppid.cs" />
+    <Compile Include="Dxf\Tables\DxfBlockRecord.cs" />
+    <Compile Include="Dxf\Tables\DxfDimstyle.cs" />
+    <Compile Include="Dxf\Tables\DxfLayer.cs" />
+    <Compile Include="Dxf\Tables\DxfLtype.cs" />
+    <Compile Include="Dxf\Tables\DxfStyle.cs" />
+    <Compile Include="Dxf\Tables\DxfTables.cs" />
+    <Compile Include="Dxf\Tables\DxfUcs.cs" />
+    <Compile Include="Dxf\Tables\DxfView.cs" />
+    <Compile Include="Dxf\Tables\DxfVport.cs" />
+    <Compile Include="Editor\Constants.cs" />
+    <Compile Include="Editor\Context.cs" />
+    <Compile Include="Editor\DiagramEditor.cs" />
+    <Compile Include="Editor\HistoryEditor.cs" />
+    <Compile Include="Editor\Insert.cs" />
+    <Compile Include="Editor\LineUtil.cs" />
+    <Compile Include="Editor\ModelEditor.cs" />
+    <Compile Include="Editor\Parser.cs" />
+    <Compile Include="Editor\Table.cs" />
+    <Compile Include="Editor\Tags.cs" />
+    <Compile Include="Editor\TreeEditor.cs" />
+    <Compile Include="Editor\WireEditor.cs" />
+    <Compile Include="Core\Model\Child.cs" />
+    <Compile Include="Core\Model\Connection.cs" />
+    <Compile Include="Core\Model\Diagram.cs" />
+    <Compile Include="Core\Model\IDiagramCreator.cs" />
+    <Compile Include="Core\Model\IDiagramParser.cs" />
+    <Compile Include="Core\Model\Pin.cs" />
+    <Compile Include="Core\Model\Solution.cs" />
+    <Compile Include="Core\Model\TreeDiagram.cs" />
+    <Compile Include="Core\Model\TreeDiagrams.cs" />
+    <Compile Include="Core\Model\TreeProject.cs" />
+    <Compile Include="Core\Model\TreeProjects.cs" />
+    <Compile Include="Core\Model\TreeSolution.cs" />
+    <Compile Include="Core\Model\UndoRedo.cs" />
+    <Compile Include="Core\Model\Wire.cs" />
+    <Compile Include="Util\DipUtil.cs" />
+    <Compile Include="Util\DxfDiagramCreator.cs" />
+    <Compile Include="Controls\Elements\AndGateControl.xaml.cs">
       <DependentUpon>AndGateControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Elements\InputControl.xaml.cs">
+    <Compile Include="Controls\Elements\InputControl.xaml.cs">
       <DependentUpon>InputControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Elements\OrGateControl.xaml.cs">
+    <Compile Include="Controls\Elements\OrGateControl.xaml.cs">
       <DependentUpon>OrGateControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Elements\OutputControl.xaml.cs">
+    <Compile Include="Controls\Elements\OutputControl.xaml.cs">
       <DependentUpon>OutputControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Elements\PageControl.xaml.cs">
+    <Compile Include="Controls\Elements\PageControl.xaml.cs">
       <DependentUpon>PageControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Elements\PinControl.xaml.cs">
+    <Compile Include="Controls\Elements\PinControl.xaml.cs">
       <DependentUpon>PinControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ResourceConstants.cs" />
+    <Compile Include="Util\PathUtil.cs" />
+    <Compile Include="Util\ResourceConstants.cs" />
+    <Compile Include="Util\SnapUtil.cs" />
+    <Compile Include="Util\StringUtil.cs" />
     <Compile Include="Views\DiagramControl.xaml.cs">
       <DependentUpon>DiagramControl.xaml</DependentUpon>
     </Compile>
@@ -96,38 +221,42 @@
     <Compile Include="Views\TagEditorControl.xaml.cs">
       <DependentUpon>TagEditorControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="WindowsClipboard.cs" />
-    <Compile Include="WpfDiagramCreator.cs" />
-    <Compile Include="WpfDiagramPrinter.cs" />
+    <Compile Include="Util\WindowsClipboard.cs" />
+    <Compile Include="Util\WpfDiagramCreator.cs" />
+    <Compile Include="Util\WpfDiagramPrinter.cs" />
     <ApplicationDefinition Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Page Include="ElementsDictionary.xaml">
+    <Page Include="Dictionaries\BaseDictionary.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Elements\AndGateControl.xaml">
+    <Page Include="Dictionaries\ElementsDictionary.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Elements\InputControl.xaml">
+    <Page Include="Controls\Elements\AndGateControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Elements\OrGateControl.xaml">
+    <Page Include="Controls\Elements\InputControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Elements\OutputControl.xaml">
+    <Page Include="Controls\Elements\OrGateControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Elements\PageControl.xaml">
+    <Page Include="Controls\Elements\OutputControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Elements\PinControl.xaml">
+    <Page Include="Controls\Elements\PageControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\Elements\PinControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -185,34 +314,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CanvasDiagram.Core.Model\CanvasDiagram.Core.Model.csproj">
-      <Project>{4002f0b8-d9c8-4aac-8257-8f3f29137cbc}</Project>
-      <Name>CanvasDiagram.Core.Model</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\CanvasDiagram.Core\CanvasDiagram.Core.csproj">
-      <Project>{a6b6e7ba-9d5c-44f2-9d41-8451a95b7bde}</Project>
-      <Name>CanvasDiagram.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\CanvasDiagram.Dxf\CanvasDiagram.Dxf.csproj">
-      <Project>{8e424600-c315-4202-8e1e-c93699973ec1}</Project>
-      <Name>CanvasDiagram.Dxf</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\CanvasDiagram.Editor\CanvasDiagram.Editor.csproj">
-      <Project>{82ae0288-dd8a-45e9-9695-2a7bd0b1f6c5}</Project>
-      <Name>CanvasDiagram.Editor</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\CanvasDiagram.Util\CanvasDiagram.Util.csproj">
-      <Project>{2bfd4e03-45e2-4546-a343-b94b6640b912}</Project>
-      <Name>CanvasDiagram.Util</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\CanvasDiagram.WPF.Controls\CanvasDiagram.WPF.Controls.csproj">
-      <Project>{d8e53b21-939d-4bf6-95e0-98410cfa0396}</Project>
-      <Name>CanvasDiagram.WPF.Controls</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\CanvasDiagram.WPF.Resources\CanvasDiagram.WPF.Resources.csproj">
-      <Project>{ebc08054-f094-4ec9-813d-1d1447a3d6a9}</Project>
-      <Name>CanvasDiagram.WPF.Resources</Name>
-    </ProjectReference>
+    <Resource Include="Images\TransparentLogo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\WhiteLogo.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
