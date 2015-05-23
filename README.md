@@ -5,11 +5,11 @@
 ## About
 
   CanvasDiagramEditor is a small program for making simple logic diagrams
-  that are extremely simple and elegant. Be sure to view the `./Examples`.
+  that are extremely simple and elegant.
 
 ## Example
 
-  Below you can find sample solution model `Solution0.txt` created in editor:
+  Sample solution model `Solution0.txt` created in editor:
 
     +;Solution|0;Tags0.txt;
     +;Project|1
